@@ -26,9 +26,10 @@ export type UseProductContentStateResult = {
   content: ProductContentResolved | null
   loading: boolean
   saving: boolean
-  error: string | null
-  load: () => Promise<void>
-  save: (body: SaveProductContentBody) => Promise<void>
+  loadError: string | null
+  saveError: string | null
+  load: () => Promise<boolean>
+  save: (body: SaveProductContentBody) => Promise<boolean>
   clearError: () => void
 }
 
@@ -41,30 +42,35 @@ export function useProductContentState(
   const [content, setContent] = useState<ProductContentResolved | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [saving, setSaving] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
-  const load = useCallback(async (): Promise<void> => {
+  const load = useCallback(async (): Promise<boolean> => {
     setLoading(true)
-    setError(null)
+    setLoadError(null)
     try {
       const next = await getProductContent(options.productId, locale)
       setContent(next)
+      return true
     } catch (e: unknown) {
-      setError(toErrorMessage(e))
+      setLoadError(toErrorMessage(e))
+      return false
     } finally {
       setLoading(false)
     }
   }, [options.productId, locale])
 
   const save = useCallback(
-    async (body: SaveProductContentBody): Promise<void> => {
+    async (body: SaveProductContentBody): Promise<boolean> => {
       setSaving(true)
-      setError(null)
+      setSaveError(null)
       try {
         const next = await saveProductContent(options.productId, body, locale)
         setContent(next)
+        return true
       } catch (e: unknown) {
-        setError(toErrorMessage(e))
+        setSaveError(toErrorMessage(e))
+        return false
       } finally {
         setSaving(false)
       }
@@ -73,7 +79,8 @@ export function useProductContentState(
   )
 
   const clearError = useCallback((): void => {
-    setError(null)
+    setLoadError(null)
+    setSaveError(null)
   }, [])
 
   useEffect(() => {
@@ -87,7 +94,8 @@ export function useProductContentState(
     content,
     loading,
     saving,
-    error,
+    loadError,
+    saveError,
     load,
     save,
     clearError,

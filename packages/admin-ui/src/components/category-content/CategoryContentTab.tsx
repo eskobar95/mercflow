@@ -1,19 +1,22 @@
 import type { JSONContent } from "@tiptap/core"
-import { useCallback, useEffect, useId, useState } from "react"
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 
+import { ContentLocaleSwitcher } from "@/components/content-locale/ContentLocaleSwitcher"
+import { ContentLocaleUnsavedDialog } from "@/components/content-locale/ContentLocaleUnsavedDialog"
 import { ProductDescriptionEditor } from "@/components/product-content/ProductDescriptionEditor"
 import { SEOPreview } from "@/components/product-content/SEOPreview"
 import {
   EMPTY_TIPTAP_DOC,
   tiptapDocFromUnknown,
 } from "@/components/product-content/tiptapDoc"
-import { ContentLocaleSwitcher } from "@/components/content-locale/ContentLocaleSwitcher"
 import { Card } from "@/components/ui/Card"
 import {
   DEFAULT_CATEGORY_CONTENT_LOCALE,
   useCategoryContentState,
 } from "@/features/category-content"
 import { useAdminLocales, useContentLocale } from "@/features/content-locale"
+
+import { isCategoryContentDirty } from "./categoryContentDirty"
 
 const SEO_DESCRIPTION_MAX = 160
 
@@ -28,16 +31,40 @@ export function CategoryContentTab({
   categoryTitleFallback,
 }: CategoryContentTabProps): JSX.Element {
   const formId = useId()
+  const unsavedDialogRef = useRef<HTMLDialogElement>(null)
+  const pendingLocaleRef = useRef<string | null>(null)
+  const localeBeforeSwitchRef = useRef<string | null>(null)
+
   const { locales, loading: localesLoading, error: localesError } = useAdminLocales()
   const { activeLocaleCode, setActiveLocaleCode } = useContentLocale({
     locales,
-    preferredCode: DEFAULT_CATEGORY_CONTENT_LOCALE,
+    preferredCode: locales[0]?.code ?? DEFAULT_CATEGORY_CONTENT_LOCALE,
   })
-  const { content, loading, saving, error, save, load, clearError } =
-    useCategoryContentState({
-      categoryId,
-      locale: activeLocaleCode,
-    })
+
+  const completeLocaleSwitch = useCallback(
+    (next: string): void => {
+      if (next === activeLocaleCode) {
+        return
+      }
+      localeBeforeSwitchRef.current = activeLocaleCode
+      setActiveLocaleCode(next)
+    },
+    [activeLocaleCode, setActiveLocaleCode]
+  )
+
+  const {
+    content,
+    loading,
+    saving,
+    loadError,
+    saveError,
+    save,
+    load,
+    clearError,
+  } = useCategoryContentState({
+    categoryId,
+    locale: activeLocaleCode,
+  })
 
   const [descriptionJson, setDescriptionJson] = useState<JSONContent>(EMPTY_TIPTAP_DOC)
   const [seoTitle, setSeoTitle] = useState("")
@@ -58,16 +85,60 @@ export function CategoryContentTab({
     setValidationError(null)
   }, [loading, content])
 
-  const onSave = useCallback(async () => {
+  useEffect(() => {
+    if (loading || localesLoading) {
+      return
+    }
+    if (loadError !== null && localeBeforeSwitchRef.current !== null) {
+      const revertTo = localeBeforeSwitchRef.current
+      localeBeforeSwitchRef.current = null
+      if (activeLocaleCode !== revertTo) {
+        setActiveLocaleCode(revertTo)
+      }
+    }
+  }, [loading, localesLoading, loadError, activeLocaleCode, setActiveLocaleCode])
+
+  const isDirty = useMemo(
+    () =>
+      isCategoryContentDirty(content, {
+        descriptionJson,
+        seoTitle,
+        seoDescription,
+        ogImageId,
+        bannerImageId,
+      }),
+    [content, descriptionJson, seoTitle, seoDescription, ogImageId, bannerImageId]
+  )
+
+  const clearPendingLocale = useCallback((): void => {
+    pendingLocaleRef.current = null
+  }, [])
+
+  const requestLocaleChange = useCallback(
+    (next: string): void => {
+      if (next === activeLocaleCode) {
+        return
+      }
+      if (!isDirty) {
+        completeLocaleSwitch(next)
+        return
+      }
+      pendingLocaleRef.current = next
+      unsavedDialogRef.current?.showModal()
+    },
+    [activeLocaleCode, isDirty, completeLocaleSwitch]
+  )
+
+  const runSave = useCallback(async (): Promise<boolean> => {
     clearError()
     if (seoDescription.length > SEO_DESCRIPTION_MAX) {
       setValidationError(
         `SEO description must be at most ${SEO_DESCRIPTION_MAX} characters (currently ${seoDescription.length}).`
       )
-      return
+      return false
     }
     setValidationError(null)
-    await save({
+    return save({
       description_rich: descriptionJson,
       seo_title: seoTitle.trim() === "" ? null : seoTitle.trim(),
       seo_description: seoDescription.trim() === "" ? null : seoDescription.trim(),
@@ -84,21 +155,64 @@ export function CategoryContentTab({
     bannerImageId,
   ])
 
+  const onSave = useCallback(async () => {
+    void runSave()
+  }, [runSave])
+
   const onDiscard = useCallback(async () => {
     setValidationError(null)
     clearError()
     await load()
   }, [clearError, load])
 
+  const onDialogSave = useCallback(async () => {
+    const ok = await runSave()
+    if (!ok) {
+      return
+    }
+    const target = pendingLocaleRef.current
+    pendingLocaleRef.current = null
+    unsavedDialogRef.current?.close()
+    if (target !== null) {
+      completeLocaleSwitch(target)
+    }
+  }, [runSave, completeLocaleSwitch])
+
+  const onDialogDiscard = useCallback(async () => {
+    clearError()
+    const ok = await load()
+    if (!ok) {
+      return
+    }
+    const target = pendingLocaleRef.current
+    pendingLocaleRef.current = null
+    unsavedDialogRef.current?.close()
+    if (target !== null) {
+      completeLocaleSwitch(target)
+    }
+  }, [clearError, load, completeLocaleSwitch])
+
   const disabled = loading || saving
-  const localeSwitcherDisabled = disabled || localesLoading
+  const localeSwitcherDisabled = disabled || localesLoading || locales.length === 0
   const seoTooLong = seoDescription.length > SEO_DESCRIPTION_MAX
-  const bannerError = validationError ?? error
+  const bannerError = validationError ?? loadError ?? saveError
 
   const hasAnyImageId = ogImageId.trim() !== "" || bannerImageId.trim() !== ""
 
   return (
     <div className="space-y-6">
+      <ContentLocaleUnsavedDialog
+        dialogRef={unsavedDialogRef}
+        actionDisabled={loading || saving}
+        onSave={() => {
+          void onDialogSave()
+        }}
+        onDiscard={() => {
+          void onDialogDiscard()
+        }}
+        onClose={clearPendingLocale}
+      />
+
       <div aria-live="polite" className="sr-only">
         {saving ? "Saving category content." : ""}
       </div>
@@ -117,7 +231,8 @@ export function CategoryContentTab({
           role="alert"
           className="rounded-md border border-border-strong bg-surface-subtle px-3 py-2 text-sm text-content-danger"
         >
-          Could not load editing languages: {localesError}
+          Could not load the language list from Medusa. Check your connection and admin session,
+          then refresh. ({localesError})
         </div>
       ) : null}
 
@@ -132,8 +247,10 @@ export function CategoryContentTab({
         <ContentLocaleSwitcher
           locales={locales}
           value={activeLocaleCode}
-          onChange={setActiveLocaleCode}
+          onChange={requestLocaleChange}
           disabled={localeSwitcherDisabled}
+          localesLoading={localesLoading}
+          resolvedContentLocale={content?.locale ?? null}
         />
 
         <Card>

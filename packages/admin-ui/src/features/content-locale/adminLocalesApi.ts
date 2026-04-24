@@ -33,6 +33,8 @@ export async function listAdminLocales(
   const params = new URLSearchParams()
   params.set("limit", String(limit))
   params.set("offset", "0")
+  /** Oldest-first matches typical “default locale added first” ordering; Medusa has no `is_default` on AdminLocale. */
+  params.set("order", "created_at")
 
   const url = `${base}${ADMIN_LOCALES_LIST_PATH}?${params.toString()}`
   const response = await fetch(url, {

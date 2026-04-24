@@ -79,7 +79,7 @@ A file-level map of the shell versus follow-up layout work is in `LAYOUT-AUDIT.m
 
 ## Product content API (dev)
 
-- **Data layer:** `src/features/product-content/` — types, `getProductContent` / `saveProductContent`, and `useProductContentState` (explicit `loading`, `saving`, and `error`).
+- **Data layer:** `src/features/product-content/` — types, `getProductContent` / `saveProductContent`, and `useProductContentState` (`loading`, `saving`, separate **`loadError`** / **`saveError`**, `load` / `save` return **`Promise<boolean>`** for success, `clearError`).
 - **UI:** `src/components/product-content/` — TipTap v2 rich text (`description_rich` as JSON), SEO fields + preview, OG image id, sortable media ID list; composed on **`/products/:productId`** → **Content** tab. TipTap uses the standard extension set: `StarterKit`, `Link` (`openOnClick: false`), `Image`, `CharacterCount`.
 - **Env:** Copy `.env.example` to `.env.local` and set `VITE_MEDUSA_ADMIN_BACKEND_URL` to the Medusa backend (see `apps/backend` README, default `http://localhost:9000`). If the Vite origin is not allowed by `ADMIN_CORS` on the backend, either add it there or use a dev proxy.
 - **Auth:** Requests use `credentials: "include"` for session cookies. For cross-origin setups without cookies, set `VITE_MEDUSA_ADMIN_BEARER_TOKEN` locally (never commit real tokens).
@@ -87,18 +87,20 @@ A file-level map of the shell versus follow-up layout work is in `LAYOUT-AUDIT.m
 
 ## Category content API (dev)
 
-- **Data layer:** `src/features/category-content/` — types, `getCategoryContent` / `saveCategoryContent`, and `useCategoryContentState` with the same async surface as product (`loading`, `saving`, `error: string | null`, `load`, `save`, `clearError`, optional `loadOnMount`).
+- **Data layer:** `src/features/category-content/` — types, `getCategoryContent` / `saveCategoryContent`, and `useCategoryContentState` with the same async surface as product (`loading`, `saving`, `loadError`, `saveError`, `load` / `save` return `Promise<boolean>`, `clearError`, optional `loadOnMount`).
 - **HTTP:** `GET/POST /admin/product-categories/:id/content?locale=…` (default locale **`en`** on the client when omitted). **DTO delta vs product:** responses use `category_id` (not `product_id`), include **`banner_image_id`**, and **omit** `media_gallery` on save payloads (see `packages/content-module` README).
 - **Env / auth:** Same as product — `VITE_MEDUSA_ADMIN_BACKEND_URL`, `VITE_MEDUSA_ADMIN_BEARER_TOKEN`, `credentials: "include"` (see `.env.example`).
 - **UI:** `src/components/category-content/CategoryContentTab.tsx` — reuses product `ProductDescriptionEditor` / `SEOPreview`; banner and OG use single ID fields (no `media_gallery`). Includes **Discard changes** (reloads from API).
 
 ## Content editing locale (dev)
 
-- **Store locales:** Loaded from Medusa **`GET /admin/locales`** via `listAdminLocales` / `useAdminLocales`. Locale `code` values are BCP-47 and must match the `locale` query on MercFlow content APIs. Do not hardcode a production language list; add or enable locales in Medusa if the list is empty or outdated.
+- **Store locales:** Loaded from Medusa **`GET /admin/locales`** via `listAdminLocales` / `useAdminLocales`. Requests use **`order=created_at`** (oldest first). Medusa’s `AdminLocale` type has no `is_default` field; the **first row after that ordering** is used as the UI’s preferred code when the client fallback `en` is not in the list. Locale `code` values are BCP-47 and must match the `locale` query on MercFlow content APIs. Do not hardcode a production language list; add or enable locales in Medusa if the list is empty or outdated.
 - **State:** `src/features/content-locale/` — `useContentLocale` keeps the active editing code aligned with the list returned from the admin API (admin-only context; no store region or storefront language changes).
-- **UI:** `src/components/content-locale/ContentLocaleSwitcher.tsx` — token-backed control with an “Editing language” label, **Editing in …** hint, and a keyboard-friendly native `<select>`.
+- **UI:** `src/components/content-locale/ContentLocaleSwitcher.tsx` — token-backed control: “Editing language”, the **exact `locale` query code** in use, loading / empty-list status, and optional mismatch warning if the loaded content row’s `locale` differs from the switcher. Native `<select>` for keyboard support.
+- **Save before switch:** Unsaved MercFlow content (rich text, SEO, IDs, gallery/banner) opens **`ContentLocaleUnsavedDialog`** (`<dialog>`): **Save and switch**, **Discard and switch** (reloads current locale from the API), or **Cancel** / Escape. A failed save or discard **does not** change the active language. With no dirty fields, changing the switcher updates the locale immediately.
+- **Failed content load after a switch:** The tabs revert the switcher to the **previous** locale and surface **`loadError`** so a failed fetch is not treated as a successful switch.
 - **Shared HTTP:** `src/medusa-admin/medusaAdminFetch.ts` centralizes backend URL resolution, JSON headers, and response parsing for admin requests (product/category content APIs and the locale list).
-- **Tabs:** Product and category **Content** tabs render the switcher and pass the active code into `useProductContentState` / `useCategoryContentState` so reads and writes use `?locale=`. Changing locale refetches that locale from the API — save or **Discard** before switching if local edits must not be lost (see root `AGENTS.md`).
+- **Tabs:** Product and category **Content** tabs compose the switcher and pass the active code into `useProductContentState` / `useCategoryContentState` so reads and writes use `?locale=`. Product tab includes **Discard changes** like category. Core Medusa fields (title, handle, etc.) stay in Medusa’s own editors; MercFlow **Content** is for `description_rich`, SEO, and media/banner IDs per the content module README.
 
 ## Field notes
 
