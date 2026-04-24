@@ -2,7 +2,7 @@
 
 ## Responsibility
 
-This package is the **MercFlow admin user interface** — a Vite + React client that will grow into the forked, page-driven Medusa admin. **Batch 1 (this state)** includes: a **global admin shell** (sidebar, top bar, main column) with **token-backed** styling, **React Router** and lazy-loaded pages, `ErrorBoundary` and `Suspense` around the main outlet for view errors and async loading, and a home route that still hosts the **token integration proof** so new surface code stays on the design system. List views, entity routes, and Medusa data wiring land in follow-up work.
+This package is the **MercFlow admin user interface** — a Vite + React client that will grow into the forked, page-driven Medusa admin. **Batch 1 (this state)** includes: a **global admin shell** (sidebar, top bar, main column) with **token-backed** styling, **React Router** and lazy-loaded pages, `ErrorBoundary` and `Suspense` around the main outlet for view errors and async loading, a **reusable list layer** in `src/components/ui/list/`, a **`/list-demo` route** with mock data for that layer, a home route with the **token integration proof**, and the design system rules from `.cursor/rules/admin-ui.mdc`. Entity routes with real Medusa data land in follow-up work.
 
 ## What does *not* belong in this package
 
@@ -25,12 +25,18 @@ pnpm install
 pnpm --filter @mercflow/admin-ui dev
 ```
 
-Open the Vite dev URL printed in the terminal. The app loads the **admin shell**; the default route shows the **token integration proof** in the main column.
+Open the Vite dev URL printed in the terminal. The app loads the **admin shell**; the default route shows the **token integration proof** in the main column, and the sidebar includes **List demo** (`/list-demo`) for the list primitives.
+
+## List view primitives (Batch 1)
+
+- **Location:** `src/components/ui/list/`: `ListToolbar` (title, optional filter row), `DataTable` (sortable via header buttons, optional bulk select + row action dropdown from Radix, skeleton + empty), `ListPagination` (size + previous/next + status), `ListEmptyState`, `TableSkeleton`, `RowActionsMenu`, `ListSortLabel`, and typed column definitions in `types.ts` / `listSortState.ts`. All new chrome uses token-backed classes only.
+- **Demo:** `ListDemoPage` on `/list-demo` uses static mock rows (search, client-side sort, pagination, and mock “actions”). Use it to smoke test layout and a11y without a backend. Wire real fetches in later pages; keep filtering/sorting in the data layer of each route.
+- **Shell rule:** `DataTable` does not own API calls — parents pass rows, `sortState`, and selection setters, matching the `ListPage` split described in `admin-ui.mdc`.
 
 ## App shell and routing
 
 - **Entry:** `src/main.tsx` wraps the app in `BrowserRouter` and `React.StrictMode`.
-- **Routes:** `src/App.tsx` defines a layout route that renders `AdminShell` and a lazy-loaded `HomePage` for `/`.
+- **Routes:** `src/App.tsx` defines a layout route that renders `AdminShell` and lazy-loaded `HomePage` for `/` and `ListDemoPage` for `/list-demo`.
 - **Layout:** `src/components/layout/AdminShell.tsx` provides `AppSidebar`, `TopBar`, and a scrollable `<main id="main-content">` with a **skip link** to that region. The main area wraps `ErrorBoundary` and `Suspense` (fallback `MainLoadingFallback`) around `<Outlet />` so chrome stays on screen when a view fails or suspends.
 - **Pages** live under `src/pages/`. New routes should use `PageTransition` (see `.cursor/rules/admin-ui.mdc`) and token-backed classes only in chrome and content.
 
@@ -57,12 +63,12 @@ Vite output is written to `dist/` in this package (gitignored). The design-token
 
 ## Layout audit (Batch 1)
 
-A concrete file-level map of the current app shell versus the next global layout task is in **`LAYOUT-AUDIT.md`**.
+A file-level map of the shell versus follow-up layout work is in `LAYOUT-AUDIT.md`.
 
 ## Styling and tokens
 
 - Global styles: `src/index.css` — imports `@mercflow/design-tokens/mercflow-tokens.css` first, then Tailwind layers.
-- Tailwind theme extensions: `tailwind.config.ts` — maps `surface`, `content`, `border`, `interactive`, spacing, radius, shadows, and typography to **`var(--...)`** from the design token sheet (see `.cursor/rules/admin-ui.mdc` for naming alignment).
+- Tailwind theme extensions: `tailwind.config.ts` — maps `surface`, `content`, `border`, `interactive`, spacing, radius, shadows, and typography to `**var(--...)**` from the design token sheet (see `.cursor/rules/admin-ui.mdc` for naming alignment).
 - Components should use utilities such as `bg-surface-canvas`, `text-content-primary`, `border-border-default`, and interactive tokens — not raw hex in class names.
 
 ## Field notes

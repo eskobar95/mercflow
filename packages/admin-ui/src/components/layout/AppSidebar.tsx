@@ -28,6 +28,9 @@ export function AppSidebar(): JSX.Element {
         <NavLink to="/" className={navItemClass} end>
           Home
         </NavLink>
+        <NavLink to="/list-demo" className={navItemClass}>
+          List demo
+        </NavLink>
       </nav>
     </aside>
   )
