@@ -4,7 +4,7 @@ MercFlow is an opinionated [Medusa v2](https://docs.medusajs.com/) distribution:
 
 ## Repository state (bootstrap)
 
-**This working tree is a bootstrap checkout.** The intended MercFlow monorepo layout is **not** fully present here yet. To work on the actual packages and apps, you must **materialize** the monorepo source (for example by cloning, copying, or merging in the real project tree) so the paths below exist with real `package.json` files and code.
+**This repository uses a pnpm monorepo** with packages under `packages/` and `apps/backend` as the Medusa v2 app. If your checkout is still missing directories from the table below, add or materialize the tree before running installs.
 
 **Do not** modify Medusa core packages, vendored Medusa app sources, or files inside `node_modules`. All customization belongs in MercFlow-owned packages and in `apps/backend` registration.
 
@@ -19,16 +19,15 @@ MercFlow is an opinionated [Medusa v2](https://docs.medusajs.com/) distribution:
 | `apps/backend`            | Medusa v2 backend registering MercFlow modules |
 
 
-Until those directories exist, treat this table as the **target** layout, not a guarantee of the current tree.
+Use each path’s `README.md` for run instructions (`apps/backend` for the Medusa process and `pnpm dev:backend` from the root `package.json`).
 
-## Tooling and scripts (when the monorepo is present)
+## Tooling and scripts
 
-The MercFlow monorepo is expected to use **pnpm** workspaces. After you have a root `package.json` and `pnpm-workspace.yaml`, typical entry points are:
+The repo uses **pnpm** workspaces (`pnpm-workspace.yaml`).
 
-- **Install:** from the repository root, `pnpm install` (see root `package.json` when it exists).
-- **Build / typecheck / dev:** use scripts defined in the root `package.json` and in each package under `packages/`* and `apps/*`. Exact script names are defined there—not in this bootstrap README.
-
-**Current checkout:** a root `package.json` and workspace file may be absent. If they are missing, add them when you import the full monorepo; do not assume script names until those files exist.
+- **Install:** from the repository root, `pnpm install`.
+- **Medusa backend (dev):** `pnpm dev:backend` (runs `@mercflow/backend`).
+- **Build / other dev:** see root `package.json` and per-package READMEs.
 
 ## Local development database (PostgreSQL in Docker)
 
@@ -36,7 +35,7 @@ The MercFlow monorepo is expected to use **pnpm** workspaces. After you have a r
 
 - [Root `docker-compose.yml`](./docker-compose.yml) defines a single PostgreSQL 16 service with healthcheck and a named volume.
 - [`apps/backend/.env.example`](./apps/backend/.env.example) documents `DATABASE_URL` and other backend env variables for Medusa.
-- [`apps/backend/README.md`](./apps/backend/README.md) explains how to start the database, which variables to set, and how to run Medusa and module migrations once the real backend package exists.
+- [`apps/backend/README.md`](./apps/backend/README.md) explains how to run the backend, env vars, and migrations.
 
 ## Further documentation
 

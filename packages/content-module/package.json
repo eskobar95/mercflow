@@ -5,7 +5,9 @@
   "description": "MercFlow Medusa v2 custom module: native product and category content fields (DML, migrations, service).",
   "main": "src/modules/content/index.ts",
   "exports": {
-    ".": "./src/modules/content/index.ts"
+    ".": "./src/modules/content/index.ts",
+    "./mercflow-product-content-api": "./src/integrations/mercflow-product-content-api.ts",
+    "./mercflow-category-content-api": "./src/integrations/mercflow-category-content-api.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

@@ -1,56 +1,73 @@
-# MercFlow backend app
+# MercFlow backend (`@mercflow/backend`)
 
-**Medusa v2** application for MercFlow. It registers MercFlow modules (for example the content module) and hosts admin API and storefront API as configured. This directory is a **scaffold** for local development: the full Medusa app appears when the monorepo source is materialized. Until then, use this file for **local database and environment** expectations.
+Medusa v2 application for the MercFlow monorepo. It registers MercFlow packages (including **`@mercflow/content-module`**) and is the **canonical** process for admin API routes and `medusa develop` / `medusa start`.
 
-## What belongs here
+## Prerequisites
 
-- Medusa v2 app configuration and module registration for MercFlow packages.
-- No Guapo or other production shop-specific credentials.
-- No custom business logic that should live in `packages/content-module` or other modules; keep the app thin and delegate to modules.
+- Node.js 20+
+- PostgreSQL (local Docker is defined at the monorepo root: `docker compose up -d`)
 
-## Local PostgreSQL (Docker)
+## Quick start
 
-From the **repository root** (where `docker-compose.yml` lives):
+From the **repository root** after `pnpm install`:
 
-1. Start PostgreSQL: `docker compose up -d`
-2. Wait until the service is healthy (`docker compose ps`).
-
-**Defaults (development only, example-only secrets):**
-
-| Variable / setting | Value |
-|--------------------|--------|
-| Host (from host machine) | `localhost` |
-| Port | `5432` |
-| User | `mercflow` |
-| Password | `mercflow_dev` |
-| Database | `mercflow` |
-
-Connection string (same components as `.env.example`):
-
-`postgres://mercflow:mercflow_dev@localhost:5432/mercflow`
-
-Copy `.env.example` to `.env` in this directory and align `DATABASE_URL` if you change user, password, database name, or port in `docker-compose.yml`.
+1. Copy `.env.example` to `.env` in this directory and set `JWT_SECRET` / `COOKIE_SECRET` to non-default values for local use.
+2. Start Postgres if needed, then run migrations:  
+   `pnpm --filter @mercflow/backend db:migrate`
+3. Start the server:  
+   `pnpm --filter @mercflow/backend dev`  
+   or from the root:  
+   `pnpm dev:backend`  
+   Default Medusa port is **9000** unless your env overrides it.
 
 ## Environment
 
-- `DATABASE_URL` — PostgreSQL connection string for Medusa and MikroORM.
-- `JWT_SECRET` / `COOKIE_SECRET` — required by Medusa; set for local use (e.g. random strings). Do not reuse production values here.
+| Variable | Purpose |
+| --- | --- |
+| `DATABASE_URL` | PostgreSQL connection string (required) |
+| `JWT_SECRET` | Medusa HTTP auth (required for real use) |
+| `COOKIE_SECRET` | Medusa session cookies (required for real use) |
+| `STORE_CORS` | Optional; default `http://localhost:3000` in `medusa-config.ts` |
+| `ADMIN_CORS` | Optional; default `http://localhost:7001` |
+| `AUTH_CORS` | Optional; default `http://localhost:7001` |
+
+See `.env.example` for a template. Never commit `.env` or production secrets.
+
+## Registered modules
+
+- **`@mercflow/content-module`** — DML, services, and admin content routes. HTTP handlers are implemented in the package; this app re-exports them from `src/api/admin/.../route.ts` so Medusa’s file-based router discovers them from **this** app’s `src/api` tree.
 
 ## Migrations
 
-Run Medusa (and project) migrations **against the same database** as `DATABASE_URL` after the real backend package exists and dependencies are installed.
+Run against the same database as `DATABASE_URL`:
 
-Typical flow once `package.json` and the Medusa CLI are available in this app:
+```bash
+pnpm --filter @mercflow/backend db:migrate
+```
 
-1. `pnpm install` (from monorepo root, or as documented in the real repo).
-2. From `apps/backend` (or using workspace filter from root, as in the final monorepo): use the **Medusa database migrate** command provided by the Medusa v2 CLI for this project, for example:  
-   `pnpm exec medusa db:migrate`  
-   (Exact script may be a `package.json` script; follow the real `package.json` when the app is present.)
+For `pnpm db:revert`, use the same filter. To **generate** new migrations for the content module after DML changes, use `pnpm --filter @mercflow/content-module db:generate` (see the content module README). Do not run migration commands against production or staging from dev docs.
 
-**MercFlow `content-module` migrations** follow the monorepo’s migration workflow (for example a root or package script like `migration:run`); run those **after** the base Medusa database is reachable and the module is registered.
+## Typecheck
 
-If this directory does not yet contain a `package.json`, record the intended `DATABASE_URL` in `.env` when you add the app, then run the commands above when the Medusa app is in place.
+```bash
+pnpm --filter @mercflow/backend typecheck
+```
+
+## Smoke check (content API)
+
+With the server running, an authenticated admin request (session cookie, API key, or bearer per your Medusa setup) against:
+
+`GET http://localhost:9000/admin/products/<product_id>/content?locale=en`
+
+should return JSON `{ "content": ... }` (or `content: null` if no row). Replace `product_id` with a real id from your database.
+
+## What belongs here
+
+- Medusa configuration, module registration, and app-level `src/api` wiring only.
+- No Guapo or shop-specific production credentials.
+- No business logic that belongs in `packages/content-module` or other modules; keep the app thin.
 
 ## What does not belong here
 
-- Storefronts, payment or shipping Guapo production config, or secrets for non-local environments. Do not add staging or production connection strings to committed files.
+- Custom commerce logic that should live in a MercFlow module.
+- Storefront apps, or MercFlow `admin-ui` (separate package).

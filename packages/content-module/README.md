@@ -49,8 +49,9 @@ Table and column names follow DML; PostgreSQL types follow Medusa’s mapping.
 - `src/modules/content/migrations/` — generated migrations (do not hand-edit `up`/`down` bodies)
 - `src/modules/content/service.ts` — `MedusaService` and custom methods (retrieve/upsert per locale)
 - `src/modules/content/index.ts` — `Module("content", …)` export
-- `src/api/admin/.../content/route.ts` — admin HTTP routes (Medusa file-based API)
-- `medusa-config.ts` — local harness so Medusa CLI can run in this package (migrations, optional local server)
+- `src/api/admin/.../content/route.ts` — admin HTTP route implementations (Medusa file-based API)
+- `src/integrations/mercflow-*-content-api.ts` — thin re-exports of those routes for `apps/backend` (see below)
+- `medusa-config.ts` — optional local harness in this package only (CLI: `db:generate`, experiments). **Prefer** `apps/backend` for running the full app and migrations in day-to-day dev.
 
 ## Registering the module in an app
 
@@ -65,7 +66,14 @@ modules: [
 ],
 ```
 
-**API routes and process root:** Medusa loads HTTP routes from the application’s `src/api` tree (and from registered plugins). When you run `medusa develop` with **cwd** = `packages/content-module`, the routes under this package’s `src/api` are the project’s `src/api` and are active. A separate app such as `apps/backend` will need to **mirror** this `src/api` path under its own `src/api` in a follow-up (for example re-exporting handlers from this package) so the same routes are registered. Keep this in mind for backend wiring tasks.
+### MercFlow `apps/backend` (canonical)
+
+The monorepo includes `@mercflow/backend` under `apps/backend`, which registers this module and exposes the admin content API. Medusa only loads `src/api` from the **process working directory** of the running app, so route **handlers** live in this package, while `apps/backend` contains **thin re-exports**:
+
+- `apps/backend/src/api/admin/products/[id]/content/route.ts` re-exports `GET` / `POST` from `@mercflow/content-module/mercflow-product-content-api`
+- `apps/backend/src/api/admin/product-categories/[id]/content/route.ts` re-exports from `@mercflow/content-module/mercflow-category-content-api`
+
+Run the server from `apps/backend` (see that package’s README). Do not duplicate handler logic in the app.
 
 ## Admin API
 
@@ -100,20 +108,24 @@ curl -sS -X POST -H "Authorization: Bearer TOKEN" -H "Content-Type: application/
 
 ## Migration workflow (development)
 
-1. Start PostgreSQL (e.g. `docker compose` at the monorepo root, or any reachable instance). Set `DATABASE_URL` (see `.env.example`).
-2. From `packages/content-module` after `pnpm install` at the repo root:
+1. Start PostgreSQL (e.g. `docker compose` at the monorepo root). Set `DATABASE_URL` in `apps/backend/.env` (see `apps/backend/.env.example`).
+2. **Apply migrations (normal dev):** from the repo root, use the backend app so Medusa and module registration match production:
 
    ```bash
-   pnpm db:generate
-   pnpm db:migrate
-   pnpm db:revert
+   pnpm --filter @mercflow/backend db:migrate
    ```
 
-3. `db:generate` uses the local `medusa-config.ts` and the module key `content` (see `db:generate` script).
+3. **Generate a new migration after DML changes** (still from this package, module key `content`):
 
-**Important:** `pnpm db:migrate` run from this package loads the Medusa application defined by the local `medusa-config` and, with the current Medusa 2.14.1 stack, can apply **core** Medusa module migrations in addition to this module. Use a **dedicated local or disposable database** when iterating on this package alone. When `apps/backend` is the canonical app, prefer running `medusa db:migrate` from that app so migration scope matches the deployed process.
+   ```bash
+   pnpm --filter @mercflow/content-module db:generate
+   ```
 
-**Revert:** `pnpm db:revert` rolls back the last migration batch per Medusa; follow Medusa’s docs for your version.
+4. **Revert (local only):** `pnpm --filter @mercflow/backend db:revert` or the content-module filter—follow Medusa’s behaviour for the last batch.
+
+**Throwaway / package-only database:** `pnpm --filter @mercflow/content-module db:migrate` uses this package’s `medusa-config.ts` and, with Medusa 2.14.1, can apply **core** commerce migrations in addition to this module. Use only a **disposable** database for that. Do **not** run migrations against production or staging from this document.
+
+**Isolated check for this package:** `pnpm --filter @mercflow/content-module typecheck` (DML, service, routes, integrations; generated migration files are excluded from `tsc`—see `tsconfig.json`).
 
 ## Scripts
 
