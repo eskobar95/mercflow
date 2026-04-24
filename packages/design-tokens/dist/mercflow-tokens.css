@@ -89,4 +89,6 @@
   --z-modal: 1050;
   --z-popover: 1060;
   --z-toast: 1080;
+  --motion-duration-page: 200ms;
+  --motion-easing-page: cubic-bezier(0.2, 0, 0, 1);
 }

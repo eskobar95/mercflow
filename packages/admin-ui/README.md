@@ -44,7 +44,7 @@ Open the Vite dev URL printed in the terminal. The app loads the **admin shell**
 - **Entry:** `src/main.tsx` wraps the app in `BrowserRouter` and `React.StrictMode`.
 - **Routes:** `src/App.tsx` defines a layout route that renders `AdminShell` and lazy routes: `HomePage` (`/`), `ProductListPage` (`/products`), `ProductCategoryListPage` (`/product-categories`), `ListDemoPage` (`/list-demo`).
 - **Layout:** `src/components/layout/AdminShell.tsx` provides `AppSidebar`, `TopBar`, and a scrollable `<main id="main-content">` with a **skip link** to that region. The main area wraps `ErrorBoundary` and `Suspense` (fallback `MainLoadingFallback`) around `<Outlet />` so chrome stays on screen when a view fails or suspends.
-- **Pages** live under `src/pages/`. New routes should use `PageTransition` (see `.cursor/rules/admin-ui.mdc`) and token-backed classes only in chrome and content.
+- **Pages** live under `src/pages/`. Route-level transitions are applied once in `AdminShell` around `<Outlet />` via `PageTransition` (see `.cursor/rules/admin-ui.mdc`); page files render content only. Use token-backed classes in chrome and content.
 
 **Deployment note:** Client-side routes require the host to serve `index.html` for unknown paths (Vite’s dev server and `vite preview` do this; configure static hosting accordingly in production).
 

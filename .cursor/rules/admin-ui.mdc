@@ -104,21 +104,7 @@ Use a modal only for:
 
 ### Page transitions
 
-All page navigations use a consistent transition. Apply the `PageTransition` wrapper component to every page-level component:
-
-```tsx
-import { PageTransition } from "@/components/ui/PageTransition"
-
-export const ProductPage = () => {
-  return (
-    <PageTransition>
-      {/* page content */}
-    </PageTransition>
-  )
-}
-```
-
-Do not implement custom transitions per page — always use the shared wrapper.
+All page navigations use a **shared** transition. **`AdminShell` wraps the router `<Outlet />` with `PageTransition`**, keyed by the active `location` so the enter animation runs on every route change. **Page components** under `src/pages/` should export **content only** — do not wrap them in `PageTransition` (avoids double application). Do not implement custom per-page transition effects; extend the shared `PageTransition` / shell integration instead.
 
 ---
 

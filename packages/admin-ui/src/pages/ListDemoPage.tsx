@@ -11,7 +11,6 @@ import {
   type ListSortState,
   compareSortValues,
 } from "@/components/ui/list/types"
-import { PageTransition } from "@/components/ui/PageTransition"
 
 type DemoRow = {
   id: string
@@ -279,8 +278,7 @@ export function ListDemoPage(): JSX.Element {
   ]
 
   return (
-    <PageTransition>
-      <div className="p-6">
+    <div className="p-6">
         <div className="overflow-hidden rounded-lg border border-border-default bg-surface-default shadow-sm">
       <ListToolbar
         title="List primitives demo"
@@ -357,6 +355,5 @@ export function ListDemoPage(): JSX.Element {
         />
         </div>
       </div>
-    </PageTransition>
   )
 }

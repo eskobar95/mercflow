@@ -165,3 +165,17 @@ export const zIndex = {
     popover: "1060",
     toast: "1080",
 };
+/**
+ * Motion tokens for route-level transitions and future UI motion (admin shell).
+ * Durations are explicit `ms` strings for `animation` / `transition` declarations.
+ */
+export const motion = {
+    duration: {
+        /** Default enter timing for main route outlet content */
+        page: "200ms",
+    },
+    easing: {
+        /** Standard deceleration for page enter */
+        page: "cubic-bezier(0.2, 0, 0, 1)",
+    },
+};

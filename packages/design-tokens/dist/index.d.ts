@@ -82,6 +82,14 @@ export declare const tokens: {
         readonly normal: "0";
         readonly wide: "0.02em";
     };
+    readonly motion: {
+        readonly duration: {
+            readonly page: "200ms";
+        };
+        readonly easing: {
+            readonly page: "cubic-bezier(0.2, 0, 0, 1)";
+        };
+    };
     readonly radius: {
         readonly none: "0";
         readonly sm: "0.25rem";
@@ -108,5 +116,5 @@ export declare const tokens: {
     };
 };
 export type MercflowTokenMap = typeof tokens;
-export { colorTree, fontFamily, fontSize, fontWeight, letterSpacing, lineHeight, radii, shadows, spacingScale, zIndex, } from "./definitions/batch1.js";
+export { colorTree, fontFamily, fontSize, fontWeight, letterSpacing, lineHeight, motion, radii, shadows, spacingScale, zIndex, } from "./definitions/batch1.js";
 //# sourceMappingURL=index.d.ts.map

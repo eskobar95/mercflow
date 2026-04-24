@@ -1,4 +1,4 @@
-import { colorTree, fontFamily, fontSize, fontWeight, letterSpacing, lineHeight, radii, shadows, spacingScale, zIndex, } from "./definitions/batch1.js";
+import { colorTree, fontFamily, fontSize, fontWeight, letterSpacing, lineHeight, motion, radii, shadows, spacingScale, zIndex, } from "./definitions/batch1.js";
 export { buildRootStylesheet } from "./lib/buildRootStylesheet.js";
 /**
  * Authoritative nested token map for programmatic consumption (Tailwind, runtime theme, etc.).
@@ -12,8 +12,9 @@ export const tokens = {
     fontWeight,
     lineHeight,
     letterSpacing,
+    motion,
     radius: radii,
     shadow: shadows,
     zIndex,
 };
-export { colorTree, fontFamily, fontSize, fontWeight, letterSpacing, lineHeight, radii, shadows, spacingScale, zIndex, } from "./definitions/batch1.js";
+export { colorTree, fontFamily, fontSize, fontWeight, letterSpacing, lineHeight, motion, radii, shadows, spacingScale, zIndex, } from "./definitions/batch1.js";

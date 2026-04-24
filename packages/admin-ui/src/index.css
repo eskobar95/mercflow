@@ -9,3 +9,29 @@
     @apply min-h-screen bg-surface-canvas font-sans text-base text-content-primary antialiased;
   }
 }
+
+@layer components {
+  /**
+   * Main route outlet enter: token-backed duration/easing; opacity only (no layout shift).
+   * `prefers-reduced-motion` removes animation per WCAG 2.2.2.
+   */
+  .mercflow-page-transition {
+    animation: mercflow-page-enter var(--motion-duration-page)
+      var(--motion-easing-page) both;
+  }
+
+  @keyframes mercflow-page-enter {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mercflow-page-transition {
+      animation: none;
+    }
+  }
+}

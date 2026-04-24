@@ -123,4 +123,18 @@ export declare const zIndex: {
     readonly popover: "1060";
     readonly toast: "1080";
 };
+/**
+ * Motion tokens for route-level transitions and future UI motion (admin shell).
+ * Durations are explicit `ms` strings for `animation` / `transition` declarations.
+ */
+export declare const motion: {
+    readonly duration: {
+        /** Default enter timing for main route outlet content */
+        readonly page: "200ms";
+    };
+    readonly easing: {
+        /** Standard deceleration for page enter */
+        readonly page: "cubic-bezier(0.2, 0, 0, 1)";
+    };
+};
 //# sourceMappingURL=batch1.d.ts.map

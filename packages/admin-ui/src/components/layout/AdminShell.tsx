@@ -1,11 +1,25 @@
 import { Suspense } from "react"
-import { Outlet } from "react-router-dom"
+import { Outlet, useLocation } from "react-router-dom"
 
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary"
 import { MainLoadingFallback } from "@/components/ui/MainLoadingFallback"
+import { PageTransition } from "@/components/ui/PageTransition"
 
 import { AppSidebar } from "./AppSidebar"
 import { TopBar } from "./TopBar"
+
+/**
+ * Renders the active route with the shared `PageTransition` (keyed by location so enter
+ * motion runs on navigation). Placed inside `Suspense` so lazy routes keep the shell fallback.
+ */
+function RoutedMainOutlet(): JSX.Element {
+  const { key } = useLocation()
+  return (
+    <PageTransition routeKey={key}>
+      <Outlet />
+    </PageTransition>
+  )
+}
 
 /**
  * Global admin chrome: sidebar, top bar, and scrollable main with error and lazy boundaries.
@@ -30,7 +44,7 @@ export function AdminShell(): JSX.Element {
         >
           <ErrorBoundary>
             <Suspense fallback={<MainLoadingFallback />}>
-              <Outlet />
+              <RoutedMainOutlet />
             </Suspense>
           </ErrorBoundary>
         </main>

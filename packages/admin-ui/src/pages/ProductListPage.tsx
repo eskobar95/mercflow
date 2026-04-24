@@ -7,7 +7,6 @@ import { ListPagination } from "@/components/ui/list/ListPagination"
 import { ListToolbar } from "@/components/ui/list/ListToolbar"
 import { type RowActionItem } from "@/components/ui/list/RowActionsMenu"
 import { type ListColumnDef } from "@/components/ui/list/types"
-import { PageTransition } from "@/components/ui/PageTransition"
 import { MOCK_PRODUCTS, type ProductListRow } from "@/data/mockProducts"
 import { useMockEntityListState } from "@/hooks/useMockEntityListState"
 
@@ -119,8 +118,7 @@ export function ProductListPage(): JSX.Element {
   ]
 
   return (
-    <PageTransition>
-      <div className="p-6">
+    <div className="p-6">
         <div className="overflow-hidden rounded-lg border border-border-default bg-surface-default shadow-sm">
           <ListToolbar
             title="Products"
@@ -209,6 +207,5 @@ export function ProductListPage(): JSX.Element {
           />
         </div>
       </div>
-    </PageTransition>
   )
 }

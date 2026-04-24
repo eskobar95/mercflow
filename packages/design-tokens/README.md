@@ -72,6 +72,7 @@ pnpm typecheck
 - **Radius:** `none` through `2xl` and `full`.
 - **Shadow:** `sm`, `md`, `lg`, `focus`.
 - **Z-index:** `base`, `dropdown`, `sticky`, `modalBackdrop`, `modal`, `popover`, `toast`.
+- **Motion:** `duration.page`, `easing.page` (CSS time and easing for shared route enter transitions; see `mercflow-tokens.css` variables `--motion-duration-page`, `--motion-easing-page`).
 
 ## Migration workflow
 

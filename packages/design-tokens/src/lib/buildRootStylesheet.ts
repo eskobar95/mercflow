@@ -5,6 +5,7 @@ import {
   fontWeight,
   letterSpacing,
   lineHeight,
+  motion,
   radii,
   shadows,
   spacingScale,
@@ -60,6 +61,10 @@ export function buildRootStylesheet(): string {
   const zIndexLines = Object.entries(zIndex).map(
     ([k, v]) => `  --z-${k}: ${v};`
   )
+  const motionLines = linesForFlatPrefix(
+    flattenRootStringTree(motion as unknown as Record<string, unknown>),
+    "--motion-"
+  )
 
   const body = [
     ...colorLines,
@@ -72,6 +77,7 @@ export function buildRootStylesheet(): string {
     ...radiiLines,
     ...shadowLines,
     ...zIndexLines,
+    ...motionLines,
   ].join("\n")
 
   return `:root {\n${body}\n}\n`
