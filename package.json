@@ -3,6 +3,7 @@
   "private": true,
   "packageManager": "pnpm@9.15.0",
   "scripts": {
+    "build:admin-ui": "pnpm --filter @mercflow/admin-ui build",
     "build:design-tokens": "pnpm --filter @mercflow/design-tokens build"
   }
 }

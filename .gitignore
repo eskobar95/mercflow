@@ -1,6 +1,9 @@
 # APM session artifacts (runtime: Task Logs, bus messages, worktrees) — not source code
 .apm/
 
+# Admin UI (Vite) build output
+packages/admin-ui/dist/
+
 # Dependencies and local environment (monorepo)
 node_modules/
 .env
