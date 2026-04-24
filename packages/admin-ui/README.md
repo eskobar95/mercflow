@@ -92,6 +92,14 @@ A file-level map of the shell versus follow-up layout work is in `LAYOUT-AUDIT.m
 - **Env / auth:** Same as product — `VITE_MEDUSA_ADMIN_BACKEND_URL`, `VITE_MEDUSA_ADMIN_BEARER_TOKEN`, `credentials: "include"` (see `.env.example`).
 - **UI:** `src/components/category-content/CategoryContentTab.tsx` — reuses product `ProductDescriptionEditor` / `SEOPreview`; banner and OG use single ID fields (no `media_gallery`). Includes **Discard changes** (reloads from API).
 
+## Content editing locale (dev)
+
+- **Store locales:** Loaded from Medusa **`GET /admin/locales`** via `listAdminLocales` / `useAdminLocales`. Locale `code` values are BCP-47 and must match the `locale` query on MercFlow content APIs. Do not hardcode a production language list; add or enable locales in Medusa if the list is empty or outdated.
+- **State:** `src/features/content-locale/` — `useContentLocale` keeps the active editing code aligned with the list returned from the admin API (admin-only context; no store region or storefront language changes).
+- **UI:** `src/components/content-locale/ContentLocaleSwitcher.tsx` — token-backed control with an “Editing language” label, **Editing in …** hint, and a keyboard-friendly native `<select>`.
+- **Shared HTTP:** `src/medusa-admin/medusaAdminFetch.ts` centralizes backend URL resolution, JSON headers, and response parsing for admin requests (product/category content APIs and the locale list).
+- **Tabs:** Product and category **Content** tabs render the switcher and pass the active code into `useProductContentState` / `useCategoryContentState` so reads and writes use `?locale=`. Changing locale refetches that locale from the API — save or **Discard** before switching if local edits must not be lost (see root `AGENTS.md`).
+
 ## Field notes
 
 - **Path alias:** `@/` → `src/` (Vite + TypeScript).

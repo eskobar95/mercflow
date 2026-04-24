@@ -1,8 +1,13 @@
 import type { JSONContent } from "@tiptap/core"
 import { useCallback, useEffect, useId, useState } from "react"
 
+import { ContentLocaleSwitcher } from "@/components/content-locale/ContentLocaleSwitcher"
 import { Card } from "@/components/ui/Card"
-import { useProductContentState } from "@/features/product-content"
+import { useAdminLocales, useContentLocale } from "@/features/content-locale"
+import {
+  DEFAULT_PRODUCT_CONTENT_LOCALE,
+  useProductContentState,
+} from "@/features/product-content"
 
 import { MediaGalleryManager } from "./MediaGalleryManager"
 import { ProductDescriptionEditor } from "./ProductDescriptionEditor"
@@ -22,8 +27,14 @@ export function ProductContentTab({
   productTitleFallback,
 }: ProductContentTabProps): JSX.Element {
   const formId = useId()
+  const { locales, loading: localesLoading, error: localesError } = useAdminLocales()
+  const { activeLocaleCode, setActiveLocaleCode } = useContentLocale({
+    locales,
+    preferredCode: DEFAULT_PRODUCT_CONTENT_LOCALE,
+  })
   const { content, loading, saving, error, save, clearError } = useProductContentState({
     productId,
+    locale: activeLocaleCode,
   })
 
   const [descriptionJson, setDescriptionJson] = useState<JSONContent>(EMPTY_TIPTAP_DOC)
@@ -72,6 +83,7 @@ export function ProductContentTab({
   ])
 
   const disabled = loading || saving
+  const localeSwitcherDisabled = disabled || localesLoading
   const seoTooLong = seoDescription.length > SEO_DESCRIPTION_MAX
   const bannerError = validationError ?? error
 
@@ -90,6 +102,15 @@ export function ProductContentTab({
         </div>
       ) : null}
 
+      {localesError ? (
+        <div
+          role="alert"
+          className="rounded-md border border-border-strong bg-surface-subtle px-3 py-2 text-sm text-content-danger"
+        >
+          Could not load editing languages: {localesError}
+        </div>
+      ) : null}
+
       <form
         id={formId}
         onSubmit={(e) => {
@@ -98,6 +119,13 @@ export function ProductContentTab({
         }}
         className="space-y-6"
       >
+        <ContentLocaleSwitcher
+          locales={locales}
+          value={activeLocaleCode}
+          onChange={setActiveLocaleCode}
+          disabled={localeSwitcherDisabled}
+        />
+
         <Card>
           <h2 className="text-lg font-semibold text-content-primary">Description</h2>
           <p className="mt-1 text-sm text-content-secondary">
