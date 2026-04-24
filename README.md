@@ -10,12 +10,14 @@ MercFlow is an opinionated [Medusa v2](https://docs.medusajs.com/) distribution:
 
 ## Expected monorepo layout (Batch 1)
 
-| Path | Role |
-|------|------|
-| `packages/admin-ui` | Admin UI (React + Vite) |
-| `packages/content-module` | Medusa module: content fields, service, API |
-| `packages/design-tokens` | Design tokens (CSS + Tailwind) |
-| `apps/backend` | Medusa v2 backend registering MercFlow modules |
+
+| Path                      | Role                                           |
+| ------------------------- | ---------------------------------------------- |
+| `packages/admin-ui`       | Admin UI (React + Vite)                        |
+| `packages/content-module` | Medusa module: content fields, service, API    |
+| `packages/design-tokens`  | Design tokens (CSS + Tailwind)                 |
+| `apps/backend`            | Medusa v2 backend registering MercFlow modules |
+
 
 Until those directories exist, treat this table as the **target** layout, not a guarantee of the current tree.
 
@@ -24,12 +26,20 @@ Until those directories exist, treat this table as the **target** layout, not a 
 The MercFlow monorepo is expected to use **pnpm** workspaces. After you have a root `package.json` and `pnpm-workspace.yaml`, typical entry points are:
 
 - **Install:** from the repository root, `pnpm install` (see root `package.json` when it exists).
-- **Build / typecheck / dev:** use scripts defined in the root `package.json` and in each package under `packages/*` and `apps/*`. Exact script names are defined there—not in this bootstrap README.
+- **Build / typecheck / dev:** use scripts defined in the root `package.json` and in each package under `packages/`* and `apps/*`. Exact script names are defined there—not in this bootstrap README.
 
 **Current checkout:** a root `package.json` and workspace file may be absent. If they are missing, add them when you import the full monorepo; do not assume script names until those files exist.
 
+## Local development database (PostgreSQL in Docker)
+
+**Local and example-only.** This is for developer machines, not for production or Guapo.
+
+- [Root `docker-compose.yml`](./docker-compose.yml) defines a single PostgreSQL 16 service with healthcheck and a named volume.
+- [`apps/backend/.env.example`](./apps/backend/.env.example) documents `DATABASE_URL` and other backend env variables for Medusa.
+- [`apps/backend/README.md`](./apps/backend/README.md) explains how to start the database, which variables to set, and how to run Medusa and module migrations once the real backend package exists.
+
 ## Further documentation
 
-- Project rules and boundaries: [`AGENTS.md`](./AGENTS.md)
+- Project rules and boundaries: `[AGENTS.md](./AGENTS.md)`
 - High-level product and architecture docs (when available): `docs/PRD.md`, `docs/ARCHITECTURE.md`
 - Per-package details: each package and app under `packages/` and `apps/` has its own `README.md` once the monorepo is materialized.
