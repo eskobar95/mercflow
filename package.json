@@ -1,0 +1,8 @@
+{
+  "name": "mercflow",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "build:design-tokens": "pnpm --filter @mercflow/design-tokens build"
+  }
+}

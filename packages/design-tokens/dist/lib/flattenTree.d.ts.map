@@ -1,0 +1,1 @@
+{"version":3,"file":"flattenTree.d.ts","sourceRoot":"","sources":["../../src/lib/flattenTree.ts"],"names":[],"mappings":"AAAA;;;GAGG;AACH,wBAAgB,iBAAiB,CAC/B,KAAK,EAAE,OAAO,EACd,QAAQ,EAAE,MAAM,EAAE,GACjB,KAAK,CAAC,CAAC,MAAM,EAAE,MAAM,CAAC,CAAC,CAkBzB;AAED,wBAAgB,qBAAqB,CACnC,IAAI,EAAE,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAC5B,KAAK,CAAC,CAAC,MAAM,EAAE,MAAM,CAAC,CAAC,CAEzB"}
