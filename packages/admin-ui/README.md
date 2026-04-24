@@ -77,6 +77,12 @@ A file-level map of the shell versus follow-up layout work is in `LAYOUT-AUDIT.m
 - Tailwind theme extensions: `tailwind.config.ts` — maps `surface`, `content`, `border`, `interactive`, spacing, radius, shadows, and typography to `var(--…)` from the design token sheet (see `.cursor/rules/admin-ui.mdc` for naming alignment).
 - Components should use utilities such as `bg-surface-canvas`, `text-content-primary`, `border-border-default`, and interactive tokens — not raw hex in class names.
 
+## Product content API (dev)
+
+- **Module:** `src/features/product-content/` — types, `getProductContent` / `saveProductContent`, and `useProductContentState` (explicit `loading`, `saving`, and `error`).
+- **Env:** Copy `.env.example` to `.env.local` and set `VITE_MEDUSA_ADMIN_BACKEND_URL` to the Medusa backend (see `apps/backend` README, default `http://localhost:9000`). If the Vite origin is not allowed by `ADMIN_CORS` on the backend, either add it there or use a dev proxy.
+- **Auth:** Requests use `credentials: "include"` for session cookies. For cross-origin setups without cookies, set `VITE_MEDUSA_ADMIN_BEARER_TOKEN` locally (never commit real tokens).
+
 ## Field notes
 
 - **Path alias:** `@/` → `src/` (Vite + TypeScript).
