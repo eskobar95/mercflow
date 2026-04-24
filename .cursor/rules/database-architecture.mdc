@@ -1,0 +1,254 @@
+---
+description: Database architecture and data modeling rules for MercFlow. Apply when working with data models, migrations, or any database-related code.
+globs: ["**/models/**/*", "**/migrations/**/*", "**/service.ts", "apps/backend/medusa-config.ts"]
+alwaysApply: false
+---
+
+# Database Architecture Rules
+
+## Overview
+
+MercFlow uses PostgreSQL as its database, accessed via Medusa v2's built-in data layer. Medusa v2 uses **MikroORM v6** under the hood, but custom modules interact with the database exclusively through Medusa's **Data Model Language (DML)** and **service factory** — never through raw MikroORM or SQL unless inside a migration file.
+
+---
+
+## Data Modeling — The DML
+
+### Always use DML for data models
+
+Medusa's DML (`model.define` from `@medusajs/framework/utils`) is the only way to define data models in MercFlow modules. It maps directly to PostgreSQL tables and columns.
+
+```ts
+import { model } from "@medusajs/framework/utils"
+
+export const ProductContent = model.define("product_content", {
+  id: model.id().primaryKey(),
+  product_id: model.text(),
+  description_rich: model.json().nullable(),
+  seo_title: model.text().nullable(),
+})
+```
+
+### DML type reference
+
+| DML method | PostgreSQL type | Notes |
+|---|---|---|
+| `model.id()` | `uuid` | Always use for primary keys |
+| `model.text()` | `text` | Default string type — no length limit |
+| `model.number()` | `numeric` | Use for integers and decimals |
+| `model.float()` | `real` | Use for tax rates and percentages |
+| `model.boolean()` | `boolean` | |
+| `model.json()` | `jsonb` | Use for structured objects (TipTap, metadata) |
+| `model.array()` | `text[]` | Array of text values |
+| `model.dateTime()` | `timestamptz` | Always timezone-aware |
+| `model.enum()` | `text` with check | Pass the enum object as parameter |
+
+**Modifiers:**
+- `.nullable()` — allows NULL, maps to `| null` in TypeScript
+- `.default(value)` — sets a default value
+- `.primaryKey()` — marks the field as primary key
+- `.unique()` — adds a unique constraint
+- `.index()` — adds a database index
+
+### Auto-generated fields
+
+The DML automatically adds these to every model — never define them manually:
+
+```ts
+created_at   // timestamptz, set on insert
+updated_at   // timestamptz, updated on every change
+deleted_at   // timestamptz, null unless soft-deleted
+```
+
+### Relationships
+
+```ts
+// One-to-many: a Brand has many Products
+export const Brand = model.define("brand", {
+  id: model.id().primaryKey(),
+  name: model.text(),
+  products: model.hasMany(() => Product, { mappedBy: "brand" }),
+})
+
+export const Product = model.define("product", {
+  id: model.id().primaryKey(),
+  brand: model.belongsTo(() => Brand, { mappedBy: "products" }),
+})
+
+// One-to-one: a Product has one ProductContent
+export const ProductContent = model.define("product_content", {
+  id: model.id().primaryKey(),
+  product: model.belongsTo(() => Product, { mappedBy: "content" }),
+})
+```
+
+---
+
+## Migration Workflow
+
+### The correct workflow
+
+```
+1. Define or update the DML model
+2. Run: npx medusa db:generate <module-name>
+3. CLI generates migration file in src/modules/<name>/migrations/
+4. Add decision log comment to the generated file
+5. Run: npx medusa db:migrate
+6. Verify locally
+7. Commit both the model change and the migration file together
+```
+
+### Migration file anatomy
+
+```ts
+import { Migration } from "@medusajs/framework/mikro-orm/migrations"
+
+/**
+ * MIGRATION DECISION LOG
+ * Reason: <PRD reference or task description>
+ * Changes: <list of tables/columns affected>
+ * Reversible: Yes/No — <describe down() behavior>
+ * Generated via: npx medusa db:generate <module>
+ */
+export class Migration<YYYYMMDDHHmm> extends Migration {
+  async up(): Promise<void> {
+    this.addSql(`/* CLI-generated SQL */`)
+  }
+
+  async down(): Promise<void> {
+    this.addSql(`/* CLI-generated SQL */`)
+  }
+}
+```
+
+### Migration ordering
+
+Migrations run in **ascending alphabetical order by filename**. The timestamp prefix guarantees correct ordering:
+
+```
+Migration202504241200_create_product_content.ts   ← runs first
+Migration202504241530_add_banner_image.ts          ← runs second
+Migration202504251045_add_media_gallery_index.ts   ← runs third
+```
+
+Always use the actual current timestamp when generating — never copy an old timestamp.
+
+### Migration immutability
+
+Once a migration file is committed to the repository, it is permanently immutable. To change the schema:
+
+```
+✅ Create a new migration: npx medusa db:generate <module>
+❌ Edit an existing migration file
+```
+
+Editing an existing migration causes schema drift between environments.
+
+### Data migrations
+
+For migrating existing data (not just schema), use Medusa's migration scripts:
+
+```ts
+// src/migration-scripts/migrate-content-data.ts
+export default async function migrateContentData({ container }) {
+  const contentService = container.resolve("content")
+  // migration logic here
+}
+```
+
+Place in `src/migration-scripts/` — Medusa runs these once on `db:migrate` and never again on success.
+
+---
+
+## Naming Conventions
+
+### Tables
+
+- Always `snake_case`
+- Singular noun: `product_content`, not `product_contents`
+- Module prefix for cross-cutting tables: `mercflow_page`, `mercflow_blog_post`
+- Never prefix standard commerce tables: Medusa already handles `product`, `order`, etc.
+
+### Columns
+
+- Always `snake_case`
+- Boolean columns: prefix with `is_` or `has_` — `is_published`, `has_variants`
+- Foreign key columns: `<related_table>_id` — `product_id`, `category_id`
+- Timestamp columns: suffix with `_at` — `published_at`, `archived_at`
+- JSON columns: use descriptive names — `description_rich`, `seo_metadata`
+
+### Indexes
+
+Name indexes explicitly:
+
+```sql
+-- Pattern: IDX_<table>_<column(s)>
+CREATE INDEX "IDX_product_content_product_id" ON "product_content" ("product_id");
+CREATE UNIQUE INDEX "IDX_product_content_product_id_unique" ON "product_content" ("product_id");
+```
+
+---
+
+## PostgreSQL Conventions
+
+### Column types — use these defaults
+
+| Use case | PostgreSQL type | DML |
+|---|---|---|
+| Primary keys | `uuid` | `model.id().primaryKey()` |
+| Foreign keys | `text` | `model.text()` |
+| Short strings (title, name) | `text` | `model.text()` |
+| Long strings (description) | `text` | `model.text()` |
+| Structured data | `jsonb` | `model.json()` |
+| Arrays of IDs | `text[]` | `model.array()` |
+| Prices (in subunits) | `numeric` | `model.number()` |
+| Percentages / rates | `real` | `model.float()` |
+| Timestamps | `timestamptz` | `model.dateTime()` |
+| Flags | `boolean` | `model.boolean()` |
+
+**Never use `varchar(n)` for application data.** Use `text` — length validation belongs in the service layer, not the database constraint. The only exception is if a third-party integration requires a specific max length at the DB level.
+
+### Soft deletes
+
+All MercFlow data models support soft deletes via `deleted_at` (auto-managed by DML). Never hard-delete records from the database in application code — use the service factory's `softDeleteX` methods.
+
+Hard deletes only occur in:
+- Migration `down()` methods (cleanup)
+- Explicit admin "purge" operations that the user has confirmed
+
+### Transactions
+
+The service factory handles transactions automatically for standard operations. For custom multi-step operations in the service, use Medusa's workflow system rather than raw transactions where possible.
+
+---
+
+## Local Development
+
+### Setup
+
+```bash
+# Start local PostgreSQL (Docker recommended)
+docker run --name mercflow-db \
+  -e POSTGRES_PASSWORD=mercflow \
+  -e POSTGRES_DB=mercflow_dev \
+  -p 5432:5432 \
+  -d postgres:16
+
+# Run all pending migrations
+npx medusa db:migrate
+
+# Seed development data (if seed script exists)
+npx medusa exec ./src/scripts/seed.ts
+```
+
+### Useful commands
+
+```bash
+npx medusa db:generate <module>   # Generate migration for a module
+npx medusa db:migrate             # Run all pending migrations
+npx medusa db:revert              # Revert the last migration batch
+```
+
+### Local vs. production
+
+In local development, the agent runs migrations freely and iterates on schema as needed. In production or staging, no migration runs without explicit written instruction. See `conventions.mdc` for the full environment rules.

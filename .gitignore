@@ -1,0 +1,2 @@
+# APM session artifacts (runtime: Task Logs, bus messages, worktrees) — not source code
+.apm/
