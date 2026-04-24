@@ -23,7 +23,14 @@ const CATEGORY_COLUMNS: ListColumnDef<ProductCategoryListRow, CategoryCol>[] =
       sortable: true,
       getSortValue: (r) => r.name,
       cellClassName: "font-medium",
-      renderCell: (r) => r.name,
+      renderCell: (r) => (
+        <Link
+          to={`/product-categories/${encodeURIComponent(r.id)}`}
+          className="text-interactive-primary hover:text-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
+        >
+          {r.name}
+        </Link>
+      ),
     },
     {
       id: "handle",

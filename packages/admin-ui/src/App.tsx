@@ -38,6 +38,11 @@ const ProductCategoryListPage = lazy(async () => {
   return { default: m.ProductCategoryListPage }
 })
 
+const ProductCategoryDetailPage = lazy(async () => {
+  const m = await import("@/pages/ProductCategoryDetailPage")
+  return { default: m.ProductCategoryDetailPage }
+})
+
 export function App(): JSX.Element {
   return (
     <Routes>
@@ -49,6 +54,10 @@ export function App(): JSX.Element {
         <Route
           path="product-categories/new"
           element={<ProductCategoryNewPage />}
+        />
+        <Route
+          path="product-categories/:categoryId"
+          element={<ProductCategoryDetailPage />}
         />
         <Route
           path="product-categories"

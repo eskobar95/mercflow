@@ -42,7 +42,7 @@ Open the Vite dev URL printed in the terminal. The app loads the **admin shell**
 ## App shell and routing
 
 - **Entry:** `src/main.tsx` wraps the app in `BrowserRouter` and `React.StrictMode`.
-- **Routes:** `src/App.tsx` defines a layout route that renders `AdminShell` and lazy routes: `HomePage` (`/`), `ProductNewPage` (`/products/new`), `ProductListPage` (`/products`), **`ProductDetailPage` (`/products/:productId`)** with tab deep-link **`?tab=content`** for the MercFlow product content editor, `ProductCategoryNewPage` (`/product-categories/new`), `ProductCategoryListPage` (`/product-categories`), `ListDemoPage` (`/list-demo`).
+- **Routes:** `src/App.tsx` defines a layout route that renders `AdminShell` and lazy routes: `HomePage` (`/`), `ProductNewPage` (`/products/new`), `ProductListPage` (`/products`), **`ProductDetailPage` (`/products/:productId`)** with tab deep-link **`?tab=content`** for the MercFlow product content editor, `ProductCategoryNewPage` (`/product-categories/new`), **`ProductCategoryDetailPage` (`/product-categories/:categoryId`)** with **`?tab=content`** for category content (TipTap, SEO, banner + OG image IDs), `ProductCategoryListPage` (`/product-categories`), `ListDemoPage` (`/list-demo`).
 - **Layout:** `src/components/layout/AdminShell.tsx` provides `AppSidebar`, `TopBar`, and a scrollable `<main id="main-content">` with a **skip link** to that region. The main area wraps `ErrorBoundary` and `Suspense` (fallback `MainLoadingFallback`) around `<Outlet />` so chrome stays on screen when a view fails or suspends.
 - **Pages** live under `src/pages/`. Route-level transitions are applied once in `AdminShell` around `<Outlet />` via `PageTransition` (see `.cursor/rules/admin-ui.mdc`); page files render content only. Use token-backed classes in chrome and content.
 
@@ -90,6 +90,7 @@ A file-level map of the shell versus follow-up layout work is in `LAYOUT-AUDIT.m
 - **Data layer:** `src/features/category-content/` — types, `getCategoryContent` / `saveCategoryContent`, and `useCategoryContentState` with the same async surface as product (`loading`, `saving`, `error: string | null`, `load`, `save`, `clearError`, optional `loadOnMount`).
 - **HTTP:** `GET/POST /admin/product-categories/:id/content?locale=…` (default locale **`en`** on the client when omitted). **DTO delta vs product:** responses use `category_id` (not `product_id`), include **`banner_image_id`**, and **omit** `media_gallery` on save payloads (see `packages/content-module` README).
 - **Env / auth:** Same as product — `VITE_MEDUSA_ADMIN_BACKEND_URL`, `VITE_MEDUSA_ADMIN_BEARER_TOKEN`, `credentials: "include"` (see `.env.example`).
+- **UI:** `src/components/category-content/CategoryContentTab.tsx` — reuses product `ProductDescriptionEditor` / `SEOPreview`; banner and OG use single ID fields (no `media_gallery`). Includes **Discard changes** (reloads from API).
 
 ## Field notes
 
