@@ -69,7 +69,7 @@ Vite output is written to `dist/` in this package (gitignored). The design-token
 
 ## Layout audit (Batch 1)
 
-A file-level map of the shell versus follow-up layout work is in `LAYOUT-AUDIT.md`.
+A file-level map of the shell versus follow-up layout work is in `LAYOUT-AUDIT.md`. Modal, overlay, and dialog-style usage (current tree + fork handoff) are documented in `MODAL-AUDIT.md`.
 
 ## Styling and tokens
 
