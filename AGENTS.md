@@ -50,6 +50,15 @@ APM_RULES {
 - Store rich text as TipTap JSON. Do not store HTML directly.
 - Use the standard extension set unless the User explicitly approves an addition: `StarterKit`, `Link` with `openOnClick: false`, `Image` through media upload, and `CharacterCount`.
 
+## Localization and Medusa (APM)
+
+- **Core vs MercFlow:** Use **Medusa’s** product and category UIs, translation flows, and Admin APIs for **titles, handles, slugs, and Medusa’s own description/translation fields**. Use the **MercFlow content module and admin content routes** for **rich text (`description_rich`), SEO fields, media gallery, and category banner** per the content module README and field definitions. Do not duplicate the same meaningful field in two places.
+- **Locale list:** The set of available editing languages is driven by the **store and Medusa admin** (e.g. `GET /admin/locales` or JS SDK equivalent). **Do not** hardcode a production language list in MercFlow.
+- **Locale codes:** The `?locale=` query on MercFlow content APIs must use the **same codes** Medusa uses (typically BCP-47 as returned by the Admin API). Align the content UI with that source.
+- **Switching language in admin (UX):** **Autosave (or a clear save) before** changing the active editing language for content; if save **fails**, show an error and **do not** complete a silent switch. Loading and error states must be explicit.
+- **Upgrades:** Keep MercFlow schema in the **content module**; do not patch `node_modules` or alter Medusa core entity definitions. Follow Medusa’s upgrade notes for breaking API changes; manage MercFlow migrations separately.
+- **Documentation is required** when you touch this area: point operators and the next developer to where core translations are edited vs the Content tab, and how locale is resolved.
+
 ## Content Module and Medusa Data Layer
 
 - Content-related data models, services, migrations, and API extensions belong in the MercFlow content module.
@@ -109,12 +118,14 @@ APM_RULES {
 
 The Manager uses **Task** subagents only when the work fits the categories below. Routine coordination (read Task Logs, update Tracker, write Task Prompts, merge clean branches) runs **without** a subagent.
 
-| Situation | Subagent | When to use |
-| --- | --- | --- |
-| Large or ambiguous codebase or artifact investigation; risk of burning Manager context on exploration | `explore` (read-only) | Before changing planning documents or follow-up prompts when the answer requires reading many files or tracing patterns across the tree. |
-| Non-trivial merge conflicts, or a defect that needs deep cross-file tracing | `generalPurpose` or `shell` as appropriate | When the Manager cannot resolve from the Task Log and a focused investigation is needed. |
-| Holistic stage verification (integration checks) that are too heavy to run inline | `tester` or `explore` | When task-review calls for end-of-stage verification and the Manager cannot run the full validation in-session. |
-| Medusa or DB migration work | `migrator` | Only when a task explicitly involves generating or running MercFlow `content-module` migrations per project rules. |
+
+| Situation                                                                                             | Subagent                                   | When to use                                                                                                                              |
+| ----------------------------------------------------------------------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Large or ambiguous codebase or artifact investigation; risk of burning Manager context on exploration | `explore` (read-only)                      | Before changing planning documents or follow-up prompts when the answer requires reading many files or tracing patterns across the tree. |
+| Non-trivial merge conflicts, or a defect that needs deep cross-file tracing                           | `generalPurpose` or `shell` as appropriate | When the Manager cannot resolve from the Task Log and a focused investigation is needed.                                                 |
+| Holistic stage verification (integration checks) that are too heavy to run inline                     | `tester` or `explore`                      | When task-review calls for end-of-stage verification and the Manager cannot run the full validation in-session.                          |
+| Medusa or DB migration work                                                                           | `migrator`                                 | Only when a task explicitly involves generating or running MercFlow `content-module` migrations per project rules.                       |
+
 
 **Do not** spawn subagents for: drafting or delivering Task Prompts, routine Tracker or bus updates, straightforward log review, or merges that complete with no conflicts.
 
