@@ -2,7 +2,7 @@
 
 ## Responsibility
 
-This package is the **MercFlow admin user interface** — a Vite + React client that will grow into the forked, page-driven Medusa admin. **Batch 1 (this state)** is limited to: workspace membership, Tailwind/PostCSS wired to `@mercflow/design-tokens`, a global stylesheet that imports the token CSS, and a tiny proof view so new UI must use **token-backed** utilities (no ad hoc hex for foundational surface, text, and borders in application code). Full layout, list views, and Medusa data wiring land in follow-up work.
+This package is the **MercFlow admin user interface** — a Vite + React client that will grow into the forked, page-driven Medusa admin. **Batch 1 (this state)** includes: a **global admin shell** (sidebar, top bar, main column) with **token-backed** styling, **React Router** and lazy-loaded pages, `ErrorBoundary` and `Suspense` around the main outlet for view errors and async loading, and a home route that still hosts the **token integration proof** so new surface code stays on the design system. List views, entity routes, and Medusa data wiring land in follow-up work.
 
 ## What does *not* belong in this package
 
@@ -25,7 +25,16 @@ pnpm install
 pnpm --filter @mercflow/admin-ui dev
 ```
 
-Open the Vite dev URL printed in the terminal to view the **token integration proof** shell.
+Open the Vite dev URL printed in the terminal. The app loads the **admin shell**; the default route shows the **token integration proof** in the main column.
+
+## App shell and routing
+
+- **Entry:** `src/main.tsx` wraps the app in `BrowserRouter` and `React.StrictMode`.
+- **Routes:** `src/App.tsx` defines a layout route that renders `AdminShell` and a lazy-loaded `HomePage` for `/`.
+- **Layout:** `src/components/layout/AdminShell.tsx` provides `AppSidebar`, `TopBar`, and a scrollable `<main id="main-content">` with a **skip link** to that region. The main area wraps `ErrorBoundary` and `Suspense` (fallback `MainLoadingFallback`) around `<Outlet />` so chrome stays on screen when a view fails or suspends.
+- **Pages** live under `src/pages/`. New routes should use `PageTransition` (see `.cursor/rules/admin-ui.mdc`) and token-backed classes only in chrome and content.
+
+**Deployment note:** Client-side routes require the host to serve `index.html` for unknown paths (Vite’s dev server and `vite preview` do this; configure static hosting accordingly in production).
 
 ## Build and typecheck
 

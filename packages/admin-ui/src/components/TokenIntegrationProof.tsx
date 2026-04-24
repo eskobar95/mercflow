@@ -1,3 +1,5 @@
+import { Card } from "@/components/ui/Card"
+
 /**
  * Minimal proof that Tailwind utilities resolve to design-token CSS variables.
  * No hex literals — all colors from `mercflow-tokens.css` via `tailwind.config.ts`.
@@ -14,7 +16,7 @@ export function TokenIntegrationProof(): JSX.Element {
         </p>
       </header>
 
-      <section className="rounded-lg border border-border-default border-l-4 border-l-border-focus bg-surface-default p-6 shadow-sm">
+      <Card className="border-l-4 border-l-border-focus">
         <p className="mb-4 text-content-primary">
           Card body uses token-backed{" "}
           <code className="font-mono text-sm text-content-tertiary">
@@ -28,7 +30,7 @@ export function TokenIntegrationProof(): JSX.Element {
         >
           Primary action
         </button>
-      </section>
+      </Card>
     </div>
   )
 }
