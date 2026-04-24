@@ -46,6 +46,10 @@ pnpm build:admin-ui
 
 Vite output is written to `dist/` in this package (gitignored). The design-tokens package keeps its `dist/` under version control so the workspace can resolve the CSS file without a prior build in fresh clones if needed.
 
+## Layout audit (Batch 1)
+
+A concrete file-level map of the current app shell versus the next global layout task is in **`LAYOUT-AUDIT.md`**.
+
 ## Styling and tokens
 
 - Global styles: `src/index.css` — imports `@mercflow/design-tokens/mercflow-tokens.css` first, then Tailwind layers.
