@@ -19,7 +19,14 @@ const PRODUCT_COLUMNS: ListColumnDef<ProductListRow, ProductCol>[] = [
     sortable: true,
     getSortValue: (r) => r.title,
     cellClassName: "font-medium",
-    renderCell: (r) => r.title,
+    renderCell: (r) => (
+      <Link
+        to={`/products/${encodeURIComponent(r.id)}`}
+        className="text-interactive-primary hover:text-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
+      >
+        {r.title}
+      </Link>
+    ),
   },
   {
     id: "status",

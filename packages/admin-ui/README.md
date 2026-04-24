@@ -42,7 +42,7 @@ Open the Vite dev URL printed in the terminal. The app loads the **admin shell**
 ## App shell and routing
 
 - **Entry:** `src/main.tsx` wraps the app in `BrowserRouter` and `React.StrictMode`.
-- **Routes:** `src/App.tsx` defines a layout route that renders `AdminShell` and lazy routes: `HomePage` (`/`), `ProductNewPage` (`/products/new`), `ProductListPage` (`/products`), `ProductCategoryNewPage` (`/product-categories/new`), `ProductCategoryListPage` (`/product-categories`), `ListDemoPage` (`/list-demo`).
+- **Routes:** `src/App.tsx` defines a layout route that renders `AdminShell` and lazy routes: `HomePage` (`/`), `ProductNewPage` (`/products/new`), `ProductListPage` (`/products`), **`ProductDetailPage` (`/products/:productId`)** with tab deep-link **`?tab=content`** for the MercFlow product content editor, `ProductCategoryNewPage` (`/product-categories/new`), `ProductCategoryListPage` (`/product-categories`), `ListDemoPage` (`/list-demo`).
 - **Layout:** `src/components/layout/AdminShell.tsx` provides `AppSidebar`, `TopBar`, and a scrollable `<main id="main-content">` with a **skip link** to that region. The main area wraps `ErrorBoundary` and `Suspense` (fallback `MainLoadingFallback`) around `<Outlet />` so chrome stays on screen when a view fails or suspends.
 - **Pages** live under `src/pages/`. Route-level transitions are applied once in `AdminShell` around `<Outlet />` via `PageTransition` (see `.cursor/rules/admin-ui.mdc`); page files render content only. Use token-backed classes in chrome and content.
 
@@ -79,9 +79,11 @@ A file-level map of the shell versus follow-up layout work is in `LAYOUT-AUDIT.m
 
 ## Product content API (dev)
 
-- **Module:** `src/features/product-content/` — types, `getProductContent` / `saveProductContent`, and `useProductContentState` (explicit `loading`, `saving`, and `error`).
+- **Data layer:** `src/features/product-content/` — types, `getProductContent` / `saveProductContent`, and `useProductContentState` (explicit `loading`, `saving`, and `error`).
+- **UI:** `src/components/product-content/` — TipTap v2 rich text (`description_rich` as JSON), SEO fields + preview, OG image id, sortable media ID list; composed on **`/products/:productId`** → **Content** tab. TipTap uses the standard extension set: `StarterKit`, `Link` (`openOnClick: false`), `Image`, `CharacterCount`.
 - **Env:** Copy `.env.example` to `.env.local` and set `VITE_MEDUSA_ADMIN_BACKEND_URL` to the Medusa backend (see `apps/backend` README, default `http://localhost:9000`). If the Vite origin is not allowed by `ADMIN_CORS` on the backend, either add it there or use a dev proxy.
 - **Auth:** Requests use `credentials: "include"` for session cookies. For cross-origin setups without cookies, set `VITE_MEDUSA_ADMIN_BEARER_TOKEN` locally (never commit real tokens).
+- **Gallery / OG:** The tab stores **media file IDs** only; there is no Medusa upload widget in this shell — use known ids from your dev database or the backend file API separately.
 
 ## Field notes
 
