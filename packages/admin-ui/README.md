@@ -35,14 +35,14 @@ Open the Vite dev URL printed in the terminal. The app loads the **admin shell**
 
 ## Entity lists (mock data) (Batch 1)
 
-- **Routes:** `/products` → `ProductListPage`, `/product-categories` → `ProductCategoryListPage` (kebab paths; labels follow Medusa-style naming). These compose `components/ui/list/*` the same way as `/list-demo`, with entity-specific columns and copy.
+- **Routes:** `/products` → `ProductListPage`, `/product-categories` → `ProductCategoryListPage`, **`/products/new` → `ProductNewPage`**, **`/product-categories/new` → `ProductCategoryNewPage`** (mock create forms; no Medusa client). Kebab paths; labels follow Medusa-style naming. List pages use the same `components/ui/list/*` stack as `/list-demo`, with entity-specific columns and copy.
 - **Data:** `src/data/mockProducts.ts` and `src/data/mockProductCategories.ts` export static rows. **`useMockEntityListState`** in `src/hooks/useMockEntityListState.ts` centralizes client-side filter, sort, pagination, and selection until a fetch layer exists.
 - **Future Medusa wiring:** In each page, replace the `allRows` input to the hook (or remove the hook and use your query hook) with results from the Medusa Admin API / JS SDK, map responses into the existing row types or adjust `ListColumnDef` and types together. Do not add API calls in this package until the project introduces a shared admin client; keep fetches in the page or a `hooks/useAdmin*List` module next to it.
 
 ## App shell and routing
 
 - **Entry:** `src/main.tsx` wraps the app in `BrowserRouter` and `React.StrictMode`.
-- **Routes:** `src/App.tsx` defines a layout route that renders `AdminShell` and lazy routes: `HomePage` (`/`), `ProductListPage` (`/products`), `ProductCategoryListPage` (`/product-categories`), `ListDemoPage` (`/list-demo`).
+- **Routes:** `src/App.tsx` defines a layout route that renders `AdminShell` and lazy routes: `HomePage` (`/`), `ProductNewPage` (`/products/new`), `ProductListPage` (`/products`), `ProductCategoryNewPage` (`/product-categories/new`), `ProductCategoryListPage` (`/product-categories`), `ListDemoPage` (`/list-demo`).
 - **Layout:** `src/components/layout/AdminShell.tsx` provides `AppSidebar`, `TopBar`, and a scrollable `<main id="main-content">` with a **skip link** to that region. The main area wraps `ErrorBoundary` and `Suspense` (fallback `MainLoadingFallback`) around `<Outlet />` so chrome stays on screen when a view fails or suspends.
 - **Pages** live under `src/pages/`. Route-level transitions are applied once in `AdminShell` around `<Outlet />` via `PageTransition` (see `.cursor/rules/admin-ui.mdc`); page files render content only. Use token-backed classes in chrome and content.
 

@@ -13,9 +13,19 @@ const ListDemoPage = lazy(async () => {
   return { default: m.ListDemoPage }
 })
 
+const ProductNewPage = lazy(async () => {
+  const m = await import("@/pages/ProductNewPage")
+  return { default: m.ProductNewPage }
+})
+
 const ProductListPage = lazy(async () => {
   const m = await import("@/pages/ProductListPage")
   return { default: m.ProductListPage }
+})
+
+const ProductCategoryNewPage = lazy(async () => {
+  const m = await import("@/pages/ProductCategoryNewPage")
+  return { default: m.ProductCategoryNewPage }
 })
 
 const ProductCategoryListPage = lazy(async () => {
@@ -28,7 +38,12 @@ export function App(): JSX.Element {
     <Routes>
       <Route path="/" element={<AdminShell />}>
         <Route index element={<HomePage />} />
+        <Route path="products/new" element={<ProductNewPage />} />
         <Route path="products" element={<ProductListPage />} />
+        <Route
+          path="product-categories/new"
+          element={<ProductCategoryNewPage />}
+        />
         <Route
           path="product-categories"
           element={<ProductCategoryListPage />}

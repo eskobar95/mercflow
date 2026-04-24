@@ -34,6 +34,17 @@ export function AppSidebar(): JSX.Element {
         <NavLink to="/product-categories" className={navItemClass}>
           Product categories
         </NavLink>
+        <p
+          className="mt-2 px-2 pt-1 text-xs font-medium uppercase tracking-wide text-content-tertiary"
+        >
+          Create
+        </p>
+        <NavLink to="/products/new" className={navItemClass} end>
+          New product
+        </NavLink>
+        <NavLink to="/product-categories/new" className={navItemClass} end>
+          New category
+        </NavLink>
         <NavLink to="/list-demo" className={navItemClass}>
           List demo
         </NavLink>

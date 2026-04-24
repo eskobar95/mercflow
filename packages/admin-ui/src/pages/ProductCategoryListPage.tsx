@@ -119,6 +119,12 @@ export function ProductCategoryListPage(): JSX.Element {
             end={
               <div className="flex flex-wrap items-center gap-2">
                 <Link
+                  to="/product-categories/new"
+                  className="rounded-md bg-interactive-primary px-3 py-1.5 text-sm font-medium text-content-inverse transition hover:bg-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
+                >
+                  New category
+                </Link>
+                <Link
                   to="/products"
                   className="text-sm font-medium text-interactive-primary hover:text-interactive-primary-hover"
                 >
