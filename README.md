@@ -25,8 +25,9 @@ Use each path’s `README.md` for run instructions (`apps/backend` for the Medus
 
 The repo uses **pnpm** workspaces (`pnpm-workspace.yaml`).
 
-- **Install:** from the repository root, `pnpm install`.
+- **Install:** from the repository root, `pnpm install` (in CI: `pnpm install --frozen-lockfile`).
 - **Medusa backend (dev):** `pnpm dev:backend` (runs `@mercflow/backend`).
+- **Monorepo checks:** `pnpm typecheck`, `pnpm build`, `pnpm lint`, `pnpm test`, and `pnpm ci` (local replica of the CI entrypoints).
 - **Build / other dev:** see root `package.json` and per-package READMEs.
 
 ## Local development database (PostgreSQL in Docker)
@@ -41,4 +42,5 @@ The repo uses **pnpm** workspaces (`pnpm-workspace.yaml`).
 
 - Project rules and boundaries: `[AGENTS.md](./AGENTS.md)`
 - High-level product and architecture docs (when available): `docs/PRD.md`, `docs/ARCHITECTURE.md`
+- CI overview (GitHub Actions jobs + required checks guidance): `docs/CI.md`
 - Per-package details: each package and app under `packages/` and `apps/` has its own `README.md` once the monorepo is materialized.

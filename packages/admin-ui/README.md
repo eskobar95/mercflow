@@ -65,7 +65,18 @@ pnpm build:design-tokens
 pnpm build:admin-ui
 ```
 
-Vite output is written to `dist/` in this package (gitignored). The design-tokens package keeps its `dist/` under version control so the workspace can resolve the CSS file without a prior build in fresh clones if needed.
+Vite output is written to `dist/` in this package (gitignored). `@mercflow/design-tokens` must be built so `mercflow-tokens.css` exists; `prebuild` does that for production builds, and `pretest:e2e` does it before Playwright starts the Vite dev server.
+
+## Tests
+
+- **Unit / component tests (Vitest):** from the monorepo root, `pnpm test` runs the workspace test projects (this package is configured with a `jsdom` environment).
+- **Playwright smoke (E2E):** `pnpm --filter @mercflow/admin-ui test:e2e` (starts Vite via Playwright; CI starts Vite in the workflow instead — see `docs/CI.md`)
+
+On a fresh machine, install Playwright browsers once:
+
+```sh
+pnpm --filter @mercflow/admin-ui exec playwright install
+```
 
 ## Layout audit (Batch 1)
 

@@ -1,0 +1,166 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, test, typecheck, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
+
+  backend-integration:
+    name: Backend (Postgres + migrations)
+    runs-on: ubuntu-latest
+    needs: [check]
+    timeout-minutes: 30
+    # Environment secrets (DATABASE_URL, JWT_SECRET, COOKIE_SECRET) are defined
+    # under Settings → Environments → backend. Value of DATABASE_URL must match
+    # the Postgres service below (e.g. postgres://mercflow@localhost:5432/mercflow with trust).
+    environment: backend
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: mercflow
+          POSTGRES_DB: mercflow
+          # CI-only: no password; runner connects to the service on localhost
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U mercflow -d mercflow"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Medusa migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          COOKIE_SECRET: ${{ secrets.COOKIE_SECRET }}
+        run: pnpm --filter @mercflow/backend db:migrate
+
+      - name: Typecheck (backend, post-migration)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          COOKIE_SECRET: ${{ secrets.COOKIE_SECRET }}
+        run: pnpm --filter @mercflow/backend typecheck
+
+      - name: Build (backend, post-migration)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          COOKIE_SECRET: ${{ secrets.COOKIE_SECRET }}
+        run: pnpm --filter @mercflow/backend build
+
+  admin-ui-e2e:
+    name: Admin UI (Playwright smoke)
+    runs-on: ubuntu-latest
+    needs: [check]
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm --filter @mercflow/admin-ui exec playwright install --with-deps
+
+      - name: Build design tokens (E2E)
+        run: pnpm --filter @mercflow/design-tokens build
+
+      - name: Start Vite (background)
+        run: |
+          pnpm --filter @mercflow/admin-ui run dev:playwright > /tmp/vite.log 2>&1 &
+          echo $! > /tmp/vite.pid
+          for i in $(seq 1 90); do
+            if curl -fsS "http://127.0.0.1:5173/" -o /dev/null; then
+              echo "Vite is ready (attempt $i)"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Vite did not become ready. Log:"
+          cat /tmp/vite.log || true
+          exit 1
+
+      - name: Playwright smoke
+        env:
+          PLAYWRIGHT_SKIP_SERVER: "1"
+        run: pnpm --filter @mercflow/admin-ui exec playwright test

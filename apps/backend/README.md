@@ -53,6 +53,10 @@ For `pnpm db:revert`, use the same filter. To **generate** new migrations for th
 pnpm --filter @mercflow/backend typecheck
 ```
 
+## Production build
+
+`medusa build` compiles the server and bundles the Medusa admin client. The app declares the usual admin UI client dependencies (`@medusajs/dashboard`, `@medusajs/draft-order`, `react`, and related packages) in `package.json` so bundling can resolve the generated `.medusa/client/entry.jsx` graph in CI. Generated output (for example `apps/backend/.medusa/`) is gitignored.
+
 ## Smoke check (content API)
 
 With the server running, an authenticated admin request (session cookie, API key, or bearer per your Medusa setup) against:

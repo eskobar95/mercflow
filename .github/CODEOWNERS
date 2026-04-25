@@ -1,0 +1,8 @@
+# Default owner for review requests. Adjust teams/usernames to match your GitHub org.
+* @eskoubar95
+
+# Sensitive integration surfaces
+apps/backend/ @eskoubar95
+packages/content-module/ @eskoubar95
+**/migrations/ @eskoubar95
+.github/workflows/ @eskoubar95

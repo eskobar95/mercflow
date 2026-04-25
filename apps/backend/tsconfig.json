@@ -11,7 +11,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "include": ["medusa-config.ts", "src/**/*.ts"],
+  "include": ["medusa-config.ts", "src/**/*.ts", "test/**/*.ts"],
   "ts-node": {
     "transpileOnly": true
   }
