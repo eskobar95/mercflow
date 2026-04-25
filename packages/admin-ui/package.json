@@ -7,6 +7,8 @@
   "scripts": {
     "prebuild": "pnpm --filter @mercflow/design-tokens build",
     "build": "vite build",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
     "dev": "vite"
   },
@@ -25,6 +27,7 @@
     "react-router-dom": "6.28.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.50.1",
     "@types/node": "^22.10.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
@@ -33,7 +36,8 @@
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.15",
     "typescript": "^5.6.3",
-    "vite": "^5.4.10"
+    "vite": "^5.4.10",
+    "vitest": "^3.2.0"
   },
   "engines": {
     "node": ">=20"

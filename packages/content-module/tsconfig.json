@@ -16,7 +16,7 @@
     "rootDir": ".",
     "baseUrl": "."
   },
-  "include": ["src/**/*.ts", "medusa-config.ts"],
+  "include": ["src/**/*.ts", "test/**/*.ts", "medusa-config.ts"],
   "exclude": ["src/**/migrations/**"],
   "ts-node": {
     "transpileOnly": true

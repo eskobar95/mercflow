@@ -67,6 +67,17 @@ pnpm build:admin-ui
 
 Vite output is written to `dist/` in this package (gitignored). The design-tokens package keeps its `dist/` under version control so the workspace can resolve the CSS file without a prior build in fresh clones if needed.
 
+## Tests
+
+- **Unit / component tests (Vitest):** from the monorepo root, `pnpm test` runs the workspace test projects (this package is configured with a `jsdom` environment).
+- **Playwright smoke (E2E):** `pnpm --filter @mercflow/admin-ui test:e2e`
+
+On a fresh machine, install Playwright browsers once:
+
+```sh
+pnpm --filter @mercflow/admin-ui exec playwright install
+```
+
 ## Layout audit (Batch 1)
 
 A file-level map of the shell versus follow-up layout work is in `LAYOUT-AUDIT.md`. Modal, overlay, and dialog-style usage (current tree + fork handoff) are documented in `MODAL-AUDIT.md`.

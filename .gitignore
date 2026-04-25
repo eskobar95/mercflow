@@ -4,8 +4,17 @@
 # Admin UI (Vite) build output
 packages/admin-ui/dist/
 
+# Medusa backend build / generated output
+apps/backend/.medusa/
+
 # Dependencies and local environment (monorepo)
 node_modules/
 .env
 .env.local
 .env.*.local
+
+# Tooling / test artifacts
+.eslintcache
+coverage/
+playwright-report/
+test-results/
