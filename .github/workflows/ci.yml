@@ -12,12 +12,6 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# Ephemeral CI DB: trust auth in the service container (no password in the repo;
-# not suitable for production). Medusa still expects JWT/cookie env at migration/build;
-# use single-character placeholders so scanners do not treat them as generic passwords.
-env:
-  CI_DATABASE_URL: postgres://mercflow@localhost:5432/mercflow
-
 jobs:
   check:
     name: Lint, test, typecheck, build
@@ -60,6 +54,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [check]
     timeout-minutes: 30
+    # Environment secrets (DATABASE_URL, JWT_SECRET, COOKIE_SECRET) are defined
+    # under Settings → Environments → backend. Value of DATABASE_URL must match
+    # the Postgres service below (e.g. postgres://mercflow@localhost:5432/mercflow with trust).
+    environment: backend
     services:
       postgres:
         image: postgres:16-alpine
@@ -97,23 +95,23 @@ jobs:
 
       - name: Run Medusa migrations
         env:
-          DATABASE_URL: ${{ env.CI_DATABASE_URL }}
-          JWT_SECRET: "x"
-          COOKIE_SECRET: "x"
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          COOKIE_SECRET: ${{ secrets.COOKIE_SECRET }}
         run: pnpm --filter @mercflow/backend db:migrate
 
       - name: Typecheck (backend, post-migration)
         env:
-          DATABASE_URL: ${{ env.CI_DATABASE_URL }}
-          JWT_SECRET: "x"
-          COOKIE_SECRET: "x"
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          COOKIE_SECRET: ${{ secrets.COOKIE_SECRET }}
         run: pnpm --filter @mercflow/backend typecheck
 
       - name: Build (backend, post-migration)
         env:
-          DATABASE_URL: ${{ env.CI_DATABASE_URL }}
-          JWT_SECRET: "x"
-          COOKIE_SECRET: "x"
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          COOKIE_SECRET: ${{ secrets.COOKIE_SECRET }}
         run: pnpm --filter @mercflow/backend build
 
   admin-ui-e2e:

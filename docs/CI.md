@@ -7,7 +7,7 @@ The workflow at `.github/workflows/ci.yml` runs on pushes to `main` and on pull 
 Jobs:
 
 - **`check`**: `pnpm install --frozen-lockfile`, then `pnpm lint`, `pnpm test`, `pnpm typecheck`, `pnpm build`
-- **`backend-integration`**: PostgreSQL 16 (service) med `POSTGRES_HOST_AUTH_METHOD=trust` i CI (ingen hemmeligheder i repo) + `pnpm --filter @mercflow/backend db:migrate`, derefter backend `typecheck` + `build`
+- **`backend-integration`**: Jobbet bruger GitHub-miljøet `backend` (Settings → Environments) med secrets `DATABASE_URL`, `JWT_SECRET` og `COOKIE_SECRET`. `DATABASE_URL` skal pege på den indbyggede Postgres-service i workflow’en (fx `postgres://mercflow@localhost:5432/mercflow` når I bruger trust). Derefter `db:migrate`, backend `typecheck` og `build`.
 - **`admin-ui-e2e`**: installs Playwright browsers, then `pnpm --filter @mercflow/admin-ui test:e2e` (Vite dev server is started by Playwright)
 
 ## Local CI replica
