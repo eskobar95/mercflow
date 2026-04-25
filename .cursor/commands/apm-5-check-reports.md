@@ -17,6 +17,10 @@ Accepts optional `[agent-id ...]` arguments. With arguments, checks those Worker
 2. Scan Report Buses: scan and read all Report Buses in a single terminal invocation, e.g., `for f in .apm/bus/*/report.md; do [ -s "$f" ] && echo "=== $f ===" && cat "$f"; done` (or platform equivalent). This discovers non-empty buses, reads their content, and includes path markers for cross-referencing against active dispatches. If any unexpected bus has content (beyond the actively dispatched Workers), include it and inform the User. If no buses have content, inform User that no pending reports are available. Await next invocation. If one or more have content, continue to step 3 for each.
 
 3. Process report(s): for each Report Bus with content, process per `.cursor/apm-guides/task-review.md` §3 Task Review Procedure.
+4. Paperclip alignment gate (mandatory):
+   - For each reported task, verify the matching Paperclip issue status, assignee, and `Blocked by` state before accepting completion.
+   - Mirror manager follow-up comments/actions back to the orchestration issue graph (use explicit issue IDs).
+   - If report state and Paperclip state diverge, treat it as a coordination blocker and request correction before progressing downstream tasks.
 
 ---
 

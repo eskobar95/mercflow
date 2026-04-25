@@ -1,6 +1,7 @@
 ---
 
 ## command_name: initiate-manager
+
 description: Initiate an APM Manager.
 
 # APM 1.0.1 - Manager Initiation Command
@@ -47,7 +48,7 @@ Perform the following actions:
   - *Version control conventions:* present the default version control model, then layer in project-specific observations. By default in APM, each Task gets a feature branch off the base branch, Workers commit on their assigned branch, you merge completed branches back to base, and when multiple Workers operate in parallel each gets an isolated worktree. Remotes are not pushed to by default. Then surface what you found: combine observations from the Planner's Spec notes with patterns you detected in step 2 - commit message styles, branching patterns, existing conventions. Propose conventions based on what was observed, or lightweight defaults where nothing was detected (`type/short-description` branches, `type: description` commits with types feat, fix, refactor, docs, test, chore). Confirm the base branch for each repository. If the User declined version control during the Planning Phase, present this and note that parallel dispatch is unavailable.
 4. Ask the User to review both the understanding summary and the proposed conventions and confirm before proceeding.
   - If corrections needed, integrate feedback and re-present.
-  - If approved, write the Tracker's Version Control table (one row per repository with base branch, branch convention, and commit convention), write commit conventions to `AGENTS.md` within the APM_RULES block, populate Task Tracking with Stage 1 Tasks per `.cursor/apm-guides/task-review.md` §4.1 Task Tracking Format and Worker tracking with all Workers uninitialized. Then generate the first Task Prompt(s) per `.cursor/apm-guides/task-assignment.md` §3.1 Dispatch Assessment and proceed to §3 Continuous Coordination.
+  - If approved, write the Tracker's Version Control table (one row per repository with base branch, branch convention, and commit convention), write commit conventions to `AGENTS.md` within the APM_RULES block, populate Task Tracking with Stage 1 Tasks per `.cursor/apm-guides/task-review.md` §4.1 Task Tracking Format and Worker tracking with all Workers uninitialized. Then execute §2.3 Paperclip Sync Gate and proceed to §3 Continuous Coordination.
 
 ### 2.2 Incoming Manager Initiation
 
@@ -61,11 +62,26 @@ Perform the following actions:
 
 ---
 
+## 2.3 Paperclip Sync Gate (Before Orchestration Dispatch)
+
+This project uses a sync gate between local APM planning and Paperclip execution orchestration.
+
+Before dispatching implementation work, perform this gate in order:
+
+1. Run `/apm-2.5-sync-paperclip` to transfer approved batch plan/spec into Paperclip issue graph (orchestration issue, sub-issues, labels, reviewer/approver, `Blocked by`).
+2. Ensure sync artifact exists and is complete (e.g., `.paperclip/sync/batch-N-sync.md`).
+3. Run `/apm-2.6-commit-sync` to commit and push sync artifacts.
+4. Run `/apm-2.7-start-orchestration` to trigger Walter on the batch orchestration issue.
+
+Do not start implementation dispatch until this gate is complete.
+
+---
+
 ## 3. Continuous Coordination
 
 After each review, reassess readiness and continue to dispatch in the same turn when Tasks are Ready without waiting for User input per `.cursor/apm-guides/task-review.md` §2.4 Parallel Coordination Standards. Repeat until all Stages complete, User input is needed, User intervenes, or Handoff is needed.
 
-1. **Dispatch:** Run dispatch assessment per `.cursor/apm-guides/task-assignment.md` §3.1 Dispatch Assessment, construct and deliver Task Prompt(s) per `.cursor/apm-guides/task-assignment.md` §3.3 Task Prompt Construction. Direct User to the Worker(s).
+1. **Dispatch:** Run dispatch assessment per `.cursor/apm-guides/task-assignment.md` §3.1 Dispatch Assessment, construct and deliver Task Prompt(s) per `.cursor/apm-guides/task-assignment.md` §3.3 Task Prompt Construction. Ensure dispatch aligns with the active Paperclip orchestration graph (parent/sub-issues + `Blocked by`). Direct User to the Worker(s).
 2. **Await Report:** User runs `/apm-4-check-tasks` in Worker chat(s). Workers execute, validate, log, and write Task Report(s) to Report Bus. User runs `/apm-5-check-reports` in this chat.
 3. **Review and Continue.** Process the report per `.cursor/apm-guides/task-review.md` §3 Task Review Procedure: review the Task Log, investigate further if needed and determine review outcome, modify planning documents if needed, update the Tracker. Then in the same turn:
   - *Tasks Ready:* Continue to step 1.
