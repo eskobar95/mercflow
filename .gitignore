@@ -1,5 +1,11 @@
-# APM session artifacts (runtime: Task Logs, bus messages, worktrees) — not source code
-.apm/
+# APM: track plan, spec, tracker, and memory index; keep runtime artifacts untracked
+.apm/**
+!.apm/plan.md
+!.apm/spec.md
+!.apm/tracker.md
+!.apm/memory/
+.apm/memory/**
+!.apm/memory/index.md
 
 # Admin UI (Vite) build output
 packages/admin-ui/dist/

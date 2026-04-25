@@ -5,14 +5,16 @@ APM_RULES {
 - Respond to the User in Danish unless the User explicitly requests another language.
 - Use English for all code, comments, identifiers, commit messages, and technical documentation.
 - Keep status updates concise and actionable.
-- When project management context matters, validate the work against the current Batch 1 scope and the project guidelines in this file before proceeding.
+- When project management context matters, validate the work against the current Batch 2 scope and the project guidelines in this file before proceeding.
 
 ## Project Boundaries
 
 - MercFlow is an opinionated Medusa v2 distribution built from MercFlow-owned packages and app-level integration points.
 - Do not modify Medusa core packages, `node_modules`, or third-party source files directly.
 - Do not touch Guapo production configuration, credentials, environment variables, or other Guapo-specific production assets.
-- Batch 1 work is admin-layer work. Do not add storefront integrations, Nordic payment/shipping modules, page builder/blog work, dark mode, or public release work unless the User explicitly changes scope.
+- Batch 2 work may include admin-controlled SEO infrastructure, Google Shopping XML feed output, inventory and purchase order workflows, order-operation extensions, and backend-served public output such as `sitemap.xml`, `robots.txt`, and feed XML.
+- Guapo is the first internal validation case, but MercFlow must remain generic. Do not hardcode Guapo-specific assumptions, copy, production assets, credentials, store URLs, or operational configuration into MercFlow packages.
+- Do not add Nordic payment modules, shipping label integrations, page builder/blog work, dark mode, automated low-stock ordering, EDI/supplier integrations, Amazon/Pricerunner feeds, or public release work unless the User explicitly changes scope.
 - Keep backend custom logic in MercFlow modules and backend registration points. The backend app registers modules; it should not become a dumping ground for custom business logic.
 
 ## TypeScript and Code Style
@@ -62,6 +64,7 @@ APM_RULES {
 ## Content Module and Medusa Data Layer
 
 - Content-related data models, services, migrations, and API extensions belong in the MercFlow content module.
+- SEO infrastructure belongs in a MercFlow SEO module, feed generation belongs in a MercFlow feed module, and inventory/purchase-order/order-extension data belongs in a MercFlow inventory module. Keep module ownership clear and avoid duplicating the same meaningful field across modules.
 - Use Medusa DML through `model.define` for data models. Do not write raw MikroORM entity classes.
 - Do not define `created_at`, `updated_at`, or `deleted_at` manually; Medusa DML manages them.
 - Extend `MedusaService` for module services. Do not build service classes from scratch.
@@ -69,6 +72,8 @@ APM_RULES {
 - Use Medusa's `MedusaError` for service-layer errors. Do not throw raw `Error` objects from services.
 - Use Zod for admin API request validation before accessing request body fields.
 - Locale-aware content should read and write only the active locale, defaulting to `en` when no locale is provided.
+- Backend public-output routes such as sitemap, robots, redirect, metadata, and feed endpoints must return correct status codes, content types, and cache behavior for their consumers. Test XML/text output as output, not just as strings.
+- Purchase order receipt in Batch 2 records MercFlow ordered/incoming/received history and must not silently mutate Medusa stock unless a Task explicitly introduces that behavior. UI and service responses must make this boundary clear.
 
 ## Database and Migrations
 
@@ -98,6 +103,8 @@ APM_RULES {
 - Validate database and backend work against local PostgreSQL, not production or staging.
 - For admin UI work, verify accessibility basics, loading states, error states, and token-backed styling.
 - For content module work, verify model definitions, migration behavior, service validation, API validation, and README accuracy.
+- For SEO and feed work, verify public route output, content types, slug behavior, redirect behavior, XML validity, validation reports, and caching/regeneration behavior where implemented.
+- For inventory, purchase order, and order-extension work, verify status transitions, receipt calculations, incoming quantities, internal-note behavior, and the boundary between MercFlow records and Medusa stock/order data.
 
 ## Stop and Ask
 
@@ -106,6 +113,7 @@ APM_RULES {
 - Stop and ask if it is unclear whether a new UI element belongs in `admin-ui` or `design-tokens`.
 - Stop and ask if two existing codebase patterns conflict and no canonical pattern is clear.
 - Stop and ask if the task is underspecified and reasonable interpretations would lead to meaningfully different implementations.
+- Stop and ask before adding automatic Medusa stock mutation, external platform connections, wildcard/regex redirects, new feed formats, or new content-module fields not explicitly required by the current Task.
 
 ## Version control and commits
 
@@ -113,6 +121,13 @@ APM_RULES {
 - Use types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, and `migration` for database migration commits only.
 - One commit per logical, working change unless an APM Task batch explicitly requires multiple commits on the same branch.
 - Feature branch names are short, kebab-case, and describe the work; they do not include APM stage or task numbers.
+
+## APM session version control (this repository)
+
+- **Repository:** MercFlow monorepo root; **base branch:** `main`.
+- **Tracked in git (see root `.gitignore`):** `.apm/plan.md`, `.apm/spec.md`, `.apm/tracker.md`, and `.apm/memory/index.md`. Task logs (e.g. `.apm/memory/stage-*/`), Message Bus files under `.apm/bus/`, and worktrees under `.apm/worktrees/` stay untracked.
+- **Parallel Workers:** use isolated git worktrees under `.apm/worktrees/` (cap concurrent worktrees at 3–4); code work happens in the worktree, while `.apm` Task Logs and bus paths resolve from the project root.
+- **Merge policy:** after a successful Task review, merge the feature branch into `main` when dependents need the work or at stage end; do not let completed branches diverge unmerged before dependent dispatch.
 
 ## APM — Manager use of subagents
 
@@ -124,7 +139,7 @@ The Manager uses **Task** subagents only when the work fits the categories below
 | Large or ambiguous codebase or artifact investigation; risk of burning Manager context on exploration | `explore` (read-only)                      | Before changing planning documents or follow-up prompts when the answer requires reading many files or tracing patterns across the tree. |
 | Non-trivial merge conflicts, or a defect that needs deep cross-file tracing                           | `generalPurpose` or `shell` as appropriate | When the Manager cannot resolve from the Task Log and a focused investigation is needed.                                                 |
 | Holistic stage verification (integration checks) that are too heavy to run inline                     | `tester` or `explore`                      | When task-review calls for end-of-stage verification and the Manager cannot run the full validation in-session.                          |
-| Medusa or DB migration work                                                                           | `migrator`                                 | Only when a task explicitly involves generating or running MercFlow `content-module` migrations per project rules.                       |
+| Medusa or DB migration work                                                                           | `migrator`                                 | Only when a task explicitly involves generating or running MercFlow module migrations per project rules.                                 |
 
 
 **Do not** spawn subagents for: drafting or delivering Task Prompts, routine Tracker or bus updates, straightforward log review, or merges that complete with no conflicts.
