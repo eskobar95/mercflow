@@ -65,7 +65,7 @@ pnpm build:design-tokens
 pnpm build:admin-ui
 ```
 
-Vite output is written to `dist/` in this package (gitignored). The design-tokens package keeps its `dist/` under version control so the workspace can resolve the CSS file without a prior build in fresh clones if needed.
+Vite output is written to `dist/` in this package (gitignored). `@mercflow/design-tokens` must be built so `mercflow-tokens.css` exists; `prebuild` does that for production builds, and `pretest:e2e` does it before Playwright starts the Vite dev server.
 
 ## Tests
 

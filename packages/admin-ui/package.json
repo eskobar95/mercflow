@@ -8,6 +8,7 @@
     "prebuild": "pnpm --filter @mercflow/design-tokens build",
     "build": "vite build",
     "test": "vitest run",
+    "pretest:e2e": "pnpm --filter @mercflow/design-tokens build",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
     "dev": "vite"
