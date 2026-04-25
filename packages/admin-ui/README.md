@@ -70,7 +70,7 @@ Vite output is written to `dist/` in this package (gitignored). `@mercflow/desig
 ## Tests
 
 - **Unit / component tests (Vitest):** from the monorepo root, `pnpm test` runs the workspace test projects (this package is configured with a `jsdom` environment).
-- **Playwright smoke (E2E):** `pnpm --filter @mercflow/admin-ui test:e2e`
+- **Playwright smoke (E2E):** `pnpm --filter @mercflow/admin-ui test:e2e` (starts Vite via Playwright; CI starts Vite in the workflow instead — see `docs/CI.md`)
 
 On a fresh machine, install Playwright browsers once:
 

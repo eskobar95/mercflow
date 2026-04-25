@@ -8,7 +8,7 @@ Jobs:
 
 - **`check`**: `pnpm install --frozen-lockfile`, then `pnpm lint`, `pnpm test`, `pnpm typecheck`, `pnpm build`
 - **`backend-integration`**: Jobbet bruger GitHub-miljøet `backend` (Settings → Environments) med secrets `DATABASE_URL`, `JWT_SECRET` og `COOKIE_SECRET`. `DATABASE_URL` skal pege på den indbyggede Postgres-service i workflow’en (fx `postgres://mercflow@localhost:5432/mercflow` når I bruger trust). Derefter `db:migrate`, backend `typecheck` og `build`.
-- **`admin-ui-e2e`**: installs Playwright browsers, then `pnpm --filter @mercflow/admin-ui test:e2e` (Vite dev server is started by Playwright)
+- **`admin-ui-e2e`**: builds `design-tokens`, starts Vite in the job (`dev:playwright` on `0.0.0.0:5173`), waits until `http://127.0.0.1:5173` responds, then `playwright test` with `PLAYWRIGHT_SKIP_SERVER=1` (Playwright’s built-in `webServer` is only used for local E2E)
 
 ## Local CI replica
 

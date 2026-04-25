@@ -11,7 +11,8 @@
     "pretest:e2e": "pnpm --filter @mercflow/design-tokens build",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
-    "dev": "vite"
+    "dev": "vite",
+    "dev:playwright": "vite --host 0.0.0.0 --port 5173 --strictPort"
   },
   "dependencies": {
     "@mercflow/design-tokens": "workspace:*",

@@ -142,5 +142,25 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm --filter @mercflow/admin-ui exec playwright install --with-deps
 
+      - name: Build design tokens (E2E)
+        run: pnpm --filter @mercflow/design-tokens build
+
+      - name: Start Vite (background)
+        run: |
+          pnpm --filter @mercflow/admin-ui run dev:playwright > /tmp/vite.log 2>&1 &
+          echo $! > /tmp/vite.pid
+          for i in $(seq 1 90); do
+            if curl -fsS "http://127.0.0.1:5173/" -o /dev/null; then
+              echo "Vite is ready (attempt $i)"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Vite did not become ready. Log:"
+          cat /tmp/vite.log || true
+          exit 1
+
       - name: Playwright smoke
-        run: pnpm --filter @mercflow/admin-ui test:e2e
+        env:
+          PLAYWRIGHT_SKIP_SERVER: "1"
+        run: pnpm --filter @mercflow/admin-ui exec playwright test

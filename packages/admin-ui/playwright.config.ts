@@ -1,5 +1,9 @@
 import { defineConfig, devices } from "@playwright/test"
 
+// In GitHub Actions we start Vite in the workflow (more reliable than Playwright's
+// webServer subprocess there). Local runs still use `webServer` below.
+const useExternalVite = process.env.PLAYWRIGHT_SKIP_SERVER === "1"
+
 export default defineConfig({
   testDir: "e2e",
   fullyParallel: true,
@@ -17,11 +21,14 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
   ],
-  webServer: {
-    command: "pnpm dev -- --host 127.0.0.1 --port 5173",
-    url: "http://127.0.0.1:5173",
-    reuseExistingServer: !process.env.CI,
-    // design-tokens `dist/` is built in `pretest:e2e`; first Vite boot can be slow in CI
-    timeout: process.env.CI ? 180_000 : 120_000,
-  },
+  ...(useExternalVite
+    ? {}
+    : {
+        webServer: {
+          command: "pnpm run dev:playwright",
+          url: "http://127.0.0.1:5173",
+          reuseExistingServer: !process.env.CI,
+          timeout: 120_000,
+        },
+      }),
 })
