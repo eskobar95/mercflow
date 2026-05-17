@@ -34,6 +34,8 @@ describe("content module CMS schema", (): void => {
       "../src/modules/content/migrations/Migration20260517203000.ts"
     )
     const src = readFileSync(path, "utf8")
+    expect(src).toContain('drop table if exists "product_content"')
+    expect(src).toContain('drop table if exists "category_content"')
     for (const table of TABLES) {
       expect(src).toContain(`create table if not exists "${table}"`)
     }

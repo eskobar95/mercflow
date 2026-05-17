@@ -16,7 +16,7 @@
     "test": "vitest run",
     "db:generate": "medusa db:generate content",
     "db:migrate": "medusa db:migrate",
-    "db:revert": "medusa db:revert"
+    "db:rollback": "medusa db:rollback --modules content"
   },
   "dependencies": {
     "@medusajs/framework": "2.14.1",

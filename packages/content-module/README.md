@@ -221,9 +221,11 @@ curl -sS -X POST -H "Authorization: Bearer TOKEN" -H "Content-Type: application/
 
    With no database, author SQL carefully, keep DML and migration aligned, and regenerate snapshots when possible.
 
-4. **Revert (local only):** `pnpm --filter @mercflow/backend db:revert` — follow Medusa’s behaviour for the last batch.
+4. **Rollback last content-module batch (local only):** `pnpm --filter @mercflow/backend db:rollback` rolls back migrations for the `content` module only.
 
 **Throwaway / package-only database:** `pnpm --filter @mercflow/content-module db:migrate` uses this package’s `medusa-config.ts` and, with Medusa 2.14.1, can apply **core** commerce migrations in addition to this module. Use only a **disposable** database for that. Do **not** run migrations against production or staging from this document.
+
+**Monorepo shortcuts:** `pnpm migration:run` and `pnpm migration:revert` (repo root) delegate to `@mercflow/backend` for the same migrate / rollback behaviour.
 
 **Isolated check for this package:** `pnpm --filter @mercflow/content-module typecheck` (DML, service, routes, integrations; generated migration files are excluded from `tsc`—see `tsconfig.json`).
 
@@ -234,7 +236,7 @@ curl -sS -X POST -H "Authorization: Bearer TOKEN" -H "Content-Type: application/
 | `pnpm typecheck` | `tsc --noEmit` for this package |
 | `pnpm db:generate` | `medusa db:generate content` (requires `DATABASE_URL`) |
 | `pnpm db:migrate` | `medusa db:migrate` |
-| `pnpm db:revert` | `medusa db:revert` |
+| `pnpm db:rollback` | `medusa db:rollback --modules content` |
 
 ## What does not belong here
 

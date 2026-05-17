@@ -15,9 +15,24 @@ import { Migration } from "@medusajs/framework/mikro-orm/migrations"
  * Reversible: Yes — down() drops all eleven tables (CASCADE on dependent FKs handled by order)
  * Generated via: Hand-authored to match DML in `src/modules/content/models/*.ts`
  *   (CLI `medusa db:generate` requires a live Postgres; refresh snapshots locally when available).
+ *
+ * Upgrade note: If legacy `product_content` / `category_content` from Migration20260424202438 exist,
+ * they are dropped first so the new per-locale schema can be created (data loss for those two rows).
  */
 export class Migration20260517203000 extends Migration {
   override async up(): Promise<void> {
+    this.addSql(`drop table if exists "product_attr_link" cascade;`)
+    this.addSql(`drop table if exists "product_attribute" cascade;`)
+    this.addSql(`drop table if exists "media_asset" cascade;`)
+    this.addSql(`drop table if exists "cms_redirect" cascade;`)
+    this.addSql(`drop table if exists "cms_global" cascade;`)
+    this.addSql(`drop table if exists "page_block" cascade;`)
+    this.addSql(`drop table if exists "page_version" cascade;`)
+    this.addSql(`drop table if exists "page" cascade;`)
+    this.addSql(`drop table if exists "article" cascade;`)
+    this.addSql(`drop table if exists "category_content" cascade;`)
+    this.addSql(`drop table if exists "product_content" cascade;`)
+
     this.addSql(`
       create table if not exists "product_content" (
         "id" text not null,

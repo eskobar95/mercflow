@@ -69,7 +69,7 @@ class ContentModuleService extends MedusaService({
     }
     throw new MedusaError(
       MedusaError.Types.INVALID_DATA,
-      "description_rich must be a JSON object when provided"
+      "body content must be a JSON object when provided"
     )
   }
 
