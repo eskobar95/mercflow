@@ -704,6 +704,19 @@ The code review loop (Stage 3) is internal to the Worker's run:
 - CHANGES REQUESTED → Worker fixes on the same branch, re-requests review (no Status change)
 - Cycle 3 hit → set Status → Blocked, add comment explaining escalation
 
+**Escape from Blocked — two paths:**
+
+| Type | Cause | How to unblock |
+|---|---|---|
+| Dependency blocked | `Blocked by` task not Done | Human sets blocking task to Done, then sets this task → In Progress |
+| Code review blocked | Cycle 3 hit | Human reads task comments, clarifies task description or fixes code, then sets → In Progress |
+
+When a Worker Agent starts on a task that was previously `Blocked`:
+1. Read all comments on the task page to understand what blocked it
+2. If code review cycle 3 was hit: read the last reviewer comment for the specific issues
+3. Start a fresh review cycle (reset cycle count to 1)
+4. Add a comment: "Resuming from Blocked — addressing: [issue summary]"
+
 Bugbot and CI run while status is `In Review`. Do not move to `Done` until both pass.
 
 Sprint promotion (Stages 7+8) is a Tech Lead action across multiple tasks,
