@@ -19,52 +19,52 @@ import { tailwindPreset } from "../src/tailwind-preset.js"
 
 describe("colorTree — surface category", () => {
   it("surface.canvas matches snapshot", () => {
-    expect(colorTree.surface.canvas).toMatchInlineSnapshot(`"#f6f6f7"`)
+    expect(colorTree.surface.canvas).toMatchInlineSnapshot(`"#fff8e8"`)
   })
 
   it("surface.default matches snapshot", () => {
-    expect(colorTree.surface.default).toMatchInlineSnapshot(`"#ffffff"`)
+    expect(colorTree.surface.default).toMatchInlineSnapshot(`"#fffdf1"`)
   })
 
   it("surface.subtle matches snapshot", () => {
-    expect(colorTree.surface.subtle).toMatchInlineSnapshot(`"#f9f9f9"`)
+    expect(colorTree.surface.subtle).toMatchInlineSnapshot(`"#fffbf0"`)
   })
 })
 
 describe("colorTree — content category", () => {
   it("content.primary matches snapshot", () => {
-    expect(colorTree.content.primary).toMatchInlineSnapshot(`"#202223"`)
+    expect(colorTree.content.primary).toMatchInlineSnapshot(`"#562f00"`)
   })
 
   it("content.secondary matches snapshot", () => {
-    expect(colorTree.content.secondary).toMatchInlineSnapshot(`"#6d7175"`)
+    expect(colorTree.content.secondary).toMatchInlineSnapshot(`"#8a5220"`)
   })
 
   it("content.danger matches snapshot", () => {
-    expect(colorTree.content.danger).toMatchInlineSnapshot(`"#c52828"`)
+    expect(colorTree.content.danger).toMatchInlineSnapshot(`"#b83010"`)
   })
 })
 
 describe("colorTree — border category", () => {
   it("border.default matches snapshot", () => {
-    expect(colorTree.border.default).toMatchInlineSnapshot(`"#e1e3e5"`)
+    expect(colorTree.border.default).toMatchInlineSnapshot(`"#e8d0a8"`)
   })
 
   it("border.focus matches snapshot", () => {
-    expect(colorTree.border.focus).toMatchInlineSnapshot(`"#2c6ecb"`)
+    expect(colorTree.border.focus).toMatchInlineSnapshot(`"#ff9644"`)
   })
 })
 
 describe("colorTree — interactive category", () => {
   it("interactive.primary.default matches snapshot", () => {
     expect(colorTree.interactive.primary.default).toMatchInlineSnapshot(
-      `"#2c6ecb"`
+      `"#ff9644"`
     )
   })
 
   it("interactive.danger.default matches snapshot", () => {
     expect(colorTree.interactive.danger.default).toMatchInlineSnapshot(
-      `"#c52828"`
+      `"#b83010"`
     )
   })
 })
@@ -144,13 +144,13 @@ describe("radii tokens", () => {
 describe("shadow tokens", () => {
   it("shadows.sm matches snapshot", () => {
     expect(shadows.sm).toMatchInlineSnapshot(
-      `"0 1px 2px rgba(32, 34, 35, 0.08), 0 0 0 1px rgba(32, 34, 35, 0.04)"`
+      `"0 1px 2px rgba(86, 47, 0, 0.08), 0 0 0 1px rgba(86, 47, 0, 0.04)"`
     )
   })
 
   it("shadows.focus matches snapshot", () => {
     expect(shadows.focus).toMatchInlineSnapshot(
-      `"0 0 0 3px rgba(44, 110, 203, 0.35)"`
+      `"0 0 0 3px rgba(255, 150, 68, 0.40)"`
     )
   })
 })
@@ -209,7 +209,7 @@ describe("buildRootStylesheet — --mf-* prefix convention", () => {
   })
 
   it("color vars use --mf-color- prefix", () => {
-    expect(css).toContain("--mf-color-surface-canvas: #f6f6f7;")
+    expect(css).toContain("--mf-color-surface-canvas: #fff8e8;")
   })
 
   it("spacing vars use --mf-spacing- prefix", () => {

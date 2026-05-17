@@ -1,62 +1,76 @@
 /**
- * Batch 1 design token source values (light, spacious admin — Shopify Admin–inspired).
+ * Batch 1 design token source values.
+ * Warm palette derived from colorhunt.co/palette/fffdf1ffce99ff9644562f00.
+ * Base four: #fffdf1 (cream surface) · #ffce99 (peach accent) · #ff9644 (orange interactive) · #562f00 (brown text)
  * All sRGB color literals for the admin UI must originate here (or in this package only).
  */
 export const colorTree = {
   surface: {
-    /** Application canvas / page background */
-    canvas: "#f6f6f7",
-    /** Primary panels, cards, popovers (raised surfaces) */
-    default: "#ffffff",
-    /** Secondary panels, table stripes */
-    subtle: "#f9f9f9",
-    /** Disabled inputs, low-emphasis areas */
-    muted: "#f1f1f1",
-    /** Same as default; use with shadow for elevation if needed */
-    raised: "#ffffff",
-    /** Scrim for modal overlays (light theme) */
-    overlay: "rgba(16, 24, 32, 0.35)",
+    /** Application canvas / page background — warm cream, slightly darker than default */
+    canvas: "#fff8e8",
+    /** Primary panels, cards, popovers — palette base #1 */
+    default: "#fffdf1",
+    /** Secondary panels, table stripes — barely-perceptible warmth */
+    subtle: "#fffbf0",
+    /** Disabled inputs, low-emphasis areas — noticeably warm */
+    muted: "#f5ebda",
+    /** Same as default; use with shadow for elevation */
+    raised: "#fffdf1",
+    /** Scrim for modal overlays — warm brown tint */
+    overlay: "rgba(86, 47, 0, 0.30)",
   },
   content: {
-    primary: "#202223",
-    secondary: "#6d7175",
-    tertiary: "#8c9196",
-    placeholder: "#8c9196",
-    /** Text on primary / danger fill buttons */
-    inverse: "#ffffff",
+    /** Deep warm brown — palette base #4 */
+    primary: "#562f00",
+    /** Mid warm brown for secondary labels */
+    secondary: "#8a5220",
+    /** Light warm brown for captions, timestamps */
+    tertiary: "#b07840",
+    placeholder: "#b07840",
+    /**
+     * Text on filled interactive surfaces (warm cream).
+     * Note: #ff9644 orange is high-luminance — components using the orange
+     * primary button should prefer content.primary (#562f00) as label color
+     * (5.6:1 contrast). content.inverse (#fffdf1) is correct for danger/dark fills.
+     */
+    inverse: "#fffdf1",
     /** Non-interactive de-emphasis */
-    disabled: "#8c9196",
-    /** Links and critical inline messaging */
-    danger: "#c52828",
+    disabled: "#c8a070",
+    /** Inline danger messaging — warm red */
+    danger: "#b83010",
   },
   border: {
-    default: "#e1e3e5",
-    subtle: "#ebebeb",
-    strong: "#8c9196",
-    focus: "#2c6ecb",
+    /** Warm tan — default panel / input border */
+    default: "#e8d0a8",
+    /** Very light warm — table hairlines, dividers */
+    subtle: "#f0e6cc",
+    /** Mid warm brown — strong separator */
+    strong: "#b07840",
+    /** Orange focus ring — palette base #3 */
+    focus: "#ff9644",
   },
   interactive: {
     primary: {
-      default: "#2c6ecb",
-      hover: "#1a5cb0",
-      pressed: "#134c92",
-      /** Ghost / low-emphasis control backgrounds */
-      subtle: "#e6f0ff",
+      /** Warm orange — palette base #3 */
+      default: "#ff9644",
+      hover: "#e87c2a",
+      pressed: "#cc6810",
+      /** Ghost / low-emphasis backgrounds — palette base #2 tint */
+      subtle: "#fff0e0",
     },
     danger: {
-      default: "#c52828",
-      hover: "#9e1f1f",
-      /** Low-emphasis danger surfaces (e.g. banners) */
-      subtle: "#fceded",
+      default: "#b83010",
+      hover: "#8f2210",
+      subtle: "#fdeee8",
     },
-    /** Focus affordance; pair with focus outline styles in admin-ui */
+    /** Focus affordance — pair with focus outline styles in admin-ui */
     focus: {
-      ring: "#2c6ecb",
+      ring: "#ff9644",
     },
     disabled: {
-      background: "#f1f1f1",
-      text: "#8c9196",
-      border: "#e1e3e5",
+      background: "#f5ebda",
+      text: "#c8a070",
+      border: "#e8d0a8",
     },
   },
 } as const
@@ -156,13 +170,14 @@ export const radii = {
 } as const
 
 /**
- * Layered box shadows. Values reference surface/content tokens for consistency.
+ * Layered box shadows. Values reference warm brown undertones for consistency with
+ * the warm cream palette instead of cold blue-black.
  */
 export const shadows = {
-  sm: "0 1px 2px rgba(32, 34, 35, 0.08), 0 0 0 1px rgba(32, 34, 35, 0.04)",
-  md: "0 2px 6px rgba(32, 34, 35, 0.1), 0 0 0 1px rgba(32, 34, 35, 0.06)",
-  lg: "0 8px 24px rgba(32, 34, 35, 0.12), 0 0 0 1px rgba(32, 34, 35, 0.06)",
-  focus: "0 0 0 3px rgba(44, 110, 203, 0.35)",
+  sm: "0 1px 2px rgba(86, 47, 0, 0.08), 0 0 0 1px rgba(86, 47, 0, 0.04)",
+  md: "0 2px 6px rgba(86, 47, 0, 0.10), 0 0 0 1px rgba(86, 47, 0, 0.06)",
+  lg: "0 8px 24px rgba(86, 47, 0, 0.12), 0 0 0 1px rgba(86, 47, 0, 0.06)",
+  focus: "0 0 0 3px rgba(255, 150, 68, 0.40)",
 } as const
 
 export const zIndex = {
