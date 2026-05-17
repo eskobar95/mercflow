@@ -2,83 +2,163 @@
 
 ## Responsibility
 
-This package is the **single source of truth** for MercFlow admin UI visual values: color (surfaces, content, borders, interactive states), spacing, typography, radii, elevation shadows, and z-index. Batch 1 targets a **light, spacious, Shopify Admin–inspired** layout. Other packages (for example `packages/admin-ui`) must consume these tokens and must not hardcode ad hoc colors, spacing, or radii.
+This package is MercFlow's **single source of truth** for shared visual primitives: Shopify Admin–inspired neutrals (`surface`), readable `label` / `brand` hues, layered `interactive` semantics, Tailwind-aligned `spacing`, `typography`, `radius`, elevation `shadow`s, stacking `z-index`, and discreet `motion` timing. Consumers import **CSS variables** (`--mf-*`), the **published Tailwind preset**, or typed **nested maps** for build-time tooling. Do not sprinkle hex literals or orphan spacing scales across packages.
 
-## What does not belong here
+### What does not belong here
 
-- Application or domain logic, React components, or Medusa module code
-- **Dark mode** tokens (out of scope for Batch 1; extend here when the product adds dark theme)
-- Storefront or public-site styling
-- Medusa core patches or files under `node_modules`
+- Application logic, UI components, or Medusa-specific modules
+- **Dark mode** (tracked for a later sprint)
+- Storefront skins or merchant-specific palettes
+- Medusa/core patches (`node_modules` edits)
+
+---
+
+## Naming convention
+
+MercFlow emits **CSS custom properties** as `--mf-{category}-{variant-[...]}` segments (all lowercase kebab-case), for example:
+
+- `--mf-color-surface-default`
+- `--mf-color-label-primary`
+- `--mf-spacing-4`
+- `--mf-motion-duration-page`
+
+---
+
+## Canonical files
+
+| Path | Purpose |
+| ---- | ------- |
+| `src/definitions/batch1.ts` | Literal primitives (colors, spacing map, typography, radii, shadows, z-index, motion). Extend here — never scatter literals elsewhere. |
+| `src/lib/buildRootStylesheet.ts` | Generates the `:root` block from typed definitions (`buildRootStylesheet()` mirrors `tokens.css`). |
+| `src/tokens.css` | Checked-in stylesheet committed to MercFlow conventions; regenerated whenever `pnpm build` runs successfully. Must stay aligned with generator output (Vitest asserts this). |
+| `src/build/writeCssFile.ts` | Build step emitting `dist/mercflow-tokens.css` and refreshing `src/tokens.css`. |
+| `src/tailwind-preset.ts` | `mercflowTailwindPreset`, mapping Tailwind utilities to `var(--mf-...)`. |
+
+---
 
 ## Consuming the package
 
-From another workspace package (after the admin app is wired in Task 2.2+):
+### 1. Global CSS (`:root` variables)
 
-- **Static CSS (recommended for global `index.html` or a root layout import):**  
-  `import "@mercflow/design-tokens/mercflow-tokens.css";`  
-  This applies Design Tokens as `:root` **CSS custom properties** (for example `var(--color-surface-canvas)`).
+```ts
+// Vite/React entry stylesheet
+import "@mercflow/design-tokens/mercflow-tokens.css"
+```
 
-- **TypeScript / build-time (Tailwind theme extension, headless color maps):**  
-  `import { tokens, buildRootStylesheet } from "@mercflow/design-tokens";`  
-  - `tokens` is a read-only nested map of Batch 1 values.  
-  - `buildRootStylesheet()` returns the same `:root` block as the built CSS file (for tooling that injects CSS without a file import).
+Equivalent custom property values also live under `packages/design-tokens/src/tokens.css` for documentation or reviews.
 
-### Naming alignment with the admin UI
+Usage in CSS:
 
-Class names in the admin are expected to map from these variables (see `.cursor/rules/admin-ui.mdc` for the full prefix table), for example:
+```css
+.card {
+  background: var(--mf-color-surface-default);
+  border: 1px solid var(--mf-color-border-default);
+}
+```
 
-| Category    | CSS variable example              | Example Tailwind-style class (once wired) |
-| ----------- | --------------------------------- | ----------------------------------------- |
-| Surfaces    | `--color-surface-canvas`          | `bg-surface-canvas`                       |
-| Text        | `--color-content-primary`         | `text-content-primary`                    |
-| Borders     | `--color-border-default`          | `border-border-default`                    |
-| Interactive | `--color-interactive-primary`     | (semantic utilities / components)         |
-| Spacing     | `--spacing-4`                     | `p-4`, `gap-4` (Tailwind scale)            |
-| Radius      | `--radius-md`                    | `rounded-md`                              |
+Tailwind presets map helpers such as `bg-surface-default` to those same variables.
 
-## Development
+### 2. Tailwind v3 preset (recommended inside workspace apps)
 
-**Prerequisites:** Node.js 20+ and pnpm 9+ (see root `package.json` for `packageManager`).
+```ts
+import { mercflowTailwindPreset } from "@mercflow/design-tokens/tailwind-preset"
+import type { Config } from "tailwindcss"
 
-From the monorepo root:
+const config: Config = {
+  presets: [mercflowTailwindPreset],
+  content: ["./src/**/*.{ts,tsx}"],
+}
+
+export default config
+```
+
+Highlights exposed by the preset:
+
+- Semantic surfaces (`bg-surface-*`)
+- Accessible label colors (`text-label-*`) **plus** backwards-compatible aliases (`text-content-*`)
+- Subdued brand ramps (`bg-brand-subtle`, `text-brand-muted`, …)
+- Full interactive + border ladders
+- Matching spacing/font/radius/shadow/z-index stacks
+
+Examples:
+
+```tsx
+<p className="text-label-primary">Primary copy</p>
+<p className="text-content-secondary">Legacy alias identical to secondary label tones</p>
+<section className="rounded-lg bg-brand-subtle px-6 py-4 shadow-sm" />
+```
+
+### 3. TypeScript helpers
+
+```ts
+import { tokens, buildRootStylesheet } from "@mercflow/design-tokens"
+
+// Nested map mirrors batch1 literals (codegen-friendly)
+console.log(tokens.color.surface.default)
+
+// String output equals `tokens.css` / `dist/mercflow-tokens.css`
+const stylesheet = buildRootStylesheet()
+```
+
+---
+
+## Category reference (`batch1`)
+
+| Domain | Highlights |
+| ------ | ----------- |
+| **Color › surface** | `canvas`, `default`, `subtle`, `muted`, `raised`, `overlay` |
+| **Color › label** | `primary → danger`, `inverse`, placeholders |
+| **Color › brand** | `primary`, `muted`, `subtle` accents (paired with interaction blues for harmony) |
+| **Color › border / interactive** | Default borders, elevated danger states, hover/pressed ladders, ghost fills, disabled states |
+| **Spacing** | 4px-aligned ladder (`spacingScale`), ordered explicitly to avoid ambiguous numeric key sorting |
+| **Typography** | `fontFamily.{sans|mono}`, `fontSize.{2xs…3xl}`, `fontWeight`, `lineHeight`, `letterSpacing` |
+| **Radius** | `none`, `sm`, `md`, `lg`, `xl`, `2xl`, `full` |
+| **Shadow** | `sm`, `md`, `lg`, `focus` (pairs with `@medusajs/ui` / `@radix-ui` usage) |
+| **Z-index** | `base`, `dropdown`, `sticky`, `modalBackdrop`, `modal`, `popover`, `toast` |
+| **Motion** | `--mf-motion-duration-page`, `--mf-motion-easing-page` for shared route transitions |
+
+---
+
+## Development scripts
+
+From repository root:
 
 ```sh
 pnpm install
 pnpm --filter @mercflow/design-tokens build
 pnpm --filter @mercflow/design-tokens typecheck
+pnpm --filter @mercflow/design-tokens test
 ```
 
-From this package directory:
+Or inside this directory:
 
 ```sh
-pnpm build
-pnpm typecheck
+pnpm build     # emits JS + writes dist/mercflow-tokens.css + src/tokens.css
+pnpm typecheck # strict TS (src + Vitest typings)
+pnpm test      # snapshot + invariant suite
 ```
 
-`build` compiles TypeScript to `dist/` and writes `dist/mercflow-tokens.css`.
+Snapshots intentionally fail when literals shift without reviewer intent — rerun with `-u` only after inspecting diffs closely.
 
-## Conventions
+---
 
-- All **color literals** for the admin must live in `src/definitions/batch1.ts` (or future definition files in this package). Do not spread hex values across the repo.
-- **TypeScript** is strict. Do not use `any`. Unknown inputs should be typed as `unknown` and narrowed.
-- **Adding a token** means updating the definition file, the generated `:root` output (via `buildRootStylesheet`), and this README if the public contract or field list changes in a user-visible way.
+## Tests & safeguards
 
-## Field and token set (Batch 1)
+Vitest verifies:
 
-- **Color:** `surface` (canvas, default, subtle, muted, raised, overlay), `content` (primary → danger), `border` (default, subtle, strong, focus), `interactive` (primary / danger with default, hover, pressed, subtle; focus ring; disabled background/text/border).
-- **Spacing:** numeric Tailwind-style scale in `rem` (see `spacingScale` in `src/definitions/batch1.ts`).
-- **Typography:** `fontFamily` (sans, mono), `fontSize` (2xs–3xl), `fontWeight` (regular–semibold), `lineHeight`, `letterSpacing`.
-- **Radius:** `none` through `2xl` and `full`.
-- **Shadow:** `sm`, `md`, `lg`, `focus`.
-- **Z-index:** `base`, `dropdown`, `sticky`, `modalBackdrop`, `modal`, `popover`, `toast`.
-- **Motion:** `duration.page`, `easing.page` (CSS time and easing for shared route enter transitions; see `mercflow-tokens.css` variables `--motion-duration-page`, `--motion-easing-page`).
+1. Category-level snapshots (≥10 assertions) guarding accidental palette drift.
+2. `tokens.css` ↔ `buildRootStylesheet()` parity.
+3. Every emitted property name conforms to `--mf-*` prefixes (lint-style guard).
 
-## Migration workflow
+Always run Vitest locally after tweaking `batch1.ts`.
 
-This package does not define database migrations. If metadata about tokens were ever stored in PostgreSQL, migrations would live in the relevant Medusa module; this file stays accurate when token sets change.
+---
 
-## API surface
+## Extending palettes
 
-- **Exports (main entry):** `tokens`, `buildRootStylesheet`, `colorTree`, `spacingScale`, and other definition groups; types include `MercflowTokenMap`.
-- **Exports (CSS file):** `mercflow-tokens.css` (relative to the package root, emitted under `dist/` at build time).
+1. Add literals exclusively to `src/definitions/batch1.ts`.
+2. `pnpm build` (refreshes `src/tokens.css` + `dist`).
+3. Update `tailwind-preset.ts` if new Tailwind namespaces are introduced.
+4. Refresh this README if the externally visible surface changes materially.
+5. Update Vitest snapshots deliberately (`pnpm exec vitest run packages/design-tokens -u`).
+

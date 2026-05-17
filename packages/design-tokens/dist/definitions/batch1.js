@@ -17,7 +17,10 @@ export const colorTree = {
         /** Scrim for modal overlays (light theme) */
         overlay: "rgba(16, 24, 32, 0.35)",
     },
-    content: {
+    /**
+     * Text / label colors (Tailwind: `text-label-*` and legacy `text-content-*`).
+     */
+    label: {
         primary: "#202223",
         secondary: "#6d7175",
         tertiary: "#8c9196",
@@ -28,6 +31,14 @@ export const colorTree = {
         disabled: "#8c9196",
         /** Links and critical inline messaging */
         danger: "#c52828",
+    },
+    /**
+     * Brand accents — subdued; primary aligns with interactive default (no loud marketing colors).
+     */
+    brand: {
+        primary: "#2c6ecb",
+        muted: "#6d7175",
+        subtle: "#e6f0ff",
     },
     border: {
         default: "#e1e3e5",
@@ -89,6 +100,32 @@ export const spacingScale = {
     "24": "6rem",
     "32": "8rem",
 };
+/** Insertion order for emitted `--mf-spacing-*` (do not rely on `Object.keys` ordering). */
+export const spacingScaleOrder = [
+    "0",
+    "px",
+    "0.5",
+    "1",
+    "1.5",
+    "2",
+    "2.5",
+    "3",
+    "3.5",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "14",
+    "16",
+    "20",
+    "24",
+    "32",
+];
 export const fontFamily = {
     sans: [
         "Inter",

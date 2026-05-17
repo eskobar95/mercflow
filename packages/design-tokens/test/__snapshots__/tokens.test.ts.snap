@@ -1,0 +1,295 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`MercFlow design tokens — snapshots > buildRootStylesheet() full output stays stable unless tokens intentionally change 1`] = `
+":root {
+  --mf-color-surface-canvas: #f6f6f7;
+  --mf-color-surface-default: #ffffff;
+  --mf-color-surface-subtle: #f9f9f9;
+  --mf-color-surface-muted: #f1f1f1;
+  --mf-color-surface-raised: #ffffff;
+  --mf-color-surface-overlay: rgba(16, 24, 32, 0.35);
+  --mf-color-label-primary: #202223;
+  --mf-color-label-secondary: #6d7175;
+  --mf-color-label-tertiary: #8c9196;
+  --mf-color-label-placeholder: #8c9196;
+  --mf-color-label-inverse: #ffffff;
+  --mf-color-label-disabled: #8c9196;
+  --mf-color-label-danger: #c52828;
+  --mf-color-brand-primary: #2c6ecb;
+  --mf-color-brand-muted: #6d7175;
+  --mf-color-brand-subtle: #e6f0ff;
+  --mf-color-border-default: #e1e3e5;
+  --mf-color-border-subtle: #ebebeb;
+  --mf-color-border-strong: #8c9196;
+  --mf-color-border-focus: #2c6ecb;
+  --mf-color-interactive-primary: #2c6ecb;
+  --mf-color-interactive-primary-hover: #1a5cb0;
+  --mf-color-interactive-primary-pressed: #134c92;
+  --mf-color-interactive-primary-subtle: #e6f0ff;
+  --mf-color-interactive-danger: #c52828;
+  --mf-color-interactive-danger-hover: #9e1f1f;
+  --mf-color-interactive-danger-subtle: #fceded;
+  --mf-color-interactive-focus-ring: #2c6ecb;
+  --mf-color-interactive-disabled-background: #f1f1f1;
+  --mf-color-interactive-disabled-text: #8c9196;
+  --mf-color-interactive-disabled-border: #e1e3e5;
+  --mf-spacing-0: 0;
+  --mf-spacing-px: 1px;
+  --mf-spacing-0-5: 0.125rem;
+  --mf-spacing-1: 0.25rem;
+  --mf-spacing-1-5: 0.375rem;
+  --mf-spacing-2: 0.5rem;
+  --mf-spacing-2-5: 0.625rem;
+  --mf-spacing-3: 0.75rem;
+  --mf-spacing-3-5: 0.875rem;
+  --mf-spacing-4: 1rem;
+  --mf-spacing-5: 1.25rem;
+  --mf-spacing-6: 1.5rem;
+  --mf-spacing-7: 1.75rem;
+  --mf-spacing-8: 2rem;
+  --mf-spacing-9: 2.25rem;
+  --mf-spacing-10: 2.5rem;
+  --mf-spacing-11: 2.75rem;
+  --mf-spacing-12: 3rem;
+  --mf-spacing-14: 3.5rem;
+  --mf-spacing-16: 4rem;
+  --mf-spacing-20: 5rem;
+  --mf-spacing-24: 6rem;
+  --mf-spacing-32: 8rem;
+  --mf-font-family-sans: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  --mf-font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+  --mf-font-size-2xs: 0.6875rem;
+  --mf-font-size-xs: 0.75rem;
+  --mf-font-size-sm: 0.8125rem;
+  --mf-font-size-base: 0.875rem;
+  --mf-font-size-md: 1rem;
+  --mf-font-size-lg: 1.125rem;
+  --mf-font-size-xl: 1.25rem;
+  --mf-font-size-2xl: 1.5rem;
+  --mf-font-size-3xl: 1.75rem;
+  --mf-font-weight-regular: 400;
+  --mf-font-weight-medium: 500;
+  --mf-font-weight-semibold: 600;
+  --mf-line-height-tight: 1.25;
+  --mf-line-height-snug: 1.375;
+  --mf-line-height-normal: 1.5;
+  --mf-line-height-relaxed: 1.625;
+  --mf-letter-spacing-tight: -0.01em;
+  --mf-letter-spacing-normal: 0;
+  --mf-letter-spacing-wide: 0.02em;
+  --mf-radius-none: 0;
+  --mf-radius-sm: 0.25rem;
+  --mf-radius-md: 0.375rem;
+  --mf-radius-lg: 0.5rem;
+  --mf-radius-xl: 0.75rem;
+  --mf-radius-2xl: 1rem;
+  --mf-radius-full: 9999px;
+  --mf-shadow-sm: 0 1px 2px rgba(32, 34, 35, 0.08), 0 0 0 1px rgba(32, 34, 35, 0.04);
+  --mf-shadow-md: 0 2px 6px rgba(32, 34, 35, 0.1), 0 0 0 1px rgba(32, 34, 35, 0.06);
+  --mf-shadow-lg: 0 8px 24px rgba(32, 34, 35, 0.12), 0 0 0 1px rgba(32, 34, 35, 0.06);
+  --mf-shadow-focus: 0 0 0 3px rgba(44, 110, 203, 0.35);
+  --mf-z-index-base: 0;
+  --mf-z-index-dropdown: 1000;
+  --mf-z-index-sticky: 1020;
+  --mf-z-index-modal-backdrop: 1040;
+  --mf-z-index-modal: 1050;
+  --mf-z-index-popover: 1060;
+  --mf-z-index-toast: 1080;
+  --mf-motion-duration-page: 200ms;
+  --mf-motion-easing-page: cubic-bezier(0.2, 0, 0, 1);
+}"
+`;
+
+exports[`MercFlow design tokens — snapshots > captures discrete motion choreography tokens 1`] = `
+"  --mf-motion-duration-page: 200ms;
+  --mf-motion-easing-page: cubic-bezier(0.2, 0, 0, 1);"
+`;
+
+exports[`MercFlow design tokens — snapshots > captures elevation shadows + focus halo 1`] = `
+"  --mf-shadow-sm: 0 1px 2px rgba(32, 34, 35, 0.08), 0 0 0 1px rgba(32, 34, 35, 0.04);
+  --mf-shadow-md: 0 2px 6px rgba(32, 34, 35, 0.1), 0 0 0 1px rgba(32, 34, 35, 0.06);
+  --mf-shadow-lg: 0 8px 24px rgba(32, 34, 35, 0.12), 0 0 0 1px rgba(32, 34, 35, 0.06);
+  --mf-shadow-focus: 0 0 0 3px rgba(44, 110, 203, 0.35);"
+`;
+
+exports[`MercFlow design tokens — snapshots > captures font-size micro scale 1`] = `
+"  --mf-font-size-2xs: 0.6875rem;
+  --mf-font-size-xs: 0.75rem;
+  --mf-font-size-sm: 0.8125rem;
+  --mf-font-size-base: 0.875rem;
+  --mf-font-size-md: 1rem;
+  --mf-font-size-lg: 1.125rem;
+  --mf-font-size-xl: 1.25rem;
+  --mf-font-size-2xl: 1.5rem;
+  --mf-font-size-3xl: 1.75rem;"
+`;
+
+exports[`MercFlow design tokens — snapshots > captures font-weight primitives 1`] = `
+"  --mf-font-weight-regular: 400;
+  --mf-font-weight-medium: 500;
+  --mf-font-weight-semibold: 600;"
+`;
+
+exports[`MercFlow design tokens — snapshots > captures interactive affordances 1`] = `
+"  --mf-color-interactive-primary: #2c6ecb;
+  --mf-color-interactive-primary-hover: #1a5cb0;
+  --mf-color-interactive-primary-pressed: #134c92;
+  --mf-color-interactive-primary-subtle: #e6f0ff;
+  --mf-color-interactive-danger: #c52828;
+  --mf-color-interactive-danger-hover: #9e1f1f;
+  --mf-color-interactive-danger-subtle: #fceded;
+  --mf-color-interactive-focus-ring: #2c6ecb;
+  --mf-color-interactive-disabled-background: #f1f1f1;
+  --mf-color-interactive-disabled-text: #8c9196;
+  --mf-color-interactive-disabled-border: #e1e3e5;"
+`;
+
+exports[`MercFlow design tokens — snapshots > captures leading spacing ladder entries 1`] = `
+"  --mf-spacing-0: 0;
+  --mf-spacing-px: 1px;
+  --mf-spacing-0-5: 0.125rem;
+  --mf-spacing-1: 0.25rem;
+  --mf-spacing-1-5: 0.375rem;
+  --mf-spacing-2: 0.5rem;
+  --mf-spacing-2-5: 0.625rem;
+  --mf-spacing-3: 0.75rem;"
+`;
+
+exports[`MercFlow design tokens — snapshots > captures letter-spacing ramps 1`] = `
+"  --mf-letter-spacing-tight: -0.01em;
+  --mf-letter-spacing-normal: 0;
+  --mf-letter-spacing-wide: 0.02em;"
+`;
+
+exports[`MercFlow design tokens — snapshots > captures line-height ramps 1`] = `
+"  --mf-line-height-tight: 1.25;
+  --mf-line-height-snug: 1.375;
+  --mf-line-height-normal: 1.5;
+  --mf-line-height-relaxed: 1.625;"
+`;
+
+exports[`MercFlow design tokens — snapshots > captures overlay z-index ramps 1`] = `
+"  --mf-z-index-base: 0;
+  --mf-z-index-dropdown: 1000;
+  --mf-z-index-sticky: 1020;
+  --mf-z-index-modal-backdrop: 1040;
+  --mf-z-index-modal: 1050;
+  --mf-z-index-popover: 1060;
+  --mf-z-index-toast: 1080;"
+`;
+
+exports[`MercFlow design tokens — snapshots > captures radii primitives 1`] = `
+"  --mf-radius-none: 0;
+  --mf-radius-sm: 0.25rem;
+  --mf-radius-md: 0.375rem;
+  --mf-radius-lg: 0.5rem;
+  --mf-radius-xl: 0.75rem;
+  --mf-radius-2xl: 1rem;
+  --mf-radius-full: 9999px;"
+`;
+
+exports[`MercFlow design tokens — snapshots > captures subtle brand accents 1`] = `
+"  --mf-color-brand-primary: #2c6ecb;
+  --mf-color-brand-muted: #6d7175;
+  --mf-color-brand-subtle: #e6f0ff;"
+`;
+
+exports[`MercFlow design tokens — snapshots > lists every emitted custom-property name alphabetically 1`] = `
+[
+  "--mf-color-border-default",
+  "--mf-color-border-focus",
+  "--mf-color-border-strong",
+  "--mf-color-border-subtle",
+  "--mf-color-brand-muted",
+  "--mf-color-brand-primary",
+  "--mf-color-brand-subtle",
+  "--mf-color-interactive-danger",
+  "--mf-color-interactive-danger-hover",
+  "--mf-color-interactive-danger-subtle",
+  "--mf-color-interactive-disabled-background",
+  "--mf-color-interactive-disabled-border",
+  "--mf-color-interactive-disabled-text",
+  "--mf-color-interactive-focus-ring",
+  "--mf-color-interactive-primary",
+  "--mf-color-interactive-primary-hover",
+  "--mf-color-interactive-primary-pressed",
+  "--mf-color-interactive-primary-subtle",
+  "--mf-color-label-danger",
+  "--mf-color-label-disabled",
+  "--mf-color-label-inverse",
+  "--mf-color-label-placeholder",
+  "--mf-color-label-primary",
+  "--mf-color-label-secondary",
+  "--mf-color-label-tertiary",
+  "--mf-color-surface-canvas",
+  "--mf-color-surface-default",
+  "--mf-color-surface-muted",
+  "--mf-color-surface-overlay",
+  "--mf-color-surface-raised",
+  "--mf-color-surface-subtle",
+  "--mf-font-family-mono",
+  "--mf-font-family-sans",
+  "--mf-font-size-2xl",
+  "--mf-font-size-2xs",
+  "--mf-font-size-3xl",
+  "--mf-font-size-base",
+  "--mf-font-size-lg",
+  "--mf-font-size-md",
+  "--mf-font-size-sm",
+  "--mf-font-size-xl",
+  "--mf-font-size-xs",
+  "--mf-font-weight-medium",
+  "--mf-font-weight-regular",
+  "--mf-font-weight-semibold",
+  "--mf-letter-spacing-normal",
+  "--mf-letter-spacing-tight",
+  "--mf-letter-spacing-wide",
+  "--mf-line-height-normal",
+  "--mf-line-height-relaxed",
+  "--mf-line-height-snug",
+  "--mf-line-height-tight",
+  "--mf-motion-duration-page",
+  "--mf-motion-easing-page",
+  "--mf-radius-2xl",
+  "--mf-radius-full",
+  "--mf-radius-lg",
+  "--mf-radius-md",
+  "--mf-radius-none",
+  "--mf-radius-sm",
+  "--mf-radius-xl",
+  "--mf-shadow-focus",
+  "--mf-shadow-lg",
+  "--mf-shadow-md",
+  "--mf-shadow-sm",
+  "--mf-spacing-0",
+  "--mf-spacing-0-5",
+  "--mf-spacing-1",
+  "--mf-spacing-1-5",
+  "--mf-spacing-10",
+  "--mf-spacing-11",
+  "--mf-spacing-12",
+  "--mf-spacing-14",
+  "--mf-spacing-16",
+  "--mf-spacing-2",
+  "--mf-spacing-2-5",
+  "--mf-spacing-20",
+  "--mf-spacing-24",
+  "--mf-spacing-3",
+  "--mf-spacing-3-5",
+  "--mf-spacing-32",
+  "--mf-spacing-4",
+  "--mf-spacing-5",
+  "--mf-spacing-6",
+  "--mf-spacing-7",
+  "--mf-spacing-8",
+  "--mf-spacing-9",
+  "--mf-spacing-px",
+  "--mf-z-index-base",
+  "--mf-z-index-dropdown",
+  "--mf-z-index-modal",
+  "--mf-z-index-modal-backdrop",
+  "--mf-z-index-popover",
+  "--mf-z-index-sticky",
+  "--mf-z-index-toast",
+]
+`;

@@ -17,7 +17,10 @@ export declare const colorTree: {
         /** Scrim for modal overlays (light theme) */
         readonly overlay: "rgba(16, 24, 32, 0.35)";
     };
-    readonly content: {
+    /**
+     * Text / label colors (Tailwind: `text-label-*` and legacy `text-content-*`).
+     */
+    readonly label: {
         readonly primary: "#202223";
         readonly secondary: "#6d7175";
         readonly tertiary: "#8c9196";
@@ -28,6 +31,14 @@ export declare const colorTree: {
         readonly disabled: "#8c9196";
         /** Links and critical inline messaging */
         readonly danger: "#c52828";
+    };
+    /**
+     * Brand accents — subdued; primary aligns with interactive default (no loud marketing colors).
+     */
+    readonly brand: {
+        readonly primary: "#2c6ecb";
+        readonly muted: "#6d7175";
+        readonly subtle: "#e6f0ff";
     };
     readonly border: {
         readonly default: "#e1e3e5";
@@ -65,6 +76,8 @@ export declare const colorTree: {
  * Keys match Tailwind numeric spacing: 1 = 0.25rem, 2 = 0.5rem, …
  */
 export declare const spacingScale: Record<string, string>;
+/** Insertion order for emitted `--mf-spacing-*` (do not rely on `Object.keys` ordering). */
+export declare const spacingScaleOrder: Array<keyof typeof spacingScale>;
 export declare const fontFamily: {
     readonly sans: string;
     readonly mono: string;

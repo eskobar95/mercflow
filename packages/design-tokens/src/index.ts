@@ -34,6 +34,8 @@ export const tokens = {
 
 export type MercflowTokenMap = typeof tokens
 
+export { mercflowTailwindPreset } from "./tailwind-preset.js"
+
 export {
   colorTree,
   fontFamily,

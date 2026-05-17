@@ -12,7 +12,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./mercflow-tokens.css": "./dist/mercflow-tokens.css"
+    "./mercflow-tokens.css": "./dist/mercflow-tokens.css",
+    "./tailwind-preset": {
+      "types": "./dist/tailwind-preset.d.ts",
+      "import": "./dist/tailwind-preset.js"
+    }
   },
   "files": [
     "dist"
@@ -24,6 +28,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.1",
+    "tailwindcss": "^3.4.15",
     "typescript": "^5.6.3",
     "vitest": "^3.2.0"
   },

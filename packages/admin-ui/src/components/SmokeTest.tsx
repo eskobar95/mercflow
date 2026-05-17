@@ -52,7 +52,7 @@ export function SmokeTest(): JSX.Element {
           <button
             type="button"
             onClick={toggleDetails}
-            className="text-sm text-interactive-link hover:text-interactive-link-hover underline"
+            className="text-sm text-interactive-primary hover:text-interactive-primary-hover underline"
           >
             {showDetails ? "Hide details" : "Show details"}
           </button>
@@ -68,7 +68,7 @@ export function SmokeTest(): JSX.Element {
         </div>
 
         {showDetails && (
-          <div className="rounded-md bg-surface-secondary p-3 text-sm text-content-secondary">
+          <div className="rounded-md bg-surface-subtle p-3 text-sm text-content-secondary">
             <p>Click count is currently: {clickCount}</p>
             <p className="mt-1 text-xs text-content-tertiary">
               This demonstrates conditional rendering based on component state.

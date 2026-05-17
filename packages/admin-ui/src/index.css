@@ -16,8 +16,8 @@
    * `prefers-reduced-motion` removes animation per WCAG 2.2.2.
    */
   .mercflow-page-transition {
-    animation: mercflow-page-enter var(--motion-duration-page)
-      var(--motion-easing-page) both;
+    animation: mercflow-page-enter var(--mf-motion-duration-page)
+      var(--mf-motion-easing-page) both;
   }
 
   @keyframes mercflow-page-enter {

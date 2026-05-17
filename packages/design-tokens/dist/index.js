@@ -17,4 +17,5 @@ export const tokens = {
     shadow: shadows,
     zIndex,
 };
+export { mercflowTailwindPreset } from "./tailwind-preset.js";
 export { colorTree, fontFamily, fontSize, fontWeight, letterSpacing, lineHeight, motion, radii, shadows, spacingScale, zIndex, } from "./definitions/batch1.js";

@@ -54,7 +54,7 @@ When the full Medusa admin fork is merged (or a larger subtree appears under `pa
 
 ## Relationship to `PageTransition`
 
-`AdminShell` wraps the React Router `<Outlet />` with `PageTransition` (keyed by `location.key`), so all routes share one enter transition. **Page components** do not wrap themselves. It is not a modal. Motion uses `--motion-duration-page` and `--motion-easing-page` from `design-tokens` plus `prefers-reduced-motion` in `index.css`.
+`AdminShell` wraps the React Router `<Outlet />` with `PageTransition` (keyed by `location.key`), so all routes share one enter transition. **Page components** do not wrap themselves. It is not a modal. Motion uses `--mf-motion-duration-page` and `--mf-motion-easing-page` from `design-tokens` plus `prefers-reduced-motion` in `index.css`.
 
 ## 5.3 follow-up (Batch 1 shell)
 

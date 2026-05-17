@@ -26,16 +26,19 @@ className="bg-[#f4f6f8] text-[#1a1a1a] rounded-[6px]"
 className="bg-surface text-content-primary rounded-md"
 ```
 
-The token system exposes:
+The token system exposes MercFlow namespaces (`--mf-*` variables, see `packages/design-tokens`). Tailwind integrations should prefer the `@mercflow/design-tokens` preset.
 
-| Category | CSS variable prefix | Tailwind class prefix |
+| Category | CSS variable prefix | Tailwind utilities |
 |---|---|---|
-| Backgrounds | `--color-surface-*` | `bg-surface-*` |
-| Text | `--color-content-*` | `text-content-*` |
-| Borders | `--color-border-*` | `border-border-*` |
-| Interactive | `--color-interactive-*` | varies |
-| Spacing | `--spacing-*` | standard Tailwind scale |
-| Radius | `--radius-*` | `rounded-*` |
+| Surfaces | `--mf-color-surface-*` | `bg-surface-*` |
+| Text / labels | `--mf-color-label-*` | `text-label-*` (legacy `text-content-*` aliases the same vars) |
+| Brand accents | `--mf-color-brand-*` | `text-brand-*`, `bg-brand-*`, … |
+| Borders | `--mf-color-border-*` | `border-border-*` |
+| Interactive | `--mf-color-interactive-*` | `bg-interactive-*`, `text-interactive-*`, … |
+| Spacing | `--mf-spacing-*` | Standard numeric spacing scale |
+| Radius | `--mf-radius-*` | `rounded-*` |
+| Shadows / motion | `--mf-shadow-*`, `--mf-motion-*` | `shadow-*`, shared shell transitions |
+
 
 If a token you need does not exist, add it to `packages/design-tokens` first — do not work around it.
 

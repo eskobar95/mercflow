@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/Card"
 
 /**
  * Minimal proof that Tailwind utilities resolve to design-token CSS variables.
- * No hex literals — all colors from `mercflow-tokens.css` via `tailwind.config.ts`.
+ * No hex literals — all colors from `mercflow-tokens.css` via `@mercflow/design-tokens` Tailwind preset.
  */
 export function TokenIntegrationProof(): JSX.Element {
   return (

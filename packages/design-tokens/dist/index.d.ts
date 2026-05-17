@@ -13,7 +13,7 @@ export declare const tokens: {
             readonly raised: "#ffffff";
             readonly overlay: "rgba(16, 24, 32, 0.35)";
         };
-        readonly content: {
+        readonly label: {
             readonly primary: "#202223";
             readonly secondary: "#6d7175";
             readonly tertiary: "#8c9196";
@@ -21,6 +21,11 @@ export declare const tokens: {
             readonly inverse: "#ffffff";
             readonly disabled: "#8c9196";
             readonly danger: "#c52828";
+        };
+        readonly brand: {
+            readonly primary: "#2c6ecb";
+            readonly muted: "#6d7175";
+            readonly subtle: "#e6f0ff";
         };
         readonly border: {
             readonly default: "#e1e3e5";
@@ -116,5 +121,6 @@ export declare const tokens: {
     };
 };
 export type MercflowTokenMap = typeof tokens;
+export { mercflowTailwindPreset } from "./tailwind-preset.js";
 export { colorTree, fontFamily, fontSize, fontWeight, letterSpacing, lineHeight, motion, radii, shadows, spacingScale, zIndex, } from "./definitions/batch1.js";
 //# sourceMappingURL=index.d.ts.map
