@@ -196,24 +196,67 @@ Name tasks after the **user outcome**, not the technical layer:
 ✓ "Product list — admin can view all products with filters (API + UI)"
 ```
 
-### Foundation-first ordering
+### Foundation-first ordering and parallel groups
 
-Some slices must come before others because they produce data or endpoints
-that later slices consume. Order correctly:
+Tasks have two dimensions: **order** (what must finish before another starts)
+and **parallelism** (what can run simultaneously).
+
+After designing slices, assign each task to a **parallel group**. Tasks in the
+same group have no dependencies on each other and can run concurrently —
+meaning multiple Worker Agents can be spawned simultaneously for them.
 
 ```
-Foundation slices (Sprint 1):
-  - DB schema + seed/migration scripts
-  - Core read paths (list, detail)
+Example for a product management feature:
 
-Write paths (Sprint 2):
-  - Create, edit, delete flows
-  - Status transitions
+Group A — run first, all in parallel:
+  Task 1: Product schema migration (DB only, no API/UI)
+  Task 2: Category schema migration (DB only, no API/UI)
+  → No shared writes. Safe to parallelize.
 
-Polish (Sprint 3):
-  - Edge cases (empty states, error handling, loading skeletons)
-  - Performance (pagination, caching)
-  - Accessibility review
+Group B — starts after ALL of Group A, can parallelize within group:
+  Task 3: Product list — GET /admin/products + UI list view
+  Task 4: Category list — GET /admin/categories + UI list view
+  → Each reads Group A's tables but are independent of each other.
+
+Group C — starts after ALL of Group B:
+  Task 5: Product create — POST /admin/products + UI create form
+  Task 6: Category create — POST /admin/categories + UI form
+  Task 7: Product edit — PATCH /admin/products/:id + UI edit form
+  → Tasks 5+7 touch the same service: run sequentially.
+     Task 6 is independent of 5+7: can run in parallel with them.
+     Annotate: Task 7 is Blocked by Task 5.
+
+Group D — polish, after Group C:
+  Task 8: Empty states, error handling, accessibility (admin-ui only)
+  → No blockers within this group.
+```
+
+**Rules for assigning parallel groups:**
+
+| Situation | Decision |
+|---|---|
+| Tasks write to same DB table or service | Sequential — set `Blocked by` |
+| Tasks read the same DB table but write nothing | Parallel — safe |
+| Tasks are in completely different packages | Parallel — safe |
+| Tasks share a UI component they both modify | Sequential |
+| Tasks share a UI component but one only reads it | Parallel — safe |
+| DB-only tasks (no API, no UI) | Almost always parallel |
+
+**When in doubt: sequential is always safe. Parallel is an optimization.**
+
+**How to annotate in Notion:**
+In each task's `Context for the implementing agent` section, write:
+`Parallel group: A` (or B, C, D).
+The orchestration layer uses this to know which tasks to spawn simultaneously.
+
+**The spawn rule for orchestration:**
+```
+Spawn all tasks where:
+  - Status = Not Started
+  - All Blocked-by tasks have Status = Done
+  - Parallel group = current group
+→ All matching tasks start simultaneously as separate agent runs.
+→ Wait for all to reach Status = In Review before advancing to next group.
 ```
 
 ---
