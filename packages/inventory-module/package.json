@@ -1,0 +1,32 @@
+{
+  "name": "@mercflow/inventory-module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MercFlow Medusa v2 module: inventory and purchase orders (scaffold for Batch 2).",
+  "main": "src/modules/inventory/index.ts",
+  "exports": {
+    ".": "./src/modules/inventory/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "db:generate": "medusa db:generate mercflow_inventory",
+    "db:migrate": "medusa db:migrate",
+    "db:revert": "medusa db:revert"
+  },
+  "dependencies": {
+    "@medusajs/framework": "2.14.1",
+    "@medusajs/medusa": "2.14.1",
+    "@medusajs/utils": "2.14.1"
+  },
+  "devDependencies": {
+    "@medusajs/cli": "2.14.1",
+    "@types/node": "^22.10.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

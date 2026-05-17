@@ -36,6 +36,7 @@ See `.env.example` for a template. Never commit `.env` or production secrets.
 ## Registered modules
 
 - **`@mercflow/content-module`** — DML, services, and admin content routes. HTTP handlers are implemented in the package; this app re-exports them from `src/api/admin/.../route.ts` so Medusa’s file-based router discovers them from **this** app’s `src/api` tree.
+- **`@mercflow/seo-module`**, **`@mercflow/feed-module`**, **`@mercflow/inventory-module`** — Batch 2 scaffolds (empty `MedusaService` factories today). Models, migrations, and routes are added in later slices; register here so the container loads them with the backend.
 
 ## Migrations
 
@@ -45,7 +46,7 @@ Run against the same database as `DATABASE_URL`:
 pnpm --filter @mercflow/backend db:migrate
 ```
 
-For `pnpm db:revert`, use the same filter. To **generate** new migrations for the content module after DML changes, use `pnpm --filter @mercflow/content-module db:generate` (see the content module README). Do not run migration commands against production or staging from dev docs.
+For `pnpm db:revert`, use the same filter. To **generate** new migrations after DML changes in a module package, use that package’s `db:generate` script (for example `pnpm --filter @mercflow/content-module db:generate`, or the Batch 2 modules once they define models). Do not run migration commands against production or staging from dev docs.
 
 ## Typecheck
 
