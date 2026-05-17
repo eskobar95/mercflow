@@ -699,23 +699,36 @@ Not Started
 ```
 
 **Important: "Changes Requested" is NOT a Notion status.**
-The code review loop (Stage 3) is internal to the Worker's run:
+The code review loop (Stage 3) works as follows:
+
+**Within one agent run (same context window):**
 - APPROVED → move to Stage 4 (open PR, set Status → In Review)
-- CHANGES REQUESTED → Worker fixes on the same branch, re-requests review (no Status change)
-- Cycle 3 hit → set Status → Blocked, add comment explaining escalation
+- CHANGES REQUESTED → Worker fixes on the same branch → re-requests review
+- Repeat until APPROVED or context window exhausted
+
+**When context window is exhausted without approval:**
+- Code Reviewer writes a detailed comment listing all required changes
+- Set Status → **Blocked** (previousStatus = In Progress)
+- Webhook fires → **new implementation agent starts** with fresh context window
+- New agent reads all task comments (including the review), fixes issues, runs fresh review
+- If APPROVED → PR opened → In Review → Done
+- If new agent ALSO fails → Status → Blocked again (previousStatus = Blocked)
+  → Webhook sees Blocked→Blocked: **no auto-trigger** → human escalation required
 
 **Escape from Blocked — two paths:**
 
-| Type | Cause | How to unblock |
-|---|---|---|
-| Dependency blocked | `Blocked by` task not Done | Human sets blocking task to Done, then sets this task → In Progress |
-| Code review blocked | Cycle 3 hit | Human reads task comments, clarifies task description or fixes code, then sets → In Progress |
+| Type | Cause | Auto-recovery | Human needed |
+|---|---|---|---|
+| Code review blocked (1st time) | Context exhausted, changes requested | Yes — new agent run triggered automatically | No |
+| Code review blocked (2nd time) | New agent also failed | No — auto-trigger stops | Yes — human reads comments, splits task or clarifies acceptance criteria, then sets → In Progress |
+| Dependency blocked | `Blocked by` task not Done | No | Human sets → In Progress after dependency is Done |
 
-When a Worker Agent starts on a task that was previously `Blocked`:
-1. Read all comments on the task page to understand what blocked it
-2. If code review cycle 3 was hit: read the last reviewer comment for the specific issues
-3. Start a fresh review cycle (reset cycle count to 1)
-4. Add a comment: "Resuming from Blocked — addressing: [issue summary]"
+When a Worker Agent starts on a `Blocked` task (fresh run after Blocked):
+1. Read ALL comments on the task page — especially the last Code Reviewer comment
+2. List the required changes explicitly before writing any code
+3. Address each required change one at a time, layer by layer
+4. Add a comment: `"Resuming from Blocked — addressing: [list of issues from review]"`
+5. Start a fresh review cycle (cycle count resets to 1)
 
 Bugbot and CI run while status is `In Review`. Do not move to `Done` until both pass.
 
