@@ -17,3 +17,6 @@ node_modules/
 coverage/
 playwright-report/
 test-results/
+
+# Design session mockups (temporary artefacts — not production code)
+packages/admin-ui/src/design-sessions/
