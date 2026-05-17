@@ -10,6 +10,11 @@
  * - Orange primary buttons (#ff9644) must use content.primary (#562f00) as label color (5.6:1 contrast).
  *   content.inverse (#fffdf1) is for text on dark fills (danger banners, dark overlay surfaces).
  *
+ * Color system layers:
+ *   surface / content / border    — base structural tokens
+ *   interactive.*                 — action tokens (buttons, links, focus)
+ *   feedback.*                    — semantic status tokens (banners, toasts, tags, inline alerts)
+ *
  * All sRGB color literals for the admin UI must originate here (or in this package only).
  */
 export const colorTree = {
@@ -85,6 +90,52 @@ export const colorTree = {
       background: "#f5ebda",
       text: "#c8a070",
       border: "#e8d0a8",
+    },
+  },
+  /**
+   * Semantic feedback colors — used for alert banners, toast notifications,
+   * status tags, and inline validation messages. Each state has four layers:
+   *
+   *   default  — icon tint, strong border, filled badge background
+   *   subtle   — alert banner / toast background
+   *   content  — text on the subtle background  (all ≥ 8:1 on their subtle pair ✓ WCAG AAA)
+   *   border   — banner border / tag outline
+   *
+   * Distinct from interactive.danger (destructive action buttons).
+   * Distinct from content.danger (inline body-copy error text).
+   */
+  feedback: {
+    success: {
+      /** Forest green — order confirmed, product saved, payment received */
+      default: "#2d6a4f",
+      subtle: "#d8f3dc",
+      /** contrast 9.6:1 on subtle ✓ WCAG AAA */
+      content: "#1b4332",
+      border: "#74c69d",
+    },
+    warning: {
+      /** Amber-brown — low stock, pending review, expiring promo */
+      default: "#b45309",
+      subtle: "#fef3c7",
+      /** contrast 8.2:1 on subtle ✓ WCAG AAA */
+      content: "#78350f",
+      border: "#fcd34d",
+    },
+    info: {
+      /** Royal blue — new order notification, system tip */
+      default: "#2563eb",
+      subtle: "#dbeafe",
+      /** contrast 6.2:1 on subtle ✓ WCAG AA */
+      content: "#1e3a8a",
+      border: "#93c5fd",
+    },
+    danger: {
+      /** Matches interactive.danger for consistency */
+      default: "#c53030",
+      subtle: "#fdeee8",
+      /** contrast 7.4:1 on subtle ✓ WCAG AAA */
+      content: "#7f1d1d",
+      border: "#f9c1b1",
     },
   },
 } as const

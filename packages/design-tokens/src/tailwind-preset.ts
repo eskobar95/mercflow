@@ -53,6 +53,32 @@ const colors: Record<string, TailwindColorMap> = {
       subtle: "var(--mf-color-interactive-danger-subtle)",
     } as unknown as string,
   },
+  feedback: {
+    success: {
+      DEFAULT: "var(--mf-color-feedback-success-default)",
+      subtle: "var(--mf-color-feedback-success-subtle)",
+      content: "var(--mf-color-feedback-success-content)",
+      border: "var(--mf-color-feedback-success-border)",
+    } as unknown as string,
+    warning: {
+      DEFAULT: "var(--mf-color-feedback-warning-default)",
+      subtle: "var(--mf-color-feedback-warning-subtle)",
+      content: "var(--mf-color-feedback-warning-content)",
+      border: "var(--mf-color-feedback-warning-border)",
+    } as unknown as string,
+    info: {
+      DEFAULT: "var(--mf-color-feedback-info-default)",
+      subtle: "var(--mf-color-feedback-info-subtle)",
+      content: "var(--mf-color-feedback-info-content)",
+      border: "var(--mf-color-feedback-info-border)",
+    } as unknown as string,
+    danger: {
+      DEFAULT: "var(--mf-color-feedback-danger-default)",
+      subtle: "var(--mf-color-feedback-danger-subtle)",
+      content: "var(--mf-color-feedback-danger-content)",
+      border: "var(--mf-color-feedback-danger-border)",
+    } as unknown as string,
+  },
 }
 
 const spacing: Record<string, string> = {
