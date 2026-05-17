@@ -9,60 +9,83 @@ The Tech Lead never writes production code. The Tech Lead designs the work.
 
 ---
 
+## Branch strategy
+
+```
+main          ← production. Only receives merges from staging via Tech Lead gate.
+staging       ← general rehearsal. Only receives merges from development via Tech Lead gate.
+development   ← active integration. Feature branches merge here after code review.
+feature/...   ← per-task worktree branch, always based off development.
+```
+
 ## The full orchestration cycle (read this first)
 
 ```
 PRODUCT OWNER
-  Feature Request (idea) → /po-grill → PRD written to Notion
-  PRD Status: Draft → reviewed → Approved
+  Feature Request → /po-grill → PRD written to Notion (Status: Approved)
            │
-           │  Handoff: Tech Lead receives Approved PRD URL
+           │  Tech Lead receives PRD URL
            ▼
-TECH LEAD
-  /tech-lead-plan <prd-url>
-  Reads PRD → Architecture review → Vertical slice design
-  → Creates Sprints + Tasks in Notion with full task descriptions
-  → Sets Blocked-by dependencies
-  → Assigns Agent profiles per task
+TECH LEAD — PLAN  (/tech-lead-plan <prd-url>)
+  Architecture review → Vertical slice design
+  Creates Sprints + Tasks in Notion
+  Assigns parallel groups, Blocked-by relations, Agent profiles
+  Comments plan summary on PRD page
            │
-           │  Handoff: Tasks are "Not Started" in Notion, sprint assigned
-           ▼
-WORKER AGENT (per task)
+           │  Tasks: Not Started, sprint assigned, parallel groups set
+           ▼  Spawn all parallel-group-A tasks simultaneously
+
+WORKER AGENT (per task — parallel within group)
   /start-task <notion-task-url>
-  Creates git worktree → feature branch
-  Implements vertical slice (DB + Service + API + UI + Tests)
+  Worktree from development → feature/{package}/{slug}
+  Implements: DB → Service → API → UI → Tests (commit each layer)
   Delivers: typecheck ✓ · lint ✓ · tests ✓ · no secrets
            │
-           │  Handoff to Code Reviewer
            ▼
 CODE REVIEWER (per task)
-  /review-code <worktree-path>
-  Reviews diff against main
-  → APPROVED: proceed
-  → CHANGES REQUESTED: back to Worker (max 3 cycles)
+  /review-code <branch>
+  Reviews diff against development
+  APPROVED → proceed  |  CHANGES REQUESTED → back to Worker (max 3 cycles)
            │
-           │  APPROVED
-           ▼
-OPEN PR
-  /open-pr <worktree-path>
-  PR opened with standard summary template
+           ▼  APPROVED
+OPEN PR → development  (/open-pr <branch>)
+  PR: feature/... → development
   Notion task: Status → In Review · PR URL saved
            │
-           ▼
-BUGBOT (automatic on open PR)
-  Cursor built-in reviewer — security, logic bugs, performance
-  Flags real issues → Worker fixes on same branch
-  False positives → dismissed with comment
+           ▼  PR open on development
+BUGBOT + CI
+  Bugbot reviews open PR automatically
+  CI runs on feature → development
+  DevOps Agent: reactive if CI fails
            │
-           ▼
-CI / CD (GitHub Actions)
-  /devops-check if CI fails
-  DevOps Agent diagnoses failures — never skips tests
+           ▼  Bugbot + CI pass, human approves
+MERGE → development
+  Squash merge · worktree removed · Notion task: Status → Done
            │
+           │  All sprint tasks Done
            ▼
-HUMAN APPROVAL → MERGE
-  Worktree removed · Notion task: Status → Done
+TECH LEAD — PROMOTE TO STAGING  (/promote-to-staging)
+  Verifies all sprint tasks Status = Done in Notion
+  Opens PR: development → staging
+  CI runs on staging · DevOps monitors
+  Smoke tests: admin UI, key user flows, no console errors
+           │
+           ▼  Staging verified
+TECH LEAD — PROMOTE TO MAIN  (/promote-to-main)
+  Opens PR: staging → main
+  Release notes written · CI passes
+  Merge · Tag release · DevOps monitors main post-merge
 ```
+
+## Tech Lead gate responsibilities
+
+The Tech Lead owns **three** decision points, not just one:
+
+| Gate | Command | Trigger | Responsibility |
+|---|---|---|---|
+| Sprint plan | `/tech-lead-plan` | Approved PRD received | Architecture + task design |
+| Staging promotion | `/promote-to-staging` | All sprint tasks Done | Verify sprint completeness, write staging PR |
+| Main promotion | `/promote-to-main` | Staging verified | Write release notes, open release PR, tag |
 
 ---
 

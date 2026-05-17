@@ -119,19 +119,34 @@
 
 ## Version control and commits
 
-- **Repository:** MercFlow monorepo root; **base branch:** `main`.
+### Branch strategy
+
+```
+main          ← production. Only receives merges from staging via Tech Lead gate (/promote-to-main).
+staging       ← general rehearsal. Only receives merges from development via Tech Lead gate (/promote-to-staging).
+development   ← active integration. All feature branches merge here after code review.
+feature/...   ← per-task worktree branch, always branched from development.
+```
+
+- **Never** commit directly to `main`, `staging`, or `development`.
+- **Never** branch feature work from `staging` or `main`.
+- Feature PRs always target `development`.
+- Tech Lead owns the `development → staging → main` promotion gates.
+
+### Commit conventions
+
 - Follow [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): short description` (English).
 - Use types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, and `migration` for database migration commits only.
-- One commit per logical, working change.
-- Feature branch names are short, kebab-case, and describe the work.
-- **Worktrees:** use isolated git worktrees for parallel tasks (see `.cursor/skills/agent-workflow/SKILL.md`). Recommended path pattern: `../mercflow-worktrees/{task-id}/` (sibling directory to the clone; not committed).
-- **Merge policy:** merge feature branches when review and CI pass; do not let approved work diverge unmerged when dependents need it.
+- One commit per logical, working change (one per layer within a vertical slice).
+- Feature branch names: `feature/{package}/{task-slug}` (kebab-case).
+- **Worktrees:** `../mercflow-worktrees/{task-id}/` (sibling directory; not committed). See `.cursor/skills/agent-workflow/SKILL.md`.
+- **Merge policy:** squash merge feature → development when review and CI pass. Never let approved work diverge unmerged when dependents need it.
 
 ## Agent workflow (Cursor)
 
 Every implementation task follows the six-stage pipeline in [`.cursor/skills/agent-workflow/SKILL.md`](.cursor/skills/agent-workflow/SKILL.md). Task breakdown uses vertical slices per [`.cursor/rules/vertical-slicing.mdc`](.cursor/rules/vertical-slicing.mdc).
 
-**Commands:** `/start-task`, `/review-code`, `/open-pr`, `/devops-check`, `/po-grill`, `/tech-lead-plan`
+**Commands:** `/start-task`, `/review-code`, `/open-pr`, `/promote-to-staging`, `/promote-to-main`, `/devops-check`, `/po-grill`, `/tech-lead-plan`
 
 ## Cursor subagents (when to delegate)
 

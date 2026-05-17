@@ -4,6 +4,20 @@ Complete pipeline from task creation to merge. Every task — regardless of whet
 
 ---
 
+## Branch strategy
+
+```
+main          ← production/official. Only receives merges from staging.
+staging       ← general rehearsal. Only receives merges from development.
+development   ← active integration. Feature branches merge here.
+feature/...   ← per-task worktree branch, based off development.
+```
+
+**Who controls each gate:**
+- `feature → development`: Worker Agent opens PR, Code Reviewer approves, DevOps monitors CI
+- `development → staging`: **Tech Lead** gates this — runs `/promote-to-staging` at sprint end
+- `staging → main`: **Tech Lead** gates this — runs `/promote-to-main` after staging smoke tests pass
+
 ## Pipeline overview
 
 ```
@@ -12,7 +26,7 @@ Task created in Notion (Status: Not Started)
          ▼  /start-task <notion-task-url>
     ┌────────────────────────────────────┐
     │  1. SETUP                          │
-    │  Create git worktree               │
+    │  Worktree from development branch  │
     │  Create feature branch             │
     │  Update task Status → In Progress  │
     └────────────────────────────────────┘
@@ -20,43 +34,61 @@ Task created in Notion (Status: Not Started)
          ▼  Worker Agent implements the vertical slice
     ┌────────────────────────────────────┐
     │  2. IMPLEMENTATION                 │
-    │  DB migration → Service → API → UI │
-    │  Unit + integration tests          │
-    │  Typecheck + lint pass             │
+    │  DB → Service → API → UI → Tests   │
+    │  Commit each layer separately      │
+    │  Typecheck + lint pass per layer   │
     └────────────────────────────────────┘
          │
-         ▼  /review-code <worktree-path>
+         ▼  /review-code <branch>
     ┌────────────────────────────────────┐
     │  3. CODE REVIEW LOOP               │
     │  Code Reviewer reads the diff      │
-    │  → Approve: continue               │
-    │  → Request changes: back to Worker │
-    │  Max 3 cycles before human review  │
+    │  → Approved: continue              │
+    │  → Changes requested: back to Worker│
+    │  Max 3 cycles → human escalation   │
     └────────────────────────────────────┘
          │
-         ▼  Review approved
+         ▼  APPROVED → /open-pr <branch>
     ┌────────────────────────────────────┐
-    │  4. OPEN PR                        │
-    │  /open-pr <worktree-path>          │
-    │  Well-defined PR summary           │
-    │  Update task Status → In Review    │
-    │  Link PR URL on task               │
+    │  4. OPEN PR → development          │
+    │  PR: feature/... → development     │
+    │  Standard PR summary template      │
+    │  Task Status → In Review           │
+    │  PR URL saved on task              │
     └────────────────────────────────────┘
          │
-         ▼  PR is open
+         ▼  PR open on development
     ┌────────────────────────────────────┐
     │  5. BUGBOT + CI                    │
-    │  Cursor Bugbot reviews open PR     │
-    │  CI pipeline runs                  │
-    │  DevOps Agent monitors + fixes CI  │
+    │  Cursor Bugbot reviews PR          │
+    │  CI runs on feature → development  │
+    │  DevOps Agent: reactive on failure │
     └────────────────────────────────────┘
          │
-         ▼  Bugbot + CI pass
+         ▼  Bugbot + CI pass, human approves
     ┌────────────────────────────────────┐
-    │  6. MERGE                          │
-    │  Human approves and merges         │
+    │  6. MERGE → development            │
+    │  Squash merge into development     │
     │  Task Status → Done                │
-    │  Worktree cleaned up               │
+    │  Worktree removed                  │
+    └────────────────────────────────────┘
+         │
+         ▼  Sprint complete → /promote-to-staging
+    ┌────────────────────────────────────┐
+    │  7. PROMOTE development → staging  │
+    │  Tech Lead gate                    │
+    │  PR: development → staging         │
+    │  CI + smoke tests run on staging   │
+    │  DevOps monitors                   │
+    └────────────────────────────────────┘
+         │
+         ▼  Staging verified → /promote-to-main
+    ┌────────────────────────────────────┐
+    │  8. PROMOTE staging → main         │
+    │  Tech Lead gate                    │
+    │  PR: staging → main                │
+    │  Release notes written             │
+    │  CI passes on main                 │
     └────────────────────────────────────┘
 ```
 
@@ -66,21 +98,25 @@ Task created in Notion (Status: Not Started)
 
 ### Prerequisite checks
 Before creating the worktree, verify:
-- [ ] `main` branch is clean and up to date (`git fetch && git status`)
+- [ ] `development` branch is up to date (`git fetch origin development`)
 - [ ] Task has a PRD link in Notion (required for context)
 - [ ] Task has a Package link (required for branch naming)
+- [ ] All `Blocked by` tasks have Status = Done
 - [ ] No existing worktree for this task
 
 ### Worktree creation
 
 ```bash
-# Read task from Notion to get slug and package
+# Fetch latest development
+git fetch origin development
+
+# Read task from Notion to get slug, package, and parallel group
 TASK_ID="{notion-task-id-short}"
 PACKAGE="{package-short-name}"   # admin-ui | content-module | backend | design-tokens
 SLUG="{kebab-case-task-name}"
 
-# Create worktree and branch
-git worktree add ../mercflow-worktrees/${TASK_ID} -b feature/${PACKAGE}/${SLUG}
+# Create worktree branching from development (NOT main)
+git worktree add ../mercflow-worktrees/${TASK_ID} -b feature/${PACKAGE}/${SLUG} origin/development
 
 # Confirm
 git worktree list
@@ -94,6 +130,8 @@ Examples:
 
 **Worktree location:** `../mercflow-worktrees/{task-id}/`
 Keep worktrees outside the main repo to avoid confusion.
+
+**Base branch is always `development`** — never branch from `staging` or `main`.
 
 ### After setup
 - Install dependencies in the worktree if needed: `cd ../mercflow-worktrees/{id} && pnpm install`
@@ -411,19 +449,22 @@ Decision: APPROVED | CHANGES REQUESTED
 Only run after Code Reviewer has issued APPROVED.
 
 ### Pre-PR checklist
-- [ ] Branch is rebased on latest `main` (`git rebase origin/main`)
+- [ ] Branch is rebased on latest `development` (`git rebase origin/development`)
 - [ ] Commits are clean (squash WIP commits if needed)
 - [ ] `pnpm typecheck && pnpm lint && pnpm test` all pass on the worktree
 
 ### PR creation command
 ```bash
 gh pr create \
+  --base development \
   --title "{Slice objective} ({package})" \
   --body "$(cat <<'EOF'
 {PR_BODY}
 EOF
 )"
 ```
+
+**Target branch is always `development`.** Never open a feature PR directly to `staging` or `main`.
 
 ### PR summary template (always use this structure)
 
@@ -525,12 +566,12 @@ The DevOps Agent monitors CI pipeline runs and is responsible for:
 
 ---
 
-## Stage 6: Merge and cleanup
+## Stage 6: Merge to development and cleanup
 
-When Bugbot + CI pass and a human approves:
+When Bugbot + CI pass and a human approves the PR:
 
 ```bash
-# Merge (squash or rebase depending on PR size)
+# Squash merge into development
 gh pr merge --squash --delete-branch
 
 # Clean up worktree
@@ -542,16 +583,108 @@ Update Notion task: `Status → Done`
 
 ---
 
+## Stage 7: Promote development → staging (`/promote-to-staging`)
+
+**Trigger:** All tasks in the sprint have Status = Done.  
+**Owner:** Tech Lead Agent.
+
+```bash
+# Verify all sprint tasks are Done in Notion first
+
+# Open promotion PR
+gh pr create \
+  --base staging \
+  --head development \
+  --title "chore: promote sprint {N} to staging" \
+  --body "$(cat <<'EOF'
+## Sprint {N} — staging promotion
+
+### Tasks included
+{list of Notion task links merged since last staging promotion}
+
+### What to verify on staging
+{acceptance criteria from sprint tasks}
+
+### CI status
+- [ ] All checks pass on this PR
+
+### Smoke tests
+- [ ] Admin UI loads and is navigable
+- [ ] Key user flows for sprint tasks work end-to-end
+- [ ] No console errors or backend exceptions in staging logs
+
+### DevOps sign-off
+- [ ] No new CI warnings introduced
+- [ ] Build times within normal range
+EOF
+)"
+```
+
+**DevOps Agent** monitors CI on this PR reactively.  
+Tech Lead reviews staging manually or delegates to QA.  
+After staging is verified: proceed to Stage 8.
+
+---
+
+## Stage 8: Promote staging → main (`/promote-to-main`)
+
+**Trigger:** Staging verified — smoke tests pass, no blocking issues.  
+**Owner:** Tech Lead Agent.
+
+```bash
+# Open release PR
+gh pr create \
+  --base main \
+  --head staging \
+  --title "release: {version or sprint N}" \
+  --body "$(cat <<'EOF'
+## Release — {version or sprint N}
+
+### What's in this release
+{summary of user-facing changes}
+
+### Notion sprint
+{link to sprint in Notion}
+
+### Tasks shipped
+{list of Notion task links}
+
+### Staging verification
+- [ ] Smoke tests passed on staging
+- [ ] No regressions observed
+- [ ] DevOps confirmed CI clean
+
+### Release notes
+{short paragraph for changelog}
+
+### Rollback plan
+{how to revert if main breaks — feature flags, revert commit, etc.}
+EOF
+)"
+```
+
+After merge to `main`: tag the release.
+
+```bash
+git tag -a v{version} -m "Release {version}: {sprint name}"
+git push origin v{version}
+```
+
+**DevOps Agent** monitors CI on main post-merge.  
+If CI fails on main: DevOps diagnoses and creates a hotfix task immediately.
+
+---
+
 ## Agent profiles summary
 
 | Agent | When active | Model | Executor |
 |---|---|---|---|
-| Worker: Implementation | Stage 2 | Standard | Cloud or Local |
-| Code Reviewer | Stage 3 | Standard | Cloud or Local |
-| Bugbot | Stage 5 (PR open) | — | Cursor built-in |
-| DevOps | Stage 5 (CI) + schedule | Fast | Cloud |
-| PO: Grill | Pre-task (discovery) | Standard | Local |
-| Tech Lead: Plan | Pre-task (breakdown) | Extended | Local |
+| Product Owner | Feature discovery + PRD synthesis | Standard / Extended | Local or Cloud |
+| Tech Lead | PRD → sprint plan · promote-to-staging · promote-to-main | Extended | Local |
+| Worker: Implementation | Stage 2 — feature branch implementation | Standard | Cloud or Local |
+| Code Reviewer | Stage 3 — diff review loop | Standard | Cloud or Local |
+| Bugbot | Stage 5 — PR open on development | — | Cursor built-in |
+| DevOps | Stage 5 CI + Stage 7 staging CI + Stage 8 main CI + weekly audit | Fast | Cloud |
 
 ---
 
@@ -559,19 +692,23 @@ Update Notion task: `Status → Done`
 
 ```
 Not Started
-    → In Progress     (worktree created, Worker running)
-    → In Review       (Code Review approved, PR open)
-    → Done            (merged, worktree cleaned up)
-    → Blocked         (dependency not resolved)
+    → In Progress     (worktree created, Worker running — Stage 1+2)
+    → In Review       (Code Review approved, PR open on development — Stage 4+5)
+    → Done            (merged to development, worktree cleaned up — Stage 6)
+    → Blocked         (dependency not resolved, or cycle 3 hit in code review)
 ```
 
 Bugbot and CI run while status is `In Review`. Do not move to `Done` until both pass.
+
+Sprint promotion (Stages 7+8) is a Tech Lead action across multiple tasks,
+not reflected in individual task status.
 
 ---
 
 ## Worktree hygiene rules
 
-- Never commit directly to `main`
+- Never commit directly to `main`, `staging`, or `development`
+- Never branch feature work from `staging` or `main`
 - Never share a worktree between two tasks
 - If a task is abandoned: `git worktree remove` + update Notion task to `Blocked` with a note
 - List active worktrees weekly: `git worktree list`
