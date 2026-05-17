@@ -1,4 +1,5 @@
 export { buildRootStylesheet } from "./lib/buildRootStylesheet.js";
+export { tailwindPreset } from "./tailwind-preset.js";
 /**
  * Authoritative nested token map for programmatic consumption (Tailwind, runtime theme, etc.).
  * Color literals live only in `definitions/batch1` and this object references them.

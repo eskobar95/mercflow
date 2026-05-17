@@ -127,7 +127,6 @@ const borderRadius: Record<string, string> = {
   "2xl": "var(--mf-radius-2xl)",
   full: "var(--mf-radius-full)",
 }
-
 const boxShadow: Record<string, string> = {
   sm: "var(--mf-shadow-sm)",
   DEFAULT: "var(--mf-shadow-md)",

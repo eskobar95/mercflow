@@ -19,7 +19,7 @@ import { tailwindPreset } from "../src/tailwind-preset.js"
 
 describe("colorTree — surface category", () => {
   it("surface.canvas matches snapshot", () => {
-    expect(colorTree.surface.canvas).toMatchInlineSnapshot(`"#fff8e8"`)
+    expect(colorTree.surface.canvas).toMatchInlineSnapshot(`"#fff5e0"`)
   })
 
   it("surface.default matches snapshot", () => {
@@ -41,7 +41,7 @@ describe("colorTree — content category", () => {
   })
 
   it("content.danger matches snapshot", () => {
-    expect(colorTree.content.danger).toMatchInlineSnapshot(`"#b83010"`)
+    expect(colorTree.content.danger).toMatchInlineSnapshot(`"#c53030"`)
   })
 })
 
@@ -64,7 +64,7 @@ describe("colorTree — interactive category", () => {
 
   it("interactive.danger.default matches snapshot", () => {
     expect(colorTree.interactive.danger.default).toMatchInlineSnapshot(
-      `"#b83010"`
+      `"#c53030"`
     )
   })
 })
@@ -133,7 +133,7 @@ describe("typography tokens", () => {
 
 describe("radii tokens", () => {
   it("radii.md matches snapshot", () => {
-    expect(radii.md).toMatchInlineSnapshot(`"0.375rem"`)
+    expect(radii.md).toMatchInlineSnapshot(`"0.5rem"`)
   })
 
   it("radii.full matches snapshot", () => {
@@ -209,7 +209,7 @@ describe("buildRootStylesheet — --mf-* prefix convention", () => {
   })
 
   it("color vars use --mf-color- prefix", () => {
-    expect(css).toContain("--mf-color-surface-canvas: #fff8e8;")
+    expect(css).toContain("--mf-color-surface-canvas: #fff5e0;")
   })
 
   it("spacing vars use --mf-spacing- prefix", () => {
@@ -225,7 +225,7 @@ describe("buildRootStylesheet — --mf-* prefix convention", () => {
   })
 
   it("radius vars use --mf-radius- prefix", () => {
-    expect(css).toContain("--mf-radius-md: 0.375rem;")
+    expect(css).toContain("--mf-radius-md: 0.5rem;")
   })
 
   it("shadow vars use --mf-shadow- prefix", () => {
