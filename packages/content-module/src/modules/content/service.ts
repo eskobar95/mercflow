@@ -1,17 +1,16 @@
 import { MedusaService } from "@medusajs/framework/utils"
 import { MedusaError } from "@medusajs/utils"
 
-import {
-  getDescriptionForLocale,
-  getLocaleString,
-  parseDescriptionRichMap,
-  parseLocaleStringField,
-  serializeDescriptionRichMap,
-  serializeLocaleStringMap,
-  setDescriptionForLocale,
-  setLocaleString,
-} from "./locale-maps"
+import { Article } from "./models/article"
 import { CategoryContent } from "./models/category-content"
+import { CmsGlobal } from "./models/cms-global"
+import { CmsRedirect } from "./models/cms-redirect"
+import { MediaAsset } from "./models/media-asset"
+import { Page } from "./models/page"
+import { PageBlock } from "./models/page-block"
+import { PageVersion } from "./models/page-version"
+import { ProductAttrLink } from "./models/product-attr-link"
+import { ProductAttribute } from "./models/product-attribute"
 import { ProductContent } from "./models/product-content"
 import type {
   CategoryContentRecord,
@@ -23,10 +22,20 @@ import type {
 } from "./types"
 
 const SEO_DESCRIPTION_MAX = 160
+const SEO_TITLE_MAX = 255
 
 class ContentModuleService extends MedusaService({
   ProductContent,
   CategoryContent,
+  Article,
+  Page,
+  PageVersion,
+  PageBlock,
+  CmsGlobal,
+  CmsRedirect,
+  MediaAsset,
+  ProductAttribute,
+  ProductAttrLink,
 }) {
   private assertSeoDescriptionLength(value: string | null | undefined): void {
     if (value != null && value.length > SEO_DESCRIPTION_MAX) {
@@ -37,16 +46,46 @@ class ContentModuleService extends MedusaService({
     }
   }
 
+  private assertSeoTitleLength(value: string | null | undefined): void {
+    if (value != null && value.length > SEO_TITLE_MAX) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        `seo_title must not exceed ${SEO_TITLE_MAX} characters`
+      )
+    }
+  }
+
+  private normalizeBodyJson(
+    value: unknown
+  ): Record<string, unknown> | null {
+    if (value === undefined) {
+      return null
+    }
+    if (value === null) {
+      return null
+    }
+    if (typeof value === "object" && !Array.isArray(value)) {
+      return value as Record<string, unknown>
+    }
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      "description_rich must be a JSON object when provided"
+    )
+  }
+
   async retrieveProductContentForLocale(
     productId: string,
     locale: string
   ): Promise<ResolvedProductContent | null> {
-    const rows = await this.listProductContents({ product_id: productId })
+    const rows = await this.listProductContents({
+      product_id: productId,
+      locale,
+    })
     const row = rows[0]
     if (!row) {
       return null
     }
-    return this.resolveProductRow(row, locale)
+    return this.resolveProductRow(row as ProductContentRecord)
   }
 
   async upsertProductContent(
@@ -55,81 +94,65 @@ class ContentModuleService extends MedusaService({
     data: UpsertProductContentInput
   ): Promise<ResolvedProductContent> {
     this.assertSeoDescriptionLength(data.seo_description ?? null)
+    this.assertSeoTitleLength(data.seo_title ?? null)
 
-    const rows = await this.listProductContents({ product_id: productId })
-    const existing = rows[0]
+    const rows = await this.listProductContents({
+      product_id: productId,
+      locale,
+    })
+    const existing = rows[0] as ProductContentRecord | undefined
 
-    const descMap = parseDescriptionRichMap(existing?.description_rich)
-    const titleMap = parseLocaleStringField(existing?.seo_title)
-    const seoDescMap = parseLocaleStringField(existing?.seo_description)
+    const payload: Partial<ProductContentRecord> = {}
 
-    let nextDesc = descMap
     if (data.description_rich !== undefined) {
-      nextDesc = setDescriptionForLocale(descMap, locale, data.description_rich)
+      payload.body_json = this.normalizeBodyJson(data.description_rich)
     }
-
-    let nextTitle = titleMap
     if (data.seo_title !== undefined) {
-      nextTitle = setLocaleString(titleMap, locale, data.seo_title)
+      payload.seo_title = data.seo_title
     }
-
-    let nextSeoDesc = seoDescMap
     if (data.seo_description !== undefined) {
-      nextSeoDesc = setLocaleString(seoDescMap, locale, data.seo_description)
+      payload.seo_description = data.seo_description
     }
-
-    const payload: Partial<ProductContentRecord> = {
-      description_rich: serializeDescriptionRichMap(nextDesc),
-      seo_title: serializeLocaleStringMap(nextTitle),
-      seo_description: serializeLocaleStringMap(nextSeoDesc),
-    }
-
     if (data.seo_og_image_id !== undefined) {
-      payload.seo_og_image_id = data.seo_og_image_id
-    }
-    if (data.media_gallery !== undefined) {
-      payload.media_gallery = data.media_gallery
+      payload.og_image_url = data.seo_og_image_id
     }
 
     let row: ProductContentRecord
     if (!existing) {
       const created = await this.createProductContents({
         product_id: productId,
-        description_rich: payload.description_rich ?? null,
+        locale,
+        body_json: payload.body_json ?? null,
         seo_title: payload.seo_title ?? null,
         seo_description: payload.seo_description ?? null,
-        seo_og_image_id: payload.seo_og_image_id ?? null,
-        media_gallery: payload.media_gallery ?? null,
+        og_image_url: payload.og_image_url ?? null,
       })
-      row = Array.isArray(created) ? (created[0] as ProductContentRecord) : created
+      row = Array.isArray(created)
+        ? (created[0] as ProductContentRecord)
+        : (created as ProductContentRecord)
     } else {
       const updated = await this.updateProductContents({
         id: existing.id,
         ...payload,
       })
-      row = Array.isArray(updated) ? (updated[0] as ProductContentRecord) : updated
+      row = Array.isArray(updated)
+        ? (updated[0] as ProductContentRecord)
+        : (updated as ProductContentRecord)
     }
 
-    return this.resolveProductRow(row, locale)
+    return this.resolveProductRow(row)
   }
 
-  private resolveProductRow(
-    row: ProductContentRecord,
-    locale: string
-  ): ResolvedProductContent {
-    const descMap = parseDescriptionRichMap(row.description_rich)
-    const titleMap = parseLocaleStringField(row.seo_title)
-    const seoDescMap = parseLocaleStringField(row.seo_description)
-
+  private resolveProductRow(row: ProductContentRecord): ResolvedProductContent {
     return {
       id: row.id,
       product_id: row.product_id,
-      locale,
-      description_rich: getDescriptionForLocale(descMap, locale) ?? null,
-      seo_title: getLocaleString(titleMap, locale),
-      seo_description: getLocaleString(seoDescMap, locale),
-      seo_og_image_id: row.seo_og_image_id,
-      media_gallery: row.media_gallery,
+      locale: row.locale,
+      description_rich: row.body_json,
+      seo_title: row.seo_title,
+      seo_description: row.seo_description,
+      seo_og_image_id: row.og_image_url,
+      media_gallery: null,
     }
   }
 
@@ -137,12 +160,15 @@ class ContentModuleService extends MedusaService({
     categoryId: string,
     locale: string
   ): Promise<ResolvedCategoryContent | null> {
-    const rows = await this.listCategoryContents({ category_id: categoryId })
+    const rows = await this.listCategoryContents({
+      category_id: categoryId,
+      locale,
+    })
     const row = rows[0]
     if (!row) {
       return null
     }
-    return this.resolveCategoryRow(row, locale)
+    return this.resolveCategoryRow(row as CategoryContentRecord)
   }
 
   async upsertCategoryContent(
@@ -151,83 +177,71 @@ class ContentModuleService extends MedusaService({
     data: UpsertCategoryContentInput
   ): Promise<ResolvedCategoryContent> {
     this.assertSeoDescriptionLength(data.seo_description ?? null)
+    this.assertSeoTitleLength(data.seo_title ?? null)
 
-    const rows = await this.listCategoryContents({ category_id: categoryId })
-    const existing = rows[0]
+    const rows = await this.listCategoryContents({
+      category_id: categoryId,
+      locale,
+    })
+    const existing = rows[0] as CategoryContentRecord | undefined
 
-    const descMap = parseDescriptionRichMap(existing?.description_rich)
-    const titleMap = parseLocaleStringField(existing?.seo_title)
-    const seoDescMap = parseLocaleStringField(existing?.seo_description)
+    const payload: Partial<CategoryContentRecord> = {}
 
-    let nextDesc = descMap
     if (data.description_rich !== undefined) {
-      nextDesc = setDescriptionForLocale(descMap, locale, data.description_rich)
+      payload.body_json = this.normalizeBodyJson(data.description_rich)
     }
-
-    let nextTitle = titleMap
     if (data.seo_title !== undefined) {
-      nextTitle = setLocaleString(titleMap, locale, data.seo_title)
+      payload.seo_title = data.seo_title
     }
-
-    let nextSeoDesc = seoDescMap
     if (data.seo_description !== undefined) {
-      nextSeoDesc = setLocaleString(seoDescMap, locale, data.seo_description)
+      payload.seo_description = data.seo_description
     }
-
-    const payload: Partial<CategoryContentRecord> = {
-      description_rich: serializeDescriptionRichMap(nextDesc),
-      seo_title: serializeLocaleStringMap(nextTitle),
-      seo_description: serializeLocaleStringMap(nextSeoDesc),
-    }
-
     if (data.seo_og_image_id !== undefined) {
-      payload.seo_og_image_id = data.seo_og_image_id
+      payload.og_image_url = data.seo_og_image_id
     }
     if (data.banner_image_id !== undefined) {
-      payload.banner_image_id = data.banner_image_id
+      payload.banner_image_url = data.banner_image_id
     }
 
     let row: CategoryContentRecord
     if (!existing) {
       const created = await this.createCategoryContents({
         category_id: categoryId,
-        description_rich: payload.description_rich ?? null,
+        locale,
+        body_json: payload.body_json ?? null,
         seo_title: payload.seo_title ?? null,
         seo_description: payload.seo_description ?? null,
-        seo_og_image_id: payload.seo_og_image_id ?? null,
-        banner_image_id: payload.banner_image_id ?? null,
+        og_image_url: payload.og_image_url ?? null,
+        banner_image_url: payload.banner_image_url ?? null,
       })
       row = Array.isArray(created)
         ? (created[0] as CategoryContentRecord)
-        : created
+        : (created as CategoryContentRecord)
     } else {
       const updated = await this.updateCategoryContents({
         id: existing.id,
         ...payload,
       })
-      row = Array.isArray(updated) ? (updated[0] as CategoryContentRecord) : updated
+      row = Array.isArray(updated)
+        ? (updated[0] as CategoryContentRecord)
+        : (updated as CategoryContentRecord)
     }
 
-    return this.resolveCategoryRow(row, locale)
+    return this.resolveCategoryRow(row)
   }
 
   private resolveCategoryRow(
-    row: CategoryContentRecord,
-    locale: string
+    row: CategoryContentRecord
   ): ResolvedCategoryContent {
-    const descMap = parseDescriptionRichMap(row.description_rich)
-    const titleMap = parseLocaleStringField(row.seo_title)
-    const seoDescMap = parseLocaleStringField(row.seo_description)
-
     return {
       id: row.id,
       category_id: row.category_id,
-      locale,
-      description_rich: getDescriptionForLocale(descMap, locale) ?? null,
-      seo_title: getLocaleString(titleMap, locale),
-      seo_description: getLocaleString(seoDescMap, locale),
-      seo_og_image_id: row.seo_og_image_id,
-      banner_image_id: row.banner_image_id,
+      locale: row.locale,
+      description_rich: row.body_json,
+      seo_title: row.seo_title,
+      seo_description: row.seo_description,
+      seo_og_image_id: row.og_image_url,
+      banner_image_id: row.banner_image_url,
     }
   }
 }

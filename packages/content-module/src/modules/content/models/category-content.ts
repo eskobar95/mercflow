@@ -1,11 +1,22 @@
 import { model } from "@medusajs/framework/utils"
 
-export const CategoryContent = model.define("category_content", {
-  id: model.id().primaryKey(),
-  category_id: model.text(),
-  description_rich: model.json().nullable(),
-  seo_title: model.text().nullable(),
-  seo_description: model.text().nullable(),
-  seo_og_image_id: model.text().nullable(),
-  banner_image_id: model.text().nullable(),
-})
+export const CategoryContent = model
+  .define("category_content", {
+    id: model.id().primaryKey(),
+    category_id: model.text().index("IDX_category_content_category_id"),
+    locale: model.text(),
+    body_json: model.json().nullable(),
+    seo_title: model.text().nullable(),
+    seo_description: model.text().nullable(),
+    og_image_url: model.text().nullable(),
+    banner_image_url: model.text().nullable(),
+    status: model.enum(["draft", "published"]).default("draft"),
+    version: model.number().default(1),
+  })
+  .indexes([
+    {
+      name: "IDX_category_content_category_locale_unique",
+      on: ["category_id", "locale"],
+      unique: true,
+    },
+  ])
