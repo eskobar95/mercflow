@@ -30,12 +30,12 @@ From the **repository root** after `pnpm install`:
 | `STORE_CORS` | Optional; default `http://localhost:3000` in `medusa-config.ts` |
 | `ADMIN_CORS` | Optional; default `http://localhost:7001` |
 | `AUTH_CORS` | Optional; default `http://localhost:7001` |
-
-See `.env.example` for a template. Never commit `.env` or production secrets.
+| `MERCFLOW_CONNECTOR_ENCRYPTION_KEY` | **64 hex chars (32 bytes)** — required so `@mercflow/connector-module` can encrypt connector credentials at rest (backend will fail at runtime when the module is used if unset). Generate with e.g. `openssl rand -hex 32`. | Never commit `.env` or production secrets.
 
 ## Registered modules
 
 - **`@mercflow/content-module`** — DML, services, and admin content routes. HTTP handlers are implemented in the package; this app re-exports them from `src/api/admin/.../route.ts` so Medusa’s file-based router discovers them from **this** app’s `src/api` tree.
+- **`@mercflow/connector-module`** — Connector configuration persistence with encrypted credentials (`MERCFLOW_CONNECTOR_ENCRYPTION_KEY`). Admin routes are added in future slices; this app registers the module only.
 
 ## Migrations
 

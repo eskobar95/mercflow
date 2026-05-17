@@ -21,6 +21,7 @@
     "@medusajs/medusa": "2.14.1",
     "@medusajs/utils": "2.14.1",
     "@mercflow/content-module": "workspace:*",
+    "@mercflow/connector-module": "workspace:*",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },

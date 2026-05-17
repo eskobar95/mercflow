@@ -17,5 +17,8 @@ export default defineConfig({
     {
       resolve: "@mercflow/content-module",
     },
+    {
+      resolve: "@mercflow/connector-module",
+    },
   ],
 })

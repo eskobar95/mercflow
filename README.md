@@ -17,6 +17,7 @@ MercFlow is an opinionated [Medusa v2](https://docs.medusajs.com/) distribution:
 | ------------------------- | ---------------------------------------------- |
 | `packages/admin-ui`       | Admin UI (React + Vite)                        |
 | `packages/content-module` | Medusa module: content fields, service, API    |
+| `packages/connector-module` | Medusa module: connector config, encrypted credentials |
 | `packages/design-tokens`  | Design tokens (CSS + Tailwind)                 |
 | `apps/backend`            | Medusa v2 backend registering MercFlow modules |
 
