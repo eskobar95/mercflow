@@ -8,6 +8,8 @@ MercFlow is an opinionated [Medusa v2](https://docs.medusajs.com/) distribution:
 
 **Do not** modify Medusa core packages, vendored Medusa app sources, or files inside `node_modules`. All customization belongs in MercFlow-owned packages and in `apps/backend` registration.
 
+**Working with `mercflow-os`:** Orchestration (Notion webhooks, Cursor SDK scripts) lives in the sibling repo **mercflow-os**. To open both repos in one Cursor window without merging git history, use a multi-root workspace — see the `mercflow-os` README (example: `mercflow-workspace` folder and `mercflow.code-workspace`).
+
 ## Expected monorepo layout (Batch 1)
 
 
