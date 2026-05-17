@@ -304,7 +304,33 @@ Override when:
 
 ## Step 7: Write the plan summary
 
-After creating all tasks, write a summary in your response:
+After creating all tasks:
+
+1. Write the summary in your response (for the human reading this session)
+2. **Also add a comment on the PRD page in Notion** so the plan is permanently visible on the record
+
+### Comment to add on the PRD page
+
+```
+Agent: Tech Lead
+Stage: Sprint plan complete
+
+Sprints: [N]
+Tasks:   [N total] — [N] Sprint 1 / [N] Sprint 2 / [N] Sprint 3
+
+Sprint 1 — Foundation: [task names]
+Sprint 2 — Write paths: [task names]
+Sprint 3 — Polish: [task names]
+
+Critical path: [Task A] → [Task B] → [Task C]
+
+Risks: [list]
+Tasks that may need splitting: [list or "none"]
+
+Next step: assign Worker Agent to Sprint 1 tasks and run /start-task.
+```
+
+### Summary to write in your response
 
 ```
 ## Sprint plan for: [PRD name]

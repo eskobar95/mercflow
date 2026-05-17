@@ -116,6 +116,24 @@ When all branches are resolved, write a PRD to Notion:
 4. Link the PRD to the Feature Request in the Feature Requests database if one exists
 5. Optionally create a Roadmap Project entry if this PRD represents a new initiative
 6. Set PRD `Status → In Review`, then `Approved` once confirmed
+7. Add a comment on the Feature Request page summarizing the outcome:
+
+```
+Agent: Product Owner
+Routine: synthesis | discovery
+
+[If promoted:]
+Decision: PROMOTED
+PRD: {notion-prd-url}
+Roadmap entry: {notion-project-url}
+Evaluation score: {total}/20
+Next step: Run /tech-lead-plan {prd-url} to create sprint tasks.
+
+[If declined:]
+Decision: DECLINED
+Score: {total}/20
+Reason: {one paragraph explaining what would need to change for reconsideration}
+```
 
 ---
 

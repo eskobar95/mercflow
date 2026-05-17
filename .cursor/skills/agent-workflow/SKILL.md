@@ -98,7 +98,18 @@ Keep worktrees outside the main repo to avoid confusion.
 ### After setup
 - Install dependencies in the worktree if needed: `cd ../mercflow-worktrees/{id} && pnpm install`
 - Update Notion task: `Status → In Progress`
-- Add a comment on the task with the worktree path and branch name
+- Add a comment on the task page:
+
+```
+Agent: Worker Implementation
+Stage: Setup complete
+
+Worktree: ../mercflow-worktrees/{task-id}/
+Branch:   feature/{package}/{slug}
+Started:  {ISO timestamp}
+
+Reading PRD and package conventions before writing code.
+```
 
 ---
 
@@ -191,10 +202,26 @@ The Code Reviewer reads the full diff of the feature branch against `main` and e
 - If cycle count reaches 3 → escalate to human review, do not continue looping
 - If APPROVED → proceed to Stage 4
 
-### Update Notion
-- After each review cycle, update the task's `Status`:
-  - First review: keep `In Progress`
-  - Final approval: update to `In Review` (ready for PR)
+### Update Notion after each review cycle
+Add a comment on the task page with the review output:
+
+```
+Agent: Code Reviewer
+Cycle: {n}/3
+Decision: APPROVED | CHANGES REQUESTED
+
+### What's working well
+- [...]
+
+### Required changes (blocking)
+- [ ] src/foo.ts:42 — [issue]
+
+### Suggestions (non-blocking)
+- [...]
+```
+
+- First review cycle: keep `Status = In Progress`
+- APPROVED: update `Status → In Review` (ready for PR)
 
 ---
 
@@ -262,6 +289,20 @@ EOF
 ### After PR is open
 - Copy PR URL to Notion task (`PR URL` field)
 - Update Notion task `Status → In Review`
+- Add a comment on the task page:
+
+```
+Agent: Worker Implementation
+Stage: PR opened
+
+PR: {github-pr-url}
+Branch: feature/{package}/{slug}
+Rebased on: main @ {short-sha}
+
+Code Review: APPROVED (cycle {n}/3)
+Bugbot and CI will now run automatically.
+```
+
 - **Do not trigger Bugbot manually** — it activates automatically on open PRs
 
 ---
