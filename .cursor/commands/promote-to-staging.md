@@ -55,7 +55,12 @@ EOF
 
 ## After staging PR is merged
 
-1. Add a comment on the Notion Sprint page:
+1. **Close the sprint in Notion** — update the Dates end to today if it finished early:
+   - Fetch the Notion Sprint page
+   - If today is before the sprint's `Dates.end`: update `Dates.end` to today's date
+   - This automatically triggers the `/sprints/ended` webhook → closes the GitHub Milestone
+
+2. Add a comment on the Notion Sprint page:
 
 ```
 Agent: Tech Lead

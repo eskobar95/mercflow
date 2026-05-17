@@ -13,9 +13,11 @@ After a PRD is marked `Approved`, hand it to the Tech Lead:
 ## PO Grill (`/po-grill`)
 
 ### Purpose
+
 Interview the requester relentlessly about a feature idea — one question at a time — until there is enough shared understanding to write a professional PRD. Stop interviewing when you could write a complete PRD with no open questions.
 
 ### Core behavior (Grill Me style)
+
 - Ask **one question at a time**
 - Always provide your **recommended answer** beneath the question so the user can simply say "yes" or refine it
 - Walk the decision tree branch by branch — resolve dependencies between decisions before moving on
@@ -60,13 +62,15 @@ Branch 6: DEPENDENCIES & RISKS
 ```
 
 ### When to stop grilling
+
 Stop when you can answer YES to all of these:
-- [ ] The problem is clearly defined with a named user segment
-- [ ] Scope is confirmed (generic vs Guapo-specific)
-- [ ] MVP boundary is agreed — including explicit out-of-scope
-- [ ] Success metrics are concrete and measurable
-- [ ] Affected packages and rough effort are known
-- [ ] No blocking dependencies are unresolved
+
+- The problem is clearly defined with a named user segment
+- Scope is confirmed (generic vs Guapo-specific)
+- MVP boundary is agreed — including explicit out-of-scope
+- Success metrics are concrete and measurable
+- Affected packages and rough effort are known
+- No blocking dependencies are unresolved
 
 ### After the interview: write the PRD
 
@@ -113,10 +117,10 @@ When all branches are resolved, write a PRD to Notion:
 [Anything still unresolved after the interview]
 ```
 
-4. Link the PRD to the Feature Request in the Feature Requests database if one exists
-5. Optionally create a Roadmap Project entry if this PRD represents a new initiative
-6. Set PRD `Status → In Review`, then `Approved` once confirmed
-7. Add a comment on the Feature Request page summarizing the outcome:
+1. Link the PRD to the Feature Request in the Feature Requests database if one exists
+2. Optionally create a Roadmap Project entry if this PRD represents a new initiative
+3. Set PRD `Status → In Review`, then `Approved` once confirmed
+4. Add a comment on the Feature Request page summarizing the outcome:
 
 ```
 Agent: Product Owner
@@ -144,6 +148,64 @@ Feature Requests:  collection://2114184e-146d-4ffb-9574-5a7bbdb35125
 Roadmap Projects:  collection://d079946d-4ef5-8269-bb45-8707a97d4520
 PRDs:              collection://4680ce11-475b-4c91-a0b6-49c9c6dfba04
 ```
+
+---
+
+## PRD Review (`/prd-review <prd-url>`)
+
+When a PRD is in `Status = In Review`, run this checklist before approving.
+This can be run by the PO agent or a human reviewer.
+
+### Review checklist
+
+**Problem clarity**
+- [ ] Problem statement is specific — names a user segment and a frequency
+- [ ] "What they do instead today" is answered
+- [ ] The cost of not building this is stated
+
+**Scope definition**
+- [ ] MVP boundary is unambiguous — no vague terms like "basic" or "simple"
+- [ ] Out-of-scope list is explicit and non-empty
+- [ ] Generic vs Guapo-specific distinction is made
+
+**Acceptance criteria**
+- [ ] Every MVP criterion is testable by running code (no "the UI looks good")
+- [ ] At least 3 acceptance criteria exist
+- [ ] No criterion references another unbuilt feature
+
+**Technical shape**
+- [ ] Affected packages are named (admin-ui / content-module / backend / design-tokens)
+- [ ] DB schema changes are described if any
+- [ ] Rough effort estimate exists with stated assumptions
+
+**Risks**
+- [ ] At least 2 risks listed with mitigation approach
+- [ ] Dependencies on other features are named
+
+### Review output
+
+If all criteria pass → set `Status → Approved` and add comment:
+```
+Agent: Product Owner
+Action: PRD reviewed and approved
+
+Checklist: all items passed
+Next step: /tech-lead-plan <prd-url>
+```
+
+If criteria fail → set `Status → Draft` and add comment:
+```
+Agent: Product Owner
+Action: PRD sent back to draft
+
+Failing criteria:
+- [ ] <criterion 1>
+- [ ] <criterion 2>
+
+Required before re-review: <what needs to change>
+```
+
+---
 
 ## Handoff to Tech Lead
 

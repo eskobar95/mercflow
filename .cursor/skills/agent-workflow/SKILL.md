@@ -417,8 +417,8 @@ The Code Reviewer reads the full diff of the feature branch against `main` and e
 ```
 
 ### Review loop rules
-- If CHANGES REQUESTED → Worker fixes and re-requests review
-- If cycle count reaches 3 → escalate to human review, do not continue looping
+- If CHANGES REQUESTED → Worker fixes on the **same branch** (no new worktree, no Status change in Notion) → re-request review
+- If cycle count reaches 3 → set Notion task `Status → Blocked`, add comment with escalation reason → stop
 - If APPROVED → proceed to Stage 4
 
 ### Update Notion after each review cycle
@@ -692,16 +692,23 @@ If CI fails on main: DevOps diagnoses and creates a hotfix task immediately.
 
 ```
 Not Started
-    → In Progress     (worktree created, Worker running — Stage 1+2)
-    → In Review       (Code Review approved, PR open on development — Stage 4+5)
+    → In Progress     (worktree created, Worker running — Stage 1+2+3)
+    → In Review       (Code Review APPROVED, PR open on development — Stage 4+5)
     → Done            (merged to development, worktree cleaned up — Stage 6)
     → Blocked         (dependency not resolved, or cycle 3 hit in code review)
 ```
 
+**Important: "Changes Requested" is NOT a Notion status.**
+The code review loop (Stage 3) is internal to the Worker's run:
+- APPROVED → move to Stage 4 (open PR, set Status → In Review)
+- CHANGES REQUESTED → Worker fixes on the same branch, re-requests review (no Status change)
+- Cycle 3 hit → set Status → Blocked, add comment explaining escalation
+
 Bugbot and CI run while status is `In Review`. Do not move to `Done` until both pass.
 
 Sprint promotion (Stages 7+8) is a Tech Lead action across multiple tasks,
-not reflected in individual task status.
+not reflected in individual task status. When promoting early (before sprint end date),
+Tech Lead updates `Dates.end` in Notion to today → auto-triggers milestone close.
 
 ---
 

@@ -146,7 +146,16 @@ feature/...   ← per-task worktree branch, always branched from development.
 
 Every implementation task follows the six-stage pipeline in [`.cursor/skills/agent-workflow/SKILL.md`](.cursor/skills/agent-workflow/SKILL.md). Task breakdown uses vertical slices per [`.cursor/rules/vertical-slicing.mdc`](.cursor/rules/vertical-slicing.mdc).
 
-**Commands:** `/start-task`, `/review-code`, `/open-pr`, `/promote-to-staging`, `/promote-to-main`, `/devops-check`, `/po-grill`, `/tech-lead-plan`
+**Commands:** `/start-task`, `/review-code`, `/open-pr`, `/promote-to-staging`, `/promote-to-main`, `/devops-check`, `/po-grill`, `/tech-lead-plan`, `/prd-review`
+
+## Known automation limitations
+
+| Limitation | Workaround |
+|---|---|
+| **Agent field does not trigger automation.** Assigning an agent to a Notion task does not fire a webhook. Only Status changes trigger automations. | After assigning an Agent, also set `Status → In Progress` to start the pipeline. |
+| **Code review loop is internal.** "Changes Requested" is NOT a Notion status — it stays `In Progress` during review cycles. Cycle state is tracked via task comments only. | Read the latest comment on the task to see current review cycle count. |
+| **Sprint end auto-trigger requires date update.** The `/sprints/ended` webhook fires when `Dates` is edited, not when all tasks are Done. | When promoting a sprint early, Tech Lead must update `Dates.end` to today in Notion to trigger milestone close. |
+| **Notion automations send static headers.** Webhook signatures from Notion are static Bearer tokens, not HMAC. | The Cloudflare Worker accepts both Bearer (Notion) and HMAC (scripts) auth modes. |
 
 ## Cursor subagents (when to delegate)
 
