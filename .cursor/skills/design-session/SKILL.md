@@ -9,7 +9,17 @@ Interactive UI design process in two phases. Phase 1 is fast canvas wireframing 
 
 **Design philosophy:** MercFlow exists because Medusa's admin is built for developers. Every design decision in this session must ask: *can a non-technical shop owner do this confidently, without support?* If the answer is no, redesign.
 
-**Load the Emil Kowalski design engineering skill** before starting: `.agents/skills/emil-design-eng/SKILL.md`. Apply its animation, interaction, and polish principles throughout Phase 2.
+**Load these skills before starting — each covers a specific phase:**
+
+| Phase | Skill to load | Purpose |
+|---|---|---|
+| Phase 0 (IA) | `.agents/skills/information-architecture/SKILL.md` | Placement, hierarchy, navigation, user flows |
+| Phase 1 (Canvas) | `.agents/skills/emil-design-eng/SKILL.md` | Interaction quality, animation decisions |
+| Phase 2 (Mockup) | `.agents/skills/frontend-design/SKILL.md` | Production-grade component code |
+| Phase 2 (Mockup) | `.agents/skills/web-design-guidelines/SKILL.md` | Vercel web interface compliance |
+| Phase 2 (Mockup) | `.agents/skills/vercel-composition-patterns/SKILL.md` | React composition patterns |
+| Phase 3 (Review) | `.agents/skills/design-review/SKILL.md` | Critique against brief |
+| Phase 3 (Review) | `.agents/skills/accessibility/SKILL.md` | WCAG 2.2 compliance check |
 
 ---
 
@@ -35,6 +45,38 @@ The user can also drag reference screenshots directly into the chat (Shopify, Li
 - Before any new page or significant UI component is built
 - When a PRD describes UI behaviour but not visual structure
 - When the user wants to explore design options interactively
+
+---
+
+## Phase 0 — Information Architecture
+
+**Load:** `.agents/skills/information-architecture/SKILL.md`
+
+Before drawing anything, establish the structural layer:
+
+1. **Placement by importance** — What is the primary action on this screen? It gets the most prominent position (top-left or top-center, large, obvious). Secondary actions are one step away. Destructive actions are hidden behind confirmation.
+
+2. **Progressive disclosure** — Show only what the user needs right now. Advanced options live behind a "More options" or "Advanced settings" toggle. Do not front-load configuration.
+
+3. **Navigation context** — Where does this screen sit in the admin hierarchy? Does it need breadcrumbs? Does the sidebar show the correct active state? Does the URL make sense bookmarked?
+
+4. **User flow mapping** — Draw the before/after states:
+   ```
+   User arrives from: [nav item / previous action]
+   Primary goal: [one sentence]
+   Success path: [step 1 → step 2 → done → goes to: ...]
+   Error path: [what happens if something fails]
+   Empty state: [no data yet → what do they see?]
+   ```
+
+5. **MercFlow IA principle** — The admin follows a consistent hierarchy:
+   ```
+   List page (overview, bulk actions)
+       → Detail page (single item, full edit)
+           → Contextual panels (inline, not new pages)
+               → Confirmation modals (destructive actions only)
+   ```
+   Never skip levels. Never use a modal for a primary page.
 
 ---
 
