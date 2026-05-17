@@ -1,23 +1,26 @@
-APM_RULES {
+# MercFlow Agent Guide
+
+> **Source of truth** for tasks, sprints, roadmap, and feature discovery: Notion (MercFlow workspace).  
+> **Orchestration** (webhooks, scripted agents): `mercflow-os` — parallel repository next to this monorepo; see that repo’s README.
 
 ## Communication
 
 - Respond to the User in Danish unless the User explicitly requests another language.
 - Use English for all code, comments, identifiers, commit messages, and technical documentation.
 - Keep status updates concise and actionable.
-- When project management context matters, validate the work against the current Batch 2 scope and the project guidelines in this file before proceeding.
+- When project management context matters, validate the work against the linked Notion task, sprint, and PRD (and this file) before proceeding.
 
-## Project Boundaries
+## Project boundaries
 
 - MercFlow is an opinionated Medusa v2 distribution built from MercFlow-owned packages and app-level integration points.
 - Do not modify Medusa core packages, `node_modules`, or third-party source files directly.
 - Do not touch Guapo production configuration, credentials, environment variables, or other Guapo-specific production assets.
-- Batch 2 work may include admin-controlled SEO infrastructure, Google Shopping XML feed output, inventory and purchase order workflows, order-operation extensions, and backend-served public output such as `sitemap.xml`, `robots.txt`, and feed XML.
+- Current product scope may include admin-controlled SEO infrastructure, Google Shopping XML feed output, inventory and purchase order workflows, order-operation extensions, and backend-served public output such as `sitemap.xml`, `robots.txt`, and feed XML — as reflected in the active Notion roadmap and PRDs.
 - Guapo is the first internal validation case, but MercFlow must remain generic. Do not hardcode Guapo-specific assumptions, copy, production assets, credentials, store URLs, or operational configuration into MercFlow packages.
 - Do not add Nordic payment modules, shipping label integrations, page builder/blog work, dark mode, automated low-stock ordering, EDI/supplier integrations, Amazon/Pricerunner feeds, or public release work unless the User explicitly changes scope.
 - Keep backend custom logic in MercFlow modules and backend registration points. The backend app registers modules; it should not become a dumping ground for custom business logic.
 
-## TypeScript and Code Style
+## TypeScript and code style
 
 - TypeScript is strict. Do not use `any`; use `unknown` with narrowing or define proper types.
 - Prefer `type` for data shapes. Use `interface` only when extension through `extends` is intended.
@@ -28,7 +31,7 @@ APM_RULES {
 - Use PascalCase for component files and React components, camelCase for hooks/utilities, SCREAMING_SNAKE_CASE for constants, and snake_case for database columns and API route parameters.
 - Do not leave `console.log` or debugging artifacts in completed work.
 
-## UI and Design Tokens
+## UI and design tokens
 
 - The admin UI should be light, clean, spacious, and easy to scan.
 - All visual values must come from `packages/design-tokens`. Do not hardcode hex colors, arbitrary Tailwind values, spacing, font sizes, radii, or shadows.
@@ -38,21 +41,20 @@ APM_RULES {
 - Always handle loading and error states explicitly. Do not silently render nothing on errors.
 - Interactive UI must be keyboard accessible, use semantic HTML, associate labels with form inputs, and avoid using color as the only way to convey information.
 
-## Navigation and List Views
+## Navigation and list views
 
 - Use dedicated pages with URL routing for primary entity navigation, forms with more than four fields, deep-linkable flows, and primary workflow actions.
 - Use modals only for destructive confirmations, short focused forms, and contextual actions that do not need their own URL.
 - Page-level navigation should use the shared page transition pattern. Do not invent custom transitions per page.
 - List views should include a header, filters, typed table columns, sortable columns where applicable, row actions in a dropdown, pagination, useful empty states, and skeleton loading for full-page loads.
-- Every list view should support keyboard-friendly operation.
 
-## Rich Text
+## Rich text
 
 - Use TipTap v2 for content rich text editing.
 - Store rich text as TipTap JSON. Do not store HTML directly.
 - Use the standard extension set unless the User explicitly approves an addition: `StarterKit`, `Link` with `openOnClick: false`, `Image` through media upload, and `CharacterCount`.
 
-## Localization and Medusa (APM)
+## Localization and Medusa
 
 - **Core vs MercFlow:** Use **Medusa’s** product and category UIs, translation flows, and Admin APIs for **titles, handles, slugs, and Medusa’s own description/translation fields**. Use the **MercFlow content module and admin content routes** for **rich text (`description_rich`), SEO fields, media gallery, and category banner** per the content module README and field definitions. Do not duplicate the same meaningful field in two places.
 - **Locale list:** The set of available editing languages is driven by the **store and Medusa admin** (e.g. `GET /admin/locales` or JS SDK equivalent). **Do not** hardcode a production language list in MercFlow.
@@ -61,7 +63,7 @@ APM_RULES {
 - **Upgrades:** Keep MercFlow schema in the **content module**; do not patch `node_modules` or alter Medusa core entity definitions. Follow Medusa’s upgrade notes for breaking API changes; manage MercFlow migrations separately.
 - **Documentation is required** when you touch this area: point operators and the next developer to where core translations are edited vs the Content tab, and how locale is resolved.
 
-## Content Module and Medusa Data Layer
+## Content module and Medusa data layer
 
 - Content-related data models, services, migrations, and API extensions belong in the MercFlow content module.
 - SEO infrastructure belongs in a MercFlow SEO module, feed generation belongs in a MercFlow feed module, and inventory/purchase-order/order-extension data belongs in a MercFlow inventory module. Keep module ownership clear and avoid duplicating the same meaningful field across modules.
@@ -73,9 +75,9 @@ APM_RULES {
 - Use Zod for admin API request validation before accessing request body fields.
 - Locale-aware content should read and write only the active locale, defaulting to `en` when no locale is provided.
 - Backend public-output routes such as sitemap, robots, redirect, metadata, and feed endpoints must return correct status codes, content types, and cache behavior for their consumers. Test XML/text output as output, not just as strings.
-- Purchase order receipt in Batch 2 records MercFlow ordered/incoming/received history and must not silently mutate Medusa stock unless a Task explicitly introduces that behavior. UI and service responses must make this boundary clear.
+- Purchase order receipt records MercFlow ordered/incoming/received history and must not silently mutate Medusa stock unless a Task explicitly introduces that behavior. UI and service responses must make this boundary clear.
 
-## Database and Migrations
+## Database and migrations
 
 - PostgreSQL is the local database target for development, preferably running through Docker.
 - In local development, migrations may be generated, run, reverted, and iterated as needed for the current task.
@@ -106,42 +108,40 @@ APM_RULES {
 - For SEO and feed work, verify public route output, content types, slug behavior, redirect behavior, XML validity, validation reports, and caching/regeneration behavior where implemented.
 - For inventory, purchase order, and order-extension work, verify status transitions, receipt calculations, incoming quantities, internal-note behavior, and the boundary between MercFlow records and Medusa stock/order data.
 
-## Stop and Ask
+## Stop and ask
 
 - Stop and ask the User before changing public API contracts, route paths, response shapes, field names, or content model fields.
 - Stop and ask if a task requires a production or staging migration.
 - Stop and ask if it is unclear whether a new UI element belongs in `admin-ui` or `design-tokens`.
 - Stop and ask if two existing codebase patterns conflict and no canonical pattern is clear.
 - Stop and ask if the task is underspecified and reasonable interpretations would lead to meaningfully different implementations.
-- Stop and ask before adding automatic Medusa stock mutation, external platform connections, wildcard/regex redirects, new feed formats, or new content-module fields not explicitly required by the current Task.
+- Stop and ask before adding automatic Medusa stock mutation, external platform connections, wildcard/regex redirects, new feed formats, or new content-module fields not explicitly required by the current task.
 
 ## Version control and commits
 
+- **Repository:** MercFlow monorepo root; **base branch:** `main`.
 - Follow [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): short description` (English).
 - Use types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, and `migration` for database migration commits only.
-- One commit per logical, working change unless an APM Task batch explicitly requires multiple commits on the same branch.
-- Feature branch names are short, kebab-case, and describe the work; they do not include APM stage or task numbers.
+- One commit per logical, working change.
+- Feature branch names are short, kebab-case, and describe the work.
+- **Worktrees:** use isolated git worktrees for parallel tasks (see `.cursor/skills/agent-workflow/SKILL.md`). Recommended path pattern: `../mercflow-worktrees/{task-id}/` (sibling directory to the clone; not committed).
+- **Merge policy:** merge feature branches when review and CI pass; do not let approved work diverge unmerged when dependents need it.
 
-## APM session version control (this repository)
+## Agent workflow (Cursor)
 
-- **Repository:** MercFlow monorepo root; **base branch:** `main`.
-- **Tracked in git (see root `.gitignore`):** `.apm/plan.md`, `.apm/spec.md`, `.apm/tracker.md`, and `.apm/memory/index.md`. Task logs (e.g. `.apm/memory/stage-*/`), Message Bus files under `.apm/bus/`, and worktrees under `.apm/worktrees/` stay untracked.
-- **Parallel Workers:** use isolated git worktrees under `.apm/worktrees/` (cap concurrent worktrees at 3–4); code work happens in the worktree, while `.apm` Task Logs and bus paths resolve from the project root.
-- **Merge policy:** after a successful Task review, merge the feature branch into `main` when dependents need the work or at stage end; do not let completed branches diverge unmerged before dependent dispatch.
+Every implementation task follows the six-stage pipeline in [`.cursor/skills/agent-workflow/SKILL.md`](.cursor/skills/agent-workflow/SKILL.md). Task breakdown uses vertical slices per [`.cursor/rules/vertical-slicing.mdc`](.cursor/rules/vertical-slicing.mdc).
 
-## APM — Manager use of subagents
+**Commands:** `/start-task`, `/review-code`, `/open-pr`, `/devops-check`, `/po-grill`, `/tech-lead-plan`
 
-The Manager uses **Task** subagents only when the work fits the categories below. Routine coordination (read Task Logs, update Tracker, write Task Prompts, merge clean branches) runs **without** a subagent.
+## Cursor subagents (when to delegate)
 
+Use Task subagents only when the work fits the categories below. Routine coordination runs without a subagent.
 
-| Situation                                                                                             | Subagent                                   | When to use                                                                                                                              |
-| ----------------------------------------------------------------------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| Large or ambiguous codebase or artifact investigation; risk of burning Manager context on exploration | `explore` (read-only)                      | Before changing planning documents or follow-up prompts when the answer requires reading many files or tracing patterns across the tree. |
-| Non-trivial merge conflicts, or a defect that needs deep cross-file tracing                           | `generalPurpose` or `shell` as appropriate | When the Manager cannot resolve from the Task Log and a focused investigation is needed.                                                 |
-| Holistic stage verification (integration checks) that are too heavy to run inline                     | `tester` or `explore`                      | When task-review calls for end-of-stage verification and the Manager cannot run the full validation in-session.                          |
-| Medusa or DB migration work                                                                           | `migrator`                                 | Only when a task explicitly involves generating or running MercFlow module migrations per project rules.                                 |
+| Situation | Subagent | When to use |
+| --- | --- | --- |
+| Large or ambiguous investigation across many files | `explore` (read-only) | Before changing planning documents or implementation when tracing patterns across the tree. |
+| Merge conflicts or deep cross-file defects | `generalPurpose` or `shell` | When inline investigation is not enough. |
+| Heavy integration verification | `tester` or `explore` | When full validation cannot run in-session. |
+| MercFlow module migrations | `migrator` | When a task involves generating or running MercFlow migrations per project rules. |
 
-
-**Do not** spawn subagents for: drafting or delivering Task Prompts, routine Tracker or bus updates, straightforward log review, or merges that complete with no conflicts.
-
-} //APM_RULES
+**Do not** spawn subagents for: drafting routine prompts, trivial log review, or merges that complete without conflicts.
