@@ -30,40 +30,40 @@ export function buildRootStylesheet(): string {
     flattenRootStringTree(
       colorTree as unknown as Record<string, unknown>
     ),
-    "--color-"
+    "--mf-color-"
   )
 
   const spacingLines = Object.entries(spacingScale).map(
-    ([k, v]) => `  --spacing-${k.replace(".", "-")}: ${v};`
+    ([k, v]) => `  --mf-spacing-${k.replace(".", "-")}: ${v};`
   )
 
   const fontFamilyLines = Object.entries(fontFamily).map(
-    ([k, v]) => `  --font-family-${k}: ${v};`
+    ([k, v]) => `  --mf-font-family-${k}: ${v};`
   )
   const fontSizeLines = Object.entries(fontSize).map(
-    ([k, v]) => `  --font-size-${k}: ${v};`
+    ([k, v]) => `  --mf-font-size-${k}: ${v};`
   )
   const fontWeightLines = Object.entries(fontWeight).map(
-    ([k, v]) => `  --font-weight-${k}: ${v};`
+    ([k, v]) => `  --mf-font-weight-${k}: ${v};`
   )
   const lineHeightLines = Object.entries(lineHeight).map(
-    ([k, v]) => `  --line-height-${k}: ${v};`
+    ([k, v]) => `  --mf-line-height-${k}: ${v};`
   )
   const letterSpacingLines = Object.entries(letterSpacing).map(
-    ([k, v]) => `  --letter-spacing-${k}: ${v};`
+    ([k, v]) => `  --mf-letter-spacing-${k}: ${v};`
   )
   const radiiLines = Object.entries(radii).map(
-    ([k, v]) => `  --radius-${k}: ${v};`
+    ([k, v]) => `  --mf-radius-${k}: ${v};`
   )
   const shadowLines = Object.entries(shadows).map(
-    ([k, v]) => `  --shadow-${k}: ${v};`
+    ([k, v]) => `  --mf-shadow-${k}: ${v};`
   )
   const zIndexLines = Object.entries(zIndex).map(
-    ([k, v]) => `  --z-${k}: ${v};`
+    ([k, v]) => `  --mf-z-${k}: ${v};`
   )
   const motionLines = linesForFlatPrefix(
     flattenRootStringTree(motion as unknown as Record<string, unknown>),
-    "--motion-"
+    "--mf-motion-"
   )
 
   const body = [

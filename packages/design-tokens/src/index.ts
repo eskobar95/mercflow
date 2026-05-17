@@ -13,6 +13,7 @@ import {
 } from "./definitions/batch1.js"
 
 export { buildRootStylesheet } from "./lib/buildRootStylesheet.js"
+export { tailwindPreset } from "./tailwind-preset.js"
 
 /**
  * Authoritative nested token map for programmatic consumption (Tailwind, runtime theme, etc.).
