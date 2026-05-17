@@ -1,11 +1,32 @@
 ---
 name: design-session
-description: Interactive UI/UX design session inside Cursor. Builds a live canvas wireframe first, then a token-accurate TSX mockup using MercFlow design tokens and base components. Use when designing a new page, feature, or component before implementation.
+description: Interactive UI/UX design session inside Cursor. Builds a live canvas wireframe first, then a token-accurate TSX mockup using MercFlow design tokens and base components. Integrates Emil Kowalski's design engineering principles and UX thinking for non-technical users. Use when designing a new page, feature, or component before implementation.
 ---
 
 # Design Session
 
-Interactive UI design process in two phases. Phase 1 is fast canvas wireframing for structure decisions. Phase 2 is a pixel-accurate TSX mockup using real MercFlow tokens and components — the output the implementation agent will reference.
+Interactive UI design process in two phases. Phase 1 is fast canvas wireframing for structure and UX decisions. Phase 2 is a pixel-accurate TSX mockup using real MercFlow tokens and components — the output the implementation agent will reference.
+
+**Design philosophy:** MercFlow exists because Medusa's admin is built for developers. Every design decision in this session must ask: *can a non-technical shop owner do this confidently, without support?* If the answer is no, redesign.
+
+**Load the Emil Kowalski design engineering skill** before starting: `.agents/skills/emil-design-eng/SKILL.md`. Apply its animation, interaction, and polish principles throughout Phase 2.
+
+---
+
+## Before starting — take reference screenshots
+
+If the existing Medusa admin UI is relevant, capture it using the browser MCP:
+
+```
+1. Open browser MCP → navigate to the Medusa admin URL (check .env.local for VITE_BACKEND_URL)
+2. Log in with admin credentials
+3. Navigate to the relevant section (products, orders, etc.)
+4. Take screenshot → describe what you see: what works, what's confusing, what's painful
+```
+
+This gives you a concrete "before" state to design against.
+
+The user can also drag reference screenshots directly into the chat (Shopify, Linear, Notion, etc.) — accept and analyse them specifically.
 
 ---
 
@@ -20,30 +41,35 @@ Interactive UI design process in two phases. Phase 1 is fast canvas wireframing 
 ## Phase 1 — Canvas Wireframe
 
 ### Purpose
-Establish layout structure and interaction patterns quickly. Nothing is hardcoded here — this is about spatial decisions, not final styling.
+Establish layout structure, interaction patterns, and UX flows. Nothing is hardcoded here — this is about spatial and behavioural decisions, not final styling.
 
 ### Protocol: One question at a time (Grill Me)
 
 Ask one question, wait for the answer, then ask the next. No batching. Questions cover:
 
-**Orientation**
-1. What is the user trying to accomplish on this screen in one sentence?
-2. Is this primarily a list, a form, a dashboard, or a hybrid?
-3. What is the primary action? (Create / Edit / Review / Monitor)
+**User & context**
+1. Who uses this screen? (Shop owner doing daily ops / partner doing occasional admin / developer configuring)
+2. How often will they use it? (Multiple times per day / weekly / rarely)
+3. What is the one thing they must be able to do confidently without reading any instructions?
+
+**Flow & orientation**
+4. What triggers them to arrive here? (Nav menu / previous action / notification)
+5. What do they do when they're done? (Go back to list / go to next step / close tab)
+6. What is the worst thing that could go wrong, and how will the UI prevent or recover from it?
 
 **Layout**
-4. Full-width table or constrained content width?
-5. Does it need a persistent sidebar (filters, navigation) or top-bar actions only?
-6. If a list: compact rows (more items visible) or relaxed rows (more breathing room)?
+7. Full-width table or constrained content width?
+8. Does it need a persistent sidebar (filters, navigation) or top-bar actions only?
+9. If a list: compact rows (more items visible) or relaxed rows (more breathing room)?
 
 **Density & Actions**
-7. Inline row actions or a detail panel/page on click?
-8. Does it need bulk selection? If yes, what can you bulk-do?
-9. Empty state: what does the user see and what is the primary call-to-action?
+10. Inline row actions or a detail panel/page on click?
+11. Does it need bulk selection? If yes, what can you bulk-do?
+12. Empty state: what does the user see and what is the single, obvious call-to-action?
 
 **Reference**
-10. Do you have reference screenshots to share? (Shopify admin, Linear, Notion, etc.)
-    — If yes: analyse them and note specific patterns to incorporate.
+13. Do you have reference screenshots to share? (Shopify admin, Linear, Notion, etc.)
+    — If yes: analyse them specifically — name the exact patterns to borrow and why.
     — If no: proceed with MercFlow defaults (Shopify Admin inspired, light, spacious).
 
 ### Canvas generation rules
@@ -78,7 +104,7 @@ Iterate until the user says the structure is approved. Keep the canvas updated.
 ## Phase 2 — Token-Accurate TSX Mockup
 
 ### Purpose
-Translate the approved canvas structure into a real React component file using MercFlow's actual design tokens and base components. This is what the implementation agent will use as its visual reference.
+Translate the approved canvas structure into a real React component file using MercFlow's actual design tokens and base components — with Emil Kowalski's interaction quality applied. This is what the implementation agent will use as its visual reference.
 
 ### File location
 
@@ -111,6 +137,23 @@ The mockup must:
 - Include realistic dummy data (not "lorem ipsum", but plausible product/order names)
 - Show the primary user flow: loaded state + at least one interaction state
 - Be self-contained (no API calls, no hooks — all data is inline const)
+
+**Apply Emil Kowalski principles:**
+- Buttons: `transform: scale(0.97)` on `:active`, `transition: transform 160ms ease-out`
+- Dropdowns/popovers: animate from `scale(0.95) opacity-0`, use `transform-origin` from trigger
+- Drawers/panels: `translateY(100%)` → `translateY(0)`, `cubic-bezier(0.32, 0.72, 0, 1)`, 300ms
+- List items entering: stagger with 30-50ms delay, `translateY(8px) opacity-0` → natural state
+- Tooltips: 125ms `ease-out`, skip animation after first tooltip open
+- `prefers-reduced-motion`: opacity/color only, no transform-based motion
+- No `transition: all` — always specify exact properties
+- Duration limits: buttons 100-160ms, tooltips 125-200ms, modals 200-350ms
+
+**UX for non-technical users:**
+- Destructive actions (delete, bulk change) always require confirmation — never one-click
+- Errors must explain what went wrong AND what to do next (not just "An error occurred")
+- Loading states: skeleton loaders for content, spinner only for actions
+- Success feedback: brief (2s) toast, no modal for confirmations
+- Progressive disclosure: show advanced options in a collapsible, not upfront
 
 ### Mockup structure
 
@@ -196,6 +239,21 @@ For: [PRD name or Notion task URL]
 ### Mockup file
 packages/admin-ui/src/design-sessions/ProductList.mockup.tsx
 ```
+
+### DB schema implications
+
+From the approved design, extract what the data model needs:
+
+```markdown
+### Data model implications
+| Field shown in UI | DB column | Type | Notes |
+|---|---|---|---|
+| Product status badge | status | enum | draft/published/archived |
+| Column config (per user) | — | localStorage | No DB needed — client-side |
+| Bulk action history | — | NOT in scope for this task | Future audit log |
+```
+
+This gives the Tech Lead a head start on the DB migration plan and prevents the implementation agent from guessing schema from UI alone.
 
 ### Save to Notion
 
