@@ -51,18 +51,19 @@ Task created in Notion (Status: Not Started)
     │  Commit each layer separately      │
     │  Typecheck + lint pass per layer   │
     │  git push origin feature/...       │
+    │  Set Notion "Feature Branch" field │
     │  Add comment: "branch pushed"      │
     │  Dispatch code-reviewer.yml ──────────────────────────────────────┐
     └────────────────────────────────────┘                              │
                                                                         ▼
-                                                 ┌────────────────────────────────────┐
-                                                 │  3. CODE REVIEW (separate session) │
-                                                 │  Fresh context — sees diff only    │
-                                                 │  git diff development...branch     │
-                                                 │  Reviews against acceptance crit.  │
-                                                 │  → APPROVED: open PR               │
-                                                 │  → CHANGES REQUESTED: set Blocked  │
-                                                 └────────────────────────────────────┘
+                                             ┌────────────────────────────────────┐
+                                             │  3. CODE REVIEW (separate session) │
+                                             │  Fresh context — sees diff only    │
+                                             │  git diff development...branch     │
+                                             │  Reviews against acceptance crit.  │
+                                             │  → APPROVED: open PR               │
+                                             │  → CHANGES REQUESTED: set Blocked  │
+                                             └────────────────────────────────────┘
          │                                                              │
          │ APPROVED                                                     │ CHANGES REQUESTED
          ▼                                                              ▼
@@ -71,7 +72,7 @@ Task created in Notion (Status: Not Started)
     │  (opened by Code Reviewer Agent)   │              ▼
     │  PR: feature/... → development     │    New Implementation Agent (fresh context)
     │  Task Status → In Review           │    reads review comment → fixes → pushes
-    │  PR URL saved on task              │    → dispatches new Code Reviewer
+    │  PR URL + branch saved on task     │    → dispatches new Code Reviewer
     └────────────────────────────────────┘
          │
          ▼  PR open on development
@@ -82,12 +83,25 @@ Task created in Notion (Status: Not Started)
     │  DevOps Agent: reactive on failure │
     └────────────────────────────────────┘
          │
-         ▼  Bugbot + CI pass, human approves
+         ▼  ALL checks pass (CI green + Bugbot + no failing reviews)
+    ┌────────────────────────────────────┐
+    │  5b. READY TO MERGE                │
+    │  pr-checks-complete.yml fires      │
+    │  Sets Notion Status → Ready to Merge│
+    │  Notion automation → merge-agent   │
+    └────────────────────────────────────┘
+         │
+         ▼  Merge Agent triggered
     ┌────────────────────────────────────┐
     │  6. MERGE → development            │
-    │  Squash merge into development     │
-    │  Task Status → Done                │
-    │  Worktree removed                  │
+    │  Merge Agent reviews PR summary    │
+    │  Improves PR body if needed        │
+    │  Writes clean squash commit msg    │
+    │  gh pr merge --squash              │
+    │  pr-merged.yml fires automatically │
+    │    → Task Status → Done            │
+    │    → Unblock dependent tasks       │
+    │    → Close GitHub Issue            │
     └────────────────────────────────────┘
          │
          ▼  Sprint complete → /promote-to-staging
@@ -709,49 +723,53 @@ If CI fails on main: DevOps diagnoses and creates a hotfix task immediately.
 
 ```
 Not Started
-    → In Progress     (worktree created, Worker running — Stage 1+2+3)
-    → In Review       (Code Review APPROVED, PR open on development — Stage 4+5)
-    → Done            (merged to development, worktree cleaned up — Stage 6)
-    → Blocked         (dependency not resolved, or cycle 3 hit in code review)
+    → In Progress       (worktree created, implementation running — Stages 1+2)
+    → In Review         (Code Review APPROVED, PR open on development — Stages 3+4+5)
+    → Ready to Merge    (ALL CI checks pass + Bugbot + no failing reviews — Stage 5b)
+    → Done              (squash merged, GitHub Issue closed — Stage 6)
+    → Blocked           (dependency not resolved, or code review requested changes)
+    → Archived          (abandoned or superseded)
 ```
 
+**Who sets each status:**
+| Status | Set by |
+|---|---|
+| Not Started | Tech Lead (task creation) |
+| In Progress | Webhook automation (when task assigned to cloud agent and status updated) |
+| In Review | Code Reviewer Agent (after PR opened) |
+| Ready to Merge | GitHub Actions `pr-checks-complete.yml` (automatic when all checks pass) |
+| Done | GitHub Actions `pr-merged.yml` (automatic after squash merge) |
+| Blocked | Code Reviewer Agent (changes requested) or manual (dependency) |
+
 **Important: "Changes Requested" is NOT a Notion status.**
-The code review loop (Stage 3) works as follows:
+The code review works as follows:
+- APPROVED → Code Reviewer opens PR → Status → In Review
+- CHANGES REQUESTED → Code Reviewer adds detailed comment → Status → Blocked
+  → Webhook fires → new Implementation Agent starts with fresh context
 
-**Within one agent run (same context window):**
-- APPROVED → move to Stage 4 (open PR, set Status → In Review)
-- CHANGES REQUESTED → Worker fixes on the same branch → re-requests review
-- Repeat until APPROVED or context window exhausted
-
-**When context window is exhausted without approval:**
-- Code Reviewer writes a detailed comment listing all required changes
-- Set Status → **Blocked** (previousStatus = In Progress)
-- Webhook fires → **new implementation agent starts** with fresh context window
-- New agent reads all task comments (including the review), fixes issues, runs fresh review
-- If APPROVED → PR opened → In Review → Done
-- If new agent ALSO fails → Status → Blocked again (previousStatus = Blocked)
-  → Webhook sees Blocked→Blocked: **no auto-trigger** → human escalation required
-
-**Escape from Blocked — two paths:**
+**Escape from Blocked:**
 
 | Type | Cause | Auto-recovery | Human needed |
 |---|---|---|---|
-| Code review blocked (1st time) | Context exhausted, changes requested | Yes — new agent run triggered automatically | No |
-| Code review blocked (2nd time) | New agent also failed | No — auto-trigger stops | Yes — human reads comments, splits task or clarifies acceptance criteria, then sets → In Progress |
-| Dependency blocked | `Blocked by` task not Done | No | Human sets → In Progress after dependency is Done |
+| Code review blocked (1st time) | Changes requested | Yes — new agent triggered automatically | No |
+| Code review blocked (2nd time) | New agent also failed | No — auto-trigger stops | Yes — split task or clarify acceptance criteria, then set → In Progress |
+| Dependency blocked | `Blocked by` task not Done | Yes — auto-unblocked when blocker Done | No (unless other blockers remain) |
 
-When a Worker Agent starts on a `Blocked` task (fresh run after Blocked):
+When a Worker Agent starts on a `Blocked` task (after code review block):
 1. Read ALL comments on the task page — especially the last Code Reviewer comment
 2. List the required changes explicitly before writing any code
-3. Address each required change one at a time, layer by layer
-4. Add a comment: `"Resuming from Blocked — addressing: [list of issues from review]"`
-5. Start a fresh review cycle (cycle count resets to 1)
+3. Address each required change, layer by layer
+4. Add comment: `"Resuming from Blocked — addressing: [list of issues from review]"`
+5. Set "Feature Branch" field to branch name before pushing
 
-Bugbot and CI run while status is `In Review`. Do not move to `Done` until both pass.
+**Dependency auto-unblock:**
+When a task reaches Done, `pr-merged.yml` automatically:
+1. Finds all tasks with this task in their "Blocked by" relation
+2. If they have no OTHER unresolved blockers → sets Status → In Progress
+3. The webhook fires → new implementation agent starts for that task
 
-Sprint promotion (Stages 7+8) is a Tech Lead action across multiple tasks,
-not reflected in individual task status. When promoting early (before sprint end date),
-Tech Lead updates `Dates.end` in Notion to today → auto-triggers milestone close.
+Sprint promotion (Stages 7+8) is a Tech Lead action across multiple tasks.
+When promoting early, Tech Lead updates `Dates.end` to today → triggers milestone close.
 
 ---
 
