@@ -1,13 +1,16 @@
 # PO Orchestrator Skill
 
-Two distinct agent roles in the product lifecycle:
+The Product Owner receives raw feature ideas and is responsible for one thing:
+turning them into finished, Approved PRDs that the Tech Lead can act on.
 
-- **PO: Grill** — discovers and defines a feature through a sequential interview
-- **Tech Lead: Plan** — breaks a finished PRD into vertical sprint tasks
+The PO never breaks work into tasks or sprints. The PO defines requirements.
+
+After a PRD is marked `Approved`, hand it to the Tech Lead:
+→ run `/tech-lead-plan <prd-url>` (see `.cursor/skills/tech-lead/SKILL.md`)
 
 ---
 
-## Role 1: PO Grill (`/po-grill`)
+## PO Grill (`/po-grill`)
 
 ### Purpose
 Interview the requester relentlessly about a feature idea — one question at a time — until there is enough shared understanding to write a professional PRD. Stop interviewing when you could write a complete PRD with no open questions.
@@ -112,108 +115,7 @@ When all branches are resolved, write a PRD to Notion:
 
 4. Link the PRD to the Feature Request in the Feature Requests database if one exists
 5. Optionally create a Roadmap Project entry if this PRD represents a new initiative
-
----
-
-## Role 2: Tech Lead Plan (`/tech-lead-plan`)
-
-### Purpose
-Read a finished PRD and break it into sprints and vertical tasks — ready for agent execution.
-
-### Core principle: vertical slicing
-
-**Never** break work into horizontal layers (DB → API → UI). Always slice **vertically**: each task delivers one user-visible capability end-to-end, touching all required layers.
-
-```
-❌ Wrong (horizontal):
-  Task 1: Create all DB tables
-  Task 2: Build all API endpoints
-  Task 3: Build all UI screens
-
-✓ Right (vertical):
-  Task 1: Product list page — DB table + API GET /products + UI list view
-  Task 2: Product detail — DB relation + API GET /products/:id + UI detail view
-  Task 3: Product create — DB insert + API POST /products + UI create form
-```
-
-Why vertical:
-- Each task is independently shippable and testable
-- Bugs are caught at the slice boundary, not in a final integration
-- Each task fits within a single agent context window (~200k tokens)
-- A failing task doesn't block the entire DB or API layer
-
-### Context window budget
-Each task should be sized so that one agent can complete it within ~200k tokens. This typically means:
-- One user-facing capability (one screen, one flow, one API endpoint group)
-- No more than 3–4 files changed at the schema level
-- Isolated test surface (one test file covering the slice)
-
-If a slice is too large to fit this budget, split it further along the user journey (e.g., "list" vs "detail" vs "create" vs "edit").
-
-### Steps
-
-1. **Read the PRD**
-   - Fetch the PRD page from Notion
-   - Identify all user-facing capabilities in the MVP scope
-
-2. **Map the vertical slices**
-   - List every distinct user action or system behavior
-   - Group related actions into slices (a slice = one agent task)
-   - Name each slice after the user outcome, not the technical layer
-
-3. **Identify dependencies between slices**
-   - A slice that requires data from another slice must come after it
-   - Mark these as `Blocked by` in Notion
-
-4. **Group slices into sprints**
-   - Sprint 1: Foundation slices (schema + core read paths)
-   - Sprint 2: Write paths (create, edit, delete)
-   - Sprint 3: Polish (edge cases, loading states, error handling)
-   - Adjust based on PRD complexity and team velocity
-
-5. **Create tasks in Notion**
-
-   For each slice, create a task in the Tasks database (`collection://85f9946d-4ef5-83f6-b930-87200262e353`) with:
-
-   ```
-   Task name:   [Verb] [user outcome] — [packages touched]
-                Example: "List products by category — admin-ui + backend"
-
-   Type:        Feature / Bug / Chore / Research
-   Priority:    Inherited from PRD unless a specific slice is higher/lower
-   Status:      Not Started
-   Sprint:      Link to the appropriate Sprint
-   PRD:         Link to source PRD
-   Package:     Link to affected package(s)
-   Blocked by:  Link to prerequisite tasks
-   ```
-
-   Write a task description with:
-   ```markdown
-   ## Slice objective
-   [What the user can do when this task is done]
-
-   ## Layers in scope
-   - DB: [specific tables/columns/migrations]
-   - API: [specific endpoints]
-   - UI: [specific components/pages]
-   - Tests: [what to test]
-
-   ## Acceptance criteria
-   - [ ] [Specific, testable criterion]
-   - [ ] [...]
-
-   ## Out of scope for this task
-   [What explicitly to skip and leave for another task]
-
-   ## Context notes
-   [Anything the implementing agent needs to know about adjacent code]
-   ```
-
-6. **Summarize the plan**
-   - Report: number of slices, sprints, estimated tasks
-   - Flag any slices that seem too large (likely context overrun)
-   - Flag any unresolved dependencies
+6. Set PRD `Status → In Review`, then `Approved` once confirmed
 
 ---
 
@@ -223,32 +125,14 @@ If a slice is too large to fit this budget, split it further along the user jour
 Feature Requests:  collection://2114184e-146d-4ffb-9574-5a7bbdb35125
 Roadmap Projects:  collection://d079946d-4ef5-8269-bb45-8707a97d4520
 PRDs:              collection://4680ce11-475b-4c91-a0b6-49c9c6dfba04
-Tasks:             collection://85f9946d-4ef5-83f6-b930-87200262e353
-Sprints:           collection://2f79946d-4ef5-83af-bf45-8722fa76455e
-Packages:          collection://33d46aaa-cdb0-4f7b-a692-267ebed6abb6
-Agents DB:         collection://9a4589cd-d5f4-43a2-9224-2f4b2abbc926
 ```
 
-## MercFlow packages
+## Handoff to Tech Lead
+
+When a PRD is `Approved`, the PO's job is done. Trigger the next phase:
 
 ```
-packages/admin-ui       — React admin interface (Vite + Medusa UI)
-packages/content-module — Medusa v2 module (DB models, services, API routes)
-packages/design-tokens  — Shared design system tokens
-apps/backend            — Guapo-specific Medusa backend configuration
+/tech-lead-plan <prd-notion-url>
 ```
 
-## Scope rules
-
-**Generic MercFlow (goes in packages/):**
-- Works for any Medusa v2 merchant
-- Configuration-driven, no hardcoded Guapo business logic
-
-**Guapo-specific (goes in apps/backend):**
-- References specific vendors, brands, or Guapo workflows
-- Business rules that don't generalize
-
-**Out of scope entirely:**
-- Replicates Medusa core (use the core instead)
-- Requires forking Medusa
-- Scope is a product in itself
+The Tech Lead skill (`.cursor/skills/tech-lead/SKILL.md`) takes over from here.

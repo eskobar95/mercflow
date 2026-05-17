@@ -14,6 +14,6 @@ Set up a git worktree and feature branch for a Notion task, then begin implement
 ## Instructions
 Read and follow `.cursor/skills/agent-workflow/SKILL.md`, then execute **Stage 1: Setup** followed by **Stage 2: Implementation**.
 
-Also read `.cursor/skills/po-orchestrator/SKILL.md` for vertical slicing principles, and the relevant package rule from `.cursor/rules/` before writing code.
+Also read `.cursor/skills/tech-lead/SKILL.md` for vertical slicing principles, and the relevant package rule from `.cursor/rules/` before writing code.
 
 Task URL: $input
