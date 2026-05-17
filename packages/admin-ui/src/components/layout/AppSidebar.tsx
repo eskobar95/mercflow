@@ -1,52 +1,83 @@
 import { NavLink } from "react-router-dom"
 
-const navItemClass = ({ isActive }: { isActive: boolean }): string => {
+const navLinkClass = ({ isActive }: { isActive: boolean }): string => {
   const base =
-    "block rounded-md border-l-4 py-2 pr-3 pl-2 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
+    "block rounded-md px-2 py-2 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
   if (isActive) {
-    return `${base} border-l-border-focus bg-surface-raised text-content-primary`
+    return `${base} bg-surface-raised text-content-primary shadow-sm`
   }
-  return `${base} border-l-transparent text-content-secondary hover:bg-surface-subtle hover:text-content-primary`
+  return `${base} text-content-secondary hover:bg-surface-default hover:text-content-primary`
+}
+
+const subNavLinkClass = ({ isActive }: { isActive: boolean }): string => {
+  const base =
+    "block rounded-md py-1.5 pr-3 pl-8 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
+  if (isActive) {
+    return `${base} bg-surface-raised text-content-primary shadow-sm`
+  }
+  return `${base} text-content-secondary hover:bg-surface-default hover:text-content-primary`
+}
+
+function NavSectionLabel({ children }: { children: string }): JSX.Element {
+  return (
+    <p className="mt-4 px-2 pb-1 text-xs font-medium uppercase tracking-wide text-content-tertiary first:mt-0">
+      {children}
+    </p>
+  )
 }
 
 /**
- * Primary navigation for the app shell. Expand with product routes in later tasks.
+ * Primary navigation — Shopify-inspired grouping, token-backed surfaces (no heavy borders).
  */
 export function AppSidebar(): JSX.Element {
   return (
     <aside
-      className="flex w-60 shrink-0 flex-col border-r border-border-default bg-surface-subtle"
+      className="flex w-56 shrink-0 flex-col bg-surface-subtle md:w-60"
       aria-label="Main navigation"
     >
-      <div className="border-b border-border-default px-4 py-5">
+      <div className="px-4 py-5">
         <p className="text-xs font-medium uppercase tracking-wide text-content-tertiary">
           MercFlow
         </p>
         <p className="text-sm font-semibold text-content-primary">Admin</p>
       </div>
-      <nav className="flex flex-1 flex-col gap-1 p-3" aria-label="Application">
-        <NavLink to="/" className={navItemClass} end>
-          Home
+      <nav
+        className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-3 pb-4"
+        aria-label="Application"
+      >
+        <NavSectionLabel>Overview</NavSectionLabel>
+        <NavLink to="/" className={navLinkClass} end>
+          Dashboard
         </NavLink>
-        <NavLink to="/products" className={navItemClass}>
+
+        <NavSectionLabel>Commerce</NavSectionLabel>
+        <NavLink to="/products" className={navLinkClass}>
           Products
         </NavLink>
-        <NavLink to="/product-categories" className={navItemClass}>
-          Product categories
+        <NavLink to="/orders" className={navLinkClass}>
+          Orders
         </NavLink>
-        <p
-          className="mt-2 px-2 pt-1 text-xs font-medium uppercase tracking-wide text-content-tertiary"
-        >
-          Create
-        </p>
-        <NavLink to="/products/new" className={navItemClass} end>
-          New product
+        <NavLink to="/customers" className={navLinkClass}>
+          Customers
         </NavLink>
-        <NavLink to="/product-categories/new" className={navItemClass} end>
-          New category
+        <NavLink to="/categories" className={navLinkClass}>
+          Categories
         </NavLink>
-        <NavLink to="/list-demo" className={navItemClass}>
-          List demo
+
+        <NavSectionLabel>Content</NavSectionLabel>
+        <NavLink to="/content/articles" className={subNavLinkClass}>
+          Articles
+        </NavLink>
+        <NavLink to="/content/pages" className={subNavLinkClass}>
+          Pages
+        </NavLink>
+        <NavLink to="/content/globals" className={subNavLinkClass}>
+          Globals
+        </NavLink>
+
+        <NavSectionLabel>Settings</NavSectionLabel>
+        <NavLink to="/settings/connectors" className={subNavLinkClass}>
+          Connectors
         </NavLink>
       </nav>
     </aside>

@@ -2,11 +2,11 @@
 
 ## Responsibility
 
-This package is the **MercFlow admin user interface** — a Vite + React client that will grow into the forked, page-driven Medusa admin. **Batch 1 (this state)** includes: a **global admin shell** (sidebar, top bar, main column) with **token-backed** styling, **React Router** and lazy-loaded pages, `ErrorBoundary` and `Suspense` around the main outlet for view errors and async loading, a **reusable list layer** in `src/components/ui/list/`, **entity list pages** for **Products** and **Product categories** (mock data, no Medusa client yet) plus a **`/list-demo` route** for the raw primitive smoke test, a home route with the **token integration proof**, and the design system rules from `.cursor/rules/admin-ui.mdc`. Wiring these lists to live Medusa Admin APIs lands in follow-up work.
+This package is the **MercFlow admin user interface** — a Vite + React 18 client that will grow into the forked, page-driven Medusa admin. **Current state:** a **global admin shell** (Shopify-inspired sidebar, header, token-backed styling, `PageTransition` on the main outlet) with **React Router data APIs** (`createBrowserRouter` + `RouterProvider`), placeholder routes for primary nav targets, and a dashboard home that still hosts the **token integration proof**. **List and detail pages** for products, categories, and content (mock or Medusa-backed) remain in `src/pages/` for Sprint 2+ wiring into the router. **`components/ui/list/`** and related demos are unchanged for reuse.
 
 ## What does *not* belong in this package
 
-- Medusa backend, database migrations, or custom API routes (those go in `apps/backend` and `packages/content-module`)
+- Medusa backend, database migrations, or custom API routes except the admin UI bundle itself
 - Copying the entire upstream Medusa admin in one PR
 - Design literals outside the token system for foundational styling (add tokens in `packages/design-tokens` first)
 - Storefront, payment/shipping, or public-site UI (out of scope for the admin app)
@@ -22,27 +22,32 @@ From the monorepo root:
 
 ```sh
 pnpm install
-pnpm --filter @mercflow/admin-ui dev
+pnpm dev
 ```
 
-Open the Vite dev URL printed in the terminal. The app loads the **admin shell**; the default route shows the **token integration proof** in the main column, and the sidebar includes **Products**, **Product categories**, and **List demo** for the list stack.
+This starts the admin UI on **`http://localhost:9000`** (strict port). You can instead run `pnpm --filter @mercflow/admin-ui dev`.
+
+Open the shell: the default route shows the **token integration proof** on the dashboard; the sidebar lists **Products**, **Orders**, **Customers**, **Categories**, **Content** (Articles, Pages, Globals), and **Settings → Connectors** (placeholders until Sprint 2).
+
+## Entity lists and legacy demo routes (not in shell router yet)
+
+- **Source files:** `ProductListPage`, `ProductCategoryListPage`, `ListDemoPage`, product/category create and detail pages, and **`useMockEntityListState`** remain under `src/pages/` and `src/hooks/` for Sprint 2 when they are reattached to `/products`, `/categories`, etc.
 
 ## List view primitives (Batch 1)
 
 - **Location:** `src/components/ui/list/`: `ListToolbar` (title, optional filter row), `DataTable` (sortable via header buttons, optional bulk select + row action dropdown from Radix, skeleton + empty), `ListPagination` (size + previous/next + status), `ListEmptyState`, `TableSkeleton`, `RowActionsMenu`, `ListSortLabel`, and typed column definitions in `types.ts` / `listSortState.ts`. All new chrome uses token-backed classes only.
-- **Demo:** `ListDemoPage` on `/list-demo` uses static mock rows (search, client-side sort, pagination, and mock “actions”). Use it to smoke test layout and a11y without a backend. Wire real fetches in later pages; keep filtering/sorting in the data layer of each route.
+- **Demo:** `ListDemoPage` exists for local testing of the list stack; it is **not** linked from the shell sidebar until a task wires `/list-demo` again.
 - **Shell rule:** `DataTable` does not own API calls — parents pass rows, `sortState`, and selection setters, matching the `ListPage` split described in `admin-ui.mdc`.
 
-## Entity lists (mock data) (Batch 1)
+## Mock data (Batch 1)
 
-- **Routes:** `/products` → `ProductListPage`, `/product-categories` → `ProductCategoryListPage`, **`/products/new` → `ProductNewPage`**, **`/product-categories/new` → `ProductCategoryNewPage`** (mock create forms; no Medusa client). Kebab paths; labels follow Medusa-style naming. List pages use the same `components/ui/list/*` stack as `/list-demo`, with entity-specific columns and copy.
-- **Data:** `src/data/mockProducts.ts` and `src/data/mockProductCategories.ts` export static rows. **`useMockEntityListState`** in `src/hooks/useMockEntityListState.ts` centralizes client-side filter, sort, pagination, and selection until a fetch layer exists.
-- **Future Medusa wiring:** In each page, replace the `allRows` input to the hook (or remove the hook and use your query hook) with results from the Medusa Admin API / JS SDK, map responses into the existing row types or adjust `ListColumnDef` and types together. Do not add API calls in this package until the project introduces a shared admin client; keep fetches in the page or a `hooks/useAdmin*List` module next to it.
+- **Data:** `src/data/mockProducts.ts` and `src/data/mockProductCategories.ts` export static rows for future list wiring.
 
 ## App shell and routing
 
-- **Entry:** `src/main.tsx` wraps the app in `BrowserRouter` and `React.StrictMode`.
-- **Routes:** `src/App.tsx` defines a layout route that renders `AdminShell` and lazy routes: `HomePage` (`/`), `ProductNewPage` (`/products/new`), `ProductListPage` (`/products`), **`ProductDetailPage` (`/products/:productId`)** with tab deep-link **`?tab=content`** for the MercFlow product content editor, `ProductCategoryNewPage` (`/product-categories/new`), **`ProductCategoryDetailPage` (`/product-categories/:categoryId`)** with **`?tab=content`** for category content (TipTap, SEO, banner + OG image IDs), `ProductCategoryListPage` (`/product-categories`), `ListDemoPage` (`/list-demo`).
+- **Entry:** `src/main.tsx` mounts `RouterProvider` with `createMercflowAdminRouter()` from `src/appRouter.tsx`.
+- **Routes:** `mercflowAdminShellRoutes` defines the layout route (`AdminShell`) and children: `HomePage` (`/` dashboard), placeholders for **`/products`**, **`/orders`**, **`/customers`**, **`/categories`**, **`/content/articles`**, **`/content/pages`**, **`/content/globals`**, **`/settings/connectors`**, plus a splat **`NotFoundPage`**. Route `handle.title` feeds the `TopBar`.
+- **Tailwind:** `tailwind.config.ts` consumes **`@mercflow/design-tokens/tailwind-preset`** (no duplicate theme map in this package).
 - **Layout:** `src/components/layout/AdminShell.tsx` provides `AppSidebar`, `TopBar`, and a scrollable `<main id="main-content">` with a **skip link** to that region. The main area wraps `ErrorBoundary` and `Suspense` (fallback `MainLoadingFallback`) around `<Outlet />` so chrome stays on screen when a view fails or suspends.
 - **Pages** live under `src/pages/`. Route-level transitions are applied once in `AdminShell` around `<Outlet />` via `PageTransition` (see `.cursor/rules/admin-ui.mdc`); page files render content only. Use token-backed classes in chrome and content.
 
@@ -85,7 +90,7 @@ A file-level map of the shell versus follow-up layout work is in `LAYOUT-AUDIT.m
 ## Styling and tokens
 
 - Global styles: `src/index.css` — imports `@mercflow/design-tokens/mercflow-tokens.css` first, then Tailwind layers.
-- Tailwind theme extensions: `tailwind.config.ts` — maps `surface`, `content`, `border`, `interactive`, spacing, radius, shadows, and typography to `var(--…)` from the design token sheet (see `.cursor/rules/admin-ui.mdc` for naming alignment).
+- Tailwind theme extensions: `tailwind.config.ts` — uses the **`@mercflow/design-tokens/tailwind-preset`** so `surface`, `content`, `border`, `interactive`, spacing, radius, shadows, and typography map to `var(--…)` from the design token sheet (see `.cursor/rules/admin-ui.mdc` for naming alignment).
 - Components should use utilities such as `bg-surface-canvas`, `text-content-primary`, `border-border-default`, and interactive tokens — not raw hex in class names.
 
 ## Product content API (dev)

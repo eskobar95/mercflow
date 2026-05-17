@@ -24,6 +24,18 @@ From another workspace package (after the admin app is wired in Task 2.2+):
   - `tokens` is a read-only nested map of Batch 1 values.  
   - `buildRootStylesheet()` returns the same `:root` block as the built CSS file (for tooling that injects CSS without a file import).
 
+- **Tailwind preset (shared theme extension):**  
+  In `tailwind.config.ts`, add the preset so `bg-surface-*`, `text-content-*`, spacing, radii, and z-index utilities map to MercFlow CSS variables:
+  ```ts
+  import type { Config } from "tailwindcss"
+  import mercflowPreset from "@mercflow/design-tokens/tailwind-preset"
+
+  export default {
+    content: ["./index.html", "./src/**/*.{ts,tsx}"],
+    presets: [mercflowPreset],
+  } satisfies Config
+  ```
+
 ### Naming alignment with the admin UI
 
 Class names in the admin are expected to map from these variables (see `.cursor/rules/admin-ui.mdc` for the full prefix table), for example:

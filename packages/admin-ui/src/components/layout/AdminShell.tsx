@@ -1,12 +1,20 @@
 import { Suspense } from "react"
-import { Outlet, useLocation } from "react-router-dom"
+import { Outlet, useLocation, useMatches } from "react-router-dom"
 
+import type { MercflowRouteHandle } from "@/appRouter"
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary"
 import { MainLoadingFallback } from "@/components/ui/MainLoadingFallback"
 import { PageTransition } from "@/components/ui/PageTransition"
 
 import { AppSidebar } from "./AppSidebar"
 import { TopBar } from "./TopBar"
+
+function useShellTitle(): string {
+  const matches = useMatches()
+  const last = matches[matches.length - 1]
+  const handle = last?.handle as MercflowRouteHandle | undefined
+  return handle?.title ?? "MercFlow"
+}
 
 /**
  * Renders the active route with the shared `PageTransition` (keyed by location so enter
@@ -26,8 +34,10 @@ function RoutedMainOutlet(): JSX.Element {
  * Route content renders in `<Outlet />` inside the main region.
  */
 export function AdminShell(): JSX.Element {
+  const title = useShellTitle()
+
   return (
-    <div className="flex min-h-screen w-full min-w-0">
+    <div className="flex min-h-screen w-full min-w-0 md:min-h-screen">
       <a
         href="#main-content"
         className="sr-only z-toast focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:rounded-md focus:border focus:border-border-default focus:bg-surface-raised focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-content-primary focus:shadow-md"
@@ -36,7 +46,7 @@ export function AdminShell(): JSX.Element {
       </a>
       <AppSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar title="Dashboard" />
+        <TopBar title={title} />
         <main
           id="main-content"
           tabIndex={-1}

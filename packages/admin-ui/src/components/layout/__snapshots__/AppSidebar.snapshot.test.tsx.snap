@@ -1,0 +1,15 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`AppSidebar nav labels > matches snapshot of visible primary nav link labels 1`] = `
+[
+  "Dashboard",
+  "Products",
+  "Orders",
+  "Customers",
+  "Categories",
+  "Articles",
+  "Pages",
+  "Globals",
+  "Connectors",
+]
+`;

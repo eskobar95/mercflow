@@ -6,6 +6,7 @@
     "build": "pnpm --filter @mercflow/design-tokens build && pnpm --filter @mercflow/admin-ui build && pnpm --filter @mercflow/backend build",
     "build:admin-ui": "pnpm --filter @mercflow/admin-ui build",
     "build:design-tokens": "pnpm --filter @mercflow/design-tokens build",
+    "dev": "pnpm --filter @mercflow/admin-ui dev",
     "dev:backend": "pnpm --filter @mercflow/backend dev",
     "lint": "eslint .",
     "test": "vitest run",
