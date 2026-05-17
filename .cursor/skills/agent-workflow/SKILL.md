@@ -18,12 +18,25 @@ feature/...   ← per-task worktree branch, based off development.
 - `development → staging`: **Tech Lead** gates this — runs `/promote-to-staging` at sprint end
 - `staging → main`: **Tech Lead** gates this — runs `/promote-to-main` after staging smoke tests pass
 
+## Two-agent architecture
+
+Implementation and code review run as **separate agents with separate context windows**.
+This is intentional: the reviewer acts as a colleague who sees only the result, not the process.
+
+```
+Implementation Agent (Session A)          Code Reviewer Agent (Session B — fresh)
+─────────────────────────────────         ──────────────────────────────────────────
+Knows: task description, PRD              Knows: diff only + acceptance criteria
+Does: writes code, commits, pushes        Does: reviews diff, approves or blocks
+Ends: after git push                      Ends: after PR opened or Status → Blocked
+```
+
 ## Pipeline overview
 
 ```
 Task created in Notion (Status: Not Started)
          │
-         ▼  /start-task <notion-task-url>
+         ▼  Notion webhook → GitHub Actions → Implementation Agent
     ┌────────────────────────────────────┐
     │  1. SETUP                          │
     │  Worktree from development branch  │
@@ -31,30 +44,34 @@ Task created in Notion (Status: Not Started)
     │  Update task Status → In Progress  │
     └────────────────────────────────────┘
          │
-         ▼  Worker Agent implements the vertical slice
+         ▼
     ┌────────────────────────────────────┐
     │  2. IMPLEMENTATION                 │
     │  DB → Service → API → UI → Tests   │
     │  Commit each layer separately      │
     │  Typecheck + lint pass per layer   │
-    └────────────────────────────────────┘
-         │
-         ▼  /review-code <branch>
-    ┌────────────────────────────────────┐
-    │  3. CODE REVIEW LOOP               │
-    │  Code Reviewer reads the diff      │
-    │  → Approved: continue              │
-    │  → Changes requested: back to Worker│
-    │  Max 3 cycles → human escalation   │
-    └────────────────────────────────────┘
-         │
-         ▼  APPROVED → /open-pr <branch>
-    ┌────────────────────────────────────┐
-    │  4. OPEN PR → development          │
-    │  PR: feature/... → development     │
-    │  Standard PR summary template      │
-    │  Task Status → In Review           │
-    │  PR URL saved on task              │
+    │  git push origin feature/...       │
+    │  Add comment: "branch pushed"      │
+    │  Dispatch code-reviewer.yml ──────────────────────────────────────┐
+    └────────────────────────────────────┘                              │
+                                                                        ▼
+                                                 ┌────────────────────────────────────┐
+                                                 │  3. CODE REVIEW (separate session) │
+                                                 │  Fresh context — sees diff only    │
+                                                 │  git diff development...branch     │
+                                                 │  Reviews against acceptance crit.  │
+                                                 │  → APPROVED: open PR               │
+                                                 │  → CHANGES REQUESTED: set Blocked  │
+                                                 └────────────────────────────────────┘
+         │                                                              │
+         │ APPROVED                                                     │ CHANGES REQUESTED
+         ▼                                                              ▼
+    ┌────────────────────────────────────┐         Status → Blocked (webhook fires)
+    │  4. PR OPEN → development          │              │
+    │  (opened by Code Reviewer Agent)   │              ▼
+    │  PR: feature/... → development     │    New Implementation Agent (fresh context)
+    │  Task Status → In Review           │    reads review comment → fixes → pushes
+    │  PR URL saved on task              │    → dispatches new Code Reviewer
     └────────────────────────────────────┘
          │
          ▼  PR open on development
