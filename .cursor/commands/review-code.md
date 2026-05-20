@@ -5,7 +5,7 @@
 Run the Code Reviewer Agent on a completed implementation.
 
 ## What it does
-1. Reads the full diff of the feature branch against `main`
+1. Reads the full diff of the feature branch against `development`
 2. Evaluates correctness, code quality, security, tests, and conventions
 3. Outputs a structured review: APPROVED or CHANGES REQUESTED
 4. If CHANGES REQUESTED: lists specific issues with file references for the Worker to fix

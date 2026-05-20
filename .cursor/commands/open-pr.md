@@ -5,9 +5,9 @@
 Open a pull request after Code Review is approved.
 
 ## What it does
-1. Verifies branch is rebased on latest `main`
+1. Verifies branch is rebased on latest `development` (`git fetch && git rebase origin/development`)
 2. Runs `pnpm typecheck && pnpm lint && pnpm test` as a final gate
-3. Creates the PR using the standard MercFlow PR summary template
+3. Creates the PR targeting `development` (`gh pr create --base development ...`)
 4. Copies the PR URL back to the Notion task (`PR URL` field)
 5. Updates Notion task Status → "In Review"
 6. Notes that Bugbot will activate automatically — do not trigger it manually

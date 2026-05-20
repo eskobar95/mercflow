@@ -66,7 +66,7 @@ Task created in Notion (Status: Not Started)
 
 ### Prerequisite checks
 Before creating the worktree, verify:
-- [ ] `main` branch is clean and up to date (`git fetch && git status`)
+- [ ] `development` branch is clean and up to date (`git fetch && git status`)
 - [ ] Task has a PRD link in Notion (required for context)
 - [ ] Task has a Package link (required for branch naming)
 - [ ] No existing worktree for this task
@@ -327,7 +327,7 @@ feat(package): add {service method or endpoint or component}
 
 ## Stage 3: Code Review Loop (`/review-code`)
 
-The Code Reviewer reads the full diff of the feature branch against `main` and evaluates it systematically.
+The Code Reviewer reads the full diff of the feature branch against `development` and evaluates it systematically.
 
 ### Review checklist
 
@@ -411,13 +411,14 @@ Decision: APPROVED | CHANGES REQUESTED
 Only run after Code Reviewer has issued APPROVED.
 
 ### Pre-PR checklist
-- [ ] Branch is rebased on latest `main` (`git rebase origin/main`)
+- [ ] Branch is rebased on latest `development` (`git fetch && git rebase origin/development`)
 - [ ] Commits are clean (squash WIP commits if needed)
 - [ ] `pnpm typecheck && pnpm lint && pnpm test` all pass on the worktree
 
 ### PR creation command
 ```bash
 gh pr create \
+  --base development \
   --title "{Slice objective} ({package})" \
   --body "$(cat <<'EOF'
 {PR_BODY}
@@ -478,7 +479,7 @@ Stage: PR opened
 
 PR: {github-pr-url}
 Branch: feature/{package}/{slug}
-Rebased on: main @ {short-sha}
+Rebased on: development @ {short-sha}
 
 Code Review: APPROVED (cycle {n}/3)
 Bugbot and CI will now run automatically.
@@ -571,7 +572,7 @@ Bugbot and CI run while status is `In Review`. Do not move to `Done` until both 
 
 ## Worktree hygiene rules
 
-- Never commit directly to `main`
+- Never commit directly to `main` or `development`
 - Never share a worktree between two tasks
 - If a task is abandoned: `git worktree remove` + update Notion task to `Blocked` with a note
 - List active worktrees weekly: `git worktree list`
