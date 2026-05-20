@@ -2,7 +2,7 @@ import { defineConfig, loadEnv } from "@medusajs/framework/utils"
 
 loadEnv(process.env.NODE_ENV || "development", process.cwd())
 
-export default defineConfig({
+const config = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     http: {
@@ -15,10 +15,13 @@ export default defineConfig({
   },
   modules: [
     {
-      resolve: "@mercflow/content-module",
-    },
-    {
-      resolve: "@mercflow/connector-module",
+      resolve: "./src/modules/connector",
     },
   ],
 })
+
+/**
+ * Minimal Medusa project root for local migration tooling (`pnpm db:generate`, etc.).
+ * Production apps register `@mercflow/connector-module` from their own `medusa-config`.
+ */
+export default config
