@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "db:migrate": "medusa db:migrate",
-    "db:revert": "medusa db:revert"
+    "db:rollback": "medusa db:rollback --modules content"
   },
   "dependencies": {
     "@medusajs/admin-sdk": "2.14.1",

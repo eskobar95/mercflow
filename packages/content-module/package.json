@@ -2,10 +2,12 @@
   "name": "@mercflow/content-module",
   "version": "0.1.0",
   "private": true,
+  "type": "commonjs",
   "description": "MercFlow Medusa v2 custom module: native product and category content fields (DML, migrations, service).",
   "main": "src/modules/content/index.ts",
   "exports": {
     ".": "./src/modules/content/index.ts",
+    "./models": "./src/models/index.ts",
     "./mercflow-product-content-api": "./src/integrations/mercflow-product-content-api.ts",
     "./mercflow-category-content-api": "./src/integrations/mercflow-category-content-api.ts"
   },
@@ -14,7 +16,7 @@
     "test": "vitest run",
     "db:generate": "medusa db:generate content",
     "db:migrate": "medusa db:migrate",
-    "db:revert": "medusa db:revert"
+    "db:rollback": "medusa db:rollback --modules content"
   },
   "dependencies": {
     "@medusajs/framework": "2.14.1",
