@@ -416,10 +416,17 @@ Only run after Code Reviewer has issued APPROVED.
 - [ ] `pnpm typecheck && pnpm lint && pnpm test` all pass on the worktree
 
 ### PR creation command
+
+First, read the task's Notion unique ID (the `ID` property, e.g. `MER-25`):
+```bash
+# Read from Notion task page → properties → unique_id field
+TASK_ID="MER-{number}"   # replace with actual value from Notion
+```
+
 ```bash
 gh pr create \
   --base development \
-  --title "{Slice objective} ({package})" \
+  --title "[${TASK_ID}] feat({package}): {slice objective}" \
   --body "$(cat <<'EOF'
 {PR_BODY}
 EOF
