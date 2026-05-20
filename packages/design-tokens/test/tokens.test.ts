@@ -40,8 +40,8 @@ describe("colorTree — content category", () => {
     expect(colorTree.content.secondary).toMatchInlineSnapshot(`"rgba(26, 26, 46, 0.65)"`)
   })
 
-  it("content.danger matches snapshot", () => {
-    expect(colorTree.content.danger).toMatchInlineSnapshot(`undefined`)
+  it("feedback.danger.content matches snapshot", () => {
+    expect(colorTree.feedback.danger.content).toMatchInlineSnapshot(`"#7A2A14"`)
   })
 })
 
@@ -136,8 +136,8 @@ describe("radii tokens", () => {
     expect(radii.md).toMatchInlineSnapshot(`"0.625rem"`)
   })
 
-  it("radii.full matches snapshot", () => {
-    expect(radii.full).toMatchInlineSnapshot(`undefined`)
+  it("radii.pill matches snapshot", () => {
+    expect(radii.pill).toMatchInlineSnapshot(`"9999px"`)
   })
 })
 
@@ -170,9 +170,9 @@ describe("motion tokens", () => {
     expect(motion.duration.page).toMatchInlineSnapshot(`"200ms"`)
   })
 
-  it("motion.easing.page matches snapshot", () => {
-    expect(motion.easing.page).toMatchInlineSnapshot(
-      `undefined`
+  it("motion.easing.enter matches snapshot", () => {
+    expect(motion.easing.enter).toMatchInlineSnapshot(
+      `"cubic-bezier(0.2, 0, 0, 1)"`
     )
   })
 })

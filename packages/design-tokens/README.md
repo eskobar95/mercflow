@@ -62,56 +62,96 @@ Examples:
 
 ### Color — `--mf-color-*`
 
-#### Surface
-Background and panel colors. Use these for page backgrounds, cards, and elevated layers.
+Brand foundation (Brand Kit v1, locked from Logo v4):
 
-| CSS variable | Value | Tailwind utility |
+| Token | Value | Role |
 |---|---|---|
-| `--mf-color-surface-canvas` | `#f6f6f7` | `bg-surface-canvas` |
-| `--mf-color-surface-default` | `#ffffff` | `bg-surface` |
-| `--mf-color-surface-subtle` | `#f9f9f9` | `bg-surface-subtle` |
-| `--mf-color-surface-muted` | `#f1f1f1` | `bg-surface-muted` |
-| `--mf-color-surface-raised` | `#ffffff` | `bg-surface-raised` |
-| `--mf-color-surface-overlay` | `rgba(16, 24, 32, 0.35)` | `bg-surface-overlay` |
+| `--mf-color-brand-base` | `#1A1A2E` | Dark navy — logo, primary button fill |
+| `--mf-color-brand-amber` | `#D4873A` | Amber — logo accent, soft buttons |
+| `--mf-color-brand-cream` | `#F5EDE3` | Cream — page canvas background |
+
+#### Surface
+Four-level hierarchy from warm canvas to elevated modals.
+
+| CSS variable | Value | Use |
+|---|---|---|
+| `--mf-color-surface-canvas` | `#F5EDE3` | `bg-surface-canvas` — page background |
+| `--mf-color-surface-default` | `#FDFAF7` | `bg-surface` — cards, inputs |
+| `--mf-color-surface-subtle` | `#EBE0D0` | `bg-surface-subtle` — panels, sidebar, hover fills |
+| `--mf-color-surface-raised` | `#FFFFFF` | `bg-surface-raised` — modals, popovers |
+| `--mf-color-surface-overlay` | `rgba(26,26,46,0.45)` | `bg-surface-overlay` — modal scrim |
 
 #### Content
-Text and icon colors.
+All text and icon colors. Secondary/tertiary/disabled use rgba opacity so they adapt automatically.
 
 | CSS variable | Value | Tailwind utility |
 |---|---|---|
-| `--mf-color-content-primary` | `#202223` | `text-content-primary` |
-| `--mf-color-content-secondary` | `#6d7175` | `text-content-secondary` |
-| `--mf-color-content-tertiary` | `#8c9196` | `text-content-tertiary` |
-| `--mf-color-content-placeholder` | `#8c9196` | `text-content-placeholder` |
-| `--mf-color-content-inverse` | `#ffffff` | `text-content-inverse` |
-| `--mf-color-content-disabled` | `#8c9196` | `text-content-disabled` |
-| `--mf-color-content-danger` | `#c52828` | `text-content-danger` |
+| `--mf-color-content-primary` | `#1A1A2E` | `text-content-primary` |
+| `--mf-color-content-secondary` | `rgba(26,26,46,0.65)` | `text-content-secondary` |
+| `--mf-color-content-tertiary` | `rgba(26,26,46,0.45)` | `text-content-tertiary` |
+| `--mf-color-content-disabled` | `rgba(26,26,46,0.28)` | `text-content-disabled` |
+| `--mf-color-content-inverse` | `#F5EDE3` | `text-content-inverse` — on dark fills |
 
 #### Border
+Opacity-based — adapts to any surface background automatically.
 
 | CSS variable | Value | Tailwind utility |
 |---|---|---|
-| `--mf-color-border-default` | `#e1e3e5` | `border-border` |
-| `--mf-color-border-subtle` | `#ebebeb` | `border-border-subtle` |
-| `--mf-color-border-strong` | `#8c9196` | `border-border-strong` |
-| `--mf-color-border-focus` | `#2c6ecb` | `border-border-focus` |
+| `--mf-color-border-subtle` | `rgba(26,26,46,0.08)` | `border-border-subtle` — hairlines, dividers |
+| `--mf-color-border-default` | `rgba(26,26,46,0.15)` | `border-border` — standard inputs/cards |
+| `--mf-color-border-strong` | `rgba(26,26,46,0.40)` | `border-border-strong` — active input |
+| `--mf-color-border-focus` | `rgba(212,135,58,0.60)` | `border-border-focus` — amber focus ring |
+
+#### Amber scale
+Brand accent ramp. Used for active nav states, checkboxes, toggles, amber buttons.
+**Not** for primary CTAs — use `interactive.primary` (dark navy) for those.
+
+| CSS variable | Value |
+|---|---|
+| `--mf-color-amber-subtle` | `rgba(212,135,58,0.12)` |
+| `--mf-color-amber-soft` | `rgba(212,135,58,0.22)` |
+| `--mf-color-amber-default` | `#D4873A` |
+| `--mf-color-amber-strong` | `#B36A1F` |
+| `--mf-color-amber-text` | `#8B4E15` — legible on cream backgrounds |
 
 #### Interactive
-Button and link colors. Includes hover and pressed states.
+Button color system. Primary uses dark navy (authority); soft uses amber (affordance).
 
 | CSS variable | Value | Notes |
 |---|---|---|
-| `--mf-color-interactive-primary` | `#2c6ecb` | Default fill for primary buttons |
-| `--mf-color-interactive-primary-hover` | `#1a5cb0` | Hover state |
-| `--mf-color-interactive-primary-pressed` | `#134c92` | Active/pressed state |
-| `--mf-color-interactive-primary-subtle` | `#e6f0ff` | Ghost button background |
-| `--mf-color-interactive-danger` | `#c52828` | Destructive actions |
-| `--mf-color-interactive-danger-hover` | `#9e1f1f` | Danger hover |
-| `--mf-color-interactive-danger-subtle` | `#fceded` | Danger banner background |
-| `--mf-color-interactive-focus-ring` | `#2c6ecb` | Focus ring color |
-| `--mf-color-interactive-disabled-background` | `#f1f1f1` | Disabled input background |
-| `--mf-color-interactive-disabled-text` | `#8c9196` | Disabled text |
-| `--mf-color-interactive-disabled-border` | `#e1e3e5` | Disabled border |
+| `--mf-color-interactive-primary-default` | `#1A1A2E` | Dark navy — main CTA |
+| `--mf-color-interactive-primary-hover` | `#2D2D4A` | Hover |
+| `--mf-color-interactive-primary-pressed` | `#10101F` | Active/pressed |
+| `--mf-color-interactive-soft-default` | `rgba(212,135,58,0.12)` | Amber soft button |
+| `--mf-color-interactive-soft-hover` | `rgba(212,135,58,0.22)` | Soft hover |
+| `--mf-color-interactive-soft-label` | `#8B4E15` | Amber text on soft |
+| `--mf-color-interactive-secondary-default` | `transparent` | Outlined button |
+| `--mf-color-interactive-secondary-hover` | `#EBE0D0` | Outlined hover |
+| `--mf-color-interactive-destructive-default` | `rgba(192,67,32,0.13)` | Terracotta, not red |
+| `--mf-color-interactive-destructive-label` | `#7A2A14` | Destructive text |
+| `--mf-color-interactive-focus-ring` | `rgba(212,135,58,0.40)` | 3px amber glow |
+| `--mf-color-interactive-disabled-background` | `#EBE0D0` | surface.subtle |
+| `--mf-color-interactive-disabled-text` | `rgba(26,26,46,0.28)` | |
+| `--mf-color-interactive-disabled-border` | `rgba(26,26,46,0.08)` | |
+
+#### Feedback
+All warm-toned — olive success, amber warning, terracotta danger, dusty indigo info.
+Each category has `default` (icon/badge), `subtle` (banner bg), `content` (text, ≥7:1 contrast), `border`.
+
+| Category | default | subtle bg | content text |
+|---|---|---|---|
+| success | `#7F9043` (warm olive) | `rgba(127,144,67,0.16)` | `#4A6B22` |
+| warning | `#C29023` (amber-yellow) | `rgba(194,144,35,0.16)` | `#6B4A12` |
+| danger | `#C04320` (terracotta) | `rgba(192,67,32,0.13)` | `#7A2A14` |
+| info | `#606B94` (dusty indigo) | `rgba(96,107,148,0.14)` | `#3A4366` |
+
+Example usage:
+```css
+/* Alert banner */
+background: var(--mf-color-feedback-danger-subtle);
+border: 1px solid var(--mf-color-feedback-danger-border);
+color: var(--mf-color-feedback-danger-content);
+```
 
 ---
 
@@ -139,8 +179,11 @@ Full scale: `0`, `px`, `0.5`, `1`, `1.5`, `2`, `2.5`, `3`, `3.5`, `4`, `5`, `6`,
 
 | CSS variable | Value |
 |---|---|
-| `--mf-font-family-sans` | `Inter, system-ui, -apple-system, ...` |
-| `--mf-font-family-mono` | `ui-monospace, SFMono-Regular, Menlo, ...` |
+| `--mf-font-family-sans` | `Plus Jakarta Sans, system-ui, -apple-system, ...` |
+| `--mf-font-family-mono` | `JetBrains Mono, ui-monospace, SFMono-Regular, ...` |
+
+**Plus Jakarta Sans** — UI text, headings, labels, body copy.
+**JetBrains Mono** — order IDs, API keys, hex values, code snippets, timestamps.
 
 #### Font size — `--mf-font-size-*`
 
@@ -158,53 +201,57 @@ Full scale: `0`, `px`, `0.5`, `1`, `1.5`, `2`, `2.5`, `3`, `3.5`, `4`, `5`, `6`,
 
 #### Font weight — `--mf-font-weight-*`
 
-| CSS variable | Value |
-|---|---|
-| `--mf-font-weight-regular` | `400` |
-| `--mf-font-weight-medium` | `500` |
-| `--mf-font-weight-semibold` | `600` |
+| CSS variable | Value | Usage |
+|---|---|---|
+| `--mf-font-weight-regular` | `400` | Body, table cells |
+| `--mf-font-weight-medium` | `500` | Nav labels, product names |
+| `--mf-font-weight-semibold` | `600` | Buttons, form labels, section headers |
+| `--mf-font-weight-bold` | `700` | Page titles, KPI numbers |
 
 #### Line height — `--mf-line-height-*`
 
 | CSS variable | Value |
 |---|---|
-| `--mf-line-height-tight` | `1.25` |
-| `--mf-line-height-snug` | `1.375` |
+| `--mf-line-height-tight` | `1.2` |
+| `--mf-line-height-snug` | `1.3` |
 | `--mf-line-height-normal` | `1.5` |
 | `--mf-line-height-relaxed` | `1.625` |
 
 #### Letter spacing — `--mf-letter-spacing-*`
 
-| CSS variable | Value |
-|---|---|
-| `--mf-letter-spacing-tight` | `-0.01em` |
-| `--mf-letter-spacing-normal` | `0` |
-| `--mf-letter-spacing-wide` | `0.02em` |
+| CSS variable | Value | Usage |
+|---|---|---|
+| `--mf-letter-spacing-tight` | `-0.01em` | Headings |
+| `--mf-letter-spacing-normal` | `0` | Body text |
+| `--mf-letter-spacing-label` | `0.06em` | Uppercase labels, form field labels |
+| `--mf-letter-spacing-wide` | `0.08em` | Section category headers |
 
 ---
 
 ### Border radius — `--mf-radius-*`
 
-| CSS variable | Value | Tailwind utility |
+| CSS variable | Value | Usage |
 |---|---|---|
-| `--mf-radius-none` | `0` | `rounded-none` |
-| `--mf-radius-sm` | `0.25rem` | `rounded-sm` |
-| `--mf-radius-md` | `0.375rem` | `rounded` / `rounded-md` |
-| `--mf-radius-lg` | `0.5rem` | `rounded-lg` |
-| `--mf-radius-xl` | `0.75rem` | `rounded-xl` |
-| `--mf-radius-2xl` | `1rem` | `rounded-2xl` |
-| `--mf-radius-full` | `9999px` | `rounded-full` |
+| `--mf-radius-none` | `0` | Sharp corners |
+| `--mf-radius-sm` | `0.375rem` (6px) | Tags, badges, chips, checkboxes |
+| `--mf-radius-base` | `0.5rem` (8px) | **Default** — inputs, buttons, small cards |
+| `--mf-radius-md` | `0.625rem` (10px) | Medium cards, dropdowns |
+| `--mf-radius-lg` | `0.75rem` (12px) | Panels, section cards, data tables |
+| `--mf-radius-xl` | `1rem` (16px) | Modals, dialogs, large containers |
+| `--mf-radius-pill` | `9999px` | Pill badges, avatars, toggles |
 
 ---
 
 ### Shadow — `--mf-shadow-*`
 
+All shadows use warm navy rgba(26,26,46,…) — never pure black.
+
 | CSS variable | Tailwind utility | Use case |
 |---|---|---|
-| `--mf-shadow-sm` | `shadow-sm` | Subtle card lift |
-| `--mf-shadow-md` | `shadow` | Panels, dropdowns |
-| `--mf-shadow-lg` | `shadow-lg` | Modals, sheets |
-| `--mf-shadow-focus` | `shadow-focus` | Keyboard focus ring |
+| `--mf-shadow-sm` | `shadow-sm` | List rows, inputs, base cards |
+| `--mf-shadow-md` | `shadow` | Dropdowns, popovers, panels |
+| `--mf-shadow-lg` | `shadow-lg` | Modals, command palette |
+| `--mf-shadow-focus` | `shadow-focus` | 3px amber keyboard focus ring |
 
 ---
 
@@ -226,8 +273,13 @@ Full scale: `0`, `px`, `0.5`, `1`, `1.5`, `2`, `2.5`, `3`, `3.5`, `4`, `5`, `6`,
 
 | CSS variable | Value | Use case |
 |---|---|---|
+| `--mf-motion-duration-instant` | `80ms` | Micro-interactions |
+| `--mf-motion-duration-fast` | `150ms` | Hover/focus transitions |
 | `--mf-motion-duration-page` | `200ms` | Route-level transitions |
-| `--mf-motion-easing-page` | `cubic-bezier(0.2, 0, 0, 1)` | Page enter deceleration |
+| `--mf-motion-duration-slow` | `300ms` | Complex entry animations |
+| `--mf-motion-easing-enter` | `cubic-bezier(0.2, 0, 0, 1)` | Deceleration for entering elements |
+| `--mf-motion-easing-exit` | `cubic-bezier(0.4, 0, 1, 1)` | Acceleration for exiting elements |
+| `--mf-motion-easing-spring` | `cubic-bezier(0.34, 1.56, 0.64, 1)` | Interactive state changes |
 
 ---
 
