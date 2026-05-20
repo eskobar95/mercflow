@@ -63,6 +63,12 @@ describe("EncryptionService", () => {
     expect(svc.decrypt(enc)).toBe(secret)
   })
 
+  it("encrypt → decrypt roundtrip for empty plaintext", () => {
+    const svc = new EncryptionService({ keyHex: TEST_KEY })
+    const enc = svc.encrypt("")
+    expect(svc.decrypt(enc)).toBe("")
+  })
+
   it("produces different ciphertext for the same plaintext (random IV)", () => {
     const svc = new EncryptionService({ keyHex: TEST_KEY })
     const a = svc.encrypt("same")

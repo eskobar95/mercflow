@@ -82,7 +82,7 @@ export default class EncryptionService {
 
     const b64 = encoded.slice(VERSION_PREFIX.length)
     const combined = Buffer.from(b64, "base64")
-    if (combined.length < IV_LENGTH_BYTES + AUTH_TAG_LENGTH_BYTES + 1) {
+    if (combined.length < IV_LENGTH_BYTES + AUTH_TAG_LENGTH_BYTES) {
       throw new MedusaError(
         MedusaError.Types.INVALID_DATA,
         "Stored connector credentials are truncated or corrupted"
