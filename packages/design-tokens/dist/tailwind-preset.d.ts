@@ -1,14 +1,11 @@
 /**
  * Tailwind CSS v3 preset for MercFlow.
  *
- * Maps semantic utility classes to CSS custom properties defined in
- * `mercflow-tokens.css`. Downstream packages (admin-ui, etc.) include this
- * preset in their `tailwind.config.ts` to get full MercFlow design token
- * coverage without referencing raw hex values.
+ * Maps semantic utility classes to CSS custom properties from mercflow-tokens.css.
+ * Downstream packages include this preset in their tailwind.config.ts.
  *
  * Usage:
  *   import { tailwindPreset } from "@mercflow/design-tokens"
- *   // tailwind.config.ts
  *   export default { presets: [tailwindPreset], ... }
  */
 type TailwindColorMap = Record<string, string | Record<string, string>>;

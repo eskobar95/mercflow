@@ -1,22 +1,19 @@
 /**
  * Tailwind CSS v3 preset for MercFlow.
  *
- * Maps semantic utility classes to CSS custom properties defined in
- * `mercflow-tokens.css`. Downstream packages (admin-ui, etc.) include this
- * preset in their `tailwind.config.ts` to get full MercFlow design token
- * coverage without referencing raw hex values.
+ * Maps semantic utility classes to CSS custom properties from mercflow-tokens.css.
+ * Downstream packages include this preset in their tailwind.config.ts.
  *
  * Usage:
  *   import { tailwindPreset } from "@mercflow/design-tokens"
- *   // tailwind.config.ts
  *   export default { presets: [tailwindPreset], ... }
  */
 const colors = {
     surface: {
         canvas: "var(--mf-color-surface-canvas)",
         DEFAULT: "var(--mf-color-surface-default)",
+        default: "var(--mf-color-surface-default)",
         subtle: "var(--mf-color-surface-subtle)",
-        muted: "var(--mf-color-surface-muted)",
         raised: "var(--mf-color-surface-raised)",
         overlay: "var(--mf-color-surface-overlay)",
     },
@@ -25,16 +22,28 @@ const colors = {
         primary: "var(--mf-color-content-primary)",
         secondary: "var(--mf-color-content-secondary)",
         tertiary: "var(--mf-color-content-tertiary)",
-        placeholder: "var(--mf-color-content-placeholder)",
-        inverse: "var(--mf-color-content-inverse)",
         disabled: "var(--mf-color-content-disabled)",
-        danger: "var(--mf-color-content-danger)",
+        inverse: "var(--mf-color-content-inverse)",
     },
     border: {
         DEFAULT: "var(--mf-color-border-default)",
         subtle: "var(--mf-color-border-subtle)",
+        default: "var(--mf-color-border-default)",
         strong: "var(--mf-color-border-strong)",
         focus: "var(--mf-color-border-focus)",
+    },
+    brand: {
+        base: "var(--mf-color-brand-base)",
+        amber: "var(--mf-color-brand-amber)",
+        cream: "var(--mf-color-brand-cream)",
+    },
+    amber: {
+        DEFAULT: "var(--mf-color-amber-default)",
+        subtle: "var(--mf-color-amber-subtle)",
+        soft: "var(--mf-color-amber-soft)",
+        default: "var(--mf-color-amber-default)",
+        strong: "var(--mf-color-amber-strong)",
+        text: "var(--mf-color-amber-text)",
     },
     interactive: {
         DEFAULT: "var(--mf-color-interactive-primary)",
@@ -42,12 +51,48 @@ const colors = {
             DEFAULT: "var(--mf-color-interactive-primary)",
             hover: "var(--mf-color-interactive-primary-hover)",
             pressed: "var(--mf-color-interactive-primary-pressed)",
-            subtle: "var(--mf-color-interactive-primary-subtle)",
+        },
+        soft: {
+            DEFAULT: "var(--mf-color-interactive-soft)",
+            hover: "var(--mf-color-interactive-soft-hover)",
+            border: "var(--mf-color-interactive-soft-border)",
+            label: "var(--mf-color-interactive-soft-label)",
+        },
+        secondary: {
+            DEFAULT: "var(--mf-color-interactive-secondary)",
+            hover: "var(--mf-color-interactive-secondary-hover)",
+        },
+        destructive: {
+            DEFAULT: "var(--mf-color-interactive-destructive)",
+            hover: "var(--mf-color-interactive-destructive-hover)",
+            border: "var(--mf-color-interactive-destructive-border)",
+            label: "var(--mf-color-interactive-destructive-label)",
+        },
+    },
+    feedback: {
+        success: {
+            DEFAULT: "var(--mf-color-feedback-success)",
+            subtle: "var(--mf-color-feedback-success-subtle)",
+            content: "var(--mf-color-feedback-success-content)",
+            border: "var(--mf-color-feedback-success-border)",
+        },
+        warning: {
+            DEFAULT: "var(--mf-color-feedback-warning)",
+            subtle: "var(--mf-color-feedback-warning-subtle)",
+            content: "var(--mf-color-feedback-warning-content)",
+            border: "var(--mf-color-feedback-warning-border)",
         },
         danger: {
-            DEFAULT: "var(--mf-color-interactive-danger)",
-            hover: "var(--mf-color-interactive-danger-hover)",
-            subtle: "var(--mf-color-interactive-danger-subtle)",
+            DEFAULT: "var(--mf-color-feedback-danger)",
+            subtle: "var(--mf-color-feedback-danger-subtle)",
+            content: "var(--mf-color-feedback-danger-content)",
+            border: "var(--mf-color-feedback-danger-border)",
+        },
+        info: {
+            DEFAULT: "var(--mf-color-feedback-info)",
+            subtle: "var(--mf-color-feedback-info-subtle)",
+            content: "var(--mf-color-feedback-info-content)",
+            border: "var(--mf-color-feedback-info-border)",
         },
     },
 };
@@ -95,6 +140,7 @@ const fontWeight = {
     regular: "var(--mf-font-weight-regular)",
     medium: "var(--mf-font-weight-medium)",
     semibold: "var(--mf-font-weight-semibold)",
+    bold: "var(--mf-font-weight-bold)",
 };
 const lineHeight = {
     tight: "var(--mf-line-height-tight)",
@@ -105,17 +151,19 @@ const lineHeight = {
 const letterSpacing = {
     tight: "var(--mf-letter-spacing-tight)",
     normal: "var(--mf-letter-spacing-normal)",
+    label: "var(--mf-letter-spacing-label)",
     wide: "var(--mf-letter-spacing-wide)",
 };
 const borderRadius = {
     none: "var(--mf-radius-none)",
     sm: "var(--mf-radius-sm)",
-    DEFAULT: "var(--mf-radius-md)",
+    DEFAULT: "var(--mf-radius-base)",
+    base: "var(--mf-radius-base)",
     md: "var(--mf-radius-md)",
     lg: "var(--mf-radius-lg)",
     xl: "var(--mf-radius-xl)",
-    "2xl": "var(--mf-radius-2xl)",
-    full: "var(--mf-radius-full)",
+    pill: "var(--mf-radius-pill)",
+    full: "var(--mf-radius-pill)",
 };
 const boxShadow = {
     sm: "var(--mf-shadow-sm)",

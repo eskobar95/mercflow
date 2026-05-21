@@ -7,47 +7,92 @@ export { tailwindPreset } from "./tailwind-preset.js";
 export declare const tokens: {
     readonly color: {
         readonly surface: {
-            readonly canvas: "#f6f6f7";
-            readonly default: "#ffffff";
-            readonly subtle: "#f9f9f9";
-            readonly muted: "#f1f1f1";
-            readonly raised: "#ffffff";
-            readonly overlay: "rgba(16, 24, 32, 0.35)";
+            readonly canvas: "#F5EDE3";
+            readonly default: "#FDFAF7";
+            readonly subtle: "#EBE0D0";
+            readonly raised: "#FFFFFF";
+            readonly overlay: "rgba(26, 26, 46, 0.45)";
         };
         readonly content: {
-            readonly primary: "#202223";
-            readonly secondary: "#6d7175";
-            readonly tertiary: "#8c9196";
-            readonly placeholder: "#8c9196";
-            readonly inverse: "#ffffff";
-            readonly disabled: "#8c9196";
-            readonly danger: "#c52828";
+            readonly primary: "#1A1A2E";
+            readonly secondary: "rgba(26, 26, 46, 0.65)";
+            readonly tertiary: "rgba(26, 26, 46, 0.45)";
+            readonly disabled: "rgba(26, 26, 46, 0.28)";
+            readonly inverse: "#F5EDE3";
         };
         readonly border: {
-            readonly default: "#e1e3e5";
-            readonly subtle: "#ebebeb";
-            readonly strong: "#8c9196";
-            readonly focus: "#2c6ecb";
+            readonly subtle: "rgba(26, 26, 46, 0.08)";
+            readonly default: "rgba(26, 26, 46, 0.15)";
+            readonly strong: "rgba(26, 26, 46, 0.40)";
+            readonly focus: "rgba(212, 135, 58, 0.60)";
+        };
+        readonly brand: {
+            readonly base: "#1A1A2E";
+            readonly amber: "#D4873A";
+            readonly cream: "#F5EDE3";
+        };
+        readonly amber: {
+            readonly subtle: "rgba(212, 135, 58, 0.12)";
+            readonly soft: "rgba(212, 135, 58, 0.22)";
+            readonly default: "#D4873A";
+            readonly strong: "#B36A1F";
+            readonly text: "#8B4E15";
         };
         readonly interactive: {
             readonly primary: {
-                readonly default: "#2c6ecb";
-                readonly hover: "#1a5cb0";
-                readonly pressed: "#134c92";
-                readonly subtle: "#e6f0ff";
+                readonly default: "#1A1A2E";
+                readonly hover: "#2D2D4A";
+                readonly pressed: "#10101F";
             };
-            readonly danger: {
-                readonly default: "#c52828";
-                readonly hover: "#9e1f1f";
-                readonly subtle: "#fceded";
+            readonly soft: {
+                readonly default: "rgba(212, 135, 58, 0.12)";
+                readonly hover: "rgba(212, 135, 58, 0.22)";
+                readonly border: "rgba(212, 135, 58, 0.34)";
+                readonly label: "#8B4E15";
+            };
+            readonly secondary: {
+                readonly default: "transparent";
+                readonly hover: "#EBE0D0";
+            };
+            readonly destructive: {
+                readonly default: "rgba(192, 67, 32, 0.13)";
+                readonly hover: "rgba(192, 67, 32, 0.20)";
+                readonly border: "rgba(192, 67, 32, 0.34)";
+                readonly label: "#7A2A14";
             };
             readonly focus: {
-                readonly ring: "#2c6ecb";
+                readonly ring: "rgba(212, 135, 58, 0.40)";
             };
             readonly disabled: {
-                readonly background: "#f1f1f1";
-                readonly text: "#8c9196";
-                readonly border: "#e1e3e5";
+                readonly background: "#EBE0D0";
+                readonly text: "rgba(26, 26, 46, 0.28)";
+                readonly border: "rgba(26, 26, 46, 0.08)";
+            };
+        };
+        readonly feedback: {
+            readonly success: {
+                readonly default: "#7F9043";
+                readonly subtle: "rgba(127, 144, 67, 0.16)";
+                readonly content: "#4A6B22";
+                readonly border: "rgba(127, 144, 67, 0.32)";
+            };
+            readonly warning: {
+                readonly default: "#C29023";
+                readonly subtle: "rgba(194, 144, 35, 0.16)";
+                readonly content: "#6B4A12";
+                readonly border: "rgba(194, 144, 35, 0.32)";
+            };
+            readonly danger: {
+                readonly default: "#C04320";
+                readonly subtle: "rgba(192, 67, 32, 0.13)";
+                readonly content: "#7A2A14";
+                readonly border: "rgba(192, 67, 32, 0.34)";
+            };
+            readonly info: {
+                readonly default: "#606B94";
+                readonly subtle: "rgba(96, 107, 148, 0.14)";
+                readonly content: "#3A4366";
+                readonly border: "rgba(96, 107, 148, 0.32)";
             };
         };
     };
@@ -71,40 +116,47 @@ export declare const tokens: {
         readonly regular: "400";
         readonly medium: "500";
         readonly semibold: "600";
+        readonly bold: "700";
     };
     readonly lineHeight: {
-        readonly tight: "1.25";
-        readonly snug: "1.375";
+        readonly tight: "1.2";
+        readonly snug: "1.3";
         readonly normal: "1.5";
         readonly relaxed: "1.625";
     };
     readonly letterSpacing: {
         readonly tight: "-0.01em";
         readonly normal: "0";
-        readonly wide: "0.02em";
+        readonly label: "0.06em";
+        readonly wide: "0.08em";
     };
     readonly motion: {
         readonly duration: {
+            readonly instant: "80ms";
+            readonly fast: "150ms";
             readonly page: "200ms";
+            readonly slow: "300ms";
         };
         readonly easing: {
-            readonly page: "cubic-bezier(0.2, 0, 0, 1)";
+            readonly enter: "cubic-bezier(0.2, 0, 0, 1)";
+            readonly exit: "cubic-bezier(0.4, 0, 1, 1)";
+            readonly spring: "cubic-bezier(0.34, 1.56, 0.64, 1)";
         };
     };
     readonly radius: {
         readonly none: "0";
-        readonly sm: "0.25rem";
-        readonly md: "0.375rem";
-        readonly lg: "0.5rem";
-        readonly xl: "0.75rem";
-        readonly "2xl": "1rem";
-        readonly full: "9999px";
+        readonly sm: "0.375rem";
+        readonly base: "0.5rem";
+        readonly md: "0.625rem";
+        readonly lg: "0.75rem";
+        readonly xl: "1rem";
+        readonly pill: "9999px";
     };
     readonly shadow: {
-        readonly sm: "0 1px 2px rgba(32, 34, 35, 0.08), 0 0 0 1px rgba(32, 34, 35, 0.04)";
-        readonly md: "0 2px 6px rgba(32, 34, 35, 0.1), 0 0 0 1px rgba(32, 34, 35, 0.06)";
-        readonly lg: "0 8px 24px rgba(32, 34, 35, 0.12), 0 0 0 1px rgba(32, 34, 35, 0.06)";
-        readonly focus: "0 0 0 3px rgba(44, 110, 203, 0.35)";
+        readonly sm: "0 1px 3px rgba(26, 26, 46, 0.06), 0 1px 2px rgba(26, 26, 46, 0.04)";
+        readonly md: "0 4px 12px rgba(26, 26, 46, 0.08), 0 2px 4px rgba(26, 26, 46, 0.05)";
+        readonly lg: "0 12px 32px rgba(26, 26, 46, 0.10), 0 4px 8px rgba(26, 26, 46, 0.06)";
+        readonly focus: "0 0 0 3px rgba(212, 135, 58, 0.40)";
     };
     readonly zIndex: {
         readonly base: "0";

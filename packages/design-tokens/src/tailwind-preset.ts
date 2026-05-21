@@ -49,24 +49,24 @@ const colors: Record<string, TailwindColorMap> = {
     text:    "var(--mf-color-amber-text)",
   },
   interactive: {
-    DEFAULT: "var(--mf-color-interactive-primary-default)",
+    DEFAULT: "var(--mf-color-interactive-primary)",
     primary: {
-      DEFAULT: "var(--mf-color-interactive-primary-default)",
+      DEFAULT: "var(--mf-color-interactive-primary)",
       hover:   "var(--mf-color-interactive-primary-hover)",
       pressed: "var(--mf-color-interactive-primary-pressed)",
     } as unknown as string,
     soft: {
-      DEFAULT: "var(--mf-color-interactive-soft-default)",
+      DEFAULT: "var(--mf-color-interactive-soft)",
       hover:   "var(--mf-color-interactive-soft-hover)",
       border:  "var(--mf-color-interactive-soft-border)",
       label:   "var(--mf-color-interactive-soft-label)",
     } as unknown as string,
     secondary: {
-      DEFAULT: "var(--mf-color-interactive-secondary-default)",
+      DEFAULT: "var(--mf-color-interactive-secondary)",
       hover:   "var(--mf-color-interactive-secondary-hover)",
     } as unknown as string,
     destructive: {
-      DEFAULT: "var(--mf-color-interactive-destructive-default)",
+      DEFAULT: "var(--mf-color-interactive-destructive)",
       hover:   "var(--mf-color-interactive-destructive-hover)",
       border:  "var(--mf-color-interactive-destructive-border)",
       label:   "var(--mf-color-interactive-destructive-label)",
@@ -74,25 +74,25 @@ const colors: Record<string, TailwindColorMap> = {
   },
   feedback: {
     success: {
-      DEFAULT: "var(--mf-color-feedback-success-default)",
+      DEFAULT: "var(--mf-color-feedback-success)",
       subtle:  "var(--mf-color-feedback-success-subtle)",
       content: "var(--mf-color-feedback-success-content)",
       border:  "var(--mf-color-feedback-success-border)",
     } as unknown as string,
     warning: {
-      DEFAULT: "var(--mf-color-feedback-warning-default)",
+      DEFAULT: "var(--mf-color-feedback-warning)",
       subtle:  "var(--mf-color-feedback-warning-subtle)",
       content: "var(--mf-color-feedback-warning-content)",
       border:  "var(--mf-color-feedback-warning-border)",
     } as unknown as string,
     danger: {
-      DEFAULT: "var(--mf-color-feedback-danger-default)",
+      DEFAULT: "var(--mf-color-feedback-danger)",
       subtle:  "var(--mf-color-feedback-danger-subtle)",
       content: "var(--mf-color-feedback-danger-content)",
       border:  "var(--mf-color-feedback-danger-border)",
     } as unknown as string,
     info: {
-      DEFAULT: "var(--mf-color-feedback-info-default)",
+      DEFAULT: "var(--mf-color-feedback-info)",
       subtle:  "var(--mf-color-feedback-info-subtle)",
       content: "var(--mf-color-feedback-info-content)",
       border:  "var(--mf-color-feedback-info-border)",
