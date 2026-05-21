@@ -37,16 +37,21 @@ Task created in Notion (Status: Not Started)
     │  PR created → development          │
     │  Status → In Review                │
     │  @Bugbot run posted                │
-    │  Status → Ready to Merge           │
     └────────────────────────────────────┘
          │
-         ▼  automated — bugbot-review.yml
+         ▼  Bugbot reviews
     ┌────────────────────────────────────┐
     │  5. BUGBOT + CI                    │
     │  Bugbot reviews once per PR        │
-    │  Tech Lead triages findings        │
-    │  Critical → back to impl           │
-    │  Performance/Cosmetic → continue   │
+    │  If findings: fix on branch + push │
+    │  CI must be green                  │
+    └────────────────────────────────────┘
+         │
+         ▼  /ready-to-merge  (when all green)
+    ┌────────────────────────────────────┐
+    │  4b. DISPATCH MERGE                │
+    │  Status → Ready to Merge           │
+    │  Tech Lead dispatched via GH Actions│
     └────────────────────────────────────┘
          │
          ▼  automated — Tech Lead Merge Agent
@@ -514,10 +519,14 @@ After this, the automated pipeline takes over completely:
 - Tech Lead Merge Agent runs pre-flight gates, improves PR description, squash merges, deletes branch
 - `on-merge.ts` sets Status → Done and unblocks dependent tasks automatically
 
+**When Bugbot finds issues:**
+1. Fix the flagged issues on the feature branch and push
+2. Verify CI is green: `gh pr checks <pr-number> --repo eskobar95/mercflow`
+3. Run `/ready-to-merge <notion-task-url>` — this dispatches the Tech Lead directly (no second Bugbot run)
+
 **You only need to intervene if:**
 - Tech Lead posts a Notion comment saying a gate failed (e.g. merge conflict)
-- CI is red (run `/devops-check <pr-url>`)
-- Bugbot found a Critical issue that needs fixing (run `/start-task` on the same task again)
+- CI is red → run `/devops-check <pr-url>`
 
 ---
 
