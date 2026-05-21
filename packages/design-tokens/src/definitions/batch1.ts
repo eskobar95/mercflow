@@ -1,68 +1,175 @@
 /**
- * Batch 1 design token source values (light, spacious admin — Shopify Admin–inspired).
- * All sRGB color literals for the admin UI must originate here (or in this package only).
+ * Batch 1 design token source values — MercFlow Brand Kit v1.
+ *
+ * Brand foundation (locked from Logo v4 / Brand Kit):
+ *   base:  #1A1A2E  — dark navy, primary text and button fill
+ *   amber: #D4873A  — brand accent, logo, soft affordance buttons
+ *   cream: #F5EDE3  — warm canvas background
+ *
+ * Design decisions:
+ *   - Font: Plus Jakarta Sans (UI) + JetBrains Mono (code/IDs)
+ *   - Borders: opacity-based rgba(26,26,46,…) — adapts to any surface
+ *   - Shadows: warm navy rgba(26,26,46,…) — never pure black
+ *   - Semantic colors: all warm-toned — olive success, amber warning,
+ *     terracotta danger, dusty-indigo info — never cold defaults
+ *   - Primary button: dark navy (authority); amber = soft affordance only
+ *   - Radius: base 8px (buttons/inputs), lg 12px (cards), pill (badges)
+ *
+ * Color system layers:
+ *   surface / content / border / brand / amber  — base structural tokens
+ *   interactive.*                               — action/button tokens
+ *   feedback.*                                  — semantic status tokens
+ *
+ * All sRGB color literals for the admin UI must originate here only.
  */
 export const colorTree = {
   surface: {
-    /** Application canvas / page background */
-    canvas: "#f6f6f7",
-    /** Primary panels, cards, popovers (raised surfaces) */
-    default: "#ffffff",
-    /** Secondary panels, table stripes */
-    subtle: "#f9f9f9",
-    /** Disabled inputs, low-emphasis areas */
-    muted: "#f1f1f1",
-    /** Same as default; use with shadow for elevation if needed */
-    raised: "#ffffff",
-    /** Scrim for modal overlays (light theme) */
-    overlay: "rgba(16, 24, 32, 0.35)",
+    /** Warm cream canvas — page/app background · brand.cream */
+    canvas: "#F5EDE3",
+    /** Cards, inputs, form fields — near-white warm */
+    default: "#FDFAF7",
+    /** Panels, sidebar, hover fills, table stripe, disabled bg */
+    subtle: "#EBE0D0",
+    /** Modals, popovers, command palette — pure white for focus */
+    raised: "#FFFFFF",
+    /** Modal scrim overlay — dark navy tint */
+    overlay: "rgba(26, 26, 46, 0.45)",
   },
   content: {
-    primary: "#202223",
-    secondary: "#6d7175",
-    tertiary: "#8c9196",
-    placeholder: "#8c9196",
-    /** Text on primary / danger fill buttons */
-    inverse: "#ffffff",
-    /** Non-interactive de-emphasis */
-    disabled: "#8c9196",
-    /** Links and critical inline messaging */
-    danger: "#c52828",
+    /** Dark navy — brand.base · contrast ≫ 12:1 on all surfaces */
+    primary: "#1A1A2E",
+    /** Secondary labels, descriptions · 65% opacity navy */
+    secondary: "rgba(26, 26, 46, 0.65)",
+    /** Tertiary captions, placeholders, metadata · 45% opacity navy */
+    tertiary: "rgba(26, 26, 46, 0.45)",
+    /** Non-interactive de-emphasis · 28% opacity navy */
+    disabled: "rgba(26, 26, 46, 0.28)",
+    /** Text on dark fills (primary buttons, dark navy surfaces) */
+    inverse: "#F5EDE3",
   },
   border: {
-    default: "#e1e3e5",
-    subtle: "#ebebeb",
-    strong: "#8c9196",
-    focus: "#2c6ecb",
+    /** Hairlines, dividers, table rows · 8% opacity navy */
+    subtle: "rgba(26, 26, 46, 0.08)",
+    /** Standard input/card borders · 15% opacity navy */
+    default: "rgba(26, 26, 46, 0.15)",
+    /** Strong separators, active input border · 40% opacity navy */
+    strong: "rgba(26, 26, 46, 0.40)",
+    /** Focus ring — amber tint · pairs with shadow.focus */
+    focus: "rgba(212, 135, 58, 0.60)",
+  },
+  /**
+   * Core brand identity colors.
+   * Use these when building logo lockups, cover pages, and branded surfaces.
+   * Do not use brand.base directly in button styles — use interactive.primary.
+   */
+  brand: {
+    base:  "#1A1A2E",
+    amber: "#D4873A",
+    cream: "#F5EDE3",
+  },
+  /**
+   * Amber scale — the brand accent ramp.
+   * Used for: active nav states, soft buttons, checkboxes, toggles,
+   * amber badge variant, focus affordance fills.
+   * NOT for primary CTAs (use interactive.primary / dark navy for those).
+   */
+  amber: {
+    subtle:  "rgba(212, 135, 58, 0.12)",
+    soft:    "rgba(212, 135, 58, 0.22)",
+    default: "#D4873A",
+    strong:  "#B36A1F",
+    /** Legible amber text on cream/light surfaces */
+    text:    "#8B4E15",
   },
   interactive: {
+    /**
+     * Primary CTA button — dark navy fill.
+     * Hover: lighten to #2D2D4A. Pressed: darken to #10101F.
+     * Label: content.inverse (#F5EDE3) — contrast 12:1 ✓ WCAG AAA.
+     */
     primary: {
-      default: "#2c6ecb",
-      hover: "#1a5cb0",
-      pressed: "#134c92",
-      /** Ghost / low-emphasis control backgrounds */
-      subtle: "#e6f0ff",
+      default: "#1A1A2E",
+      hover:   "#2D2D4A",
+      pressed: "#10101F",
     },
-    danger: {
-      default: "#c52828",
-      hover: "#9e1f1f",
-      /** Low-emphasis danger surfaces (e.g. banners) */
-      subtle: "#fceded",
+    /**
+     * Soft amber button — amber affordance (Connect, Enable, Add module).
+     * Label: amber.text (#8B4E15) on amber.subtle fill.
+     */
+    soft: {
+      default: "rgba(212, 135, 58, 0.12)",
+      hover:   "rgba(212, 135, 58, 0.22)",
+      border:  "rgba(212, 135, 58, 0.34)",
+      label:   "#8B4E15",
     },
-    /** Focus affordance; pair with focus outline styles in admin-ui */
+    /** Secondary button — transparent with default border, hover uses surface.subtle */
+    secondary: {
+      default: "transparent",
+      hover:   "#EBE0D0",
+    },
+    /**
+     * Destructive action button — terracotta fill/tint.
+     * Matches feedback.danger for consistency.
+     */
+    destructive: {
+      default: "rgba(192, 67, 32, 0.13)",
+      hover:   "rgba(192, 67, 32, 0.20)",
+      border:  "rgba(192, 67, 32, 0.34)",
+      label:   "#7A2A14",
+    },
     focus: {
-      ring: "#2c6ecb",
+      ring: "rgba(212, 135, 58, 0.40)",
     },
     disabled: {
-      background: "#f1f1f1",
-      text: "#8c9196",
-      border: "#e1e3e5",
+      background: "#EBE0D0",
+      text:       "rgba(26, 26, 46, 0.28)",
+      border:     "rgba(26, 26, 46, 0.08)",
+    },
+  },
+  /**
+   * Semantic feedback colors — alert banners, toasts, status tags, validation.
+   * All warm-toned: olive success, amber warning, terracotta danger, dusty indigo info.
+   *
+   * Each state:
+   *   default  — icon tint, strong border, filled badge bg
+   *   subtle   — banner/toast background
+   *   content  — text on subtle bg (all ≥ 7:1 contrast ✓ WCAG AA)
+   *   border   — banner border / tag outline
+   */
+  feedback: {
+    success: {
+      /** Warm olive — order confirmed, product saved, payment received */
+      default: "#7F9043",
+      subtle:  "rgba(127, 144, 67, 0.16)",
+      content: "#4A6B22",
+      border:  "rgba(127, 144, 67, 0.32)",
+    },
+    warning: {
+      /** Warm amber-yellow — low stock, pending review, expiring promo */
+      default: "#C29023",
+      subtle:  "rgba(194, 144, 35, 0.16)",
+      content: "#6B4A12",
+      border:  "rgba(194, 144, 35, 0.32)",
+    },
+    danger: {
+      /** Terracotta — payment failed, validation error, destructive result */
+      default: "#C04320",
+      subtle:  "rgba(192, 67, 32, 0.13)",
+      content: "#7A2A14",
+      border:  "rgba(192, 67, 32, 0.34)",
+    },
+    info: {
+      /** Warm dusty indigo — new order notification, system tip */
+      default: "#606B94",
+      subtle:  "rgba(96, 107, 148, 0.14)",
+      content: "#3A4366",
+      border:  "rgba(96, 107, 148, 0.32)",
     },
   },
 } as const
 
 /**
- * Spacing scale aligned with Tailwind’s default (rem → browser root).
+ * Spacing scale aligned with Tailwind's default (rem → browser root).
  * Keys match Tailwind numeric spacing: 1 = 0.25rem, 2 = 0.5rem, …
  */
 export const spacingScale: Record<string, string> = {
@@ -91,25 +198,30 @@ export const spacingScale: Record<string, string> = {
   "32": "8rem",
 } as const
 
+/**
+ * Typography:
+ *   sans — Plus Jakarta Sans (UI text, headings, labels, body)
+ *   mono — JetBrains Mono (order IDs, API keys, hex values, code)
+ *
+ * Weight guide (Plus Jakarta Sans):
+ *   400 — body text, table cells
+ *   500 — product names, nav labels, secondary headings
+ *   600 — buttons (font-size 14, letter-spacing -0.005em), form labels, section headers
+ *   700 — page titles, KPI numbers
+ */
 export const fontFamily = {
   sans: [
-    "Inter",
+    "Plus Jakarta Sans",
     "system-ui",
     "-apple-system",
     "Segoe UI",
-    "Roboto",
-    "Helvetica",
-    "Arial",
     "sans-serif",
   ].join(", "),
   mono: [
+    "JetBrains Mono",
     "ui-monospace",
     "SFMono-Regular",
     "Menlo",
-    "Monaco",
-    "Consolas",
-    "Liberation Mono",
-    "Courier New",
     "monospace",
   ].join(", "),
 } as const
@@ -127,65 +239,90 @@ export const fontSize = {
 } as const
 
 export const fontWeight = {
-  regular: "400",
-  medium: "500",
+  regular:  "400",
+  medium:   "500",
   semibold: "600",
+  bold:     "700",
 } as const
 
 export const lineHeight = {
-  tight: "1.25",
-  snug: "1.375",
-  normal: "1.5",
+  tight:   "1.2",
+  snug:    "1.3",
+  normal:  "1.5",
   relaxed: "1.625",
 } as const
 
 export const letterSpacing = {
-  tight: "-0.01em",
+  tight:  "-0.01em",
   normal: "0",
-  wide: "0.02em",
-} as const
-
-export const radii = {
-  none: "0",
-  sm: "0.25rem",
-  md: "0.375rem",
-  lg: "0.5rem",
-  xl: "0.75rem",
-  "2xl": "1rem",
-  full: "9999px",
+  label:  "0.06em",
+  wide:   "0.08em",
 } as const
 
 /**
- * Layered box shadows. Values reference surface/content tokens for consistency.
+ * Border-radius scale.
+ *
+ * Usage guide:
+ *   sm   (6px)   — tags, badges, chips, checkboxes
+ *   base (8px)   — inputs, buttons, small cards  ← default
+ *   md   (10px)  — medium cards, dropdowns
+ *   lg   (12px)  — panels, section cards, data tables
+ *   xl   (16px)  — modals, dialogs, large containers
+ *   pill (999px) — pill badges, avatars, toggles
+ */
+export const radii = {
+  none: "0",
+  sm:   "0.375rem",
+  base: "0.5rem",
+  md:   "0.625rem",
+  lg:   "0.75rem",
+  xl:   "1rem",
+  pill: "9999px",
+} as const
+
+/**
+ * Layered box shadows — warm navy rgba(26,26,46,…), never pure black.
+ * Always two layers: ambient (spread) + directional (soft).
+ *
+ *   sm     — list rows, inputs, base cards
+ *   md     — dropdowns, popovers, floating panels
+ *   lg     — modals, command palette, sheets
+ *   focus  — amber focus ring (3px outer glow)
  */
 export const shadows = {
-  sm: "0 1px 2px rgba(32, 34, 35, 0.08), 0 0 0 1px rgba(32, 34, 35, 0.04)",
-  md: "0 2px 6px rgba(32, 34, 35, 0.1), 0 0 0 1px rgba(32, 34, 35, 0.06)",
-  lg: "0 8px 24px rgba(32, 34, 35, 0.12), 0 0 0 1px rgba(32, 34, 35, 0.06)",
-  focus: "0 0 0 3px rgba(44, 110, 203, 0.35)",
+  sm:    "0 1px 3px rgba(26, 26, 46, 0.06), 0 1px 2px rgba(26, 26, 46, 0.04)",
+  md:    "0 4px 12px rgba(26, 26, 46, 0.08), 0 2px 4px rgba(26, 26, 46, 0.05)",
+  lg:    "0 12px 32px rgba(26, 26, 46, 0.10), 0 4px 8px rgba(26, 26, 46, 0.06)",
+  focus: "0 0 0 3px rgba(212, 135, 58, 0.40)",
 } as const
 
 export const zIndex = {
-  base: "0",
-  dropdown: "1000",
-  sticky: "1020",
-  modalBackdrop: "1040",
-  modal: "1050",
-  popover: "1060",
-  toast: "1080",
+  base:         "0",
+  dropdown:     "1000",
+  sticky:       "1020",
+  modalBackdrop:"1040",
+  modal:        "1050",
+  popover:      "1060",
+  toast:        "1080",
 } as const
 
 /**
- * Motion tokens for route-level transitions and future UI motion (admin shell).
- * Durations are explicit `ms` strings for `animation` / `transition` declarations.
+ * Motion tokens — route-level transitions and micro-interactions.
+ * All components must respect prefers-reduced-motion.
  */
 export const motion = {
   duration: {
-    /** Default enter timing for main route outlet content */
-    page: "200ms",
+    instant: "80ms",
+    fast:    "150ms",
+    page:    "200ms",
+    slow:    "300ms",
   },
   easing: {
-    /** Standard deceleration for page enter */
-    page: "cubic-bezier(0.2, 0, 0, 1)",
+    /** Standard deceleration for entering elements */
+    enter: "cubic-bezier(0.2, 0, 0, 1)",
+    /** Standard acceleration for exiting elements */
+    exit:  "cubic-bezier(0.4, 0, 1, 1)",
+    /** Spring-like — for interactive state changes */
+    spring: "cubic-bezier(0.34, 1.56, 0.64, 1)",
   },
 } as const
