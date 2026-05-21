@@ -24,7 +24,9 @@ describe("AdminShell", (): void => {
 
     render(<RouterProvider router={router} />)
 
-    expect(screen.getByRole("navigation", { name: "Main navigation" })).toBeInTheDocument()
+    expect(
+      screen.getByRole("complementary", { name: "Main navigation" })
+    ).toBeInTheDocument()
     expect(screen.getByRole("banner")).toBeInTheDocument()
     expect(screen.getByRole("main")).toHaveAttribute("id", "main-content")
     expect(screen.getByText("Test page body")).toBeInTheDocument()

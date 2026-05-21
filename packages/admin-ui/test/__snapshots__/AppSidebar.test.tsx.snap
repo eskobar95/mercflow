@@ -1,0 +1,108 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`AppSidebar > renders all primary and section nav items with correct hrefs 1`] = `
+<div>
+  <aside
+    aria-label="Main navigation"
+    class="flex h-full w-60 shrink-0 flex-col border-r border-border-default bg-surface-default"
+  >
+    <div
+      class="border-b border-border-subtle px-4 py-5"
+    >
+      <p
+        class="text-xs font-semibold uppercase tracking-label text-content-tertiary"
+      >
+        MercFlow
+      </p>
+      <p
+        class="text-sm font-semibold text-content-primary"
+      >
+        Admin
+      </p>
+    </div>
+    <nav
+      aria-label="Application"
+      class="flex flex-1 flex-col overflow-y-auto p-3"
+    >
+      <div
+        class="flex flex-col gap-0.5"
+      >
+        <a
+          class="flex items-center gap-2 rounded-md py-2 pl-3 pr-3 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
+          href="/products"
+        >
+          Products
+        </a>
+        <a
+          class="flex items-center gap-2 rounded-md py-2 pl-3 pr-3 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
+          href="/orders"
+        >
+          Orders
+        </a>
+        <a
+          class="flex items-center gap-2 rounded-md py-2 pl-3 pr-3 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
+          href="/customers"
+        >
+          Customers
+        </a>
+        <a
+          class="flex items-center gap-2 rounded-md py-2 pl-3 pr-3 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
+          href="/product-categories"
+        >
+          Categories
+        </a>
+      </div>
+      <div
+        class="mt-4"
+      >
+        <p
+          class="px-3 pb-1 text-xs font-semibold uppercase tracking-label text-content-tertiary"
+        >
+          Content
+        </p>
+        <div
+          class="flex flex-col gap-0.5"
+        >
+          <a
+            class="flex items-center gap-2 rounded-md py-1.5 pl-8 pr-3 text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
+            href="/content/articles"
+          >
+            Articles
+          </a>
+          <a
+            class="flex items-center gap-2 rounded-md py-1.5 pl-8 pr-3 text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
+            href="/content/pages"
+          >
+            Pages
+          </a>
+          <a
+            class="flex items-center gap-2 rounded-md py-1.5 pl-8 pr-3 text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
+            href="/content/globals"
+          >
+            Globals
+          </a>
+        </div>
+      </div>
+      <div
+        class="mt-4"
+      >
+        <p
+          class="px-3 pb-1 text-xs font-semibold uppercase tracking-label text-content-tertiary"
+        >
+          Settings
+        </p>
+        <div
+          class="flex flex-col gap-0.5"
+        >
+          <a
+            class="flex items-center gap-2 rounded-md py-1.5 pl-8 pr-3 text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
+            href="/settings/connectors"
+          >
+            Connectors
+          </a>
+        </div>
+      </div>
+    </nav>
+  </aside>
+</div>
+`;
