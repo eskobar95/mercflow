@@ -14,49 +14,57 @@ Task created in Notion (Status: Not Started)
     │  1. SETUP                          │
     │  Create git worktree               │
     │  Create feature branch             │
-    │  Update task Status → In Progress  │
+    │  Status → In Progress              │
     └────────────────────────────────────┘
          │
-         ▼  Worker Agent implements the vertical slice
+         ▼  Worker Agent implements
     ┌────────────────────────────────────┐
     │  2. IMPLEMENTATION                 │
-    │  DB migration → Service → API → UI │
-    │  Unit + integration tests          │
+    │  DB → Service → API → UI → Tests  │
     │  Typecheck + lint pass             │
     └────────────────────────────────────┘
          │
-         ▼  /review-code <worktree-path>
+         ▼  /review-code
     ┌────────────────────────────────────┐
     │  3. CODE REVIEW LOOP               │
-    │  Code Reviewer reads the diff      │
-    │  → Approve: continue               │
-    │  → Request changes: back to Worker │
-    │  Max 3 cycles before human review  │
+    │  → APPROVED: continue              │
+    │  → CHANGES REQUESTED: back to impl │
     └────────────────────────────────────┘
          │
-         ▼  Review approved
+         ▼  /open-pr  (posts @Bugbot run)
     ┌────────────────────────────────────┐
     │  4. OPEN PR                        │
-    │  /open-pr <worktree-path>          │
-    │  Well-defined PR summary           │
-    │  Update task Status → In Review    │
-    │  Link PR URL on task               │
+    │  PR created → development          │
+    │  Status → In Review                │
+    │  @Bugbot run posted                │
+    │  Status → Ready to Merge           │
     └────────────────────────────────────┘
          │
-         ▼  PR is open
+         ▼  automated — bugbot-review.yml
     ┌────────────────────────────────────┐
     │  5. BUGBOT + CI                    │
-    │  Cursor Bugbot reviews open PR     │
-    │  CI pipeline runs                  │
-    │  DevOps Agent monitors + fixes CI  │
+    │  Bugbot reviews once per PR        │
+    │  Tech Lead triages findings        │
+    │  Critical → back to impl           │
+    │  Performance/Cosmetic → continue   │
     └────────────────────────────────────┘
          │
-         ▼  Bugbot + CI pass
+         ▼  automated — Tech Lead Merge Agent
     ┌────────────────────────────────────┐
-    │  6. MERGE                          │
-    │  Human approves and merges         │
-    │  Task Status → Done                │
-    │  Worktree cleaned up               │
+    │  6. TECH LEAD MERGE                │
+    │  Pre-flight gates verified         │
+    │  PR description improved           │
+    │  Squash merged to development      │
+    │  Feature branch deleted            │
+    │  Status → Done (automated)         │
+    │  Dependent tasks unblocked         │
+    └────────────────────────────────────┘
+         │
+         ▼  /finish-task (you)
+    ┌────────────────────────────────────┐
+    │  7. LOCAL CLEANUP                  │
+    │  git worktree remove               │
+    │  git fetch --prune                 │
     └────────────────────────────────────┘
 ```
 
@@ -476,9 +484,10 @@ EOF
 ```
 
 ### After PR is open
-- Copy PR URL to Notion task (`PR URL` field)
-- Update Notion task `Status → In Review`
-- Add a comment on the task page:
+
+1. Copy PR URL to Notion task (`PR URL` field)
+2. Update Notion task `Status → In Review`
+3. Add a comment on the task page:
 
 ```
 Agent: Worker Implementation
@@ -489,64 +498,81 @@ Branch: feature/{package}/{slug}
 Rebased on: development @ {short-sha}
 
 Code Review: APPROVED (cycle {n}/3)
-Bugbot and CI will now run automatically.
+Handing off to Bugbot + Tech Lead Merge Agent.
 ```
 
-- **Do not trigger Bugbot manually** — it activates automatically on open PRs
+4. **Trigger Bugbot** by posting this comment on the GitHub PR:
+   ```
+   @Bugbot run
+   ```
+
+5. Update Notion task `Status → Ready to Merge`
+
+After this, the automated pipeline takes over completely:
+- Bugbot reviews the open PR
+- `bugbot-review.yml` fires on Bugbot's result → dispatches Tech Lead Merge Agent
+- Tech Lead Merge Agent runs pre-flight gates, improves PR description, squash merges, deletes branch
+- `on-merge.ts` sets Status → Done and unblocks dependent tasks automatically
+
+**You only need to intervene if:**
+- Tech Lead posts a Notion comment saying a gate failed (e.g. merge conflict)
+- CI is red (run `/devops-check <pr-url>`)
+- Bugbot found a Critical issue that needs fixing (run `/start-task` on the same task again)
 
 ---
 
 ## Stage 5: Bugbot + CI
 
 ### Bugbot (Cursor's built-in PR reviewer)
-Bugbot is **only active at this stage** — not during development or the code review loop. It reviews the open PR for:
-- Security vulnerabilities
-- Logic bugs
-- Performance issues
-- Convention violations
+Bugbot runs once per PR, triggered by the `@Bugbot run` comment posted in Stage 4.
+It reviews the open PR for security vulnerabilities, logic bugs, performance issues, and convention violations.
 
-If Bugbot flags issues:
-- Evaluate each flag: is it a real bug or a false positive?
-- Real bugs → Worker fixes on the same branch (new commit, not force-push)
-- False positives → dismiss with a comment explaining why
+**Bugbot findings are triaged by the Tech Lead Merge Agent — not by you:**
 
-### DevOps Agent (CI optimization)
-The DevOps Agent monitors CI pipeline runs and is responsible for:
+| Finding type | Tech Lead action |
+|---|---|
+| Critical (security, data loss, crash) | Blocks merge → dispatches implementation agent with `review_context` |
+| Refactor (violates `.cursor/rules/`) | Blocks merge → dispatches implementation agent |
+| Performance (N+1, heavy imports) | Creates Notion tech debt task → continues to merge |
+| Cosmetic (naming, whitespace) | "Won't fix" reply → continues to merge |
 
-**Reactive (when CI fails):**
-- Read the CI failure log
-- Identify root cause: flaky test / environment issue / real regression
-- If flaky: retry and document the flakiness
-- If real: create a bug task in Notion linked to the failing PR
-- If CI config issue: fix the pipeline config (do not skip tests)
+You only need to intervene if the Tech Lead posts a Notion comment indicating it couldn't resolve findings automatically.
 
-**Proactive (on a schedule):**
-- Review pipeline run times — flag steps that take > 2 minutes
-- Check for redundant steps (duplicate lint runs, unnecessary installs)
-- Ensure caching is configured correctly for `pnpm` and build artifacts
-- Ensure preview deployments are working for UI packages
-
-**What the DevOps Agent must never do:**
-- Skip or disable failing tests to make CI green
-- Merge without all checks passing
-- Modify CI in ways that reduce coverage
+### DevOps Agent (CI)
+If CI goes red on the PR, run `/devops-check <pr-url>`. The DevOps Agent will:
+- Identify root cause (flaky test / real regression / pipeline config issue)
+- Fix pipeline config issues directly
+- Create a Notion bug task if it is a real regression (never silences tests)
 
 ---
 
-## Stage 6: Merge and cleanup
+## Stage 6: Tech Lead Merge Agent (automated)
 
-When Bugbot + CI pass and a human approves:
+After Bugbot approves (or classifies all findings as non-blocking), `bugbot-review.yml`
+automatically dispatches the **Tech Lead Merge Agent**. You do not trigger this manually.
+
+The Tech Lead Merge Agent:
+1. Verifies all pre-flight gates (PR state, Code Reviewer approval, Bugbot triage, CI checks)
+2. Rewrites the PR description if any section is missing or vague
+3. Composes a conventional squash commit message
+4. Squash merges to `development`
+5. Deletes the feature branch
+6. Posts a merge comment on the Notion task
+
+`on-merge.ts` then runs automatically and:
+- Sets Notion task `Status → Done`
+- Finds all tasks with `Blocked by` this task and sets them → `In Progress`
+- Closes the linked GitHub Issue (if any)
+
+### Your only action: clean up the local worktree
+
+After you see Notion `Status → Done`, run `/finish-task` or manually:
 
 ```bash
-# Merge (squash or rebase depending on PR size)
-gh pr merge --squash --delete-branch
-
-# Clean up worktree
 git worktree remove ../mercflow-worktrees/{task-id}
 git worktree prune
+git fetch --prune   # removes deleted remote branch from local refs
 ```
-
-Update Notion task: `Status → Done`
 
 ---
 
@@ -554,12 +580,13 @@ Update Notion task: `Status → Done`
 
 | Agent | When active | Model | Executor |
 |---|---|---|---|
-| Worker: Implementation | Stage 2 | Standard | Cloud or Local |
-| Code Reviewer | Stage 3 | Standard | Cloud or Local |
-| Bugbot | Stage 5 (PR open) | — | Cursor built-in |
-| DevOps | Stage 5 (CI) + schedule | Fast | Cloud |
-| PO: Grill | Pre-task (discovery) | Standard | Local |
-| Tech Lead: Plan | Pre-task (breakdown) | Extended | Local |
+| PO: Grill / Synthesize | Pre-task (discovery + PRD) | Standard | Local or Cloud |
+| Tech Lead: Plan | Pre-task (task breakdown) | Extended | Local or Cloud |
+| Worker: Implementation | Stage 2 | composer-2 | Local or Cloud |
+| Code Reviewer | Stage 3 | composer-2 | Local or Cloud |
+| Bugbot | Stage 5 (PR open, once per PR) | — | Cursor built-in |
+| DevOps | Stage 5 (CI fails) + schedule | Fast | Cloud |
+| Tech Lead: Merge | Stage 6 (after Bugbot) | composer-2 | Cloud only |
 
 ---
 
@@ -567,13 +594,19 @@ Update Notion task: `Status → Done`
 
 ```
 Not Started
-    → In Progress     (worktree created, Worker running)
-    → In Review       (Code Review approved, PR open)
-    → Done            (merged, worktree cleaned up)
-    → Blocked         (dependency not resolved)
+    → In Progress      (worktree created, Worker running)
+    → In Review        (Code Review approved, PR opened, @Bugbot run posted)
+    → Ready to Merge   (Bugbot passed or findings triaged — Tech Lead dispatched)
+    → Done             (squash merged, branch deleted, worktree cleaned up)
+    → Blocked          (dependency not resolved, or Critical Bugbot/review finding)
 ```
 
-Bugbot and CI run while status is `In Review`. Do not move to `Done` until both pass.
+Status transitions are automated — you do not set them manually during normal flow:
+- `In Progress` → set by `/start-task`
+- `In Review` → set by `/open-pr` (local) or `code-reviewer.yml` CI step (cloud)
+- `Ready to Merge` → set by `/open-pr` (local) or `code-reviewer.yml` CI step (cloud)
+- `Done` → set by `on-merge.ts` after squash merge
+- `Blocked` → set by blocker-gate (unresolved dependency) or Code Reviewer (changes requested)
 
 ---
 
