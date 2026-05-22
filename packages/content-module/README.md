@@ -24,7 +24,8 @@ Table and column names follow DML; PostgreSQL types follow Medusa’s mapping un
 | `body_json` | jsonb, nullable | TipTap JSON for this locale |
 | `seo_title` | varchar(255), nullable | |
 | `seo_description` | varchar(160), nullable | |
-| `og_image_url` | text, nullable | OG/social image URL for this row |
+| `og_image_url` | text, nullable | Stores Medusa file id or eventual public URL (`seo_og_image_id` in HTTP maps here) |
+| `media_gallery` | text[], nullable | Ordered Medusa media file ids (`media_gallery` in HTTP maps here) |
 | `status` | `draft` \| `published` | |
 | `version` | integer, default `1` | |
 | | | Unique `(product_id, locale)` |
@@ -40,7 +41,7 @@ Table and column names follow DML; PostgreSQL types follow Medusa’s mapping un
 | `seo_title` | varchar(255), nullable | |
 | `seo_description` | varchar(160), nullable | |
 | `og_image_url` | text, nullable | |
-| `banner_image_url` | text, nullable | Hero/banner image URL |
+| `banner_image_id` | text, nullable | Medusa file id stored as text |
 | `status` | `draft` \| `published` | |
 | `version` | integer, default `1` | |
 | | | Unique `(category_id, locale)` |
@@ -68,6 +69,8 @@ Table and column names follow DML; PostgreSQL types follow Medusa’s mapping un
 | `status` | `draft` \| `published` | |
 | `locale` | text | |
 
+Unique `(slug, locale)`.
+
 ### PageVersion (`page_version`)
 
 | Field | Type | Notes |
@@ -75,8 +78,11 @@ Table and column names follow DML; PostgreSQL types follow Medusa’s mapping un
 | `id` | text (PK) | |
 | `page_id` | text | FK → `page.id` |
 | `version` | integer | |
+| `snapshot_json` | jsonb, nullable | Optional denormalised snapshot for tooling |
 | `status` | `draft` \| `published` | |
 | `published_at` | timestamptz, nullable | |
+
+Unique `(page_id, version)`.
 
 ### PageBlock (`page_block`)
 
@@ -138,7 +144,7 @@ Table and column names follow DML; PostgreSQL types follow Medusa’s mapping un
 
 - Admin product/category content routes use `?locale=<code>`; default is `en` when omitted.
 - **Storage:** one row per `(entity_id, locale)` with `body_json` holding TipTap JSON for that locale (no JSON locale map in a single column).
-- **Legacy API mapping:** `description_rich` in HTTP bodies maps to `body_json`. `seo_og_image_id` maps to `og_image_url`; `banner_image_id` maps to `banner_image_url`. `media_gallery` is accepted but not stored until a gallery model exists (`null` on read).
+- **HTTP ↔ DB mapping:** `description_rich` maps to `body_json`; `seo_og_image_id` maps to `og_image_url`; `media_gallery` maps to `product_content.media_gallery`; category banner ids map directly to `banner_image_id`.
 
 ## Layout
 

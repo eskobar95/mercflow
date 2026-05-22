@@ -1,5 +1,6 @@
 import { model } from "@medusajs/framework/utils"
 
+/** Media metadata referenced from migrated Payload-style blocks (`upload` fields). */
 export const MediaAsset = model.define("media_asset", {
   id: model.id().primaryKey(),
   url: model.text(),

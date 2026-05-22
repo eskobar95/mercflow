@@ -11,7 +11,8 @@ import { Migration } from "@medusajs/framework/mikro-orm/migrations"
  *   - Enum-like fields stored as text with CHECK constraints (draft/published, page types,
  *     attribute value types)
  *   - product_content / category_content: per-locale rows, body_json, varchar SEO limits,
- *     version, publish status
+ *     version, publish status (product rows also store `media_gallery` ids)
+ *   - Composite uniques where needed (`page` slug/locale; `page_version` page/version)
  * Reversible: Yes — down() drops all eleven tables (CASCADE on dependent FKs handled by order)
  * Generated via: Hand-authored to match DML in `src/modules/content/models/*.ts`
  *   (CLI `medusa db:generate` requires a live Postgres; refresh snapshots locally when available).
@@ -42,6 +43,7 @@ export class Migration20260517203000 extends Migration {
         "seo_title" varchar(255) null,
         "seo_description" varchar(160) null,
         "og_image_url" text null,
+        "media_gallery" text[] null,
         "status" text not null default 'draft',
         "version" integer not null default 1,
         "created_at" timestamptz not null default now(),
@@ -70,7 +72,7 @@ export class Migration20260517203000 extends Migration {
         "seo_title" varchar(255) null,
         "seo_description" varchar(160) null,
         "og_image_url" text null,
-        "banner_image_url" text null,
+        "banner_image_id" text null,
         "status" text not null default 'draft',
         "version" integer not null default 1,
         "created_at" timestamptz not null default now(),
@@ -130,6 +132,9 @@ export class Migration20260517203000 extends Migration {
       );
     `)
     this.addSql(
+      `CREATE UNIQUE INDEX IF NOT EXISTS "IDX_page_slug_locale_unique" ON "page" ("slug", "locale");`
+    )
+    this.addSql(
       `CREATE INDEX IF NOT EXISTS "IDX_page_deleted_at" ON "page" ("deleted_at") WHERE deleted_at IS NULL;`
     )
 
@@ -138,6 +143,7 @@ export class Migration20260517203000 extends Migration {
         "id" text not null,
         "page_id" text not null,
         "version" integer not null,
+        "snapshot_json" jsonb null,
         "status" text not null default 'draft',
         "published_at" timestamptz null,
         "created_at" timestamptz not null default now(),
@@ -151,6 +157,9 @@ export class Migration20260517203000 extends Migration {
     `)
     this.addSql(
       `CREATE INDEX IF NOT EXISTS "IDX_page_version_page_id" ON "page_version" ("page_id");`
+    )
+    this.addSql(
+      `CREATE UNIQUE INDEX IF NOT EXISTS "IDX_page_version_page_version_unique" ON "page_version" ("page_id", "version");`
     )
     this.addSql(
       `CREATE INDEX IF NOT EXISTS "IDX_page_version_deleted_at" ON "page_version" ("deleted_at") WHERE deleted_at IS NULL;`

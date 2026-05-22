@@ -1,4 +1,4 @@
-export type ContentPublishStatus = "draft" | "published"
+export type PublishStatus = "draft" | "published"
 
 export type ProductContentRecord = {
   id: string
@@ -8,7 +8,8 @@ export type ProductContentRecord = {
   seo_title: string | null
   seo_description: string | null
   og_image_url: string | null
-  status: ContentPublishStatus
+  media_gallery: string[] | null
+  status: PublishStatus
   version: number
   created_at?: Date
   updated_at?: Date
@@ -23,8 +24,8 @@ export type CategoryContentRecord = {
   seo_title: string | null
   seo_description: string | null
   og_image_url: string | null
-  banner_image_url: string | null
-  status: ContentPublishStatus
+  banner_image_id: string | null
+  status: PublishStatus
   version: number
   created_at?: Date
   updated_at?: Date
@@ -35,13 +36,10 @@ export type ResolvedProductContent = {
   id: string
   product_id: string
   locale: string
-  /** TipTap JSON — same shape as stored `body_json`. */
   description_rich: unknown
   seo_title: string | null
   seo_description: string | null
-  /** Legacy API field — mirrors `og_image_url` when present. */
   seo_og_image_id: string | null
-  /** Deprecated in storage; kept in API as `null` until a gallery model exists. */
   media_gallery: string[] | null
 }
 
@@ -53,7 +51,6 @@ export type ResolvedCategoryContent = {
   seo_title: string | null
   seo_description: string | null
   seo_og_image_id: string | null
-  /** Legacy API field — mirrors `banner_image_url` when present. */
   banner_image_id: string | null
 }
 

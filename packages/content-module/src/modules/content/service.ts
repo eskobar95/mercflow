@@ -5,8 +5,8 @@ import { Article } from "./models/article"
 import { CategoryContent } from "./models/category-content"
 import { CmsGlobal } from "./models/cms-global"
 import { CmsRedirect } from "./models/cms-redirect"
+import { MercflowPage } from "./models/cms-page"
 import { MediaAsset } from "./models/media-asset"
-import { Page } from "./models/page"
 import { PageBlock } from "./models/page-block"
 import { PageVersion } from "./models/page-version"
 import { ProductAttrLink } from "./models/product-attr-link"
@@ -22,20 +22,19 @@ import type {
 } from "./types"
 
 const SEO_DESCRIPTION_MAX = 160
-const SEO_TITLE_MAX = 255
 
 class ContentModuleService extends MedusaService({
-  ProductContent,
-  CategoryContent,
   Article,
-  Page,
-  PageVersion,
-  PageBlock,
+  CategoryContent,
   CmsGlobal,
   CmsRedirect,
+  MercflowPage,
   MediaAsset,
-  ProductAttribute,
+  PageBlock,
+  PageVersion,
   ProductAttrLink,
+  ProductAttribute,
+  ProductContent,
 }) {
   private assertSeoDescriptionLength(value: string | null | undefined): void {
     if (value != null && value.length > SEO_DESCRIPTION_MAX) {
@@ -44,33 +43,6 @@ class ContentModuleService extends MedusaService({
         `seo_description must not exceed ${SEO_DESCRIPTION_MAX} characters`
       )
     }
-  }
-
-  private assertSeoTitleLength(value: string | null | undefined): void {
-    if (value != null && value.length > SEO_TITLE_MAX) {
-      throw new MedusaError(
-        MedusaError.Types.INVALID_DATA,
-        `seo_title must not exceed ${SEO_TITLE_MAX} characters`
-      )
-    }
-  }
-
-  private normalizeBodyJson(
-    value: unknown
-  ): Record<string, unknown> | null {
-    if (value === undefined) {
-      return null
-    }
-    if (value === null) {
-      return null
-    }
-    if (typeof value === "object" && !Array.isArray(value)) {
-      return value as Record<string, unknown>
-    }
-    throw new MedusaError(
-      MedusaError.Types.INVALID_DATA,
-      "body content must be a JSON object when provided"
-    )
   }
 
   async retrieveProductContentForLocale(
@@ -94,18 +66,16 @@ class ContentModuleService extends MedusaService({
     data: UpsertProductContentInput
   ): Promise<ResolvedProductContent> {
     this.assertSeoDescriptionLength(data.seo_description ?? null)
-    this.assertSeoTitleLength(data.seo_title ?? null)
 
     const rows = await this.listProductContents({
       product_id: productId,
       locale,
     })
-    const existing = rows[0] as ProductContentRecord | undefined
+    const existing = rows[0]
 
     const payload: Partial<ProductContentRecord> = {}
-
     if (data.description_rich !== undefined) {
-      payload.body_json = this.normalizeBodyJson(data.description_rich)
+      payload.body_json = data.description_rich as Record<string, unknown>
     }
     if (data.seo_title !== undefined) {
       payload.seo_title = data.seo_title
@@ -116,8 +86,12 @@ class ContentModuleService extends MedusaService({
     if (data.seo_og_image_id !== undefined) {
       payload.og_image_url = data.seo_og_image_id
     }
+    if (data.media_gallery !== undefined) {
+      payload.media_gallery = data.media_gallery
+    }
 
     let row: ProductContentRecord
+
     if (!existing) {
       const created = await this.createProductContents({
         product_id: productId,
@@ -126,6 +100,7 @@ class ContentModuleService extends MedusaService({
         seo_title: payload.seo_title ?? null,
         seo_description: payload.seo_description ?? null,
         og_image_url: payload.og_image_url ?? null,
+        media_gallery: payload.media_gallery ?? null,
       })
       row = Array.isArray(created)
         ? (created[0] as ProductContentRecord)
@@ -148,11 +123,11 @@ class ContentModuleService extends MedusaService({
       id: row.id,
       product_id: row.product_id,
       locale: row.locale,
-      description_rich: row.body_json,
+      description_rich: row.body_json ?? null,
       seo_title: row.seo_title,
       seo_description: row.seo_description,
       seo_og_image_id: row.og_image_url,
-      media_gallery: null,
+      media_gallery: row.media_gallery ?? null,
     }
   }
 
@@ -177,18 +152,17 @@ class ContentModuleService extends MedusaService({
     data: UpsertCategoryContentInput
   ): Promise<ResolvedCategoryContent> {
     this.assertSeoDescriptionLength(data.seo_description ?? null)
-    this.assertSeoTitleLength(data.seo_title ?? null)
 
     const rows = await this.listCategoryContents({
       category_id: categoryId,
       locale,
     })
-    const existing = rows[0] as CategoryContentRecord | undefined
+    const existing = rows[0]
 
     const payload: Partial<CategoryContentRecord> = {}
 
     if (data.description_rich !== undefined) {
-      payload.body_json = this.normalizeBodyJson(data.description_rich)
+      payload.body_json = data.description_rich as Record<string, unknown>
     }
     if (data.seo_title !== undefined) {
       payload.seo_title = data.seo_title
@@ -200,10 +174,11 @@ class ContentModuleService extends MedusaService({
       payload.og_image_url = data.seo_og_image_id
     }
     if (data.banner_image_id !== undefined) {
-      payload.banner_image_url = data.banner_image_id
+      payload.banner_image_id = data.banner_image_id
     }
 
     let row: CategoryContentRecord
+
     if (!existing) {
       const created = await this.createCategoryContents({
         category_id: categoryId,
@@ -212,7 +187,7 @@ class ContentModuleService extends MedusaService({
         seo_title: payload.seo_title ?? null,
         seo_description: payload.seo_description ?? null,
         og_image_url: payload.og_image_url ?? null,
-        banner_image_url: payload.banner_image_url ?? null,
+        banner_image_id: payload.banner_image_id ?? null,
       })
       row = Array.isArray(created)
         ? (created[0] as CategoryContentRecord)
@@ -237,11 +212,11 @@ class ContentModuleService extends MedusaService({
       id: row.id,
       category_id: row.category_id,
       locale: row.locale,
-      description_rich: row.body_json,
+      description_rich: row.body_json ?? null,
       seo_title: row.seo_title,
       seo_description: row.seo_description,
       seo_og_image_id: row.og_image_url,
-      banner_image_id: row.banner_image_url,
+      banner_image_id: row.banner_image_id,
     }
   }
 }

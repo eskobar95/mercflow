@@ -1,19 +1,20 @@
 import { model } from "@medusajs/framework/utils"
 
-/** Article / blog CMS row (slug unique per locale). */
-export const Article = model
-  .define("article", {
+/**
+ * Editorial page (homepage / landing / content). Persisted as table `"page"`.
+ */
+export const MercflowPage = model
+  .define("page", {
     id: model.id().primaryKey(),
     slug: model.text(),
     title: model.text(),
-    body_json: model.json().nullable(),
-    locale: model.text(),
+    page_type: model.enum(["homepage", "landing", "content"]),
     status: model.enum(["draft", "published"]).default("draft"),
-    published_at: model.dateTime().nullable(),
+    locale: model.text(),
   })
   .indexes([
     {
-      name: "IDX_article_slug_locale_unique",
+      name: "IDX_page_slug_locale_unique",
       on: ["slug", "locale"],
       unique: true,
     },

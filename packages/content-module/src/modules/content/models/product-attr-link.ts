@@ -1,5 +1,6 @@
 import { model } from "@medusajs/framework/utils"
 
+/** Simple product ↔ attribute value rows (text only in v1 schema). */
 export const ProductAttrLink = model
   .define("product_attr_link", {
     id: model.id().primaryKey(),

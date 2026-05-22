@@ -39,6 +39,9 @@ describe("content module CMS schema", (): void => {
     for (const table of TABLES) {
       expect(src).toContain(`create table if not exists "${table}"`)
     }
+    expect(src).toContain('"media_gallery" text[] null')
+    expect(src).toContain('"snapshot_json" jsonb null')
+    expect(src).toContain('"IDX_page_slug_locale_unique"')
     expect(src).toContain("override async down()")
     for (const table of [...TABLES].reverse()) {
       expect(src).toContain(`drop table if exists "${table}"`)

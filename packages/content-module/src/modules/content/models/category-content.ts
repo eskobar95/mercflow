@@ -1,5 +1,8 @@
 import { model } from "@medusajs/framework/utils"
 
+/**
+ * Locale-scoped rich content + SEO rows for categories (mirrors `product_content` shape).
+ */
 export const CategoryContent = model
   .define("category_content", {
     id: model.id().primaryKey(),
@@ -9,7 +12,7 @@ export const CategoryContent = model
     seo_title: model.text().nullable(),
     seo_description: model.text().nullable(),
     og_image_url: model.text().nullable(),
-    banner_image_url: model.text().nullable(),
+    banner_image_id: model.text().nullable(),
     status: model.enum(["draft", "published"]).default("draft"),
     version: model.number().default(1),
   })
