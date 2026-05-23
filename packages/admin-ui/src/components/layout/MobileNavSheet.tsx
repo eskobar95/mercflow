@@ -473,7 +473,7 @@ function Tile({
           <TileTop Icon={Icon} active={isActive} />
           <TileBottom
             label={tile.label}
-            meta={isActive ? "Current" : "Open"}
+            meta={isActive ? "Current" : undefined}
             active={isActive}
           />
         </>
@@ -532,7 +532,7 @@ function SubTile({
           <TileTop Icon={Icon} active={isActive} />
           <TileBottom
             label={sub.label}
-            meta={isActive ? "Current" : "Open"}
+            meta={isActive ? "Current" : undefined}
             active={isActive}
           />
         </>

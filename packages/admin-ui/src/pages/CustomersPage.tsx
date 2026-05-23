@@ -4,8 +4,8 @@ export function CustomersPage(): JSX.Element {
   return (
     <PlaceholderPage
       title="Customers"
-      description="The full customer index — profiles, lifetime value, segment membership, and recent activity."
-      intent="Look up a customer, jump to their orders, or build a segment for a campaign."
+      description="Look up any customer, jump to their orders, see lifetime value at a glance, and build segments for campaigns."
+      fallback={{ label: "Open the catalogue", to: "/products" }}
     />
   )
 }

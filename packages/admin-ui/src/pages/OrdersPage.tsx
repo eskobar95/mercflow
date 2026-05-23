@@ -4,8 +4,8 @@ export function OrdersPage(): JSX.Element {
   return (
     <PlaceholderPage
       title="Orders"
-      description="A sortable list of every incoming order with fulfilment, refunds, and customer detail in a single sheet."
-      intent="Review the day's orders, filter by status or channel, and dispatch fulfilment in one place."
+      description="A single sheet of every incoming order: filter by status or channel, dispatch fulfilment, review refunds, and jump to the customer on each row."
+      fallback={{ label: "Open the catalogue", to: "/products" }}
     />
   )
 }

@@ -4,8 +4,8 @@ export function ContentGlobalsPage(): JSX.Element {
   return (
     <PlaceholderPage
       title="Globals"
-      description="Reusable content fragments — headers, footers, banners — translated once and surfaced everywhere."
-      intent="Edit shared content once and watch every storefront page pick it up."
+      description="Reusable content fragments — headers, footers, banners — translated once and pulled into every storefront page that needs them."
+      fallback={{ label: "Edit a category's content", to: "/product-categories" }}
     />
   )
 }

@@ -3,9 +3,9 @@ import { PlaceholderPage } from "@/pages/PlaceholderPage"
 export function SettingsPage(): JSX.Element {
   return (
     <PlaceholderPage
-      title="Settings"
-      description="Store-wide preferences — locales, taxes, shipping zones, team access, and notifications."
-      intent="Tune MercFlow's defaults so they match how your store actually trades."
+      title="General settings"
+      description="Workspace defaults — store name, locales, taxes, shipping zones, currencies, and the notifications operators receive."
+      fallback={{ label: "Open Connectors", to: "/settings/connectors" }}
     />
   )
 }

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react"
+import { useCallback } from "react"
 import { Link } from "react-router-dom"
 
 import { DataTable } from "@/components/ui/list/DataTable"
@@ -73,16 +73,11 @@ const PRODUCT_COLUMNS: ListColumnDef<ProductListRow, ProductCol>[] = [
 ]
 
 /**
- * Product list (mock data). Future: connect to Medusa Admin product list API;
- * see README “Entity lists (mock data)”.
+ * Product list. Backed by mock data today; will read from the Medusa Admin
+ * product list API once the client wiring lands. Dev-only state toggles
+ * (loading / empty) live on `/list-demo` so the real list page stays clean.
  */
 export function ProductListPage(): JSX.Element {
-  const [useEmpty, setUseEmpty] = useState(false)
-  const allRows = useMemo(
-    () => (useEmpty ? [] : MOCK_PRODUCTS),
-    [useEmpty]
-  )
-
   const filterRow = useCallback((r: ProductListRow, query: string) => {
     const t = query.trim().toLowerCase()
     return (
@@ -97,9 +92,6 @@ export function ProductListPage(): JSX.Element {
     search,
     setSearch,
     pageSize,
-    setPageSize,
-    isLoading,
-    setIsLoading,
     sort,
     onRequestSort,
     paged,
@@ -109,8 +101,9 @@ export function ProductListPage(): JSX.Element {
     onSelectAll,
     onSelectRow,
     setPage,
+    setPageSize,
   } = useMockEntityListState({
-    allRows,
+    allRows: MOCK_PRODUCTS,
     columns: PRODUCT_COLUMNS,
     getRowId: (r) => r.id,
     initialSort: { column: "updatedAt", direction: "desc" },
@@ -118,10 +111,10 @@ export function ProductListPage(): JSX.Element {
   })
 
   const getRowActions = (row: ProductListRow): RowActionItem[] => [
-    { id: "view", label: "View (mock)", onSelect: () => { window.alert(`View ${row.title}`) } },
-    { id: "edit", label: "Edit (mock)", onSelect: () => { window.alert(`Edit ${row.title}`) } },
-    { id: "duplicate", label: "Duplicate (mock)", onSelect: () => { window.alert(`Duplicate ${row.title}`) } },
-    { id: "delete", label: "Delete (mock)", destructive: true, onSelect: () => { window.alert(`Delete ${row.title}`) } },
+    { id: "view", label: "View", onSelect: () => { window.alert(`View ${row.title}`) } },
+    { id: "edit", label: "Edit", onSelect: () => { window.alert(`Edit ${row.title}`) } },
+    { id: "duplicate", label: "Duplicate", onSelect: () => { window.alert(`Duplicate ${row.title}`) } },
+    { id: "delete", label: "Delete", destructive: true, onSelect: () => { window.alert(`Delete ${row.title}`) } },
   ]
 
   return (
@@ -129,7 +122,7 @@ export function ProductListPage(): JSX.Element {
         <div className="overflow-hidden rounded-lg border border-border-default bg-surface-default shadow-sm">
           <ListToolbar
             title="Products"
-            description="Catalog products (static mock). Replace with Medusa list fetch when the Admin client is available."
+            description="Everything you sell — variants, SKUs, status, and the collection each one belongs to."
             end={
               <div className="flex flex-wrap items-center gap-2">
                 <Link
@@ -144,24 +137,6 @@ export function ProductListPage(): JSX.Element {
                 >
                   Product categories
                 </Link>
-                <button
-                  type="button"
-                  className="rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm font-medium text-content-primary shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
-                  onClick={() => {
-                    setIsLoading((v) => !v)
-                  }}
-                >
-                  Toggle loading
-                </button>
-                <button
-                  type="button"
-                  className="rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm font-medium text-content-primary shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
-                  onClick={() => {
-                    setUseEmpty((v) => !v)
-                  }}
-                >
-                  {useEmpty ? "Show mock rows" : "Empty state (test)"}
-                </button>
               </div>
             }
           >
@@ -176,13 +151,12 @@ export function ProductListPage(): JSX.Element {
                 placeholder="Title, status, collection, or SKU"
                 className="min-w-0 flex-1 rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus"
                 aria-label="Filter products by title, status, collection, or SKU"
-                disabled={useEmpty}
               />
             </label>
           </ListToolbar>
           <DataTable<ProductListRow, ProductCol>
             aria-label="Product list"
-            caption="Product catalog (mock data)"
+            caption="Product catalog"
             columns={PRODUCT_COLUMNS}
             data={paged}
             getRowId={(r) => r.id}
@@ -190,12 +164,11 @@ export function ProductListPage(): JSX.Element {
             onRequestSort={onRequestSort}
             selection={{ selectedIds, onSelectAll, onSelectRow }}
             getRowActions={getRowActions}
-            isLoading={isLoading}
             emptyState={
               <ListEmptyState
                 title="No products match"
-                description={useEmpty ? "Mock list is empty for testing, or your search has no results." : "Try a different search or clear the filter."}
-                action={useEmpty ? undefined : (
+                description="Try a different search or clear the filter."
+                action={
                   <button
                     type="button"
                     className="rounded-md border border-border-default bg-surface-raised px-3 py-1.5 text-sm font-medium text-content-primary shadow-sm"
@@ -203,7 +176,7 @@ export function ProductListPage(): JSX.Element {
                   >
                     Clear search
                   </button>
-                )}
+                }
               />
             }
           />

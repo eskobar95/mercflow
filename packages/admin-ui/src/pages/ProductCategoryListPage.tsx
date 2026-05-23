@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react"
+import { useCallback } from "react"
 import { Link } from "react-router-dom"
 
 import { DataTable } from "@/components/ui/list/DataTable"
@@ -67,16 +67,11 @@ const CATEGORY_COLUMNS: ListColumnDef<ProductCategoryListRow, CategoryCol>[] =
   ]
 
 /**
- * Product category list (mock). Route `/product-categories` mirrors a common
- * Medusa admin path; replace `MOCK_PRODUCT_CATEGORIES` with API data later.
+ * Product category list. Backed by mock data today; switches to the Medusa
+ * Admin `product_categories` endpoint once the client lands. Dev state
+ * toggles live on `/list-demo` so this page stays focused on the catalogue.
  */
 export function ProductCategoryListPage(): JSX.Element {
-  const [useEmpty, setUseEmpty] = useState(false)
-  const allRows = useMemo(
-    () => (useEmpty ? [] : MOCK_PRODUCT_CATEGORIES),
-    [useEmpty]
-  )
-
   const filterRow = useCallback((r: ProductCategoryListRow, query: string) => {
     const t = query.trim().toLowerCase()
     return (
@@ -90,9 +85,6 @@ export function ProductCategoryListPage(): JSX.Element {
     search,
     setSearch,
     pageSize,
-    setPageSize,
-    isLoading,
-    setIsLoading,
     sort,
     onRequestSort,
     paged,
@@ -102,8 +94,9 @@ export function ProductCategoryListPage(): JSX.Element {
     onSelectAll,
     onSelectRow,
     setPage,
+    setPageSize,
   } = useMockEntityListState({
-    allRows,
+    allRows: MOCK_PRODUCT_CATEGORIES,
     columns: CATEGORY_COLUMNS,
     getRowId: (r) => r.id,
     initialSort: { column: "name", direction: "asc" },
@@ -111,10 +104,10 @@ export function ProductCategoryListPage(): JSX.Element {
   })
 
   const getRowActions = (row: ProductCategoryListRow): RowActionItem[] => [
-    { id: "view", label: "View (mock)", onSelect: () => { window.alert(`View ${row.name}`) } },
-    { id: "edit", label: "Edit (mock)", onSelect: () => { window.alert(`Edit ${row.name}`) } },
-    { id: "reorder", label: "Move (mock)", onSelect: () => { window.alert(`Move ${row.name}`) } },
-    { id: "delete", label: "Delete (mock)", destructive: true, onSelect: () => { window.alert(`Delete ${row.name}`) } },
+    { id: "view", label: "View", onSelect: () => { window.alert(`View ${row.name}`) } },
+    { id: "edit", label: "Edit", onSelect: () => { window.alert(`Edit ${row.name}`) } },
+    { id: "reorder", label: "Move", onSelect: () => { window.alert(`Move ${row.name}`) } },
+    { id: "delete", label: "Delete", destructive: true, onSelect: () => { window.alert(`Delete ${row.name}`) } },
   ]
 
   return (
@@ -122,7 +115,7 @@ export function ProductCategoryListPage(): JSX.Element {
         <div className="overflow-hidden rounded-lg border border-border-default bg-surface-default shadow-sm">
           <ListToolbar
             title="Product categories"
-            description="Group products for the storefront (static mock). Wire Medusa `product categories` when the Admin client is available."
+            description="How products are grouped on the storefront — name, handle, and how many products each group holds."
             end={
               <div className="flex flex-wrap items-center gap-2">
                 <Link
@@ -137,24 +130,6 @@ export function ProductCategoryListPage(): JSX.Element {
                 >
                   Products
                 </Link>
-                <button
-                  type="button"
-                  className="rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm font-medium text-content-primary shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
-                  onClick={() => {
-                    setIsLoading((v) => !v)
-                  }}
-                >
-                  Toggle loading
-                </button>
-                <button
-                  type="button"
-                  className="rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm font-medium text-content-primary shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
-                  onClick={() => {
-                    setUseEmpty((v) => !v)
-                  }}
-                >
-                  {useEmpty ? "Show mock rows" : "Empty state (test)"}
-                </button>
               </div>
             }
           >
@@ -169,13 +144,12 @@ export function ProductCategoryListPage(): JSX.Element {
                 placeholder="Name, handle, or count"
                 className="min-w-0 flex-1 rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus"
                 aria-label="Filter categories by name, handle, or product count"
-                disabled={useEmpty}
               />
             </label>
           </ListToolbar>
           <DataTable<ProductCategoryListRow, CategoryCol>
             aria-label="Product category list"
-            caption="Product categories (mock data)"
+            caption="Product categories"
             columns={CATEGORY_COLUMNS}
             data={paged}
             getRowId={(r) => r.id}
@@ -183,12 +157,11 @@ export function ProductCategoryListPage(): JSX.Element {
             onRequestSort={onRequestSort}
             selection={{ selectedIds, onSelectAll, onSelectRow }}
             getRowActions={getRowActions}
-            isLoading={isLoading}
             emptyState={
               <ListEmptyState
                 title="No categories match"
-                description={useEmpty ? "Mock list is empty for testing, or your search has no results." : "Try a different search or clear the filter."}
-                action={useEmpty ? undefined : (
+                description="Try a different search or clear the filter."
+                action={
                   <button
                     type="button"
                     className="rounded-md border border-border-default bg-surface-raised px-3 py-1.5 text-sm font-medium text-content-primary shadow-sm"
@@ -196,7 +169,7 @@ export function ProductCategoryListPage(): JSX.Element {
                   >
                     Clear search
                   </button>
-                )}
+                }
               />
             }
           />

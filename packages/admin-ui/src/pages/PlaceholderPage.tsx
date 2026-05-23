@@ -4,66 +4,65 @@ import { IconArrowRight } from "@/components/ui/icons"
 
 type PlaceholderPageProps = {
   title: string
-  description?: string
-  /** What the user will be able to do here once the feature ships. */
-  intent?: string
+  /** What lives here, folded into a single sentence. */
+  description: string
+  /**
+   * Optional route-aware fallback CTA — points to a route that *is* shipped
+   * so the visitor lands somewhere useful instead of looping back home.
+   * Defaults to the catalogue, which is MercFlow's first real surface.
+   */
+  fallback?: {
+    label: string
+    to: string
+  }
+}
+
+const DEFAULT_FALLBACK = {
+  label: "Open the catalogue",
+  to: "/products",
 }
 
 /**
- * Operational placeholder — Stripe empty-state pattern, no AI sparkle slop.
+ * Placeholder for routes whose real implementation hasn't shipped yet.
  *
- *   - Small status pill at top (blue dot · "Coming soon")
- *   - Bold title
- *   - Description, then optional intent line
- *   - Single primary CTA back to a useful screen
- *
- * The blue dot is the only chromatic element on the page. No decorative
- * sparkle icon, no shouting WHEN LIVE labels.
+ * Earlier versions of this page wore a pulsing amber dot, a "Coming soon"
+ * pill, a "When live:" prefix, and a generic "Back to home" CTA — all
+ * Tailwind-tutorial chrome that read identically across nine routes. Now
+ * the page is just title + plain prose + a contextual exit, so each
+ * placeholder feels like a real page-in-progress rather than the same
+ * template wallpapered everywhere.
  */
 export function PlaceholderPage({
   title,
-  description = "This area will ship in a later sprint.",
-  intent,
+  description,
+  fallback = DEFAULT_FALLBACK,
 }: PlaceholderPageProps): JSX.Element {
   return (
-    <div className="px-4 py-12 md:px-8 md:py-20">
-      <div className="mx-auto flex max-w-lg flex-col items-center text-center">
-        <p className="flex items-center gap-1.5 text-[12px] font-medium text-content-tertiary">
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber opacity-60" />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-amber" />
-          </span>
-          Coming soon
-        </p>
-
-        <h2 className="mt-3 text-[26px] font-semibold tracking-tight text-content-primary md:text-[30px]">
+    <div className="px-4 py-12 md:px-8 md:py-16">
+      <div className="mx-auto flex max-w-xl flex-col items-start">
+        <h2 className="text-[26px] font-semibold tracking-tight text-content-primary md:text-[30px]">
           {title}
         </h2>
 
-        <p className="mt-3 max-w-md text-[14px] leading-relaxed text-content-secondary">
+        <p className="mt-3 text-[14px] leading-relaxed text-content-secondary">
           {description}
         </p>
 
-        {intent ? (
-          <p className="mt-2 max-w-md text-[13px] leading-relaxed text-content-tertiary">
-            <span className="font-medium text-content-secondary">When live: </span>
-            {intent}
-          </p>
-        ) : null}
+        <p className="mt-1 text-[13px] text-content-tertiary">
+          Not in this slice yet — landing in a later sprint.
+        </p>
 
-        <div className="mt-7">
-          <Link
-            to="/"
-            className="group/cta inline-flex h-9 items-center gap-1.5 rounded-full bg-amber px-4 text-[13px] font-semibold text-content-inverse shadow-sm transition-[background-color,transform,box-shadow] duration-150 hover:bg-amber-strong hover:shadow-md active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
-            style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
-          >
-            Back to home
-            <IconArrowRight
-              size={14}
-              className="transition-transform duration-200 group-hover/cta:translate-x-0.5"
-            />
-          </Link>
-        </div>
+        <Link
+          to={fallback.to}
+          className="group/cta mt-6 inline-flex h-9 items-center gap-1.5 rounded-full border border-border-default bg-surface-appCard px-3.5 text-[13px] font-semibold text-content-primary shadow-sm transition-[background-color,border-color,transform,box-shadow] duration-150 hover:border-border-strong hover:bg-surface-subtle hover:shadow-md active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+          style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
+        >
+          {fallback.label}
+          <IconArrowRight
+            size={13}
+            className="text-content-tertiary transition-transform duration-200 group-hover/cta:translate-x-0.5 group-hover/cta:text-content-secondary"
+          />
+        </Link>
       </div>
     </div>
   )

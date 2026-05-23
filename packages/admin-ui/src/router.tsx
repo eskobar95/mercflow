@@ -138,8 +138,8 @@ export const router = createBrowserRouter([
             Component: () => (
               <PlaceholderPage
                 title="Workspace"
-                description="Workspace settings will let you customise the storefront brand, default currency, locale, and store hours."
-                intent="Set workspace name, logo, default currency, timezone, and the languages your storefront supports."
+                description="Store name, logo, default currency, timezone, and the languages your storefront speaks — all in one place."
+                fallback={{ label: "Open Connectors", to: "/settings/connectors" }}
               />
             ),
           }
@@ -154,8 +154,8 @@ export const router = createBrowserRouter([
             Component: () => (
               <PlaceholderPage
                 title="Team"
-                description="Invite teammates, assign roles, and audit account access."
-                intent="Add or remove operators, assign owner / admin / support roles, and review the last sign-in for each member."
+                description="Invite teammates, assign owner / admin / support roles, and audit the last sign-in for each member."
+                fallback={{ label: "Open General settings", to: "/settings" }}
               />
             ),
           }
@@ -170,8 +170,8 @@ export const router = createBrowserRouter([
             Component: () => (
               <PlaceholderPage
                 title="Billing"
-                description="Subscription, invoices, and payment method for your MercFlow workspace."
-                intent="Review current plan, change billing cycle, download invoices, and update card on file."
+                description="Current plan, invoices, billing cycle, and the card on file for your MercFlow workspace."
+                fallback={{ label: "Open General settings", to: "/settings" }}
               />
             ),
           }
