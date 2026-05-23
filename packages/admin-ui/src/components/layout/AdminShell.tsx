@@ -78,16 +78,17 @@ export function AdminShell(): JSX.Element {
           onClick={closeMoreSheet}
         />
       ) : null}
+      {/* Mobile fullscreen nav sheet — covers the whole viewport, close via X or tap outside. */}
       <div
         id="mobile-nav-sheet"
         className={
           moreSheetOpen
-            ? "fixed inset-y-0 left-0 z-modal flex w-[15rem] shadow-lg md:hidden"
+            ? "fixed inset-0 z-modal flex md:hidden"
             : "hidden"
         }
         aria-hidden={!moreSheetOpen}
       >
-        <AppSidebar onNavigate={closeMoreSheet} />
+        <AppSidebar onNavigate={closeMoreSheet} onClose={closeMoreSheet} />
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">

@@ -9,14 +9,16 @@ import {
 } from "@/config/sidebarNav"
 
 type AppSidebarProps = {
-  /** Called after navigation (closes mobile drawer). */
+  /** Called after navigation (closes mobile sheet). */
   onNavigate?: () => void
+  /**
+   * When provided, renders an X close button in the sidebar header.
+   * Used by the mobile fullscreen sheet so the user can dismiss without
+   * having to reach the bottom tab bar.
+   */
+  onClose?: () => void
 }
 
-/**
- * Shared layout fragment for every nav row. Density mirrors Shopify admin:
- * 36px tall, 18px icon, 13px label, 12px horizontal padding, tight gap.
- */
 const baseItemClass =
   "group/nav-item relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
 
@@ -91,33 +93,27 @@ function SidebarSection({
 }
 
 /**
- * Primary navigation for the MercFlow admin shell.
+ * Primary navigation rail for the MercFlow admin shell.
  *
- * Visual language (Shopify-inspired):
- *   - Navy fill (`surface.sidebar` = brand.base) for strong chrome/content
- *     separation against the light app canvas.
- *   - Cream-on-navy labels (`content.onSidebar`) with muted icon stroke;
- *     amber-wash active row + left rail + amber-light label/icon.
- *   - Section headers are tight uppercase 11px in muted cream.
- *
- * Brand mark sits in a 28px amber square with cream "M" — the single
- * brand-color affordance in the sidebar, mirroring how Shopify uses its
- * green shopping bag mark on the dark rail.
+ * Desktop: fixed 240px wide navy rail.
+ * Mobile: rendered inside a fullscreen sheet — `onClose` triggers when the
+ * X button in the header is tapped, `onNavigate` closes the sheet on link tap.
  */
-export function AppSidebar({ onNavigate }: AppSidebarProps): JSX.Element {
+export function AppSidebar({ onNavigate, onClose }: AppSidebarProps): JSX.Element {
   return (
     <aside
-      className="flex h-full w-[15rem] shrink-0 flex-col bg-surface-sidebar"
+      className="flex h-full w-full shrink-0 flex-col bg-surface-sidebar md:w-[15rem]"
       aria-label="Main navigation"
     >
-      <div className="flex h-16 shrink-0 items-center gap-2.5 px-4">
+      {/* Header: logo + optional close button (mobile only) */}
+      <div className="flex h-14 shrink-0 items-center gap-2.5 px-4 md:h-16">
         <span
-          className="flex h-7 w-7 items-center justify-center rounded-md bg-amber text-[#1A1A2E] shadow-sm"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-amber text-[#1A1A2E] shadow-sm"
           aria-hidden
         >
           <span className="text-[13px] font-bold leading-none">M</span>
         </span>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-content-onSidebar">
             MercFlow
           </p>
@@ -125,7 +121,30 @@ export function AppSidebar({ onNavigate }: AppSidebarProps): JSX.Element {
             Admin
           </p>
         </div>
+        {onClose ? (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Luk menu"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-content-onSidebarMuted transition-colors hover:bg-surface-sidebarHover hover:text-content-onSidebar focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        ) : null}
       </div>
+
       <nav
         className="flex flex-1 flex-col overflow-y-auto px-3 pb-6"
         aria-label="Application"

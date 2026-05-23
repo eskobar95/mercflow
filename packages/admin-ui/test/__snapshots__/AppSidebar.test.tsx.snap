@@ -4,14 +4,14 @@ exports[`AppSidebar > renders all primary and section nav items with correct hre
 <div>
   <aside
     aria-label="Main navigation"
-    class="flex h-full w-[15rem] shrink-0 flex-col bg-surface-sidebar"
+    class="flex h-full w-full shrink-0 flex-col bg-surface-sidebar md:w-[15rem]"
   >
     <div
-      class="flex h-16 shrink-0 items-center gap-2.5 px-4"
+      class="flex h-14 shrink-0 items-center gap-2.5 px-4 md:h-16"
     >
       <span
         aria-hidden="true"
-        class="flex h-7 w-7 items-center justify-center rounded-md bg-amber text-[#1A1A2E] shadow-sm"
+        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-amber text-[#1A1A2E] shadow-sm"
       >
         <span
           class="text-[13px] font-bold leading-none"
@@ -20,7 +20,7 @@ exports[`AppSidebar > renders all primary and section nav items with correct hre
         </span>
       </span>
       <div
-        class="min-w-0"
+        class="min-w-0 flex-1"
       >
         <p
           class="truncate text-sm font-semibold text-content-onSidebar"
