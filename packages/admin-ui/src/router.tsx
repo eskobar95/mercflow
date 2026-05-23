@@ -130,6 +130,54 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "settings/workspace",
+        handle: { title: "Workspace" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { PlaceholderPage } = await import("@/pages/PlaceholderPage")
+          return {
+            Component: () => (
+              <PlaceholderPage
+                title="Workspace"
+                description="Workspace settings will let you customise the storefront brand, default currency, locale, and store hours."
+                intent="Set workspace name, logo, default currency, timezone, and the languages your storefront supports."
+              />
+            ),
+          }
+        },
+      },
+      {
+        path: "settings/team",
+        handle: { title: "Team" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { PlaceholderPage } = await import("@/pages/PlaceholderPage")
+          return {
+            Component: () => (
+              <PlaceholderPage
+                title="Team"
+                description="Invite teammates, assign roles, and audit account access."
+                intent="Add or remove operators, assign owner / admin / support roles, and review the last sign-in for each member."
+              />
+            ),
+          }
+        },
+      },
+      {
+        path: "settings/billing",
+        handle: { title: "Billing" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { PlaceholderPage } = await import("@/pages/PlaceholderPage")
+          return {
+            Component: () => (
+              <PlaceholderPage
+                title="Billing"
+                description="Subscription, invoices, and payment method for your MercFlow workspace."
+                intent="Review current plan, change billing cycle, download invoices, and update card on file."
+              />
+            ),
+          }
+        },
+      },
+      {
         path: "list-demo",
         handle: { title: "List demo" } satisfies AppRouteHandle,
         lazy: async () => {

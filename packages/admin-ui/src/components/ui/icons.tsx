@@ -187,4 +187,69 @@ export function IconSparkle({ size = 16, ...rest }: IconProps): JSX.Element {
   )
 }
 
+/** Chevron used for expandable parent nav items. Rotates 90° when open. */
+export function IconChevronRight({ size = 14, ...rest }: IconProps): JSX.Element {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <path d="m9 6 6 6-6 6" />
+    </svg>
+  )
+}
+
+/** Workspace / team / company icon (rounded square + person). */
+export function IconWorkspace({ size = 18, ...rest }: IconProps): JSX.Element {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <rect x="3" y="3" width="18" height="18" rx="3" />
+      <path d="M8 13.5a3 3 0 0 1 8 0" />
+      <circle cx="12" cy="9.5" r="2" />
+    </svg>
+  )
+}
+
+/** People / team icon — two figures. */
+export function IconTeam({ size = 18, ...rest }: IconProps): JSX.Element {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <circle cx="9" cy="9" r="3" />
+      <path d="M3 19a6 6 0 0 1 12 0" />
+      <circle cx="17" cy="8" r="2.25" />
+      <path d="M15.5 17h5.5a4 4 0 0 0-5.5-3.7" />
+    </svg>
+  )
+}
+
+/** Billing / credit card icon. */
+export function IconBilling({ size = 18, ...rest }: IconProps): JSX.Element {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <rect x="3" y="5" width="18" height="14" rx="2.5" />
+      <path d="M3 10h18" />
+      <path d="M7 15h3" />
+    </svg>
+  )
+}
+
+/** X / close — used by the mobile nav sheet header. */
+export function IconClose({ size = 18, ...rest }: IconProps): JSX.Element {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
+    </svg>
+  )
+}
+
+/** Catalogue (squares grid) — used as a Products sub-item icon. */
+export function IconCatalogue({ size = 18, ...rest }: IconProps): JSX.Element {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" />
+      <rect x="13.5" y="3.5" width="7" height="7" rx="1.5" />
+      <rect x="3.5" y="13.5" width="7" height="7" rx="1.5" />
+      <rect x="13.5" y="13.5" width="7" height="7" rx="1.5" />
+    </svg>
+  )
+}
+
 export type IconComponent = (props: IconProps) => JSX.Element

@@ -1,80 +1,262 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`AppSidebar > renders all primary and section nav items with correct hrefs 1`] = `
-<div>
-  <aside
-    aria-label="Main navigation"
-    class="flex h-full w-full shrink-0 flex-col bg-surface-sidebar md:w-60"
+exports[`AppSidebar > matches the structural snapshot 1`] = `
+<aside
+  aria-label="Main navigation"
+  class="flex h-full w-60 shrink-0 flex-col bg-surface-sidebar"
+>
+  <div
+    class="flex h-16 shrink-0 items-center gap-2.5 px-4"
   >
-    <div
-      class="flex h-14 shrink-0 items-center gap-2.5 px-4 md:h-16"
+    <span
+      aria-hidden="true"
+      class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-amber text-content-inverse shadow-sm"
     >
       <span
-        aria-hidden="true"
-        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-amber text-content-inverse shadow-sm"
+        class="text-[13px] font-bold leading-none"
       >
-        <span
-          class="text-[13px] font-bold leading-none"
-        >
-          M
-        </span>
+        M
       </span>
-      <div
-        class="min-w-0 flex-1"
-      >
-        <p
-          class="truncate text-sm font-semibold text-content-onSidebar"
-        >
-          MercFlow
-        </p>
-        <p
-          class="truncate text-[11px] font-medium text-content-onSidebarMuted"
-        >
-          Workspace
-        </p>
-      </div>
-    </div>
-    <nav
-      aria-label="Application"
-      class="flex flex-1 flex-col overflow-y-auto px-3 pb-6"
+    </span>
+    <div
+      class="min-w-0 flex-1"
     >
+      <p
+        class="truncate text-sm font-semibold text-content-onSidebar"
+      >
+        MercFlow
+      </p>
+      <p
+        class="truncate text-[11px] font-medium text-content-onSidebarMuted"
+      >
+        Workspace
+      </p>
+    </div>
+  </div>
+  <nav
+    aria-label="Application"
+    class="flex flex-1 flex-col overflow-y-auto px-3 pb-6"
+  >
+    <div
+      class="flex flex-col gap-0.5"
+    >
+      <a
+        aria-current="page"
+        class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber bg-surface-sidebarActive text-content-onSidebarActive"
+        href="/"
+      >
+        <svg
+          aria-hidden="true"
+          class="shrink-0 text-content-onSidebarActive"
+          fill="none"
+          focusable="false"
+          height="18"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="1.75"
+          viewBox="0 0 24 24"
+          width="18"
+        >
+          <path
+            d="M3.5 10.5 12 3.5l8.5 7"
+          />
+          <path
+            d="M5.5 9.5V19a1 1 0 0 0 1 1H10v-5.5h4V20h3.5a1 1 0 0 0 1-1V9.5"
+          />
+        </svg>
+        <span
+          class="truncate"
+        >
+          Home
+        </span>
+      </a>
+      <a
+        class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber text-content-onSidebar hover:bg-surface-sidebarHover"
+        href="/orders"
+      >
+        <svg
+          aria-hidden="true"
+          class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
+          fill="none"
+          focusable="false"
+          height="18"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="1.75"
+          viewBox="0 0 24 24"
+          width="18"
+        >
+          <path
+            d="M6 3.5h12v17l-3-2-3 2-3-2-3 2z"
+          />
+          <path
+            d="M9 9h6"
+          />
+          <path
+            d="M9 12.5h6"
+          />
+          <path
+            d="M9 16h4"
+          />
+        </svg>
+        <span
+          class="truncate"
+        >
+          Orders
+        </span>
+      </a>
+      <div
+        class="flex flex-col"
+      >
+        <button
+          aria-expanded="false"
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber w-full justify-between text-content-onSidebar hover:bg-surface-sidebarHover"
+          type="button"
+        >
+          <span
+            class="flex min-w-0 items-center gap-3"
+          >
+            <svg
+              aria-hidden="true"
+              class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
+              fill="none"
+              focusable="false"
+              height="18"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.75"
+              viewBox="0 0 24 24"
+              width="18"
+            >
+              <path
+                d="M4 7.5 12 4l8 3.5v9L12 20l-8-3.5z"
+              />
+              <path
+                d="M4 7.5 12 11l8-3.5"
+              />
+              <path
+                d="M12 11v9"
+              />
+            </svg>
+            <span
+              class="truncate"
+            >
+              Products
+            </span>
+          </span>
+          <svg
+            aria-hidden="true"
+            class="shrink-0 text-content-onSidebarMuted transition-transform duration-200 rotate-0"
+            fill="none"
+            focusable="false"
+            height="12"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.75"
+            viewBox="0 0 24 24"
+            width="12"
+          >
+            <path
+              d="m9 6 6 6-6 6"
+            />
+          </svg>
+        </button>
+        <div
+          aria-hidden="true"
+          class="grid transition-[grid-template-rows,opacity] duration-200"
+          style="grid-template-rows: 0fr; opacity: 0; transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);"
+        >
+          <div
+            class="min-h-0 overflow-hidden"
+          >
+            <ul
+              class="relative ml-[19px] mt-0.5 flex flex-col gap-0.5 border-l border-border-onSidebar pl-2 pt-0.5"
+            >
+              <li>
+                <a
+                  class="group/sub flex h-8 items-center rounded-md px-2.5 text-[12.5px] transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber font-medium text-content-onSidebarMuted hover:bg-surface-sidebarHover hover:text-content-onSidebar"
+                  href="/products"
+                >
+                  <span
+                    class="truncate"
+                  >
+                    Catalogue
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="group/sub flex h-8 items-center rounded-md px-2.5 text-[12.5px] transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber font-medium text-content-onSidebarMuted hover:bg-surface-sidebarHover hover:text-content-onSidebar"
+                  href="/product-categories"
+                >
+                  <span
+                    class="truncate"
+                  >
+                    Categories
+                  </span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <a
+        class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber text-content-onSidebar hover:bg-surface-sidebarHover"
+        href="/customers"
+      >
+        <svg
+          aria-hidden="true"
+          class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
+          fill="none"
+          focusable="false"
+          height="18"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="1.75"
+          viewBox="0 0 24 24"
+          width="18"
+        >
+          <circle
+            cx="9"
+            cy="8"
+            r="3.25"
+          />
+          <path
+            d="M3.5 19c.6-2.8 2.9-4.5 5.5-4.5s4.9 1.7 5.5 4.5"
+          />
+          <path
+            d="M15 4.5a3.25 3.25 0 0 1 0 6.5"
+          />
+          <path
+            d="M17 14.5c1.9.4 3.4 1.9 3.5 4.5"
+          />
+        </svg>
+        <span
+          class="truncate"
+        >
+          Customers
+        </span>
+      </a>
+    </div>
+    <div
+      class="mt-6"
+    >
+      <p
+        class="px-3 pb-2 text-[11px] font-medium uppercase tracking-label text-content-onSidebarMuted"
+      >
+        Content
+      </p>
       <div
         class="flex flex-col gap-0.5"
       >
         <a
-          aria-current="page"
-          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber bg-surface-sidebarActive text-content-onSidebarActive"
-          href="/"
-        >
-          <svg
-            aria-hidden="true"
-            class="shrink-0 text-content-onSidebarActive"
-            fill="none"
-            focusable="false"
-            height="18"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.75"
-            viewBox="0 0 24 24"
-            width="18"
-          >
-            <path
-              d="M3.5 10.5 12 3.5l8.5 7"
-            />
-            <path
-              d="M5.5 9.5V19a1 1 0 0 0 1 1H10v-5.5h4V20h3.5a1 1 0 0 0 1-1V9.5"
-            />
-          </svg>
-          <span
-            class="truncate"
-          >
-            Home
-          </span>
-        </a>
-        <a
           class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber text-content-onSidebar hover:bg-surface-sidebarHover"
-          href="/orders"
+          href="/content/articles"
         >
           <svg
             aria-hidden="true"
@@ -90,27 +272,147 @@ exports[`AppSidebar > renders all primary and section nav items with correct hre
             width="18"
           >
             <path
-              d="M6 3.5h12v17l-3-2-3 2-3-2-3 2z"
+              d="M5.5 3.5h10L19 7v13.5H5.5z"
             />
             <path
-              d="M9 9h6"
+              d="M15 3.5V7h4"
             />
             <path
-              d="M9 12.5h6"
+              d="M8.5 11h7"
             />
             <path
-              d="M9 16h4"
+              d="M8.5 14h7"
+            />
+            <path
+              d="M8.5 17h5"
             />
           </svg>
           <span
             class="truncate"
           >
-            Orders
+            Articles
           </span>
         </a>
         <a
           class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber text-content-onSidebar hover:bg-surface-sidebarHover"
-          href="/products"
+          href="/content/pages"
+        >
+          <svg
+            aria-hidden="true"
+            class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
+            fill="none"
+            focusable="false"
+            height="18"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.75"
+            viewBox="0 0 24 24"
+            width="18"
+          >
+            <rect
+              height="16"
+              rx="2"
+              width="16"
+              x="4"
+              y="4"
+            />
+            <path
+              d="M4 9h16"
+            />
+            <path
+              d="M9 9v11"
+            />
+          </svg>
+          <span
+            class="truncate"
+          >
+            Pages
+          </span>
+        </a>
+        <a
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber text-content-onSidebar hover:bg-surface-sidebarHover"
+          href="/content/globals"
+        >
+          <svg
+            aria-hidden="true"
+            class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
+            fill="none"
+            focusable="false"
+            height="18"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.75"
+            viewBox="0 0 24 24"
+            width="18"
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="8.25"
+            />
+            <path
+              d="M3.75 12h16.5"
+            />
+            <path
+              d="M12 3.75c2.4 2.5 3.5 5.3 3.5 8.25s-1.1 5.75-3.5 8.25c-2.4-2.5-3.5-5.3-3.5-8.25S9.6 6.25 12 3.75z"
+            />
+          </svg>
+          <span
+            class="truncate"
+          >
+            Globals
+          </span>
+        </a>
+      </div>
+    </div>
+    <div
+      class="mt-6"
+    >
+      <p
+        class="px-3 pb-2 text-[11px] font-medium uppercase tracking-label text-content-onSidebarMuted"
+      >
+        Settings
+      </p>
+      <div
+        class="flex flex-col gap-0.5"
+      >
+        <a
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber text-content-onSidebar hover:bg-surface-sidebarHover"
+          href="/settings"
+        >
+          <svg
+            aria-hidden="true"
+            class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
+            fill="none"
+            focusable="false"
+            height="18"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.75"
+            viewBox="0 0 24 24"
+            width="18"
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="2.5"
+            />
+            <path
+              d="M19.5 12a7.6 7.6 0 0 0-.1-1.3l1.7-1.3-1.5-2.6-2 .8a7.5 7.5 0 0 0-2.2-1.3l-.3-2.1h-3l-.3 2.1a7.5 7.5 0 0 0-2.2 1.3l-2-.8L5.9 9.4l1.7 1.3a7.6 7.6 0 0 0 0 2.6L5.9 14.6l1.5 2.6 2-.8a7.5 7.5 0 0 0 2.2 1.3l.3 2.1h3l.3-2.1a7.5 7.5 0 0 0 2.2-1.3l2 .8 1.5-2.6-1.7-1.3a7.6 7.6 0 0 0 .1-1.3z"
+            />
+          </svg>
+          <span
+            class="truncate"
+          >
+            General
+          </span>
+        </a>
+        <a
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber text-content-onSidebar hover:bg-surface-sidebarHover"
+          href="/settings/connectors"
         >
           <svg
             aria-hidden="true"
@@ -126,24 +428,66 @@ exports[`AppSidebar > renders all primary and section nav items with correct hre
             width="18"
           >
             <path
-              d="M4 7.5 12 4l8 3.5v9L12 20l-8-3.5z"
+              d="M9 3.5v3.5"
             />
             <path
-              d="M4 7.5 12 11l8-3.5"
+              d="M15 3.5v3.5"
             />
             <path
-              d="M12 11v9"
+              d="M6.5 7h11v3a5.5 5.5 0 0 1-11 0z"
+            />
+            <path
+              d="M12 15.5v5"
             />
           </svg>
           <span
             class="truncate"
           >
-            Products
+            Connectors
           </span>
         </a>
         <a
           class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber text-content-onSidebar hover:bg-surface-sidebarHover"
-          href="/customers"
+          href="/settings/workspace"
+        >
+          <svg
+            aria-hidden="true"
+            class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
+            fill="none"
+            focusable="false"
+            height="18"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.75"
+            viewBox="0 0 24 24"
+            width="18"
+          >
+            <rect
+              height="18"
+              rx="3"
+              width="18"
+              x="3"
+              y="3"
+            />
+            <path
+              d="M8 13.5a3 3 0 0 1 8 0"
+            />
+            <circle
+              cx="12"
+              cy="9.5"
+              r="2"
+            />
+          </svg>
+          <span
+            class="truncate"
+          >
+            Workspace
+          </span>
+        </a>
+        <a
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber text-content-onSidebar hover:bg-surface-sidebarHover"
+          href="/settings/team"
         >
           <svg
             aria-hidden="true"
@@ -160,28 +504,30 @@ exports[`AppSidebar > renders all primary and section nav items with correct hre
           >
             <circle
               cx="9"
+              cy="9"
+              r="3"
+            />
+            <path
+              d="M3 19a6 6 0 0 1 12 0"
+            />
+            <circle
+              cx="17"
               cy="8"
-              r="3.25"
+              r="2.25"
             />
             <path
-              d="M3.5 19c.6-2.8 2.9-4.5 5.5-4.5s4.9 1.7 5.5 4.5"
-            />
-            <path
-              d="M15 4.5a3.25 3.25 0 0 1 0 6.5"
-            />
-            <path
-              d="M17 14.5c1.9.4 3.4 1.9 3.5 4.5"
+              d="M15.5 17h5.5a4 4 0 0 0-5.5-3.7"
             />
           </svg>
           <span
             class="truncate"
           >
-            Customers
+            Team
           </span>
         </a>
         <a
           class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber text-content-onSidebar hover:bg-surface-sidebarHover"
-          href="/product-categories"
+          href="/settings/billing"
         >
           <svg
             aria-hidden="true"
@@ -196,197 +542,28 @@ exports[`AppSidebar > renders all primary and section nav items with correct hre
             viewBox="0 0 24 24"
             width="18"
           >
-            <path
-              d="m12 3.5 8 4.5-8 4.5-8-4.5z"
+            <rect
+              height="14"
+              rx="2.5"
+              width="18"
+              x="3"
+              y="5"
             />
             <path
-              d="m4 12 8 4.5L20 12"
+              d="M3 10h18"
             />
             <path
-              d="m4 16 8 4.5L20 16"
+              d="M7 15h3"
             />
           </svg>
           <span
             class="truncate"
           >
-            Categories
+            Billing
           </span>
         </a>
       </div>
-      <div
-        class="mt-6"
-      >
-        <p
-          class="px-3 pb-2 text-[11px] font-medium uppercase tracking-label text-content-onSidebarMuted"
-        >
-          Content
-        </p>
-        <div
-          class="flex flex-col gap-0.5"
-        >
-          <a
-            class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber text-content-onSidebar hover:bg-surface-sidebarHover"
-            href="/content/articles"
-          >
-            <svg
-              aria-hidden="true"
-              class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
-              fill="none"
-              focusable="false"
-              height="18"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.75"
-              viewBox="0 0 24 24"
-              width="18"
-            >
-              <path
-                d="M5.5 3.5h10L19 7v13.5H5.5z"
-              />
-              <path
-                d="M15 3.5V7h4"
-              />
-              <path
-                d="M8.5 11h7"
-              />
-              <path
-                d="M8.5 14h7"
-              />
-              <path
-                d="M8.5 17h5"
-              />
-            </svg>
-            <span
-              class="truncate"
-            >
-              Articles
-            </span>
-          </a>
-          <a
-            class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber text-content-onSidebar hover:bg-surface-sidebarHover"
-            href="/content/pages"
-          >
-            <svg
-              aria-hidden="true"
-              class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
-              fill="none"
-              focusable="false"
-              height="18"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.75"
-              viewBox="0 0 24 24"
-              width="18"
-            >
-              <rect
-                height="16"
-                rx="2"
-                width="16"
-                x="4"
-                y="4"
-              />
-              <path
-                d="M4 9h16"
-              />
-              <path
-                d="M9 9v11"
-              />
-            </svg>
-            <span
-              class="truncate"
-            >
-              Pages
-            </span>
-          </a>
-          <a
-            class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber text-content-onSidebar hover:bg-surface-sidebarHover"
-            href="/content/globals"
-          >
-            <svg
-              aria-hidden="true"
-              class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
-              fill="none"
-              focusable="false"
-              height="18"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.75"
-              viewBox="0 0 24 24"
-              width="18"
-            >
-              <circle
-                cx="12"
-                cy="12"
-                r="8.25"
-              />
-              <path
-                d="M3.75 12h16.5"
-              />
-              <path
-                d="M12 3.75c2.4 2.5 3.5 5.3 3.5 8.25s-1.1 5.75-3.5 8.25c-2.4-2.5-3.5-5.3-3.5-8.25S9.6 6.25 12 3.75z"
-              />
-            </svg>
-            <span
-              class="truncate"
-            >
-              Globals
-            </span>
-          </a>
-        </div>
-      </div>
-      <div
-        class="mt-6"
-      >
-        <p
-          class="px-3 pb-2 text-[11px] font-medium uppercase tracking-label text-content-onSidebarMuted"
-        >
-          Settings
-        </p>
-        <div
-          class="flex flex-col gap-0.5"
-        >
-          <a
-            class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber text-content-onSidebar hover:bg-surface-sidebarHover"
-            href="/settings/connectors"
-          >
-            <svg
-              aria-hidden="true"
-              class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
-              fill="none"
-              focusable="false"
-              height="18"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.75"
-              viewBox="0 0 24 24"
-              width="18"
-            >
-              <path
-                d="M9 3.5v3.5"
-              />
-              <path
-                d="M15 3.5v3.5"
-              />
-              <path
-                d="M6.5 7h11v3a5.5 5.5 0 0 1-11 0z"
-              />
-              <path
-                d="M12 15.5v5"
-              />
-            </svg>
-            <span
-              class="truncate"
-            >
-              Connectors
-            </span>
-          </a>
-        </div>
-      </div>
-    </nav>
-  </aside>
-</div>
+    </div>
+  </nav>
+</aside>
 `;
