@@ -196,6 +196,25 @@ export function IconChevronRight({ size = 14, ...rest }: IconProps): JSX.Element
   )
 }
 
+/** Chevron pointing left — used for "back" affordances on the mobile sheet. */
+export function IconChevronLeft({ size = 14, ...rest }: IconProps): JSX.Element {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <path d="m15 6-6 6 6 6" />
+    </svg>
+  )
+}
+
+/** Content section tile — layered stack metaphor. */
+export function IconContent({ size = 18, ...rest }: IconProps): JSX.Element {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <rect x="3" y="6.5" width="14" height="13" rx="2" />
+      <path d="M7 4h12a2 2 0 0 1 2 2v11" />
+    </svg>
+  )
+}
+
 /** Workspace / team / company icon (rounded square + person). */
 export function IconWorkspace({ size = 18, ...rest }: IconProps): JSX.Element {
   return (

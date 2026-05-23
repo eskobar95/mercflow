@@ -1,6 +1,13 @@
-import { NavLink } from "react-router-dom"
+import { useEffect, useMemo, useState } from "react"
+import { NavLink, useLocation } from "react-router-dom"
 
-import { IconArrowUpRight, IconChevronRight, IconClose } from "@/components/ui/icons"
+import {
+  IconChevronLeft,
+  IconChevronRight,
+  IconClose,
+  IconContent,
+  IconSettings,
+} from "@/components/ui/icons"
 import {
   contentSidebarSection,
   primarySidebarNav,
@@ -10,101 +17,195 @@ import {
 } from "@/config/sidebarNav"
 
 type MobileNavSheetProps = {
-  /** Whether the sheet is rendered in its open (visible) state. */
+  /** Whether the sheet is currently visible. */
   open: boolean
-  /** Close handler — called by the X button and by row navigation. */
+  /** Close handler — fires on X tap, route change, or sub-row navigation. */
   onClose: () => void
 }
 
 /**
- * Mobile navigation sheet — iOS Settings grouped-cards pattern.
+ * Mobile navigation sheet — bento-grid + drill-down architecture.
  *
- * Hierarchy on phones is communicated by CARD GROUPING, not by indent.
+ * Replaces the long iOS-Settings row list with an app-launcher style 2-col
+ * grid of tiles. Each tile is either a direct destination ("leaf") or a
+ * drillable group with its own sub-tiles. When you tap a drillable tile
+ * the sheet pushes a new pane showing only that group's children — iOS
+ * navigation stack pattern. The header morphs to act as both label and
+ * back affordance, so there's no extra back button taking up space.
  *
- *   - Top card (no label):  Home, Orders, Customers — daily destinations.
- *   - "PRODUCTS" card:      Catalogue + Categories (sub-pages promoted to
- *                            first-class rows inside their own card; no
- *                            indented mini-rows, no "SECTION" badge, no
- *                            parent/child double-highlight).
- *   - "CONTENT" card:       Articles, Pages, Globals.
- *   - "SETTINGS" card:      General, Connectors, Workspace, Team, Billing.
- *   - Footer card:          Account row.
- *
- * Density target: every row ≤ 48px tall so the menu feels phone-native,
- * not iPad-stretched. 32px icon square, 16px monoline icon, 14px label.
+ * The tile model leaves room for "quick actions" (Add product, New order,
+ * etc.) as additional tiles in the root grid without redesign.
  */
 
-type SheetRowSource = {
-  /** Stable identifier used for the React key. */
+type TileSource = {
   key: string
   label: string
-  to: string
-  end?: boolean
   icon: SidebarNavItem["icon"]
+  /** Direct route — present on leaf tiles. */
+  to?: string
+  end?: boolean
+  /** Sub-items — present on drillable tiles. */
+  drillTo?: string
+  subItems?: SidebarSubItem[]
 }
 
-/**
- * Split the primary nav into "leaf" rows (direct destinations) and "groups"
- * (items that own sub-pages). On mobile we render each group as its own
- * labelled card with its sub-items as first-class rows.
- */
-function splitPrimaryNav(): {
-  leaves: SheetRowSource[]
-  groups: { label: string; rows: SheetRowSource[] }[]
-} {
-  const leaves: SheetRowSource[] = []
-  const groups: { label: string; rows: SheetRowSource[] }[] = []
+/* ─────────────────────────────────────────────────────────────────────── */
+/* Build the root tile list                                               */
+/* ─────────────────────────────────────────────────────────────────────── */
 
-  for (const item of primarySidebarNav) {
-    if (item.subItems && item.subItems.length > 0) {
-      groups.push({
-        label: item.label,
-        rows: item.subItems.map((sub) => subItemToRow(sub, item.icon)),
-      })
-    } else {
-      leaves.push({
-        key: item.to,
-        label: item.label,
-        to: item.to,
-        end: item.end,
-        icon: item.icon,
-      })
-    }
-  }
+function buildRootTiles(): TileSource[] {
+  const primary: TileSource[] = primarySidebarNav.map((item) => ({
+    key: item.to,
+    label: item.label,
+    icon: item.icon,
+    to: item.subItems ? undefined : item.to,
+    end: item.end,
+    drillTo: item.subItems ? item.to : undefined,
+    subItems: item.subItems,
+  }))
 
-  return { leaves, groups }
+  return [
+    ...primary,
+    {
+      key: "content-group",
+      label: "Content",
+      icon: IconContent,
+      drillTo: "content",
+      subItems: contentSidebarSection.items.map(
+        (item): SidebarSubItem => ({
+          label: item.label,
+          to: item.to,
+          end: item.end,
+          icon: item.icon,
+        })
+      ),
+    },
+    {
+      key: "settings-group",
+      label: "Settings",
+      icon: IconSettings,
+      drillTo: "settings",
+      subItems: settingsSidebarSection.items.map(
+        (item): SidebarSubItem => ({
+          label: item.label,
+          to: item.to,
+          end: item.end,
+          icon: item.icon,
+        })
+      ),
+    },
+  ]
 }
 
-function subItemToRow(
-  sub: SidebarSubItem,
-  fallbackIcon: SidebarNavItem["icon"]
-): SheetRowSource {
-  return {
-    key: sub.to,
-    label: sub.label,
-    to: sub.to,
-    end: sub.end,
-    icon: sub.icon ?? fallbackIcon,
-  }
-}
+const SHEET_EASE = "cubic-bezier(0.32, 0.72, 0, 1)"
+const ENTER_EASE = "cubic-bezier(0.23, 1, 0.32, 1)"
 
 export function MobileNavSheet({
   open,
   onClose,
 }: MobileNavSheetProps): JSX.Element {
-  const { leaves, groups } = splitPrimaryNav()
+  const rootTiles = useMemo(buildRootTiles, [])
+  const [drillKey, setDrillKey] = useState<string | null>(null)
+  const location = useLocation()
 
-  // Card index drives the stagger delay so groups cascade into place when
-  // the sheet opens. Counter is bumped per rendered card.
-  let cardIndex = 0
+  // Reset to root when the sheet finishes closing so the next open starts
+  // fresh. Delay the reset so the close animation doesn't snap.
+  useEffect(() => {
+    if (open) return
+    const timer = window.setTimeout(() => setDrillKey(null), 250)
+    return () => window.clearTimeout(timer)
+  }, [open])
+
+  // Auto-drill if the current route lives inside a group with sub-items —
+  // tapping "More" while on /product-categories opens directly to the
+  // Products pane. Feels smart, removes one tap.
+  useEffect(() => {
+    if (!open || drillKey) return
+    const match = rootTiles.find((tile) =>
+      tile.subItems?.some(
+        (sub) =>
+          location.pathname === sub.to ||
+          location.pathname.startsWith(`${sub.to}/`)
+      )
+    )
+    if (match?.drillTo) {
+      setDrillKey(match.drillTo)
+    }
+  }, [open, drillKey, location.pathname, rootTiles])
+
+  const drillTile = useMemo(
+    () => (drillKey ? rootTiles.find((t) => t.drillTo === drillKey) ?? null : null),
+    [drillKey, rootTiles]
+  )
+
+  const isDrilled = drillKey !== null
 
   return (
     <aside
       className="flex h-full w-full flex-col bg-surface-appCanvas"
       aria-label="Main navigation"
     >
-      <header className="sticky top-0 z-sticky flex h-12 shrink-0 items-center justify-between border-b border-border-default bg-surface-appCanvas/95 px-4 backdrop-blur-sm">
-        <div className="flex items-center gap-2">
+      <SheetHeader
+        isDrilled={isDrilled}
+        drillLabel={drillTile?.label ?? null}
+        onClose={onClose}
+        onBack={() => setDrillKey(null)}
+      />
+
+      {/* Pane stack — root is the resting pane, drill slides over from the right. */}
+      <div className="relative min-h-0 flex-1 overflow-hidden">
+        <RootPane
+          open={open}
+          isActive={!isDrilled}
+          tiles={rootTiles}
+          onDrill={setDrillKey}
+          onNavigate={onClose}
+        />
+        <DrillPane
+          open={open}
+          isActive={isDrilled}
+          tile={drillTile}
+          onNavigate={onClose}
+        />
+      </div>
+    </aside>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────────────────── */
+/* Header — morphs between workspace title and back affordance            */
+/* ─────────────────────────────────────────────────────────────────────── */
+
+function SheetHeader({
+  isDrilled,
+  drillLabel,
+  onClose,
+  onBack,
+}: {
+  isDrilled: boolean
+  drillLabel: string | null
+  onClose: () => void
+  onBack: () => void
+}): JSX.Element {
+  return (
+    <header className="sticky top-0 z-sticky flex h-12 shrink-0 items-center justify-between border-b border-border-default bg-surface-appCanvas/95 px-3 backdrop-blur-sm">
+      {/*
+        Two header inner states crossfade + slide. The root state shows the
+        M-logo + workspace name. The drill state shows back-chevron + group
+        label. Both occupy the same slot; the inactive one slides aside.
+      */}
+      <div className="relative flex h-full flex-1 items-center">
+        {/* Root header */}
+        <div
+          aria-hidden={isDrilled}
+          className="absolute inset-0 flex items-center gap-2 pl-1"
+          style={{
+            opacity: isDrilled ? 0 : 1,
+            transform: isDrilled ? "translateX(-12px)" : "translateX(0)",
+            transition: `opacity 200ms ${ENTER_EASE}, transform 240ms ${ENTER_EASE}`,
+            pointerEvents: isDrilled ? "none" : "auto",
+          }}
+        >
           <span
             className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-amber text-content-inverse"
             aria-hidden
@@ -115,219 +216,371 @@ export function MobileNavSheet({
             MercFlow
           </p>
         </div>
+
+        {/* Drill header (back button) */}
         <button
           type="button"
-          onClick={onClose}
-          aria-label="Close menu"
-          className="-mr-1.5 flex h-8 w-8 items-center justify-center rounded-full text-content-secondary transition-[background-color,transform] duration-150 hover:bg-surface-subtle active:scale-[0.94] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
-          style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
+          onClick={onBack}
+          aria-hidden={!isDrilled}
+          tabIndex={isDrilled ? 0 : -1}
+          className="absolute inset-0 -mx-1 flex items-center gap-1.5 rounded-md px-1 text-left transition-colors duration-150 hover:bg-surface-subtle active:bg-surface-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+          style={{
+            opacity: isDrilled ? 1 : 0,
+            transform: isDrilled ? "translateX(0)" : "translateX(12px)",
+            transition: `opacity 200ms ${ENTER_EASE} 60ms, transform 240ms ${ENTER_EASE} 60ms, background-color 150ms ${ENTER_EASE}`,
+            pointerEvents: isDrilled ? "auto" : "none",
+          }}
         >
-          <IconClose size={16} />
-        </button>
-      </header>
-
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-8 pt-4">
-        <SheetCard open={open} index={cardIndex++}>
-          <SheetRows>
-            {leaves.map((row) => (
-              <SheetRow key={row.key} row={row} onNavigate={onClose} />
-            ))}
-          </SheetRows>
-        </SheetCard>
-
-        {groups.map((group) => (
-          <SheetCard
-            key={`group-${group.label}`}
-            open={open}
-            index={cardIndex++}
-            label={group.label}
+          <span
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-content-secondary"
+            aria-hidden
           >
-            <SheetRows>
-              {group.rows.map((row) => (
-                <SheetRow key={row.key} row={row} onNavigate={onClose} />
-              ))}
-            </SheetRows>
-          </SheetCard>
-        ))}
-
-        <SheetCard open={open} index={cardIndex++} label={contentSidebarSection.label}>
-          <SheetRows>
-            {contentSidebarSection.items.map((item) => (
-              <SheetRow
-                key={item.to}
-                row={{
-                  key: item.to,
-                  label: item.label,
-                  to: item.to,
-                  end: item.end,
-                  icon: item.icon,
-                }}
-                onNavigate={onClose}
-              />
-            ))}
-          </SheetRows>
-        </SheetCard>
-
-        <SheetCard open={open} index={cardIndex++} label={settingsSidebarSection.label}>
-          <SheetRows>
-            {settingsSidebarSection.items.map((item) => (
-              <SheetRow
-                key={item.to}
-                row={{
-                  key: item.to,
-                  label: item.label,
-                  to: item.to,
-                  end: item.end,
-                  icon: item.icon,
-                }}
-                onNavigate={onClose}
-              />
-            ))}
-          </SheetRows>
-        </SheetCard>
-
-        <FooterCard open={open} delayMs={60 + cardIndex * 40} />
+            <IconChevronLeft size={16} />
+          </span>
+          <p className="truncate text-[14px] font-semibold tracking-tight text-content-primary">
+            {drillLabel ?? "Back"}
+          </p>
+        </button>
       </div>
-    </aside>
+
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Close menu"
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-content-secondary transition-[background-color,transform] duration-150 hover:bg-surface-subtle active:scale-[0.94] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+        style={{ transitionTimingFunction: ENTER_EASE }}
+      >
+        <IconClose size={16} />
+      </button>
+    </header>
   )
 }
 
 /* ─────────────────────────────────────────────────────────────────────── */
-/* Card primitives — each owns one render responsibility                  */
+/* Root pane — full grid of tiles                                         */
 /* ─────────────────────────────────────────────────────────────────────── */
 
-function SheetCard({
-  children,
+function RootPane({
   open,
-  index,
-  label,
-}: {
-  children: React.ReactNode
-  open: boolean
-  index: number
-  label?: string
-}): JSX.Element {
-  const delay = 60 + index * 40
-  return (
-    <section
-      className="mb-4 last:mb-0"
-      style={{
-        opacity: open ? 1 : 0,
-        transform: open ? "translateY(0)" : "translateY(8px)",
-        transition: `opacity 260ms cubic-bezier(0.23, 1, 0.32, 1) ${delay}ms, transform 260ms cubic-bezier(0.23, 1, 0.32, 1) ${delay}ms`,
-      }}
-    >
-      {label ? (
-        <p className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-label text-content-tertiary">
-          {label}
-        </p>
-      ) : null}
-      <div className="overflow-hidden rounded-md border border-border-default bg-surface-appCard shadow-sm">
-        {children}
-      </div>
-    </section>
-  )
-}
-
-function SheetRows({ children }: { children: React.ReactNode }): JSX.Element {
-  return <ul className="divide-y divide-border-subtle">{children}</ul>
-}
-
-const rowBase =
-  "flex w-full items-center gap-3 px-3 py-2.5 text-left text-[14px] transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-amber"
-
-function SheetRow({
-  row,
+  isActive,
+  tiles,
+  onDrill,
   onNavigate,
 }: {
-  row: SheetRowSource
-  onNavigate: () => void
-}): JSX.Element {
-  const Icon = row.icon
-
-  return (
-    <li>
-      <NavLink
-        to={row.to}
-        end={row.end}
-        onClick={onNavigate}
-        className={({ isActive }) =>
-          [
-            rowBase,
-            isActive
-              ? "bg-amber-subtle text-content-primary"
-              : "text-content-primary hover:bg-surface-subtle active:bg-surface-subtle",
-          ].join(" ")
-        }
-      >
-        {({ isActive }) => (
-          <>
-            <span
-              className={[
-                "flex h-8 w-8 shrink-0 items-center justify-center rounded-md",
-                isActive
-                  ? "bg-amber text-content-inverse"
-                  : "bg-surface-subtle text-content-secondary",
-              ].join(" ")}
-              aria-hidden
-            >
-              <Icon size={16} />
-            </span>
-            <span className="flex-1 truncate font-medium">{row.label}</span>
-            <IconChevronRight
-              size={14}
-              className={
-                isActive
-                  ? "shrink-0 text-amber-text"
-                  : "shrink-0 text-content-tertiary"
-              }
-            />
-          </>
-        )}
-      </NavLink>
-    </li>
-  )
-}
-
-function FooterCard({
-  open,
-  delayMs,
-}: {
   open: boolean
-  delayMs: number
+  isActive: boolean
+  tiles: TileSource[]
+  onDrill: (key: string) => void
+  onNavigate: () => void
 }): JSX.Element {
   return (
     <div
-      className="mt-6 flex items-center justify-between rounded-md border border-border-default bg-surface-appCard px-3 py-2.5 shadow-sm"
+      aria-hidden={!isActive}
+      className="absolute inset-0 overflow-y-auto px-4 pb-8 pt-4"
       style={{
-        opacity: open ? 1 : 0,
-        transform: open ? "translateY(0)" : "translateY(6px)",
-        transition: `opacity 240ms cubic-bezier(0.23, 1, 0.32, 1) ${delayMs}ms, transform 240ms cubic-bezier(0.23, 1, 0.32, 1) ${delayMs}ms`,
+        // Parallax: when drilled, root slides slightly left + dims to give depth.
+        transform: isActive ? "translateX(0)" : "translateX(-20%)",
+        opacity: isActive ? 1 : 0.4,
+        transition: `transform 320ms ${SHEET_EASE}, opacity 280ms ${SHEET_EASE}`,
+        pointerEvents: isActive ? "auto" : "none",
       }}
     >
-      <div className="flex min-w-0 items-center gap-2.5">
-        <span
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-subtle text-amber-text"
-          aria-hidden
+      <TileGrid>
+        {tiles.map((tile, i) => (
+          <Tile
+            key={tile.key}
+            tile={tile}
+            open={open && isActive}
+            staggerIndex={i}
+            onDrill={onDrill}
+            onNavigate={onNavigate}
+          />
+        ))}
+      </TileGrid>
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────────────────── */
+/* Drill pane — sub-items as tiles                                        */
+/* ─────────────────────────────────────────────────────────────────────── */
+
+function DrillPane({
+  open,
+  isActive,
+  tile,
+  onNavigate,
+}: {
+  open: boolean
+  isActive: boolean
+  tile: TileSource | null
+  onNavigate: () => void
+}): JSX.Element {
+  // Keep the last-known tile in memo so the exit animation plays with the
+  // right content even after `tile` becomes null on close.
+  const [lastTile, setLastTile] = useState<TileSource | null>(tile)
+  useEffect(() => {
+    if (tile) setLastTile(tile)
+  }, [tile])
+
+  const renderTile = tile ?? lastTile
+  const subItems = renderTile?.subItems ?? []
+
+  return (
+    <div
+      aria-hidden={!isActive}
+      className="absolute inset-0 overflow-y-auto px-4 pb-8 pt-4"
+      style={{
+        transform: isActive ? "translateX(0)" : "translateX(100%)",
+        transition: `transform ${isActive ? "320ms" : "280ms"} ${SHEET_EASE}`,
+        pointerEvents: isActive ? "auto" : "none",
+      }}
+    >
+      <TileGrid>
+        {subItems.map((sub, i) => (
+          <SubTile
+            key={sub.to}
+            sub={sub}
+            fallbackIcon={renderTile?.icon}
+            open={open && isActive}
+            staggerIndex={i}
+            onNavigate={onNavigate}
+          />
+        ))}
+      </TileGrid>
+
+      {renderTile ? (
+        <p
+          className="mt-5 px-1 text-[12px] text-content-tertiary"
+          style={{
+            opacity: isActive && open ? 1 : 0,
+            transform: isActive && open ? "translateY(0)" : "translateY(4px)",
+            transition: `opacity 240ms ${ENTER_EASE} ${
+              60 + subItems.length * 40
+            }ms, transform 240ms ${ENTER_EASE} ${60 + subItems.length * 40}ms`,
+          }}
         >
-          <span className="text-[12px] font-semibold">N</span>
-        </span>
-        <div className="min-w-0">
-          <p className="truncate text-[13px] font-semibold text-content-primary">
-            Nicklas
-          </p>
-          <p className="truncate text-[11px] text-content-tertiary">
-            Workspace owner
-          </p>
-        </div>
-      </div>
+          {subItems.length} {subItems.length === 1 ? "destination" : "destinations"} in {renderTile.label.toLowerCase()}
+        </p>
+      ) : null}
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────────────────── */
+/* Grid + Tile primitives                                                 */
+/* ─────────────────────────────────────────────────────────────────────── */
+
+function TileGrid({ children }: { children: React.ReactNode }): JSX.Element {
+  return <div className="grid grid-cols-2 gap-3">{children}</div>
+}
+
+const tileBase =
+  "group/tile relative flex h-[136px] flex-col justify-between rounded-2xl border border-border-default bg-surface-appCard p-3.5 text-left shadow-sm transition-[background-color,border-color,transform,box-shadow] duration-150 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+
+/**
+ * Tile — either navigates (NavLink) or drills (button). The visual is
+ * identical so the user perceives one consistent UI primitive.
+ */
+function Tile({
+  tile,
+  open,
+  staggerIndex,
+  onDrill,
+  onNavigate,
+}: {
+  tile: TileSource
+  open: boolean
+  staggerIndex: number
+  onDrill: (key: string) => void
+  onNavigate: () => void
+}): JSX.Element {
+  const Icon = tile.icon
+  const isDrillable = Boolean(tile.drillTo && tile.subItems)
+  const subCount = tile.subItems?.length ?? 0
+
+  const enterStyle = {
+    opacity: open ? 1 : 0,
+    transform: open ? "translateY(0)" : "translateY(10px)",
+    transition: `opacity 320ms ${ENTER_EASE} ${
+      40 + staggerIndex * 35
+    }ms, transform 320ms ${ENTER_EASE} ${
+      40 + staggerIndex * 35
+    }ms, background-color 150ms ${ENTER_EASE}, border-color 150ms ${ENTER_EASE}, box-shadow 150ms ${ENTER_EASE}, transform 150ms ${ENTER_EASE}`,
+    transitionTimingFunction: ENTER_EASE,
+  } as const
+
+  if (isDrillable) {
+    return (
       <button
         type="button"
-        aria-label="Account settings"
-        className="flex h-8 w-8 items-center justify-center rounded-full text-content-tertiary transition-colors duration-150 hover:bg-surface-subtle hover:text-content-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+        onClick={() => onDrill(tile.drillTo!)}
+        className={`${tileBase} hover:border-border-strong hover:shadow-md`}
+        style={enterStyle}
       >
-        <IconArrowUpRight size={14} />
+        <TileTop Icon={Icon} active={false} />
+        <TileBottom
+          label={tile.label}
+          meta={`${subCount} ${subCount === 1 ? "item" : "items"}`}
+          active={false}
+          drill
+        />
       </button>
+    )
+  }
+
+  return (
+    <NavLink
+      to={tile.to!}
+      end={tile.end}
+      onClick={onNavigate}
+      className={({ isActive }) =>
+        [
+          tileBase,
+          isActive
+            ? "border-amber bg-amber-subtle text-content-primary"
+            : "hover:border-border-strong hover:shadow-md",
+        ].join(" ")
+      }
+      style={enterStyle}
+    >
+      {({ isActive }) => (
+        <>
+          <TileTop Icon={Icon} active={isActive} />
+          <TileBottom
+            label={tile.label}
+            meta={isActive ? "Current" : "Open"}
+            active={isActive}
+          />
+        </>
+      )}
+    </NavLink>
+  )
+}
+
+function SubTile({
+  sub,
+  fallbackIcon,
+  open,
+  staggerIndex,
+  onNavigate,
+}: {
+  sub: SidebarSubItem
+  fallbackIcon: SidebarNavItem["icon"] | undefined
+  open: boolean
+  staggerIndex: number
+  onNavigate: () => void
+}): JSX.Element {
+  const Icon = sub.icon ?? fallbackIcon
+  if (!Icon) {
+    // Defensive — sub-items always carry an icon in our config, but the
+    // type allows undefined and we want the tile to render gracefully.
+    return <span className="hidden" />
+  }
+
+  const enterStyle = {
+    opacity: open ? 1 : 0,
+    transform: open ? "translateY(0)" : "translateY(10px)",
+    transition: `opacity 280ms ${ENTER_EASE} ${
+      40 + staggerIndex * 35
+    }ms, transform 280ms ${ENTER_EASE} ${
+      40 + staggerIndex * 35
+    }ms, background-color 150ms ${ENTER_EASE}, border-color 150ms ${ENTER_EASE}, box-shadow 150ms ${ENTER_EASE}, transform 150ms ${ENTER_EASE}`,
+  } as const
+
+  return (
+    <NavLink
+      to={sub.to}
+      end={sub.end}
+      onClick={onNavigate}
+      className={({ isActive }) =>
+        [
+          tileBase,
+          isActive
+            ? "border-amber bg-amber-subtle text-content-primary"
+            : "hover:border-border-strong hover:shadow-md",
+        ].join(" ")
+      }
+      style={enterStyle}
+    >
+      {({ isActive }) => (
+        <>
+          <TileTop Icon={Icon} active={isActive} />
+          <TileBottom
+            label={sub.label}
+            meta={isActive ? "Current" : "Open"}
+            active={isActive}
+          />
+        </>
+      )}
+    </NavLink>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────────────────── */
+/* Tile inner pieces                                                      */
+/* ─────────────────────────────────────────────────────────────────────── */
+
+function TileTop({
+  Icon,
+  active,
+}: {
+  Icon: SidebarNavItem["icon"]
+  active: boolean
+}): JSX.Element {
+  return (
+    <div className="flex items-start justify-between">
+      <span
+        className={[
+          "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors duration-150",
+          active
+            ? "bg-amber text-content-inverse"
+            : "bg-surface-subtle text-content-secondary group-hover/tile:bg-amber-subtle group-hover/tile:text-amber-text",
+        ].join(" ")}
+        aria-hidden
+      >
+        <Icon size={20} />
+      </span>
+    </div>
+  )
+}
+
+function TileBottom({
+  label,
+  meta,
+  active,
+  drill = false,
+}: {
+  label: string
+  meta?: string
+  active: boolean
+  drill?: boolean
+}): JSX.Element {
+  return (
+    <div className="flex items-end justify-between gap-2">
+      <div className="min-w-0">
+        <p className="truncate text-[15px] font-semibold tracking-tight text-content-primary">
+          {label}
+        </p>
+        {meta ? (
+          <p
+            className={[
+              "mt-0.5 truncate text-[11px] font-medium",
+              active ? "text-amber-text" : "text-content-tertiary",
+            ].join(" ")}
+          >
+            {meta}
+          </p>
+        ) : null}
+      </div>
+      {drill ? (
+        <span
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-subtle text-content-secondary transition-[background-color,transform] duration-150 group-hover/tile:bg-amber group-hover/tile:text-content-inverse group-hover/tile:translate-x-0.5"
+          aria-hidden
+        >
+          <IconChevronRight size={12} />
+        </span>
+      ) : null}
     </div>
   )
 }
