@@ -58,7 +58,7 @@ const variantClass: Record<ButtonVariant, string> = {
   ghost:
     "text-content-secondary hover:bg-surface-subtle hover:text-content-primary focus-visible:outline-accent",
   destructive:
-    "bg-feedback-danger-subtle text-feedback-danger-content hover:bg-feedback-danger-default hover:text-content-inverse focus-visible:outline-feedback-danger-default",
+    "bg-feedback-danger-subtle text-feedback-danger-content hover:bg-feedback-danger hover:text-content-inverse focus-visible:outline-feedback-danger",
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(

@@ -35,9 +35,9 @@ const fillMap: Record<BadgeVariant, string> = {
 const dotColorMap: Record<BadgeVariant, string> = {
   neutral: "bg-content-tertiary",
   accent:  "bg-accent",
-  success: "bg-feedback-success-default",
-  warning: "bg-feedback-warning-default",
-  danger:  "bg-feedback-danger-default",
+  success: "bg-feedback-success",
+  warning: "bg-feedback-warning",
+  danger:  "bg-feedback-danger",
 }
 
 export function Badge({
