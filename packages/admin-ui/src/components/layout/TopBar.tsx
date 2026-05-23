@@ -32,9 +32,9 @@ export function TopBar({
           </span>
         </button>
       ) : null}
-      <h1 className="min-w-0 truncate text-lg font-semibold text-content-primary">
+      <p className="min-w-0 truncate text-lg font-semibold text-content-primary">
         {title}
-      </h1>
+      </p>
     </header>
   )
 }
