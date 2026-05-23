@@ -22,7 +22,7 @@ export function NotFoundPage(): JSX.Element {
         </p>
         <Link
           to="/"
-          className="group/cta mt-7 inline-flex h-9 items-center gap-1.5 rounded-full bg-amber px-4 text-[13px] font-semibold text-content-inverse shadow-sm transition-all duration-150 hover:bg-amber-strong active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+          className="group/cta mt-7 inline-flex h-9 items-center gap-1.5 rounded-full bg-amber px-4 text-[13px] font-semibold text-content-inverse shadow-sm transition-[background-color,transform,box-shadow] duration-150 hover:bg-amber-strong hover:shadow-md active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
           style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
         >
           Back to home
