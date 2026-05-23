@@ -91,7 +91,7 @@ export declare const colorTree: {
      */
     readonly brand: {
         readonly base: "#111827";
-        readonly amber: "#2563EB";
+        readonly accent: "#2563EB";
         readonly cream: "#F7F8FA";
     };
     /**

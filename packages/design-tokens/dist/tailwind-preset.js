@@ -44,7 +44,7 @@ const colors = {
     },
     brand: {
         base: "var(--mf-color-brand-base)",
-        amber: "var(--mf-color-brand-amber)",
+        accent: "var(--mf-color-brand-accent)",
         cream: "var(--mf-color-brand-cream)",
     },
     accent: {

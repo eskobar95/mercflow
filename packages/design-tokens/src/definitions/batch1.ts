@@ -90,9 +90,9 @@ export const colorTree = {
    * `brand.amber` is the accent CTA color in code — keep the name for legacy.
    */
   brand: {
-    base:  "#111827",
-    amber: "#2563EB",
-    cream: "#F7F8FA",
+    base:   "#111827",
+    accent: "#2563EB",
+    cream:  "#F7F8FA",
   },
   /**
    * v2: the "amber" family is the BLUE ACCENT family. Name preserved for

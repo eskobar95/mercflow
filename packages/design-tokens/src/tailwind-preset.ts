@@ -46,9 +46,9 @@ const colors: Record<string, TailwindColorMap> = {
     onSidebar: "var(--mf-color-border-onSidebar)",
   },
   brand: {
-    base:  "var(--mf-color-brand-base)",
-    amber: "var(--mf-color-brand-amber)",
-    cream: "var(--mf-color-brand-cream)",
+    base:   "var(--mf-color-brand-base)",
+    accent: "var(--mf-color-brand-accent)",
+    cream:  "var(--mf-color-brand-cream)",
   },
   accent: {
     DEFAULT: "var(--mf-color-accent-default)",

@@ -91,7 +91,7 @@ export const colorTree = {
      */
     brand: {
         base: "#111827",
-        amber: "#2563EB",
+        accent: "#2563EB",
         cream: "#F7F8FA",
     },
     /**
