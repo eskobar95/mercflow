@@ -7,7 +7,6 @@ import {
   IconCustomers,
   IconGlobals,
   IconHome,
-  IconMore,
   IconOrders,
   IconPages,
   IconProducts,
@@ -115,18 +114,23 @@ export function getAllSidebarNavItems(): SidebarNavItem[] {
 }
 
 /**
- * Mobile bottom tab bar — 4 slots only. "More" opens the full mobile sheet
- * (see MobileNavSheet).
+ * Mobile bottom tab bar — 4 direct destinations. The fifth "More" affordance
+ * lives in the topbar as the brand avatar (see `TopBar`), so every slot here
+ * is a real route the user can land on. Order mirrors `primarySidebarNav`
+ * for muscle-memory parity between desktop and mobile.
  */
-export type MobileTabItem =
-  | { kind: "link"; label: string; to: string; end?: boolean; icon: IconComponent }
-  | { kind: "more"; label: string; icon: IconComponent }
+export type MobileTabItem = {
+  label: string
+  to: string
+  end?: boolean
+  icon: IconComponent
+}
 
 export const mobileTabBar: MobileTabItem[] = [
-  { kind: "link", label: "Home", to: "/", end: true, icon: IconHome },
-  { kind: "link", label: "Orders", to: "/orders", icon: IconOrders },
-  { kind: "link", label: "Products", to: "/products", icon: IconProducts },
-  { kind: "more", label: "More", icon: IconMore },
+  { label: "Home", to: "/", end: true, icon: IconHome },
+  { label: "Orders", to: "/orders", icon: IconOrders },
+  { label: "Products", to: "/products", icon: IconProducts },
+  { label: "Customers", to: "/customers", icon: IconCustomers },
 ]
 
 export { IconSettings }

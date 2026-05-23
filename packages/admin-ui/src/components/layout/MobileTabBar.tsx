@@ -1,92 +1,98 @@
-import { NavLink } from "react-router-dom"
+import { useMemo } from "react"
+import { NavLink, useLocation } from "react-router-dom"
 
 import { mobileTabBar } from "@/config/sidebarNav"
 
-type MobileTabBarProps = {
-  moreOpen: boolean
-  onToggleMore: () => void
-}
-
 /**
- * Mobile bottom navigation — Asana app + Material 3 pill indicator.
+ * Mobile bottom navigation — 4 destinations, sliding accent indicator.
  *
- * 56px (h-14) fixed height, consistent across all routes. The active slot
- * receives an animated pill chip (`bg-amber-subtle` — soft blue accent fill)
- * behind the icon. Labels stay visible at all times in sentence-case.
+ * The "More" trigger no longer lives here; the brand avatar in the topbar
+ * owns that role. Every slot in this bar is a real route, so the bar acts
+ * purely as primary navigation and never as overflow.
  *
- * The "More" slot opens the full AppSidebar in a fullscreen sheet (managed
- * by AdminShell). Active state for "More" follows the same pill pattern.
+ * Visual signature:
+ *   - 64px tall, white surface, hairline top border (no shadow — sits flush
+ *     against the canvas like Mercury/Stripe mobile).
+ *   - 2px-tall amber accent bar at the top of the active slot, slides
+ *     between slots with the iOS drawer curve. This is the memorable
+ *     detail: instead of a heavy pill background you get a quiet pointer
+ *     that tracks your route.
+ *   - Active label gains amber-text + semibold weight; icon stroke widens.
+ *   - Press feedback: scale(0.97) on the slot.
+ *
+ * The accent uses a transform on a single absolutely-positioned element so
+ * it animates with GPU compositing rather than 4 separate background fades.
  */
 
-const slotBase =
-  "flex h-full min-w-0 flex-1 flex-col items-center justify-center gap-0 focus-visible:outline-none active:scale-[0.97] transition-transform duration-100"
+const EASE = "cubic-bezier(0.32, 0.72, 0, 1)"
 
-function TabInner({
-  Icon,
-  label,
-  active,
-}: {
-  Icon: React.ComponentType<{ size?: number; className?: string }>
-  label: string
-  active: boolean
-}): JSX.Element {
-  return (
-    <>
-      <span
-        className={[
-          "relative flex h-7 w-12 items-center justify-center rounded-full transition-[background-color,color] duration-200",
-          active ? "bg-amber-subtle" : "bg-transparent",
-        ].join(" ")}
-        style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
-      >
-        <Icon
-          size={20}
-          className={active ? "text-amber-text" : "text-content-tertiary"}
-        />
-      </span>
-      <span
-        className={[
-          "mt-0.5 text-[11px] font-medium leading-none transition-colors duration-200",
-          active ? "text-amber-text" : "text-content-tertiary",
-        ].join(" ")}
-      >
-        {label}
-      </span>
-    </>
-  )
+function matchesActive(pathname: string, to: string, end?: boolean): boolean {
+  if (end) return pathname === to
+  return pathname === to || pathname.startsWith(`${to}/`)
 }
 
-export function MobileTabBar({
-  moreOpen,
-  onToggleMore,
-}: MobileTabBarProps): JSX.Element {
+export function MobileTabBar(): JSX.Element {
+  const location = useLocation()
+  const slotCount = mobileTabBar.length
+
+  const activeIndex = useMemo(() => {
+    const idx = mobileTabBar.findIndex((item) =>
+      matchesActive(location.pathname, item.to, item.end)
+    )
+    return idx === -1 ? -1 : idx
+  }, [location.pathname])
+
   return (
     <nav
-      className="z-sticky flex h-14 shrink-0 border-t border-border-app bg-surface-appCard/95 backdrop-blur-sm md:hidden"
+      className="relative z-sticky flex h-16 shrink-0 border-t border-border-app bg-surface-appCard md:hidden"
       aria-label="Primary"
     >
+      {/* Sliding accent — sits above all slots, transforms to the active one. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute left-0 top-0 h-[2px] rounded-full bg-amber"
+        style={{
+          width: `${100 / slotCount}%`,
+          transform: `translateX(${activeIndex < 0 ? -100 : activeIndex * 100}%) scaleX(0.35)`,
+          opacity: activeIndex < 0 ? 0 : 1,
+          transition: `transform 320ms ${EASE}, opacity 200ms ${EASE}`,
+          transformOrigin: "center",
+        }}
+      />
+
       {mobileTabBar.map((item) => {
         const Icon = item.icon
-
-        if (item.kind === "more") {
-          return (
-            <button
-              key={item.label}
-              type="button"
-              className={slotBase}
-              aria-expanded={moreOpen}
-              aria-controls="mobile-nav-sheet"
-              onClick={onToggleMore}
-            >
-              <TabInner Icon={Icon} label={item.label} active={moreOpen} />
-            </button>
-          )
-        }
-
         return (
-          <NavLink key={item.to} to={item.to} end={item.end} className={slotBase}>
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.end}
+            className="group/tab flex h-full min-w-0 flex-1 flex-col items-center justify-center gap-1 transition-transform duration-100 active:scale-[0.97] focus-visible:outline-none"
+          >
             {({ isActive }) => (
-              <TabInner Icon={Icon} label={item.label} active={isActive} />
+              <>
+                <Icon
+                  size={22}
+                  className={[
+                    "transition-colors duration-200",
+                    isActive
+                      ? "text-amber-text"
+                      : "text-content-tertiary group-hover/tab:text-content-secondary",
+                  ].join(" ")}
+                  style={{ transitionTimingFunction: EASE }}
+                />
+                <span
+                  className={[
+                    "text-[11px] leading-none tracking-tight transition-colors duration-200",
+                    isActive
+                      ? "font-semibold text-amber-text"
+                      : "font-medium text-content-tertiary group-hover/tab:text-content-secondary",
+                  ].join(" ")}
+                  style={{ transitionTimingFunction: EASE }}
+                >
+                  {item.label}
+                </span>
+              </>
             )}
           </NavLink>
         )

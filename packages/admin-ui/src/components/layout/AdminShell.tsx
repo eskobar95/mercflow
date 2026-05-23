@@ -127,7 +127,11 @@ export function AdminShell(): JSX.Element {
       </div>
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <TopBar title={title} />
+        <TopBar
+          title={title}
+          onToggleMobileMenu={toggleMoreSheet}
+          mobileMenuOpen={moreSheetOpen}
+        />
         <main
           id="main-content"
           tabIndex={-1}
@@ -139,10 +143,7 @@ export function AdminShell(): JSX.Element {
             </Suspense>
           </ErrorBoundary>
         </main>
-        <MobileTabBar
-          moreOpen={moreSheetOpen}
-          onToggleMore={toggleMoreSheet}
-        />
+        <MobileTabBar />
       </div>
     </div>
   )

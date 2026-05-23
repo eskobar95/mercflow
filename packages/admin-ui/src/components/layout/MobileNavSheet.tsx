@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { NavLink, useLocation } from "react-router-dom"
 
+import { BrandAvatar } from "@/components/ui/BrandAvatar"
 import {
   IconChevronLeft,
   IconChevronRight,
@@ -188,34 +189,36 @@ function SheetHeader({
   onBack: () => void
 }): JSX.Element {
   return (
-    <header className="sticky top-0 z-sticky flex h-12 shrink-0 items-center justify-between border-b border-border-default bg-surface-appCanvas/95 px-3 backdrop-blur-sm">
+    <header className="sticky top-0 z-sticky flex h-14 shrink-0 items-center gap-3 border-b border-border-app bg-surface-appCard px-3 backdrop-blur-sm">
       {/*
-        Two header inner states crossfade + slide. The root state shows the
-        M-logo + workspace name. The drill state shows back-chevron + group
-        label. Both occupy the same slot; the inactive one slides aside.
+        Avatar always lives at the far left, matching its position in the
+        topbar so the sheet feels like it slid out from beneath the avatar
+        rather than from a different anchor. Tapping it closes the sheet —
+        same affordance, opposite action, no extra visual chrome.
       */}
-      <div className="relative flex h-full flex-1 items-center">
-        {/* Root header */}
-        <div
+      <BrandAvatar
+        size={36}
+        interactive
+        active
+        onClick={onClose}
+        ariaLabel="Close menu"
+        ariaControls="mobile-nav-sheet"
+        ariaExpanded
+      />
+
+      <div className="relative flex h-full min-w-0 flex-1 items-center">
+        {/* Root header label */}
+        <p
           aria-hidden={isDrilled}
-          className="absolute inset-0 flex items-center gap-2 pl-1"
+          className="absolute inset-0 flex items-center truncate text-[15px] font-semibold tracking-tight text-content-primary"
           style={{
             opacity: isDrilled ? 0 : 1,
             transform: isDrilled ? "translateX(-12px)" : "translateX(0)",
             transition: `opacity 200ms ${ENTER_EASE}, transform 240ms ${ENTER_EASE}`,
-            pointerEvents: isDrilled ? "none" : "auto",
           }}
         >
-          <span
-            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-amber text-content-inverse"
-            aria-hidden
-          >
-            <span className="text-[11px] font-bold leading-none">M</span>
-          </span>
-          <p className="truncate text-[14px] font-semibold tracking-tight text-content-primary">
-            MercFlow
-          </p>
-        </div>
+          MercFlow
+        </p>
 
         {/* Drill header (back button) */}
         <button
@@ -223,7 +226,7 @@ function SheetHeader({
           onClick={onBack}
           aria-hidden={!isDrilled}
           tabIndex={isDrilled ? 0 : -1}
-          className="absolute inset-0 -mx-1 flex items-center gap-1.5 rounded-md px-1 text-left transition-colors duration-150 hover:bg-surface-subtle active:bg-surface-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+          className="absolute inset-0 -mx-1.5 flex items-center gap-1.5 rounded-md px-1.5 text-left transition-colors duration-150 hover:bg-surface-subtle active:bg-surface-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
           style={{
             opacity: isDrilled ? 1 : 0,
             transform: isDrilled ? "translateX(0)" : "translateX(12px)",
@@ -232,12 +235,12 @@ function SheetHeader({
           }}
         >
           <span
-            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-content-secondary"
+            className="flex h-5 w-5 shrink-0 items-center justify-center text-content-secondary"
             aria-hidden
           >
             <IconChevronLeft size={16} />
           </span>
-          <p className="truncate text-[14px] font-semibold tracking-tight text-content-primary">
+          <p className="truncate text-[15px] font-semibold tracking-tight text-content-primary">
             {drillLabel ?? "Back"}
           </p>
         </button>
@@ -247,10 +250,10 @@ function SheetHeader({
         type="button"
         onClick={onClose}
         aria-label="Close menu"
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-content-secondary transition-[background-color,transform] duration-150 hover:bg-surface-subtle active:scale-[0.94] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-content-secondary transition-[background-color,transform] duration-150 hover:bg-surface-subtle active:scale-[0.94] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
         style={{ transitionTimingFunction: ENTER_EASE }}
       >
-        <IconClose size={16} />
+        <IconClose size={18} />
       </button>
     </header>
   )

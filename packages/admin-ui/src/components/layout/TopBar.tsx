@@ -1,34 +1,65 @@
+import { BrandAvatar } from "@/components/ui/BrandAvatar"
 import { IconSearch } from "@/components/ui/icons"
 
 type TopBarProps = {
   title: string
+  /**
+   * Mobile-only: handler for the brand-avatar tap. The avatar acts as the
+   * primary menu trigger on mobile (replacing the old "More" tab bar slot).
+   */
+  onToggleMobileMenu?: () => void
+  /** Whether the menu the avatar controls is currently open. */
+  mobileMenuOpen?: boolean
 }
 
 /**
  * App top bar — Mercury / Stripe synthesis.
  *
- * Layout:
+ * Layout (mobile):
+ *   ┌─────────────────────────────────────────────────────┐
+ *   │  (M)  Title                            [🔍]  [+]    │
+ *   └─────────────────────────────────────────────────────┘
+ *
+ * Layout (desktop ≥md):
  *   ┌─────────────────────────────────────────────────────┐
  *   │  Title          [        Search ⌘K        ]   [+]   │
  *   └─────────────────────────────────────────────────────┘
  *
- *   - White card surface with hairline bottom border (Mercury chrome rule).
- *   - Search field is the visual anchor — long pill-rounded rectangle (Mercury).
- *   - Right cluster: a single primary "Create" action (Stripe pattern), then
- *     workspace avatar. No notifications icon yet (will land with real data).
- *   - Title is the active route name (Asana greeting bar inspiration).
- *
- * Mobile (<md): search collapses to icon, no avatar — primary nav is the
- * bottom MobileTabBar.
+ *   - Topbar height matches the mobile nav sheet header at 56px (h-14) so
+ *     the chrome lines up exactly when the sheet slides in.
+ *   - Mobile: brand circle avatar lives top-left and is the menu trigger.
+ *     A subtle ring appears around it when the sheet is open so the user
+ *     always knows that's the affordance they need to dismiss it.
+ *   - Desktop: the brand avatar lives in the sidebar header, so the topbar
+ *     keeps its current title + search + create cluster.
  */
-export function TopBar({ title }: TopBarProps): JSX.Element {
+export function TopBar({
+  title,
+  onToggleMobileMenu,
+  mobileMenuOpen = false,
+}: TopBarProps): JSX.Element {
   return (
-    <header className="z-sticky flex h-14 shrink-0 items-center gap-3 border-b border-border-app bg-surface-appCard px-4 md:h-16 md:px-6">
+    <header className="z-sticky flex h-14 shrink-0 items-center gap-3 border-b border-border-app bg-surface-appCard px-3 md:h-16 md:px-6">
+      {/* Mobile: brand avatar = menu trigger */}
+      {onToggleMobileMenu ? (
+        <div className="md:hidden">
+          <BrandAvatar
+            size={36}
+            interactive
+            active={mobileMenuOpen}
+            onClick={onToggleMobileMenu}
+            ariaLabel={mobileMenuOpen ? "Close menu" : "Open menu"}
+            ariaControls="mobile-nav-sheet"
+            ariaExpanded={mobileMenuOpen}
+          />
+        </div>
+      ) : null}
+
       <h1 className="min-w-0 flex-1 truncate text-[15px] font-semibold tracking-tight text-content-primary md:text-base">
         {title}
       </h1>
 
-      {/* Desktop: full search + create + avatar */}
+      {/* Desktop: full search + create + workspace avatar */}
       <div className="hidden items-center gap-2 md:flex">
         <button
           type="button"
@@ -36,7 +67,10 @@ export function TopBar({ title }: TopBarProps): JSX.Element {
           style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
           aria-label="Search MercFlow"
         >
-          <IconSearch size={15} className="shrink-0 text-content-tertiary transition-colors group-hover/search:text-content-secondary" />
+          <IconSearch
+            size={15}
+            className="shrink-0 text-content-tertiary transition-colors group-hover/search:text-content-secondary"
+          />
           <span className="flex-1">Search</span>
           <kbd className="ml-auto rounded border border-border-default bg-surface-appCard px-1.5 py-px font-mono text-[10px] font-medium text-content-tertiary">
             ⌘K

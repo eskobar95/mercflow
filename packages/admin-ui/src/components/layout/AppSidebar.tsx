@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { NavLink, useLocation, useResolvedPath } from "react-router-dom"
 
+import { BrandAvatar } from "@/components/ui/BrandAvatar"
 import { IconChevronRight } from "@/components/ui/icons"
 import {
   contentSidebarSection,
@@ -231,13 +232,8 @@ export function AppSidebar({ onNavigate }: AppSidebarProps): JSX.Element {
       className="flex h-full w-60 shrink-0 flex-col bg-surface-sidebar"
       aria-label="Main navigation"
     >
-      <div className="flex h-16 shrink-0 items-center gap-2.5 px-4">
-        <span
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-amber text-content-inverse shadow-sm"
-          aria-hidden
-        >
-          <span className="text-[13px] font-bold leading-none">M</span>
-        </span>
+      <div className="flex h-16 shrink-0 items-center gap-3 px-4">
+        <BrandAvatar size={32} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-content-onSidebar">
             MercFlow
