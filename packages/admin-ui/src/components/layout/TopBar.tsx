@@ -38,7 +38,7 @@ export function TopBar({ title }: TopBarProps): JSX.Element {
           </kbd>
         </button>
         <div
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-canvas text-2xs font-semibold uppercase tracking-label text-amber-text"
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-amber text-[13px] font-bold text-[#1A1A2E]"
           aria-label="Workspace owner"
         >
           NE

@@ -34,7 +34,8 @@ export function PlaceholderPage({
         >
           <IconSparkle size={26} />
         </span>
-        <p className="mt-5 text-2xs font-semibold uppercase tracking-label text-content-tertiary">
+        <p className="mt-5 flex items-center gap-1.5 text-xs font-medium text-content-tertiary">
+          <span className="h-1.5 w-1.5 rounded-full bg-amber" aria-hidden />
           Coming soon
         </p>
         <h2 className="mt-2 text-[26px] font-semibold tracking-tight text-content-primary md:text-3xl">
@@ -45,7 +46,7 @@ export function PlaceholderPage({
         </p>
         {intent ? (
           <p className="mt-2 max-w-md text-xs text-content-tertiary">
-            <span className="font-semibold uppercase tracking-label">When live: </span>
+            <span className="font-semibold text-content-secondary">When live: </span>
             {intent}
           </p>
         ) : null}
