@@ -57,7 +57,7 @@ export function AdminShell(): JSX.Element {
       <div
         className={
           mobileNavOpen
-            ? "fixed inset-y-0 left-0 z-modal flex md:static"
+            ? "fixed inset-y-0 left-0 z-modal flex shadow-lg md:static md:shadow-none"
             : "hidden md:flex md:shrink-0"
         }
       >

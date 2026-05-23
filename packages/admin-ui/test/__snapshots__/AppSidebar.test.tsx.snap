@@ -4,59 +4,73 @@ exports[`AppSidebar > renders all primary and section nav items with correct hre
 <div>
   <aside
     aria-label="Main navigation"
-    class="flex h-full w-60 shrink-0 flex-col border-r border-border-default bg-surface-default"
+    class="flex h-full w-[15rem] shrink-0 flex-col border-r border-border-subtle bg-surface-subtle"
   >
     <div
-      class="border-b border-border-subtle px-4 py-5"
+      class="flex h-16 shrink-0 items-center gap-2 px-4"
     >
-      <p
-        class="text-xs font-semibold uppercase tracking-label text-content-tertiary"
+      <span
+        aria-hidden="true"
+        class="flex h-7 w-7 items-center justify-center rounded-md bg-interactive-primary text-content-inverse"
       >
-        MercFlow
-      </p>
-      <p
-        class="text-sm font-semibold text-content-primary"
+        <span
+          class="text-xs font-semibold tracking-tight"
+        >
+          M
+        </span>
+      </span>
+      <div
+        class="min-w-0"
       >
-        Admin
-      </p>
+        <p
+          class="truncate text-sm font-semibold text-content-primary"
+        >
+          MercFlow
+        </p>
+        <p
+          class="truncate text-2xs font-medium uppercase tracking-label text-content-tertiary"
+        >
+          Admin
+        </p>
+      </div>
     </div>
     <nav
       aria-label="Application"
-      class="flex flex-1 flex-col overflow-y-auto p-3"
+      class="flex flex-1 flex-col overflow-y-auto px-3 pb-4"
     >
       <div
         class="flex flex-col gap-0.5"
       >
         <a
-          class="flex items-center gap-2 rounded-md py-2 pl-3 pr-3 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
+          class="flex items-center gap-2.5 rounded-md text-sm transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus px-3 py-1.5 text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
           href="/products"
         >
           Products
         </a>
         <a
-          class="flex items-center gap-2 rounded-md py-2 pl-3 pr-3 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
+          class="flex items-center gap-2.5 rounded-md text-sm transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus px-3 py-1.5 text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
           href="/orders"
         >
           Orders
         </a>
         <a
-          class="flex items-center gap-2 rounded-md py-2 pl-3 pr-3 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
+          class="flex items-center gap-2.5 rounded-md text-sm transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus px-3 py-1.5 text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
           href="/customers"
         >
           Customers
         </a>
         <a
-          class="flex items-center gap-2 rounded-md py-2 pl-3 pr-3 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
+          class="flex items-center gap-2.5 rounded-md text-sm transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus px-3 py-1.5 text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
           href="/product-categories"
         >
           Categories
         </a>
       </div>
       <div
-        class="mt-4"
+        class="mt-5"
       >
         <p
-          class="px-3 pb-1 text-xs font-semibold uppercase tracking-label text-content-tertiary"
+          class="px-3 pb-1 text-2xs font-semibold uppercase tracking-label text-content-tertiary"
         >
           Content
         </p>
@@ -64,19 +78,19 @@ exports[`AppSidebar > renders all primary and section nav items with correct hre
           class="flex flex-col gap-0.5"
         >
           <a
-            class="flex items-center gap-2 rounded-md py-1.5 pl-8 pr-3 text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
+            class="flex items-center gap-2.5 rounded-md text-sm transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus pl-9 pr-3 py-1.5 text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
             href="/content/articles"
           >
             Articles
           </a>
           <a
-            class="flex items-center gap-2 rounded-md py-1.5 pl-8 pr-3 text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
+            class="flex items-center gap-2.5 rounded-md text-sm transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus pl-9 pr-3 py-1.5 text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
             href="/content/pages"
           >
             Pages
           </a>
           <a
-            class="flex items-center gap-2 rounded-md py-1.5 pl-8 pr-3 text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
+            class="flex items-center gap-2.5 rounded-md text-sm transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus pl-9 pr-3 py-1.5 text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
             href="/content/globals"
           >
             Globals
@@ -84,10 +98,10 @@ exports[`AppSidebar > renders all primary and section nav items with correct hre
         </div>
       </div>
       <div
-        class="mt-4"
+        class="mt-5"
       >
         <p
-          class="px-3 pb-1 text-xs font-semibold uppercase tracking-label text-content-tertiary"
+          class="px-3 pb-1 text-2xs font-semibold uppercase tracking-label text-content-tertiary"
         >
           Settings
         </p>
@@ -95,7 +109,7 @@ exports[`AppSidebar > renders all primary and section nav items with correct hre
           class="flex flex-col gap-0.5"
         >
           <a
-            class="flex items-center gap-2 rounded-md py-1.5 pl-8 pr-3 text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
+            class="flex items-center gap-2.5 rounded-md text-sm transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus pl-9 pr-3 py-1.5 text-content-secondary hover:bg-surface-subtle hover:text-content-primary"
             href="/settings/connectors"
           >
             Connectors
