@@ -56,7 +56,7 @@ export function AdminShell(): JSX.Element {
   }, [location.pathname])
 
   return (
-    <div className="flex min-h-screen w-full min-w-0 flex-col bg-surface-appCanvas md:flex-row">
+    <div className="flex h-[100dvh] w-full min-w-0 flex-col overflow-hidden bg-surface-appCanvas md:flex-row">
       <a
         href="#main-content"
         className="sr-only z-toast focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:rounded-md focus:border focus:border-border-default focus:bg-surface-raised focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-content-primary focus:shadow-md"
