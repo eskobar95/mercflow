@@ -50,13 +50,13 @@ const colors: Record<string, TailwindColorMap> = {
     amber: "var(--mf-color-brand-amber)",
     cream: "var(--mf-color-brand-cream)",
   },
-  amber: {
-    DEFAULT: "var(--mf-color-amber-default)",
-    subtle:  "var(--mf-color-amber-subtle)",
-    soft:    "var(--mf-color-amber-soft)",
-    default: "var(--mf-color-amber-default)",
-    strong:  "var(--mf-color-amber-strong)",
-    text:    "var(--mf-color-amber-text)",
+  accent: {
+    DEFAULT: "var(--mf-color-accent-default)",
+    subtle:  "var(--mf-color-accent-subtle)",
+    soft:    "var(--mf-color-accent-soft)",
+    default: "var(--mf-color-accent-default)",
+    strong:  "var(--mf-color-accent-strong)",
+    text:    "var(--mf-color-accent-text)",
   },
   interactive: {
     DEFAULT: "var(--mf-color-interactive-primary)",

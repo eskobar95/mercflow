@@ -26,7 +26,7 @@ type BadgeProps = {
 
 const fillMap: Record<BadgeVariant, string> = {
   neutral: "bg-surface-subtle text-content-secondary",
-  accent:  "bg-amber-subtle text-amber-text",
+  accent:  "bg-accent-subtle text-accent-text",
   success: "bg-feedback-success-subtle text-feedback-success-content",
   warning: "bg-feedback-warning-subtle text-feedback-warning-content",
   danger:  "bg-feedback-danger-subtle text-feedback-danger-content",
@@ -34,7 +34,7 @@ const fillMap: Record<BadgeVariant, string> = {
 
 const dotColorMap: Record<BadgeVariant, string> = {
   neutral: "bg-content-tertiary",
-  accent:  "bg-amber",
+  accent:  "bg-accent",
   success: "bg-feedback-success-default",
   warning: "bg-feedback-warning-default",
   danger:  "bg-feedback-danger-default",

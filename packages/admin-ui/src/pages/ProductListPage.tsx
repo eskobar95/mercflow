@@ -110,11 +110,11 @@ export function ProductListPage(): JSX.Element {
     filterRow,
   })
 
-  const getRowActions = (row: ProductListRow): RowActionItem[] => [
-    { id: "view", label: "View", onSelect: () => { window.alert(`View ${row.title}`) } },
-    { id: "edit", label: "Edit", onSelect: () => { window.alert(`Edit ${row.title}`) } },
-    { id: "duplicate", label: "Duplicate", onSelect: () => { window.alert(`Duplicate ${row.title}`) } },
-    { id: "delete", label: "Delete", destructive: true, onSelect: () => { window.alert(`Delete ${row.title}`) } },
+  const getRowActions = (_row: ProductListRow): RowActionItem[] => [
+    { id: "view", label: "View", onSelect: () => { /* TODO: navigate to /products/:id */ } },
+    { id: "edit", label: "Edit", onSelect: () => { /* TODO: navigate to /products/:id/edit */ } },
+    { id: "duplicate", label: "Duplicate", onSelect: () => { /* TODO: POST duplicate */ } },
+    { id: "delete", label: "Delete", destructive: true, onSelect: () => { /* TODO: DELETE product */ } },
   ]
 
   return (

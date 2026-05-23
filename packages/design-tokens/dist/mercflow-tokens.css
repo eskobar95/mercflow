@@ -26,11 +26,11 @@
   --mf-color-brand-base: #111827;
   --mf-color-brand-amber: #2563EB;
   --mf-color-brand-cream: #F7F8FA;
-  --mf-color-amber-subtle: rgba(37, 99, 235, 0.10);
-  --mf-color-amber-soft: rgba(37, 99, 235, 0.18);
-  --mf-color-amber-default: #2563EB;
-  --mf-color-amber-strong: #1D4FD7;
-  --mf-color-amber-text: #1E40AF;
+  --mf-color-accent-subtle: rgba(37, 99, 235, 0.10);
+  --mf-color-accent-soft: rgba(37, 99, 235, 0.18);
+  --mf-color-accent-default: #2563EB;
+  --mf-color-accent-strong: #1D4FD7;
+  --mf-color-accent-text: #1E40AF;
   --mf-color-interactive-primary: #2563EB;
   --mf-color-interactive-primary-hover: #1D4FD7;
   --mf-color-interactive-primary-pressed: #1A3F9F;

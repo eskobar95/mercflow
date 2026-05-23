@@ -50,13 +50,13 @@ const sizeClass: Record<ButtonSize, string> = {
 
 const variantClass: Record<ButtonVariant, string> = {
   primary:
-    "bg-amber text-content-inverse shadow-sm hover:bg-amber-strong focus-visible:outline-amber",
+    "bg-accent text-content-inverse shadow-sm hover:bg-accent-strong focus-visible:outline-accent",
   secondary:
-    "border border-border-default bg-surface-appCard text-content-primary hover:border-border-strong hover:bg-surface-subtle focus-visible:outline-amber",
+    "border border-border-default bg-surface-appCard text-content-primary hover:border-border-strong hover:bg-surface-subtle focus-visible:outline-accent",
   soft:
-    "bg-amber-subtle text-amber-text hover:bg-amber-soft focus-visible:outline-amber",
+    "bg-accent-subtle text-accent-text hover:bg-accent-soft focus-visible:outline-accent",
   ghost:
-    "text-content-secondary hover:bg-surface-subtle hover:text-content-primary focus-visible:outline-amber",
+    "text-content-secondary hover:bg-surface-subtle hover:text-content-primary focus-visible:outline-accent",
   destructive:
     "bg-feedback-danger-subtle text-feedback-danger-content hover:bg-feedback-danger-default hover:text-content-inverse focus-visible:outline-feedback-danger-default",
 }

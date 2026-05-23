@@ -17,7 +17,7 @@ import { mobileTabBar } from "@/config/sidebarNav"
  *     between slots with the iOS drawer curve. This is the memorable
  *     detail: instead of a heavy pill background you get a quiet pointer
  *     that tracks your route.
- *   - Active label gains amber-text + semibold weight; icon stroke widens.
+ *   - Active label gains accent-text + semibold weight; icon stroke widens.
  *   - Press feedback: scale(0.97) on the slot.
  *
  * The accent uses a transform on a single absolutely-positioned element so
@@ -50,7 +50,7 @@ export function MobileTabBar(): JSX.Element {
       {/* Sliding accent — sits above all slots, transforms to the active one. */}
       <span
         aria-hidden
-        className="pointer-events-none absolute left-0 top-0 h-[2px] rounded-full bg-amber"
+        className="pointer-events-none absolute left-0 top-0 h-[2px] rounded-full bg-accent"
         style={{
           width: `${100 / slotCount}%`,
           transform: `translateX(${activeIndex < 0 ? -100 : activeIndex * 100}%) scaleX(0.35)`,
@@ -76,7 +76,7 @@ export function MobileTabBar(): JSX.Element {
                   className={[
                     "transition-colors duration-200",
                     isActive
-                      ? "text-amber-text"
+                      ? "text-accent-text"
                       : "text-content-tertiary group-hover/tab:text-content-secondary",
                   ].join(" ")}
                   style={{ transitionTimingFunction: EASE }}
@@ -85,7 +85,7 @@ export function MobileTabBar(): JSX.Element {
                   className={[
                     "text-[11px] leading-none tracking-tight transition-colors duration-200",
                     isActive
-                      ? "font-semibold text-amber-text"
+                      ? "font-semibold text-accent-text"
                       : "font-medium text-content-tertiary group-hover/tab:text-content-secondary",
                   ].join(" ")}
                   style={{ transitionTimingFunction: EASE }}

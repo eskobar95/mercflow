@@ -54,7 +54,7 @@ export function PlaceholderPage({
 
         <Link
           to={fallback.to}
-          className="group/cta mt-6 inline-flex h-9 items-center gap-1.5 rounded-full border border-border-default bg-surface-appCard px-3.5 text-[13px] font-semibold text-content-primary shadow-sm transition-[background-color,border-color,transform,box-shadow] duration-150 hover:border-border-strong hover:bg-surface-subtle hover:shadow-md active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+          className="group/cta mt-6 inline-flex h-9 items-center gap-1.5 rounded-full border border-border-default bg-surface-appCard px-3.5 text-[13px] font-semibold text-content-primary shadow-sm transition-[background-color,border-color,transform,box-shadow] duration-150 hover:border-border-strong hover:bg-surface-subtle hover:shadow-md active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
         >
           {fallback.label}

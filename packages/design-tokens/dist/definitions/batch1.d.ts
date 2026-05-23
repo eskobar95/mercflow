@@ -99,7 +99,7 @@ export declare const colorTree: {
      * backward compatibility; component code reading `amber-subtle` now gets
      * a soft blue tint — matching the Mercury/Stripe single-accent system.
      */
-    readonly amber: {
+    readonly accent: {
         /** Soft accent fill — icon background, badge tint. */
         readonly subtle: "rgba(37, 99, 235, 0.10)";
         /** Stronger soft accent — hover on subtle, accent border. */

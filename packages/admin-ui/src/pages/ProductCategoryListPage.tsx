@@ -103,11 +103,11 @@ export function ProductCategoryListPage(): JSX.Element {
     filterRow,
   })
 
-  const getRowActions = (row: ProductCategoryListRow): RowActionItem[] => [
-    { id: "view", label: "View", onSelect: () => { window.alert(`View ${row.name}`) } },
-    { id: "edit", label: "Edit", onSelect: () => { window.alert(`Edit ${row.name}`) } },
-    { id: "reorder", label: "Move", onSelect: () => { window.alert(`Move ${row.name}`) } },
-    { id: "delete", label: "Delete", destructive: true, onSelect: () => { window.alert(`Delete ${row.name}`) } },
+  const getRowActions = (_row: ProductCategoryListRow): RowActionItem[] => [
+    { id: "view", label: "View", onSelect: () => { /* TODO: navigate to /product-categories/:id */ } },
+    { id: "edit", label: "Edit", onSelect: () => { /* TODO: navigate to /product-categories/:id/edit */ } },
+    { id: "reorder", label: "Move", onSelect: () => { /* TODO: PATCH sort order */ } },
+    { id: "delete", label: "Delete", destructive: true, onSelect: () => { /* TODO: DELETE category */ } },
   ]
 
   return (

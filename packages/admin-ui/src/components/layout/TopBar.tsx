@@ -63,7 +63,7 @@ export function TopBar({
       <div className="hidden items-center gap-2 md:flex">
         <button
           type="button"
-          className="group/search inline-flex h-9 w-[280px] items-center gap-2 rounded-full border border-border-default bg-surface-appCanvas px-3.5 text-left text-[13px] text-content-tertiary transition-[background-color,border-color,color] duration-150 hover:border-border-strong hover:bg-surface-appCard focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+          className="group/search inline-flex h-9 w-[280px] items-center gap-2 rounded-full border border-border-default bg-surface-appCanvas px-3.5 text-left text-[13px] text-content-tertiary transition-[background-color,border-color,color] duration-150 hover:border-border-strong hover:bg-surface-appCard focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
           aria-label="Search MercFlow"
         >
@@ -79,7 +79,7 @@ export function TopBar({
 
         <button
           type="button"
-          className="inline-flex h-9 items-center gap-1.5 rounded-full bg-amber px-3.5 text-[13px] font-semibold text-content-inverse shadow-sm transition-[background-color,transform,box-shadow] duration-150 hover:bg-amber-strong hover:shadow-md active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+          className="inline-flex h-9 items-center gap-1.5 rounded-full bg-accent px-3.5 text-[13px] font-semibold text-content-inverse shadow-sm transition-[background-color,transform,box-shadow] duration-150 hover:bg-accent-strong hover:shadow-md active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
           aria-label="Create new"
         >
@@ -120,7 +120,7 @@ export function TopBar({
         <button
           type="button"
           aria-label="Create new"
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-amber text-content-inverse shadow-sm transition-[background-color,transform] duration-150 hover:bg-amber-strong active:scale-[0.95]"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-content-inverse shadow-sm transition-[background-color,transform] duration-150 hover:bg-accent-strong active:scale-[0.95]"
           style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
         >
           <svg

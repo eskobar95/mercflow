@@ -41,7 +41,7 @@ export declare const tokens: {
             readonly amber: "#2563EB";
             readonly cream: "#F7F8FA";
         };
-        readonly amber: {
+        readonly accent: {
             readonly subtle: "rgba(37, 99, 235, 0.10)";
             readonly soft: "rgba(37, 99, 235, 0.18)";
             readonly default: "#2563EB";

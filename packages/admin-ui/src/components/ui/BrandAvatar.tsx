@@ -46,13 +46,13 @@ export const BrandAvatar = forwardRef<HTMLButtonElement, BrandAvatarProps>(
     const fontSize = Math.round(size * 0.45)
 
     const visualClass = [
-      "relative inline-flex shrink-0 items-center justify-center rounded-full bg-amber text-content-inverse",
+      "relative inline-flex shrink-0 items-center justify-center rounded-full bg-accent text-content-inverse",
       "shadow-[inset_0_0_0_1.5px_rgba(255,255,255,0.18),0_1px_2px_rgba(15,23,42,0.12)]",
       interactive
-        ? "transition-[transform,box-shadow] duration-150 hover:shadow-[inset_0_0_0_1.5px_rgba(255,255,255,0.18),0_2px_4px_rgba(15,23,42,0.18)] active:scale-[0.94] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+        ? "transition-[transform,box-shadow] duration-150 hover:shadow-[inset_0_0_0_1.5px_rgba(255,255,255,0.18),0_2px_4px_rgba(15,23,42,0.18)] active:scale-[0.94] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         : "",
       active
-        ? "ring-2 ring-amber/40 ring-offset-2 ring-offset-surface-appCard"
+        ? "ring-2 ring-accent/40 ring-offset-2 ring-offset-surface-appCard"
         : "",
       className ?? "",
     ].join(" ")

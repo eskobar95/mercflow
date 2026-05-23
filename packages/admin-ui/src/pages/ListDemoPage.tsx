@@ -252,28 +252,22 @@ export function ListDemoPage(): JSX.Element {
     })
   }
 
-  const getRowActions = (row: DemoRow): RowActionItem[] => [
+  const getRowActions = (_row: DemoRow): RowActionItem[] => [
     {
       id: "view",
       label: "View (mock)",
-      onSelect: () => {
-        window.alert("Mock: view " + row.name)
-      },
+      onSelect: () => { /* demo stub */ },
     },
     {
       id: "edit",
       label: "Edit (mock)",
-      onSelect: () => {
-        window.alert("Mock: edit " + row.name)
-      },
+      onSelect: () => { /* demo stub */ },
     },
     {
       id: "delete",
       label: "Remove from demo",
       destructive: true,
-      onSelect: () => {
-        window.alert("Mock: remove " + row.name)
-      },
+      onSelect: () => { /* demo stub */ },
     },
   ]
 

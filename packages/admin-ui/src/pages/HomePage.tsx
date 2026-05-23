@@ -93,13 +93,13 @@ export function HomePage(): JSX.Element {
         {/* Subtle corner-accent — a single chromatic move, not a wash */}
         <span
           aria-hidden
-          className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-amber/8"
+          className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent/8"
           style={{ filter: "blur(40px)" }}
         />
 
         <div className="relative flex flex-col gap-6">
           <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-content-tertiary">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber" aria-hidden />
+            <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />
             Store not connected
           </span>
 
@@ -119,7 +119,7 @@ export function HomePage(): JSX.Element {
 
             <Link
               to="/settings/connectors"
-              className="group/cta inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-content-primary px-4 text-[13px] font-semibold text-content-inverse shadow-sm transition-[background-color,transform,box-shadow] duration-150 hover:shadow-md active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+              className="group/cta inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-content-primary px-4 text-[13px] font-semibold text-content-inverse shadow-sm transition-[background-color,transform,box-shadow] duration-150 hover:shadow-md active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               style={{
                 transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)",
               }}
@@ -208,8 +208,8 @@ function Shortcut({ tile }: { tile: ShortcutTile }): JSX.Element {
         className={[
           "flex h-10 w-10 items-center justify-center rounded-xl transition-transform duration-200 group-hover/tile:scale-[1.05]",
           loud
-            ? "bg-amber text-content-inverse shadow-sm"
-            : "bg-surface-subtle text-content-secondary group-hover/tile:bg-amber-subtle group-hover/tile:text-amber-text",
+            ? "bg-accent text-content-inverse shadow-sm"
+            : "bg-surface-subtle text-content-secondary group-hover/tile:bg-accent-subtle group-hover/tile:text-accent-text",
         ].join(" ")}
         aria-hidden
       >
@@ -222,7 +222,7 @@ function Shortcut({ tile }: { tile: ShortcutTile }): JSX.Element {
         </p>
         <p className="mt-1 text-[12.5px] text-content-tertiary">{tile.hint}</p>
         {loud ? (
-          <span className="mt-3 inline-flex items-center gap-1 text-[12.5px] font-medium text-amber-text">
+          <span className="mt-3 inline-flex items-center gap-1 text-[12.5px] font-medium text-accent-text">
             Go
             <IconArrowUpRight
               size={12}

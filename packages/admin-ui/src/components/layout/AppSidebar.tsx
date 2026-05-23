@@ -31,7 +31,7 @@ type AppSidebarProps = {
  */
 
 const itemBase =
-  "group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+  "group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
 
 function leafClass({ isActive }: { isActive: boolean }): string {
   if (isActive) {
@@ -188,7 +188,7 @@ function SubLeaf({
         onClick={onNavigate}
         className={({ isActive }) =>
           [
-            "group/sub flex h-8 items-center rounded-md px-2.5 text-[12.5px] transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber",
+            "group/sub flex h-8 items-center rounded-md px-2.5 text-[12.5px] transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
             isActive
               ? "bg-surface-sidebarActive font-medium text-content-onSidebarActive"
               : "font-medium text-content-onSidebarMuted hover:bg-surface-sidebarHover hover:text-content-onSidebar",

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { NavLink, useLocation } from "react-router-dom"
 
+import { DRAWER_EASE, ENTER_EASE } from "@/constants/motion"
 import { BrandAvatar } from "@/components/ui/BrandAvatar"
 import {
   IconChevronLeft,
@@ -98,8 +99,7 @@ function buildRootTiles(): TileSource[] {
   ]
 }
 
-const SHEET_EASE = "cubic-bezier(0.32, 0.72, 0, 1)"
-const ENTER_EASE = "cubic-bezier(0.23, 1, 0.32, 1)"
+const SHEET_EASE = DRAWER_EASE
 
 export function MobileNavSheet({
   open,
@@ -228,7 +228,7 @@ function SheetHeader({
           onClick={onBack}
           aria-hidden={!isDrilled}
           tabIndex={isDrilled ? 0 : -1}
-          className="absolute left-0 inline-flex h-9 items-center gap-1 rounded-full pl-1.5 pr-3 text-[15px] font-semibold tracking-tight text-content-primary transition-colors duration-150 hover:bg-surface-subtle active:bg-surface-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+          className="absolute left-0 inline-flex h-9 items-center gap-1 rounded-full pl-1.5 pr-3 text-[15px] font-semibold tracking-tight text-content-primary transition-colors duration-150 hover:bg-surface-subtle active:bg-surface-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           style={{
             top: "50%",
             opacity: isDrilled ? 1 : 0,
@@ -253,7 +253,7 @@ function SheetHeader({
         type="button"
         onClick={onClose}
         aria-label="Close menu"
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-content-secondary transition-[background-color,transform] duration-150 hover:bg-surface-subtle active:scale-[0.94] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-content-secondary transition-[background-color,transform] duration-150 hover:bg-surface-subtle active:scale-[0.94] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         style={{ transitionTimingFunction: ENTER_EASE }}
       >
         <IconClose size={18} />
@@ -385,7 +385,7 @@ function TileGrid({ children }: { children: React.ReactNode }): JSX.Element {
 }
 
 const tileBase =
-  "group/tile relative flex h-[136px] flex-col justify-between rounded-2xl border border-border-default bg-surface-appCard p-3.5 text-left shadow-sm transition-[background-color,border-color,transform,box-shadow] duration-150 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+  "group/tile relative flex h-[136px] flex-col justify-between rounded-2xl border border-border-default bg-surface-appCard p-3.5 text-left shadow-sm transition-[background-color,border-color,transform,box-shadow] duration-150 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
 
 /**
  * Tile — either navigates (NavLink) or drills (button). The visual is
@@ -433,7 +433,7 @@ function Tile({
         className={[
           tileBase,
           inSection
-            ? "border-amber shadow-sm hover:shadow-md"
+            ? "border-accent shadow-sm hover:shadow-md"
             : "hover:border-border-strong hover:shadow-md",
         ].join(" ")}
         style={enterStyle}
@@ -462,7 +462,7 @@ function Tile({
         [
           tileBase,
           isActive
-            ? "border-amber bg-amber-subtle text-content-primary"
+            ? "border-accent bg-accent-subtle text-content-primary"
             : "hover:border-border-strong hover:shadow-md",
         ].join(" ")
       }
@@ -521,7 +521,7 @@ function SubTile({
         [
           tileBase,
           isActive
-            ? "border-amber bg-amber-subtle text-content-primary"
+            ? "border-accent bg-accent-subtle text-content-primary"
             : "hover:border-border-strong hover:shadow-md",
         ].join(" ")
       }
@@ -561,15 +561,15 @@ function TileTop({
         className={[
           "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors duration-150",
           active
-            ? "bg-amber text-content-inverse"
-            : "bg-surface-subtle text-content-secondary group-hover/tile:bg-amber-subtle group-hover/tile:text-amber-text",
+            ? "bg-accent text-content-inverse"
+            : "bg-surface-subtle text-content-secondary group-hover/tile:bg-accent-subtle group-hover/tile:text-accent-text",
         ].join(" ")}
         aria-hidden
       >
         <Icon size={20} />
         {showSectionDot ? (
           <span
-            className="absolute -right-0.5 -top-0.5 flex h-2.5 w-2.5 items-center justify-center rounded-full bg-amber ring-2 ring-surface-appCard"
+            className="absolute -right-0.5 -top-0.5 flex h-2.5 w-2.5 items-center justify-center rounded-full bg-accent ring-2 ring-surface-appCard"
             aria-hidden
           />
         ) : null}
@@ -599,7 +599,7 @@ function TileBottom({
           <p
             className={[
               "mt-0.5 truncate text-[11px] font-medium",
-              active ? "text-amber-text" : "text-content-tertiary",
+              active ? "text-accent-text" : "text-content-tertiary",
             ].join(" ")}
           >
             {meta}
@@ -608,7 +608,7 @@ function TileBottom({
       </div>
       {drill ? (
         <span
-          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-subtle text-content-secondary transition-[background-color,transform] duration-150 group-hover/tile:bg-amber group-hover/tile:text-content-inverse group-hover/tile:translate-x-0.5"
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-subtle text-content-secondary transition-[background-color,transform] duration-150 group-hover/tile:bg-accent group-hover/tile:text-content-inverse group-hover/tile:translate-x-0.5"
           aria-hidden
         >
           <IconChevronRight size={12} />

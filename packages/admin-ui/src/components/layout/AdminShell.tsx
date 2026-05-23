@@ -6,13 +6,12 @@ import { MainLoadingFallback } from "@/components/ui/MainLoadingFallback"
 import { PageTransition } from "@/components/ui/PageTransition"
 import { useRouteTitle } from "@/hooks/useRouteTitle"
 
+import { DRAWER_EASE, ENTER_EASE, SHEET_CLOSE_MS, SHEET_OPEN_MS } from "@/constants/motion"
+
 import { AppSidebar } from "./AppSidebar"
 import { MobileNavSheet } from "./MobileNavSheet"
 import { MobileTabBar } from "./MobileTabBar"
 import { TopBar } from "./TopBar"
-
-/** Drawer motion follows iOS — feels familiar to anyone with an iPhone. */
-const SHEET_EASE = "cubic-bezier(0.32, 0.72, 0, 1)"
 
 function RoutedMainOutlet(): JSX.Element {
   const { key } = useLocation()
@@ -103,7 +102,7 @@ export function AdminShell(): JSX.Element {
         style={{
           opacity: moreSheetOpen ? 1 : 0,
           pointerEvents: moreSheetOpen ? "auto" : "none",
-          transition: `opacity 240ms ${SHEET_EASE}`,
+          transition: `opacity 240ms ${DRAWER_EASE}`,
         }}
       />
       <div
@@ -115,10 +114,9 @@ export function AdminShell(): JSX.Element {
         className="fixed inset-0 z-modal flex md:hidden motion-reduce:transition-none"
         style={{
           transform: moreSheetOpen ? "translateX(0)" : "translateX(-100%)",
-          // Asymmetric timing: 280ms open (decisive), 200ms close (snappy release).
           transition: moreSheetOpen
-            ? `transform 280ms ${SHEET_EASE}`
-            : `transform 200ms cubic-bezier(0.23, 1, 0.32, 1)`,
+            ? `transform ${SHEET_OPEN_MS}ms ${DRAWER_EASE}`
+            : `transform ${SHEET_CLOSE_MS}ms ${ENTER_EASE}`,
           willChange: "transform",
           pointerEvents: moreSheetOpen ? "auto" : "none",
         }}
