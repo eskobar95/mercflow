@@ -24,16 +24,29 @@
  */
 export const colorTree = {
   surface: {
-    /** Warm cream canvas — page/app background · brand.cream */
+    /** Warm cream canvas — brand surfaces, accent panels, brand-led moments */
     canvas: "#F5EDE3",
     /** Cards, inputs, form fields — near-white warm */
     default: "#FDFAF7",
-    /** Panels, sidebar, hover fills, table stripe, disabled bg */
+    /** Soft panels, hover fills, table stripe, disabled bg */
     subtle: "#EBE0D0",
     /** Modals, popovers, command palette — pure white for focus */
     raised: "#FFFFFF",
     /** Modal scrim overlay — dark navy tint */
     overlay: "rgba(26, 26, 46, 0.45)",
+    /**
+     * Operational app canvas — cool warm-tinted gray.
+     * Default background for admin pages so cream/amber stay accents.
+     */
+    appCanvas: "#F6F5F2",
+    /** Operational card surface — pure white, paired with shadow.sm */
+    appCard: "#FFFFFF",
+    /** Sidebar chrome — brand navy (matches brand.base) */
+    sidebar: "#1A1A2E",
+    /** Sidebar nav hover row — 8% cream wash on navy */
+    sidebarHover: "rgba(245, 237, 227, 0.06)",
+    /** Sidebar active item — amber 16% wash on navy */
+    sidebarActive: "rgba(212, 135, 58, 0.16)",
   },
   content: {
     /** Dark navy — brand.base · contrast ≫ 12:1 on all surfaces */
@@ -46,6 +59,12 @@ export const colorTree = {
     disabled: "rgba(26, 26, 46, 0.28)",
     /** Text on dark fills (primary buttons, dark navy surfaces) */
     inverse: "#F5EDE3",
+    /** Sidebar nav label — cream off-white at 88% on navy */
+    onSidebar: "rgba(245, 237, 227, 0.88)",
+    /** Sidebar muted label, section header — cream 55% on navy */
+    onSidebarMuted: "rgba(245, 237, 227, 0.55)",
+    /** Sidebar active item label — amber light */
+    onSidebarActive: "#E8B574",
   },
   border: {
     /** Hairlines, dividers, table rows · 8% opacity navy */
@@ -56,6 +75,10 @@ export const colorTree = {
     strong: "rgba(26, 26, 46, 0.40)",
     /** Focus ring — amber tint · pairs with shadow.focus */
     focus: "rgba(212, 135, 58, 0.60)",
+    /** App-canvas border (topbar/card outlines) — cooler than amber-tinted */
+    app: "rgba(26, 26, 46, 0.10)",
+    /** Sidebar internal divider — cream 10% on navy */
+    onSidebar: "rgba(245, 237, 227, 0.10)",
   },
   /**
    * Core brand identity colors.

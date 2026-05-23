@@ -12,6 +12,11 @@ export declare const tokens: {
             readonly subtle: "#EBE0D0";
             readonly raised: "#FFFFFF";
             readonly overlay: "rgba(26, 26, 46, 0.45)";
+            readonly appCanvas: "#F6F5F2";
+            readonly appCard: "#FFFFFF";
+            readonly sidebar: "#1A1A2E";
+            readonly sidebarHover: "rgba(245, 237, 227, 0.06)";
+            readonly sidebarActive: "rgba(212, 135, 58, 0.16)";
         };
         readonly content: {
             readonly primary: "#1A1A2E";
@@ -19,12 +24,17 @@ export declare const tokens: {
             readonly tertiary: "rgba(26, 26, 46, 0.45)";
             readonly disabled: "rgba(26, 26, 46, 0.28)";
             readonly inverse: "#F5EDE3";
+            readonly onSidebar: "rgba(245, 237, 227, 0.88)";
+            readonly onSidebarMuted: "rgba(245, 237, 227, 0.55)";
+            readonly onSidebarActive: "#E8B574";
         };
         readonly border: {
             readonly subtle: "rgba(26, 26, 46, 0.08)";
             readonly default: "rgba(26, 26, 46, 0.15)";
             readonly strong: "rgba(26, 26, 46, 0.40)";
             readonly focus: "rgba(212, 135, 58, 0.60)";
+            readonly app: "rgba(26, 26, 46, 0.10)";
+            readonly onSidebar: "rgba(245, 237, 227, 0.10)";
         };
         readonly brand: {
             readonly base: "#1A1A2E";
