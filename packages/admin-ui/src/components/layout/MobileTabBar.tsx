@@ -8,16 +8,60 @@ type MobileTabBarProps = {
 }
 
 /**
- * Fixed 56px tab bar — consistent height regardless of page or safe-area.
- * Labels always visible below icons so every slot reads identically.
- * Active slot: amber icon + amber label + small amber dot above icon.
+ * Mobile bottom tab bar — Material 3-style pill indicator.
+ *
+ * Active slot:  amber pill chip behind icon + amber icon + amber label.
+ * Inactive slot: no chip, muted icon + muted label.
+ *
+ * Height: 56px (h-14), backdrop-blur for premium feel when content scrolls under.
+ * Labels: sentence-case (not ALLCAPS) — cleaner and less aggressive.
  */
-const slotBase =
-  "flex h-full min-w-0 flex-1 flex-col items-center justify-center gap-[3px] px-1 text-[10px] font-semibold uppercase tracking-label transition-colors focus-visible:outline-none"
 
-function tabLinkClass({ isActive }: { isActive: boolean }): string {
-  return `${slotBase} ${isActive ? "text-amber-text" : "text-content-tertiary"}`
+const labelBase = "mt-0.5 text-[11px] font-medium leading-none transition-colors duration-200"
+
+function TabSlotInner({
+  icon: Icon,
+  label,
+  isActive,
+}: {
+  icon: React.ComponentType<{ size?: number; className?: string }>
+  label: string
+  isActive: boolean
+}): JSX.Element {
+  return (
+    <>
+      {/* Pill chip sits behind the icon */}
+      <span
+        className={[
+          "relative flex items-center justify-center rounded-full transition-all duration-200",
+          "h-8 w-12",
+          isActive ? "bg-surface-sidebarActive" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        <Icon
+          size={20}
+          className={[
+            "transition-colors duration-200",
+            isActive ? "text-amber-text" : "text-content-tertiary",
+          ].join(" ")}
+        />
+      </span>
+      <span
+        className={[
+          labelBase,
+          isActive ? "text-amber-text" : "text-content-tertiary",
+        ].join(" ")}
+      >
+        {label}
+      </span>
+    </>
+  )
 }
+
+const slotBase =
+  "flex h-full min-w-0 flex-1 flex-col items-center justify-center gap-0 focus-visible:outline-none"
 
 export function MobileTabBar({
   moreOpen,
@@ -25,7 +69,7 @@ export function MobileTabBar({
 }: MobileTabBarProps): JSX.Element {
   return (
     <nav
-      className="z-sticky flex h-14 shrink-0 border-t border-border-app bg-surface-appCard md:hidden"
+      className="z-sticky flex h-14 shrink-0 border-t border-border-app bg-surface-appCard/95 backdrop-blur-sm md:hidden"
       aria-label="Primary"
     >
       {mobileTabBar.map((item) => {
@@ -36,21 +80,12 @@ export function MobileTabBar({
             <button
               key={item.label}
               type="button"
-              className={`${slotBase} ${moreOpen ? "text-amber-text" : "text-content-tertiary"}`}
+              className={slotBase}
               aria-expanded={moreOpen}
               aria-controls="mobile-nav-sheet"
               onClick={onToggleMore}
             >
-              <span className="relative flex h-6 w-6 items-center justify-center">
-                <Icon size={20} />
-                {moreOpen ? (
-                  <span
-                    aria-hidden
-                    className="absolute -top-1 h-1 w-1 rounded-full bg-amber"
-                  />
-                ) : null}
-              </span>
-              <span>{item.label}</span>
+              <TabSlotInner icon={Icon} label={item.label} isActive={moreOpen} />
             </button>
           )
         }
@@ -60,21 +95,10 @@ export function MobileTabBar({
             key={item.to}
             to={item.to}
             end={item.end}
-            className={tabLinkClass}
+            className={slotBase}
           >
             {({ isActive }) => (
-              <>
-                <span className="relative flex h-6 w-6 items-center justify-center">
-                  <Icon size={20} />
-                  {isActive ? (
-                    <span
-                      aria-hidden
-                      className="absolute -top-1 h-1 w-1 rounded-full bg-amber"
-                    />
-                  ) : null}
-                </span>
-                <span>{item.label}</span>
-              </>
+              <TabSlotInner icon={Icon} label={item.label} isActive={isActive} />
             )}
           </NavLink>
         )
