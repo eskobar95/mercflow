@@ -9,27 +9,35 @@ import {
 } from "@/config/sidebarNav"
 
 type AppSidebarProps = {
-  /** Called after navigation (closes mobile sheet). */
   onNavigate?: () => void
-  /**
-   * When provided, renders an X close button in the sidebar header.
-   * Used by the mobile fullscreen sheet so the user can dismiss without
-   * having to reach the bottom tab bar.
-   */
   onClose?: () => void
 }
 
-const baseItemClass =
-  "group/nav-item relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+/**
+ * App navigation rail — Asana / Mercury synthesis.
+ *
+ * Visual language:
+ *   - #131316 near-black background (Asana). Pure chrome — not branded.
+ *   - Off-white labels (85% opacity); selected row is a neutral light-grey
+ *     wash (8% white), NOT a colored highlight. Color is reserved for action.
+ *   - Compact 36px rows, 18px monoline icons.
+ *   - Section labels are tiny uppercase 11px at 55% opacity.
+ *   - Brand mark: 28px rounded square — white "M" on accent blue.
+ *
+ * Desktop: 240px fixed. Mobile: full width inside a fullscreen sheet.
+ */
 
-function navItemClass({ isActive }: { isActive: boolean }): string {
+const itemBase =
+  "group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+
+function itemClass({ isActive }: { isActive: boolean }): string {
   if (isActive) {
-    return `${baseItemClass} bg-surface-sidebarActive text-content-onSidebarActive`
+    return `${itemBase} bg-surface-sidebarActive text-content-onSidebarActive`
   }
-  return `${baseItemClass} text-content-onSidebar hover:bg-surface-sidebarHover hover:text-content-onSidebar`
+  return `${itemBase} text-content-onSidebar hover:bg-surface-sidebarHover`
 }
 
-function SidebarNavLink({
+function NavItem({
   item,
   onNavigate,
 }: {
@@ -38,26 +46,15 @@ function SidebarNavLink({
 }): JSX.Element {
   const Icon = item.icon
   return (
-    <NavLink
-      to={item.to}
-      end={item.end}
-      className={navItemClass}
-      onClick={onNavigate}
-    >
+    <NavLink to={item.to} end={item.end} className={itemClass} onClick={onNavigate}>
       {({ isActive }) => (
         <>
-          {isActive ? (
-            <span
-              aria-hidden
-              className="absolute left-0 top-1/2 h-5 w-[2px] -translate-y-1/2 rounded-r-full bg-amber"
-            />
-          ) : null}
           <Icon
             size={18}
             className={
               isActive
                 ? "shrink-0 text-content-onSidebarActive"
-                : "shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav-item:text-content-onSidebar"
+                : "shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
             }
           />
           <span className="truncate">{item.label}</span>
@@ -67,7 +64,7 @@ function SidebarNavLink({
   )
 }
 
-function SidebarSection({
+function Section({
   section,
   onNavigate,
 }: {
@@ -76,39 +73,27 @@ function SidebarSection({
 }): JSX.Element {
   return (
     <div className="mt-6">
-      <p className="px-3 pb-2 text-2xs font-semibold uppercase tracking-label text-content-onSidebarMuted">
+      <p className="px-3 pb-2 text-[11px] font-medium uppercase tracking-label text-content-onSidebarMuted">
         {section.label}
       </p>
       <div className="flex flex-col gap-0.5">
         {section.items.map((item) => (
-          <SidebarNavLink
-            key={item.to}
-            item={item}
-            onNavigate={onNavigate}
-          />
+          <NavItem key={item.to} item={item} onNavigate={onNavigate} />
         ))}
       </div>
     </div>
   )
 }
 
-/**
- * Primary navigation rail for the MercFlow admin shell.
- *
- * Desktop: fixed 240px wide navy rail.
- * Mobile: rendered inside a fullscreen sheet — `onClose` triggers when the
- * X button in the header is tapped, `onNavigate` closes the sheet on link tap.
- */
 export function AppSidebar({ onNavigate, onClose }: AppSidebarProps): JSX.Element {
   return (
     <aside
-      className="flex h-full w-full shrink-0 flex-col bg-surface-sidebar md:w-[15rem]"
+      className="flex h-full w-full shrink-0 flex-col bg-surface-sidebar md:w-60"
       aria-label="Main navigation"
     >
-      {/* Header: logo + optional close button (mobile only) */}
       <div className="flex h-14 shrink-0 items-center gap-2.5 px-4 md:h-16">
         <span
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-amber text-[#1A1A2E] shadow-sm"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-amber text-content-inverse shadow-sm"
           aria-hidden
         >
           <span className="text-[13px] font-bold leading-none">M</span>
@@ -117,8 +102,8 @@ export function AppSidebar({ onNavigate, onClose }: AppSidebarProps): JSX.Elemen
           <p className="truncate text-sm font-semibold text-content-onSidebar">
             MercFlow
           </p>
-          <p className="truncate text-2xs font-medium uppercase tracking-label text-content-onSidebarMuted">
-            Admin
+          <p className="truncate text-[11px] font-medium text-content-onSidebarMuted">
+            Workspace
           </p>
         </div>
         {onClose ? (
@@ -126,7 +111,7 @@ export function AppSidebar({ onNavigate, onClose }: AppSidebarProps): JSX.Elemen
             type="button"
             onClick={onClose}
             aria-label="Luk menu"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-content-onSidebarMuted transition-colors hover:bg-surface-sidebarHover hover:text-content-onSidebar focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-content-onSidebarMuted transition-colors duration-150 hover:bg-surface-sidebarHover hover:text-content-onSidebar active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
           >
             <svg
               width="16"
@@ -151,15 +136,11 @@ export function AppSidebar({ onNavigate, onClose }: AppSidebarProps): JSX.Elemen
       >
         <div className="flex flex-col gap-0.5">
           {primarySidebarNav.map((item) => (
-            <SidebarNavLink
-              key={item.to}
-              item={item}
-              onNavigate={onNavigate}
-            />
+            <NavItem key={item.to} item={item} onNavigate={onNavigate} />
           ))}
         </div>
-        <SidebarSection section={contentSidebarSection} onNavigate={onNavigate} />
-        <SidebarSection section={settingsSidebarSection} onNavigate={onNavigate} />
+        <Section section={contentSidebarSection} onNavigate={onNavigate} />
+        <Section section={settingsSidebarSection} onNavigate={onNavigate} />
       </nav>
     </aside>
   )

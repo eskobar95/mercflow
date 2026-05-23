@@ -8,50 +8,46 @@ type MobileTabBarProps = {
 }
 
 /**
- * Mobile bottom tab bar — Material 3-style pill indicator.
+ * Mobile bottom navigation — Asana app + Material 3 pill indicator.
  *
- * Active slot:  amber pill chip behind icon + amber icon + amber label.
- * Inactive slot: no chip, muted icon + muted label.
+ * 56px (h-14) fixed height, consistent across all routes. The active slot
+ * receives an animated pill chip (`bg-amber-subtle` — soft blue accent fill)
+ * behind the icon. Labels stay visible at all times in sentence-case.
  *
- * Height: 56px (h-14), backdrop-blur for premium feel when content scrolls under.
- * Labels: sentence-case (not ALLCAPS) — cleaner and less aggressive.
+ * The "More" slot opens the full AppSidebar in a fullscreen sheet (managed
+ * by AdminShell). Active state for "More" follows the same pill pattern.
  */
 
-const labelBase = "mt-0.5 text-[11px] font-medium leading-none transition-colors duration-200"
+const slotBase =
+  "flex h-full min-w-0 flex-1 flex-col items-center justify-center gap-0 focus-visible:outline-none active:scale-[0.97] transition-transform duration-100"
 
-function TabSlotInner({
-  icon: Icon,
+function TabInner({
+  Icon,
   label,
-  isActive,
+  active,
 }: {
-  icon: React.ComponentType<{ size?: number; className?: string }>
+  Icon: React.ComponentType<{ size?: number; className?: string }>
   label: string
-  isActive: boolean
+  active: boolean
 }): JSX.Element {
   return (
     <>
-      {/* Pill chip sits behind the icon */}
       <span
         className={[
-          "relative flex items-center justify-center rounded-full transition-all duration-200",
-          "h-8 w-12",
-          isActive ? "bg-surface-sidebarActive" : "",
-        ]
-          .filter(Boolean)
-          .join(" ")}
+          "relative flex h-7 w-12 items-center justify-center rounded-full transition-[background-color,color] duration-200",
+          active ? "bg-amber-subtle" : "bg-transparent",
+        ].join(" ")}
+        style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
       >
         <Icon
           size={20}
-          className={[
-            "transition-colors duration-200",
-            isActive ? "text-amber-text" : "text-content-tertiary",
-          ].join(" ")}
+          className={active ? "text-amber-text" : "text-content-tertiary"}
         />
       </span>
       <span
         className={[
-          labelBase,
-          isActive ? "text-amber-text" : "text-content-tertiary",
+          "mt-0.5 text-[11px] font-medium leading-none transition-colors duration-200",
+          active ? "text-amber-text" : "text-content-tertiary",
         ].join(" ")}
       >
         {label}
@@ -59,9 +55,6 @@ function TabSlotInner({
     </>
   )
 }
-
-const slotBase =
-  "flex h-full min-w-0 flex-1 flex-col items-center justify-center gap-0 focus-visible:outline-none"
 
 export function MobileTabBar({
   moreOpen,
@@ -85,20 +78,15 @@ export function MobileTabBar({
               aria-controls="mobile-nav-sheet"
               onClick={onToggleMore}
             >
-              <TabSlotInner icon={Icon} label={item.label} isActive={moreOpen} />
+              <TabInner Icon={Icon} label={item.label} active={moreOpen} />
             </button>
           )
         }
 
         return (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.end}
-            className={slotBase}
-          >
+          <NavLink key={item.to} to={item.to} end={item.end} className={slotBase}>
             {({ isActive }) => (
-              <TabSlotInner icon={Icon} label={item.label} isActive={isActive} />
+              <TabInner Icon={Icon} label={item.label} active={isActive} />
             )}
           </NavLink>
         )
