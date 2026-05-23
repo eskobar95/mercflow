@@ -13,7 +13,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        handle: { title: "Dashboard" } satisfies AppRouteHandle,
+        handle: { title: "Home" } satisfies AppRouteHandle,
         lazy: async () => {
           const { HomePage } = await import("@/pages/HomePage")
           return { Component: HomePage }

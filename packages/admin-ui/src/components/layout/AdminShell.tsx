@@ -1,4 +1,4 @@
-import { Suspense, useState } from "react"
+import { Suspense, useCallback, useEffect, useState } from "react"
 import { Outlet, useLocation } from "react-router-dom"
 
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary"
@@ -7,6 +7,7 @@ import { PageTransition } from "@/components/ui/PageTransition"
 import { useRouteTitle } from "@/hooks/useRouteTitle"
 
 import { AppSidebar } from "./AppSidebar"
+import { MobileTabBar } from "./MobileTabBar"
 import { TopBar } from "./TopBar"
 
 /**
@@ -23,53 +24,74 @@ function RoutedMainOutlet(): JSX.Element {
 }
 
 /**
- * Global admin chrome: sidebar, top bar, and scrollable main with error and lazy boundaries.
- * Sidebar collapses below the `md` breakpoint (768px) behind a menu toggle.
+ * Global admin chrome — Shopify-style three-zone composition.
+ *
+ *   ┌──────────┬──────────────────────────┐
+ *   │          │   TopBar (chrome.card)   │
+ *   │ Sidebar  ├──────────────────────────┤
+ *   │ (navy)   │   Outlet (app canvas)    │
+ *   │          │                          │
+ *   └──────────┴──────────────────────────┘
+ *
+ * Below the `md` breakpoint the sidebar is hidden and a `MobileTabBar`
+ * docks at the bottom. The "More" tab opens a navy sheet containing the
+ * full sidebar — same component, full continuity with desktop.
  */
 export function AdminShell(): JSX.Element {
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [moreSheetOpen, setMoreSheetOpen] = useState(false)
   const title = useRouteTitle()
+  const location = useLocation()
 
-  const closeMobileNav = (): void => {
-    setMobileNavOpen(false)
-  }
+  const closeMoreSheet = useCallback((): void => {
+    setMoreSheetOpen(false)
+  }, [])
 
-  const toggleMobileNav = (): void => {
-    setMobileNavOpen((open) => !open)
-  }
+  const toggleMoreSheet = useCallback((): void => {
+    setMoreSheetOpen((open) => !open)
+  }, [])
+
+  /** Always dismiss the sheet on route change — including taps from inside the sheet. */
+  useEffect(() => {
+    setMoreSheetOpen(false)
+  }, [location.pathname])
 
   return (
-    <div className="flex min-h-screen w-full min-w-0 bg-surface-canvas">
+    <div className="flex min-h-screen w-full min-w-0 flex-col bg-surface-appCanvas md:flex-row">
       <a
         href="#main-content"
         className="sr-only z-toast focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:rounded-md focus:border focus:border-border-default focus:bg-surface-raised focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-content-primary focus:shadow-md"
       >
         Skip to main content
       </a>
-      {mobileNavOpen ? (
+
+      {/* Desktop sidebar — fixed left rail. */}
+      <div className="hidden md:flex md:shrink-0">
+        <AppSidebar />
+      </div>
+
+      {/* Mobile drawer scrim + sheet (rendered via portal-like fixed layer). */}
+      {moreSheetOpen ? (
         <button
           type="button"
           className="fixed inset-0 z-modal-backdrop bg-surface-overlay md:hidden"
           aria-label="Close navigation menu"
-          onClick={closeMobileNav}
+          onClick={closeMoreSheet}
         />
       ) : null}
       <div
+        id="mobile-nav-sheet"
         className={
-          mobileNavOpen
-            ? "fixed inset-y-0 left-0 z-modal flex shadow-lg md:static md:shadow-none"
-            : "hidden md:flex md:shrink-0"
+          moreSheetOpen
+            ? "fixed inset-y-0 left-0 z-modal flex w-[15rem] shadow-lg md:hidden"
+            : "hidden"
         }
+        aria-hidden={!moreSheetOpen}
       >
-        <AppSidebar onNavigate={closeMobileNav} />
+        <AppSidebar onNavigate={closeMoreSheet} />
       </div>
+
       <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar
-          title={title}
-          showMenuToggle
-          menuExpanded={mobileNavOpen}
-          onMenuToggle={toggleMobileNav}
-        />
+        <TopBar title={title} />
         <main
           id="main-content"
           tabIndex={-1}
@@ -81,6 +103,10 @@ export function AdminShell(): JSX.Element {
             </Suspense>
           </ErrorBoundary>
         </main>
+        <MobileTabBar
+          moreOpen={moreSheetOpen}
+          onToggleMore={toggleMoreSheet}
+        />
       </div>
     </div>
   )
