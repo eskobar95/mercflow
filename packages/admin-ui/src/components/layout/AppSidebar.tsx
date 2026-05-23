@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { NavLink, useLocation, useResolvedPath } from "react-router-dom"
 
 import { BrandAvatar } from "@/components/ui/BrandAvatar"
@@ -96,10 +96,19 @@ function ExpandableItem({
 
   const [open, setOpen] = useState<boolean>(hasActiveChild || isParentRouteActive)
 
-  // If the route changes to land inside this group, ensure it's expanded.
+  // Auto-expand only on the *transition* from outside → inside this group
+  // (e.g. clicking a top-level link that lands on a child). Once the user
+  // manually toggles the chevron we respect their state; we don't keep
+  // re-opening just because a child route is still active — that would
+  // make the parent feel "locked" while you're inside it.
+  const wasInsideRef = useRef<boolean>(hasActiveChild || isParentRouteActive)
   useEffect(() => {
-    if (hasActiveChild && !open) setOpen(true)
-  }, [hasActiveChild, open])
+    const isInside = hasActiveChild || isParentRouteActive
+    if (isInside && !wasInsideRef.current) {
+      setOpen(true)
+    }
+    wasInsideRef.current = isInside
+  }, [hasActiveChild, isParentRouteActive])
 
   const Icon = item.icon
 

@@ -117,23 +117,6 @@ export function MobileNavSheet({
     return () => window.clearTimeout(timer)
   }, [open])
 
-  // Auto-drill if the current route lives inside a group with sub-items —
-  // tapping "More" while on /product-categories opens directly to the
-  // Products pane. Feels smart, removes one tap.
-  useEffect(() => {
-    if (!open || drillKey) return
-    const match = rootTiles.find((tile) =>
-      tile.subItems?.some(
-        (sub) =>
-          location.pathname === sub.to ||
-          location.pathname.startsWith(`${sub.to}/`)
-      )
-    )
-    if (match?.drillTo) {
-      setDrillKey(match.drillTo)
-    }
-  }, [open, drillKey, location.pathname, rootTiles])
-
   const drillTile = useMemo(
     () => (drillKey ? rootTiles.find((t) => t.drillTo === drillKey) ?? null : null),
     [drillKey, rootTiles]
@@ -159,6 +142,7 @@ export function MobileNavSheet({
           open={open}
           isActive={!isDrilled}
           tiles={rootTiles}
+          currentPath={location.pathname}
           onDrill={setDrillKey}
           onNavigate={onClose}
         />
@@ -170,6 +154,18 @@ export function MobileNavSheet({
         />
       </div>
     </aside>
+  )
+}
+
+function isPathInSubItems(
+  pathname: string,
+  subItems: SidebarSubItem[] | undefined
+): boolean {
+  if (!subItems) return false
+  return subItems.some((sub) =>
+    sub.end
+      ? pathname === sub.to
+      : pathname === sub.to || pathname.startsWith(`${sub.to}/`)
   )
 }
 
@@ -210,26 +206,35 @@ function SheetHeader({
         {/* Root header label */}
         <p
           aria-hidden={isDrilled}
-          className="absolute inset-0 flex items-center truncate text-[15px] font-semibold tracking-tight text-content-primary"
+          className="absolute left-0 truncate text-[15px] font-semibold tracking-tight text-content-primary"
           style={{
+            top: "50%",
             opacity: isDrilled ? 0 : 1,
-            transform: isDrilled ? "translateX(-12px)" : "translateX(0)",
+            transform: isDrilled
+              ? "translate(-8px, -50%)"
+              : "translate(0, -50%)",
             transition: `opacity 200ms ${ENTER_EASE}, transform 240ms ${ENTER_EASE}`,
           }}
         >
           MercFlow
         </p>
 
-        {/* Drill header (back button) */}
+        {/* Drill header — compact back-pill, NOT a full-height block.
+            Pill is h-9 (36px) centered in the 56px header so the hover
+            background reads as a contained tap target rather than a
+            sectioned region. */}
         <button
           type="button"
           onClick={onBack}
           aria-hidden={!isDrilled}
           tabIndex={isDrilled ? 0 : -1}
-          className="absolute inset-0 -mx-1.5 flex items-center gap-1.5 rounded-md px-1.5 text-left transition-colors duration-150 hover:bg-surface-subtle active:bg-surface-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+          className="absolute left-0 inline-flex h-9 items-center gap-1 rounded-full pl-1.5 pr-3 text-[15px] font-semibold tracking-tight text-content-primary transition-colors duration-150 hover:bg-surface-subtle active:bg-surface-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
           style={{
+            top: "50%",
             opacity: isDrilled ? 1 : 0,
-            transform: isDrilled ? "translateX(0)" : "translateX(12px)",
+            transform: isDrilled
+              ? "translate(0, -50%)"
+              : "translate(8px, -50%)",
             transition: `opacity 200ms ${ENTER_EASE} 60ms, transform 240ms ${ENTER_EASE} 60ms, background-color 150ms ${ENTER_EASE}`,
             pointerEvents: isDrilled ? "auto" : "none",
           }}
@@ -240,9 +245,7 @@ function SheetHeader({
           >
             <IconChevronLeft size={16} />
           </span>
-          <p className="truncate text-[15px] font-semibold tracking-tight text-content-primary">
-            {drillLabel ?? "Back"}
-          </p>
+          <span className="truncate">{drillLabel ?? "Back"}</span>
         </button>
       </div>
 
@@ -267,12 +270,14 @@ function RootPane({
   open,
   isActive,
   tiles,
+  currentPath,
   onDrill,
   onNavigate,
 }: {
   open: boolean
   isActive: boolean
   tiles: TileSource[]
+  currentPath: string
   onDrill: (key: string) => void
   onNavigate: () => void
 }): JSX.Element {
@@ -293,6 +298,7 @@ function RootPane({
           <Tile
             key={tile.key}
             tile={tile}
+            inSection={isPathInSubItems(currentPath, tile.subItems)}
             open={open && isActive}
             staggerIndex={i}
             onDrill={onDrill}
@@ -387,12 +393,15 @@ const tileBase =
  */
 function Tile({
   tile,
+  inSection,
   open,
   staggerIndex,
   onDrill,
   onNavigate,
 }: {
   tile: TileSource
+  /** True when the current route lives inside this tile's sub-items. */
+  inSection: boolean
   open: boolean
   staggerIndex: number
   onDrill: (key: string) => void
@@ -414,18 +423,30 @@ function Tile({
   } as const
 
   if (isDrillable) {
+    // When the current route lives in this section, give the tile a subtle
+    // amber outline + a dot on its icon chip. Less aggressive than the full
+    // "current" leaf treatment, but a clear hint of where you are.
     return (
       <button
         type="button"
         onClick={() => onDrill(tile.drillTo!)}
-        className={`${tileBase} hover:border-border-strong hover:shadow-md`}
+        className={[
+          tileBase,
+          inSection
+            ? "border-amber shadow-sm hover:shadow-md"
+            : "hover:border-border-strong hover:shadow-md",
+        ].join(" ")}
         style={enterStyle}
       >
-        <TileTop Icon={Icon} active={false} />
+        <TileTop Icon={Icon} active={false} showSectionDot={inSection} />
         <TileBottom
           label={tile.label}
-          meta={`${subCount} ${subCount === 1 ? "item" : "items"}`}
-          active={false}
+          meta={
+            inSection
+              ? "You are here"
+              : `${subCount} ${subCount === 1 ? "item" : "items"}`
+          }
+          active={inSection}
           drill
         />
       </button>
@@ -527,15 +548,18 @@ function SubTile({
 function TileTop({
   Icon,
   active,
+  showSectionDot = false,
 }: {
   Icon: SidebarNavItem["icon"]
   active: boolean
+  /** Render an amber dot on the icon chip indicating the current route lives in this section. */
+  showSectionDot?: boolean
 }): JSX.Element {
   return (
     <div className="flex items-start justify-between">
       <span
         className={[
-          "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors duration-150",
+          "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors duration-150",
           active
             ? "bg-amber text-content-inverse"
             : "bg-surface-subtle text-content-secondary group-hover/tile:bg-amber-subtle group-hover/tile:text-amber-text",
@@ -543,6 +567,12 @@ function TileTop({
         aria-hidden
       >
         <Icon size={20} />
+        {showSectionDot ? (
+          <span
+            className="absolute -right-0.5 -top-0.5 flex h-2.5 w-2.5 items-center justify-center rounded-full bg-amber ring-2 ring-surface-appCard"
+            aria-hidden
+          />
+        ) : null}
       </span>
     </div>
   )
