@@ -4,7 +4,8 @@ export function ContentPagesPage(): JSX.Element {
   return (
     <PlaceholderPage
       title="Pages"
-      description="CMS pages will ship in a later sprint."
+      description="Standalone storefront pages (About, FAQ, Shipping) with reusable blocks and content fields."
+      intent="Build and update marketing pages alongside the catalogue, in the same admin."
     />
   )
 }

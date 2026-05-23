@@ -4,7 +4,8 @@ export function ContentGlobalsPage(): JSX.Element {
   return (
     <PlaceholderPage
       title="Globals"
-      description="Global content entries will ship in a later sprint."
+      description="Reusable content fragments — headers, footers, banners — translated once and surfaced everywhere."
+      intent="Edit shared content once and watch every storefront page pick it up."
     />
   )
 }

@@ -4,7 +4,8 @@ export function CustomersPage(): JSX.Element {
   return (
     <PlaceholderPage
       title="Customers"
-      description="Customer list and profiles will ship in a later sprint."
+      description="The full customer index — profiles, lifetime value, segment membership, and recent activity."
+      intent="Look up a customer, jump to their orders, or build a segment for a campaign."
     />
   )
 }
