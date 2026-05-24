@@ -1,4 +1,5 @@
-import { useCallback } from "react"
+import type { JSONContent } from "@tiptap/core"
+import { useCallback, useEffect, useId, useMemo, useState } from "react"
 
 import { Badge } from "@/components/ui/Badge"
 import { Card } from "@/components/ui/Card"
@@ -7,9 +8,14 @@ import {
   DEFAULT_PRODUCT_CONTENT_LOCALE,
   useProductContentState,
 } from "@/features/product-content"
-import { EMPTY_TIPTAP_DOC, plaintextPreviewFromTiptapJson } from "@/lib/tiptap"
+import { EMPTY_TIPTAP_DOC, tiptapDocFromUnknown } from "@/lib/tiptap"
 
-const BODY_PREVIEW_MAX = 200
+import { isProductContentDirty } from "./productContentDirty"
+import { ProductDescriptionEditor } from "./ProductDescriptionEditor"
+import { SEOPreview } from "./SEOPreview"
+
+const SEO_DESCRIPTION_MAX = 160
+const SEO_TITLE_MAX = 255
 
 function localeBadgeLabel(locale: string): string {
   const norm = locale.trim()
@@ -30,6 +36,7 @@ export function ProductContentTab({
   productId,
   productTitleFallback,
 }: ProductContentTabProps): JSX.Element {
+  const formId = useId()
   const { locales, loading: localesLoading, error: localesError } = useAdminLocales()
   const readLocale = locales[0]?.code ?? DEFAULT_PRODUCT_CONTENT_LOCALE
 
@@ -40,11 +47,43 @@ export function ProductContentTab({
       loadOnMount: true,
     })
 
-  const bannerError = loadError ?? saveError
+  const [descriptionJson, setDescriptionJson] = useState<JSONContent>(EMPTY_TIPTAP_DOC)
+  const [seoTitle, setSeoTitle] = useState("")
+  const [seoDescription, setSeoDescription] = useState("")
+  const [ogUrl, setOgUrl] = useState("")
+  const [validationError, setValidationError] = useState<string | null>(null)
 
-  const onAddContent = useCallback(async () => {
+  useEffect(() => {
+    if (loading || content === null) {
+      return
+    }
+    setDescriptionJson(tiptapDocFromUnknown(content.body_json))
+    setSeoTitle(content.seo_title ?? "")
+    setSeoDescription(content.seo_description ?? "")
+    setOgUrl(content.og_image_url ?? "")
+    setValidationError(null)
+  }, [loading, content])
+
+  const isDirty = useMemo(
+    () =>
+      content !== null &&
+      isProductContentDirty(content, {
+        descriptionJson,
+        seoTitle,
+        seoDescription,
+        ogImageUrl: ogUrl,
+      }),
+    [content, descriptionJson, seoTitle, seoDescription, ogUrl]
+  )
+
+  const bannerError = validationError ?? loadError ?? saveError
+  const seoTitleTooLong = seoTitle.length > SEO_TITLE_MAX
+  const seoDescriptionTooLong = seoDescription.length > SEO_DESCRIPTION_MAX
+  const disabled = loading || saving
+
+  const onAddContent = useCallback(async (): Promise<void> => {
     clearError()
-    await save({
+    void save({
       description_rich: EMPTY_TIPTAP_DOC,
       seo_title: null,
       seo_description: null,
@@ -53,7 +92,42 @@ export function ProductContentTab({
     })
   }, [clearError, save])
 
-  const onRetryLoad = useCallback(async () => {
+  const onDiscard = useCallback(async (): Promise<void> => {
+    setValidationError(null)
+    clearError()
+    await load()
+  }, [clearError, load])
+
+  const runSave = useCallback(async (): Promise<boolean> => {
+    clearError()
+    if (seoTitleTooLong || seoDescriptionTooLong) {
+      setValidationError(
+        seoTitleTooLong
+          ? `Meta title must be at most ${SEO_TITLE_MAX} characters (currently ${seoTitle.length}).`
+          : `SEO description must be at most ${SEO_DESCRIPTION_MAX} characters (currently ${seoDescription.length}).`
+      )
+      return false
+    }
+    setValidationError(null)
+    return save({
+      description_rich: descriptionJson,
+      seo_title: seoTitle.trim() === "" ? null : seoTitle.trim(),
+      seo_description: seoDescription.trim() === "" ? null : seoDescription.trim(),
+      seo_og_image_id: ogUrl.trim() === "" ? null : ogUrl.trim(),
+      media_gallery: null,
+    })
+  }, [
+    clearError,
+    descriptionJson,
+    ogUrl,
+    save,
+    seoDescription,
+    seoTitle,
+    seoTitleTooLong,
+    seoDescriptionTooLong,
+  ])
+
+  const onRetryLoad = useCallback(async (): Promise<void> => {
     clearError()
     await load()
   }, [clearError, load])
@@ -86,7 +160,7 @@ export function ProductContentTab({
     )
   }
 
-  if (bannerError !== null) {
+  if (bannerError !== null && content === null) {
     return (
       <div className="space-y-4">
         <div
@@ -113,8 +187,9 @@ export function ProductContentTab({
       <Card className="space-y-3">
         <p className="text-sm text-content-secondary">No content yet.</p>
         <p className="text-xs text-content-tertiary">
-          Create initial CMS placeholders for rich text (TipTap JSON) and SEO metadata for locale{" "}
-          <code className="text-xs">{readLocale}</code>.
+          Create initial placeholders for TipTap rich text plus SEO metadata for locale{" "}
+          <code className="text-xs">{readLocale}</code>. Saving uses{" "}
+          <span className="font-mono text-xs">POST /admin/product-content</span>.
         </p>
         <div>
           <button
@@ -132,76 +207,194 @@ export function ProductContentTab({
     )
   }
 
-  const preview = plaintextPreviewFromTiptapJson(content.body_json, BODY_PREVIEW_MAX)
-  const seoTitleFallback =
-    content.seo_title?.trim() ??
-    (productTitleFallback.trim() !== "" ? productTitleFallback.trim() : "—")
+  const seoPreviewTitle =
+    seoTitle.trim() !== "" ? seoTitle : productTitleFallback.trim() !== "" ? productTitleFallback : ""
 
   return (
     <div className="space-y-6">
+      <div aria-live="polite" className="sr-only">
+        {saving ? "Saving product content." : ""}
+      </div>
+
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm font-medium text-content-primary">Locale</span>
-        <Badge
-          variant="neutral"
-          aria-label={`CMS content locale ${content.locale}`}
-        >
+        <Badge variant="neutral" aria-label={`CMS content locale ${content.locale}`}>
           {localeBadgeLabel(content.locale)}
         </Badge>
         <span className="text-xs text-content-tertiary">
-          Reads use the first locale from <code className="text-xs">GET /admin/locales</code> (
-          <span className="font-mono">{readLocale}</span>) until Sprint 4 adds an in-tab switcher.
+          Store languages come from{" "}
+          <code className="text-xs rounded bg-surface-subtle px-1">GET /admin/locales</code> —
+          switching per locale arrives in Sprint 4.
+        </span>
+        <span
+          className="ml-auto text-xs tabular-nums text-content-tertiary"
+          aria-label={`Content save version ${content.version}`}
+        >
+          Version <strong className="font-medium">{content.version}</strong>
+          {disabled ? "" : ". Each save increments the counter."}
         </span>
       </div>
 
-      <Card className="space-y-3">
-        <div>
-          <h2 className="text-lg font-semibold text-content-primary">Body preview</h2>
-          <p className="mt-1 text-sm text-content-secondary">
-            Stored as TipTap JSON; showing the first {BODY_PREVIEW_MAX} characters of plaintext.
-          </p>
+      {bannerError !== null ? (
+        <div
+          role="alert"
+          className="rounded-md border border-border-strong bg-surface-subtle px-3 py-2 text-sm text-content-danger"
+        >
+          {bannerError}
         </div>
-        <p className="rounded-md border border-border-subtle bg-surface-default p-4 text-sm text-content-primary whitespace-pre-wrap">
-          {preview.length === 0 ? "(No text in this locale yet.)" : preview}
-        </p>
-      </Card>
+      ) : null}
 
-      <Card className="space-y-4">
-        <h2 className="text-lg font-semibold text-content-primary">SEO</h2>
-        <dl className="grid gap-3 text-sm sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <dt className="text-content-tertiary">Preview title</dt>
-            <dd className="mt-1 font-medium text-content-primary">{seoTitleFallback}</dd>
+      <form
+        id={formId}
+        className="space-y-6"
+        onSubmit={(e): void => {
+          e.preventDefault()
+          void runSave()
+        }}
+      >
+        <Card className="space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold text-content-primary">Rich text description</h2>
+            <p className="mt-1 text-sm text-content-secondary">
+              Stored as TipTap JSON (<span className="font-mono text-xs">body_json</span> on reads).
+              Further saves use{" "}
+              <span className="font-mono text-xs">PATCH /admin/product-content/</span>
+              {content.id}.
+            </p>
           </div>
-          <div className="sm:col-span-2">
-            <dt className="text-content-tertiary">Meta title</dt>
-            <dd className="mt-1 text-content-primary">
-              {content.seo_title != null && content.seo_title.trim() !== ""
-                ? content.seo_title
-                : "(Not set)"}
-            </dd>
-          </div>
-          <div className="sm:col-span-2">
-            <dt className="text-content-tertiary">Meta description</dt>
-            <dd className="mt-1 text-content-primary">
-              {content.seo_description != null && content.seo_description.trim() !== ""
-                ? content.seo_description
-                : "(Not set)"}
-            </dd>
-          </div>
-          <div className="sm:col-span-2">
-            <dt className="text-content-tertiary">Open Graph image URL</dt>
-            <dd className="mt-1 break-all text-content-primary">
-              {content.og_image_url != null && content.og_image_url.length > 0
-                ? content.og_image_url
-                : "(Not set)"}
-            </dd>
-          </div>
-        </dl>
-      </Card>
+          <ProductDescriptionEditor
+            value={descriptionJson}
+            onChange={setDescriptionJson}
+            variant="embedded"
+            disabled={disabled}
+          />
+        </Card>
 
-      <p className="text-xs text-content-tertiary">
-        Rich text and SEO field editing arrives in Sprint 3; this tab is read-only for MER-26.
-      </p>
+        <Card className="space-y-4">
+          <h2 className="text-lg font-semibold text-content-primary">SEO</h2>
+          <p className="mt-1 text-sm text-content-secondary">
+            Meta limits follow MercFlow CMS rules (title 255 chars, snippet 160).
+          </p>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="space-y-4">
+              <div>
+                <label
+                  htmlFor={`${formId}-seo-title`}
+                  className="block text-sm font-medium text-content-primary"
+                >
+                  Meta title
+                </label>
+                <input
+                  id={`${formId}-seo-title`}
+                  type="text"
+                  value={seoTitle}
+                  onChange={(e) => {
+                    setSeoTitle(e.target.value)
+                  }}
+                  disabled={disabled}
+                  autoComplete="off"
+                  aria-invalid={seoTitleTooLong}
+                  aria-describedby={`${formId}-seo-title-counter`}
+                  className="mt-1 w-full rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus disabled:opacity-50"
+                />
+                <p
+                  id={`${formId}-seo-title-counter`}
+                  className={`mt-1 text-xs ${seoTitleTooLong ? "font-medium text-content-danger" : "text-content-tertiary"}`}
+                >
+                  {seoTitle.length} / {SEO_TITLE_MAX} characters
+                  {seoTitleTooLong ? " — shorten before saving." : ""}
+                </p>
+              </div>
+              <div>
+                <label
+                  htmlFor={`${formId}-seo-desc`}
+                  className="block text-sm font-medium text-content-primary"
+                >
+                  Meta description
+                </label>
+                <textarea
+                  id={`${formId}-seo-desc`}
+                  value={seoDescription}
+                  onChange={(e): void => {
+                    const v = e.target.value
+                    setSeoDescription(v)
+                  }}
+                  onBlur={(): void => {
+                    if (seoDescription.length > SEO_DESCRIPTION_MAX) {
+                      setValidationError(
+                        `SEO description must be at most ${SEO_DESCRIPTION_MAX} characters (currently ${seoDescription.length}).`
+                      )
+                    }
+                  }}
+                  disabled={disabled}
+                  rows={4}
+                  aria-invalid={seoDescriptionTooLong}
+                  aria-describedby={`${formId}-seo-desc-counter`}
+                  className="mt-1 w-full rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus disabled:opacity-50"
+                />
+                <p
+                  id={`${formId}-seo-desc-counter`}
+                  className={`mt-1 text-xs ${seoDescriptionTooLong ? "font-medium text-content-danger" : "text-content-tertiary"}`}
+                >
+                  {seoDescription.length} / {SEO_DESCRIPTION_MAX} characters
+                  {seoDescriptionTooLong ? " — shorten before saving." : ""}
+                </p>
+              </div>
+              <div>
+                <label
+                  htmlFor={`${formId}-og-url`}
+                  className="block text-sm font-medium text-content-primary"
+                >
+                  Open Graph image URL
+                </label>
+                <input
+                  id={`${formId}-og-url`}
+                  type="url"
+                  placeholder="https://"
+                  value={ogUrl}
+                  onChange={(e) => {
+                    setOgUrl(e.target.value)
+                  }}
+                  disabled={disabled}
+                  autoComplete="off"
+                  className="mt-1 w-full rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus disabled:opacity-50"
+                />
+                <p className="mt-0.5 text-xs text-content-tertiary">
+                  Sends as <span className="font-mono">seo_og_image_id</span> in mutations and is
+                  stored on the OG URL column.
+                </p>
+              </div>
+            </div>
+            <div>
+              <SEOPreview
+                title={seoPreviewTitle}
+                description={seoDescription}
+                fallbackTitle={productTitleFallback}
+              />
+            </div>
+          </div>
+        </Card>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="submit"
+            disabled={disabled || seoTitleTooLong || seoDescriptionTooLong}
+            className="rounded-md bg-interactive-primary px-4 py-2 text-sm font-medium text-content-inverse hover:bg-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus disabled:opacity-50"
+          >
+            {saving ? "Saving…" : "Save content"}
+          </button>
+          <button
+            type="button"
+            disabled={disabled || !isDirty}
+            onClick={() => {
+              void onDiscard()
+            }}
+            className="rounded-md border border-border-default bg-surface-default px-4 py-2 text-sm font-medium text-content-primary shadow-sm hover:bg-surface-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus disabled:opacity-50"
+          >
+            Discard changes
+          </button>
+        </div>
+      </form>
     </div>
   )
 }

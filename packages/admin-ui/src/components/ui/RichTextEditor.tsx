@@ -309,6 +309,31 @@ export function RichTextEditor({
         >
           <span className="italic">I</span>
         </ToolbarButton>
+        {extensions === "full" ? (
+          <>
+            <span className="mx-1 h-5 w-px bg-border-default" aria-hidden />
+            <ToolbarButton
+              label="Heading 2"
+              pressed={editor?.isActive("heading", { level: 2 }) ?? false}
+              disabled={toolbarDisabled}
+              onClick={() => {
+                editor?.chain().focus().toggleHeading({ level: 2 }).run()
+              }}
+            >
+              H2
+            </ToolbarButton>
+            <ToolbarButton
+              label="Heading 3"
+              pressed={editor?.isActive("heading", { level: 3 }) ?? false}
+              disabled={toolbarDisabled}
+              onClick={() => {
+                editor?.chain().focus().toggleHeading({ level: 3 }).run()
+              }}
+            >
+              H3
+            </ToolbarButton>
+          </>
+        ) : null}
         <span className="mx-1 h-5 w-px bg-border-default" aria-hidden />
         <ToolbarButton
           label="Bullet list"

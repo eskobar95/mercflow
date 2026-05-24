@@ -1,18 +1,20 @@
 /**
- * Flat JSON payload for `GET /admin/product-content/:product_id` (MercFlow CMS read slice).
+ * Flat JSON payload for `GET` / `POST` / `PATCH` MercFlow CMS product-content admin routes.
  */
 export type ProductContentReadPayload = {
+  id: string
+  product_id: string
+  locale: string
+  version: number
   body_json: unknown | null
   seo_title: string | null
   seo_description: string | null
   og_image_url: string | null
   status: string
-  locale: string
 }
 
 /**
- * Resolved product content for one locale, aligned with the admin
- * `POST /admin/products/:id/content` success payload (`content` field).
+ * @deprecated Legacy envelope shape (`{ content }`); prefer `ProductContentReadPayload`.
  */
 export type ProductContentResolved = {
   id: string
@@ -26,7 +28,7 @@ export type ProductContentResolved = {
 }
 
 /**
- * JSON body for `POST /admin/products/:id/content` (partial updates allowed).
+ * JSON body for Mutations (`POST/PATCH`).
  * Mirrors content-module `productContentBodySchema` without pulling Zod into the UI.
  */
 export type SaveProductContentBody = {
