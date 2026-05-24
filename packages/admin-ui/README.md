@@ -137,10 +137,10 @@ Use primitives from `src/components/ui/` (`Input`, `Textarea`, `Select`, `FormFi
 
 ## Category content API (dev)
 
-- **Data layer:** `src/features/category-content/` — types, `getCategoryContent` / `saveCategoryContent`, and `useCategoryContentState` with the same async surface as product (`loading`, `saving`, `loadError`, `saveError`, `load` / `save` return `Promise<boolean>`, `clearError`, optional `loadOnMount`).
-- **HTTP:** `GET/POST /admin/product-categories/:id/content?locale=…` (default locale **`en`** on the client when omitted). **DTO delta vs product:** responses use `category_id` (not `product_id`), include **`banner_image_id`**, and **omit** `media_gallery` on save payloads (see `packages/content-module` README).
+- **Read tab (MercFlow flattened payload):** `getCategoryContentRead` calls **`GET /admin/category-content/:categoryId?locale=`**, parses **`parseCategoryContentReadPayload`** (expects `version`, **`body_json`**, **`og_image_url`**, **`banner_image_url`**, mirrored catalog **`status`**), and treats **404 → `null`**. Powered by **`CategoryContentReadTab`** on **`/product-categories/:id?tab=content`** alongside Medusa-derived overview data (`useAdminProductCategoryDetail`).
+- **Legacy nested editors / mutations:** `getCategoryContent` / `saveCategoryContent` remain on **`GET/POST /admin/product-categories/:id/content?locale=…`** with `{ content: … }` envelopes for authoring flows (`CategoryContentTab` when re-enabled later).
+- **HTTP:** Prefer MercFlow **`/admin/category-content/:id`** for read-only storefront-style snapshots; **`/admin/product-categories/:id/content`** stays for **`POST`** saves with **`banner_image_id`** (still maps to **`banner_image_url`** server-side via the content module README).
 - **Env / auth:** Same as product — `VITE_MEDUSA_ADMIN_BACKEND_URL`, `VITE_MEDUSA_ADMIN_BEARER_TOKEN`, `credentials: "include"` (see `.env.example`).
-- **UI:** `src/components/category-content/CategoryContentTab.tsx` — reuses product `ProductDescriptionEditor` / `SEOPreview`; banner and OG use single ID fields (no `media_gallery`). Includes **Discard changes** (reloads from API).
 
 ## Content editing locale (dev)
 
