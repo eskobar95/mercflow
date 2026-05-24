@@ -35,7 +35,7 @@ Open the Vite dev URL printed in the terminal. The app loads the **admin shell**
 
 ## Product catalogue (read views)
 
-- **List:** `/products` → `ProductListPage` — columns for thumbnail, title, status, variant count, total stock (when tracked), derived price range, and `updated_at`; **All / Published / Draft** filter; title search debounced **300ms** and passed to `GET /admin/products`; pagination **20** per page (`useProductsCatalogList` under `src/hooks/products/`).
+- **List:** `/products` → `ProductListPage` — columns for thumbnail, title, status, variant count, total stock (when tracked), derived price range, and `updated_at`; **All / Active / Draft** filter; title search debounced **300ms** and passed to `GET /admin/products`; pagination **20** per page (`useProductsCatalogList` under `src/hooks/products/`).
 - **Detail:** `/products/:id` → `ProductDetailPage` — **Overview** (title, plain-text preview of Medusa `description`, status badge, media thumbnail strip from thumbnail + gallery) and **Variants** (one row per variant: name/SKU hint, merged price + stock/inventory summary). No separate inventory tab.
 - **Client:** Shared SDK factory `src/medusa-admin/createMercflowMedusaSdk.ts` (session + optional bearer header via env). Hooks use **`@tanstack/react-query`** queries; without `VITE_MEDUSA_ADMIN_BACKEND_URL`, catalogue pages fall back to `src/data/mockProducts.ts` for deterministic dev.
 
