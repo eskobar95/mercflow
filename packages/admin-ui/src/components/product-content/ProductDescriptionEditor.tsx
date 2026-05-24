@@ -19,6 +19,8 @@ export function ProductDescriptionEditor({
   value,
   onChange,
   disabled = false,
+  variant = "embedded",
+  placeholder = "Describe this product for shoppers…",
 }: ProductDescriptionEditorProps): JSX.Element {
   return (
     <RichTextEditor
@@ -26,6 +28,8 @@ export function ProductDescriptionEditor({
       onChange={onChange as (json: JSONContent) => void}
       disabled={disabled}
       extensions="full"
+      variant={variant}
+      placeholder={placeholder}
       label="Rich text description editor"
     />
   )

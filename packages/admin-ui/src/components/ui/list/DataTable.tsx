@@ -11,7 +11,7 @@ import type { ListColumnDef, ListSelection, ListSortState } from "./types"
 
 /** Header cell base — no uppercase, lighter density */
 const headerCellBase = "px-4 py-2 text-left"
-const dataCell = "px-4 py-2.5 text-[13px] text-content-primary align-middle"
+const dataCell = "px-4 py-2.5 text-sm text-content-primary align-middle"
 
 function HeaderSelectAllCheckbox({
   checked,
@@ -146,7 +146,7 @@ export function DataTable<TRow, TCol extends string>({
         )
       })}
       {showActions ? (
-        <th className={cn(headerCellBase, "w-0 text-right text-[12px] font-medium text-content-tertiary")} scope="col">
+        <th className={cn(headerCellBase, "w-0 text-right text-xs font-medium text-content-tertiary")} scope="col">
           <span className="sr-only">Actions</span>
         </th>
       ) : null}

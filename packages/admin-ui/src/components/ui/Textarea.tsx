@@ -16,7 +16,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         ref={ref}
         className={fieldClassName({
           error,
-          className: `${className ?? ""} min-h-24 resize-y`,
+          className: `${className ?? ""} min-h-24 resize-y py-2`,
         })}
         style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
         {...rest}

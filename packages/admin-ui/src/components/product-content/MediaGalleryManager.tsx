@@ -1,5 +1,6 @@
 import { useCallback, useId, useState } from "react"
 
+import { Input } from "@/components/ui/Input"
 export type MediaGalleryManagerProps = {
   value: string[]
   onChange: (ids: string[]) => void
@@ -62,7 +63,7 @@ export function MediaGalleryManager({
           Enter a Medusa file / media id. Full upload wiring is not included in this shell.
         </p>
         <div className="mt-1 flex flex-wrap gap-2">
-          <input
+          <Input
             id={`${baseId}-new-id`}
             type="text"
             value={draftId}
@@ -72,7 +73,7 @@ export function MediaGalleryManager({
             disabled={disabled}
             placeholder="e.g. file_01…"
             aria-describedby={`${baseId}-new-hint`}
-            className="min-w-[12rem] flex-1 rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus disabled:opacity-50"
+            className="min-w-[12rem] flex-1"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault()

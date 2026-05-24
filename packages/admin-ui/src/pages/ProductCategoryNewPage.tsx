@@ -40,7 +40,7 @@ export function ProductCategoryNewPage(): JSX.Element {
         <h1 className="mb-6 text-2xl font-semibold text-content-primary">
           New product category
         </h1>
-        <Card>
+        <Card elevation="flat">
           {successMessage ? (
             <p
               className="mb-4 text-sm text-content-secondary"

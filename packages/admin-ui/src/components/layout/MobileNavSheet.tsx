@@ -206,7 +206,7 @@ function SheetHeader({
         {/* Root header label */}
         <p
           aria-hidden={isDrilled}
-          className="absolute left-0 truncate text-[15px] font-semibold tracking-tight text-content-primary"
+          className="absolute left-0 truncate text-interface font-semibold tracking-tight text-content-primary"
           style={{
             top: "50%",
             opacity: isDrilled ? 0 : 1,
@@ -228,7 +228,7 @@ function SheetHeader({
           onClick={onBack}
           aria-hidden={!isDrilled}
           tabIndex={isDrilled ? 0 : -1}
-          className="absolute left-0 inline-flex h-9 items-center gap-1 rounded-full pl-1.5 pr-3 text-[15px] font-semibold tracking-tight text-content-primary transition-colors duration-150 hover:bg-surface-subtle active:bg-surface-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          className="absolute left-0 inline-flex h-9 items-center gap-1 rounded-full pl-1.5 pr-3 text-interface font-semibold tracking-tight text-content-primary transition-colors duration-150 hover:bg-surface-subtle active:bg-surface-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           style={{
             top: "50%",
             opacity: isDrilled ? 1 : 0,
@@ -360,7 +360,7 @@ function DrillPane({
 
       {renderTile ? (
         <p
-          className="mt-5 px-1 text-[12px] text-content-tertiary"
+          className="mt-5 px-1 text-xs text-content-tertiary"
           style={{
             opacity: isActive && open ? 1 : 0,
             transform: isActive && open ? "translateY(0)" : "translateY(4px)",
@@ -592,13 +592,13 @@ function TileBottom({
   return (
     <div className="flex items-end justify-between gap-2">
       <div className="min-w-0">
-        <p className="truncate text-[15px] font-semibold tracking-tight text-content-primary">
+        <p className="truncate text-interface font-semibold tracking-tight text-content-primary">
           {label}
         </p>
         {meta ? (
           <p
             className={[
-              "mt-0.5 truncate text-[11px] font-medium",
+              "mt-0.5 truncate text-2xs font-medium",
               active ? "text-accent-text" : "text-content-tertiary",
             ].join(" ")}
           >

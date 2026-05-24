@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/Button"
 import { BrandAvatar } from "@/components/ui/BrandAvatar"
 import { IconSearch } from "@/components/ui/icons"
 
@@ -55,7 +56,7 @@ export function TopBar({
         </div>
       ) : null}
 
-      <h1 className="min-w-0 flex-1 truncate text-[15px] font-semibold tracking-tight text-content-primary md:text-base">
+      <h1 className="min-w-0 flex-1 truncate text-interface font-semibold tracking-tight text-content-primary md:text-base">
         {title}
       </h1>
 
@@ -63,7 +64,7 @@ export function TopBar({
       <div className="hidden items-center gap-2 md:flex">
         <button
           type="button"
-          className="group/search inline-flex h-9 w-[280px] items-center gap-2 rounded-full border border-border-default bg-surface-appCanvas px-3.5 text-left text-[13px] text-content-tertiary transition-[background-color,border-color,color] duration-150 hover:border-border-strong hover:bg-surface-appCard focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          className="group/search inline-flex h-9 w-[280px] items-center gap-2 rounded-full border border-border-default bg-surface-appCanvas px-3.5 text-left text-sm text-content-tertiary transition-[background-color,border-color,color] duration-150 hover:border-border-strong hover:bg-surface-appCard focus-visible:outline-none focus-visible:border-accent"
           style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
           aria-label="Search MercFlow"
         >
@@ -72,35 +73,37 @@ export function TopBar({
             className="shrink-0 text-content-tertiary transition-colors group-hover/search:text-content-secondary"
           />
           <span className="flex-1">Search</span>
-          <kbd className="ml-auto rounded border border-border-default bg-surface-appCard px-1.5 py-px font-mono text-[10px] font-medium text-content-tertiary">
+          <kbd className="ml-auto rounded border border-border-default bg-surface-appCard px-1.5 py-px font-mono text-3xs font-medium text-content-tertiary">
             ⌘K
           </kbd>
         </button>
 
-        <button
+        <Button
           type="button"
-          className="inline-flex h-9 items-center gap-1.5 rounded-full bg-accent px-3.5 text-[13px] font-semibold text-content-inverse shadow-sm transition-[background-color,transform,box-shadow] duration-150 hover:bg-accent-strong hover:shadow-md active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-          style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
+          shape="pill"
+          variant="primary"
           aria-label="Create new"
+          leadingIcon={
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.25"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+          }
         >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.25"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M12 5v14M5 12h14" />
-          </svg>
           Create
-        </button>
+        </Button>
 
         <div
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-content-primary text-[11px] font-semibold text-content-inverse"
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-content-primary text-2xs font-semibold text-content-inverse"
           aria-label="Workspace owner"
           title="Nicklas Eskou"
         >
@@ -117,26 +120,29 @@ export function TopBar({
         >
           <IconSearch size={17} />
         </button>
-        <button
+        <Button
           type="button"
+          shape="pill"
+          variant="primary"
+          size="md"
+          className="h-9 w-9 px-0"
           aria-label="Create new"
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-content-inverse shadow-sm transition-[background-color,transform] duration-150 hover:bg-accent-strong active:scale-[0.95]"
-          style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.25"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M12 5v14M5 12h14" />
-          </svg>
-        </button>
+          leadingIcon={
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.25"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+          }
+        />
       </div>
     </header>
   )

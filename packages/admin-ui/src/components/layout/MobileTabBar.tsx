@@ -83,7 +83,7 @@ export function MobileTabBar(): JSX.Element {
                 />
                 <span
                   className={[
-                    "text-[11px] leading-none tracking-tight transition-colors duration-200",
+                    "text-2xs leading-none tracking-tight transition-colors duration-200",
                     isActive
                       ? "font-semibold text-accent-text"
                       : "font-medium text-content-tertiary group-hover/tab:text-content-secondary",

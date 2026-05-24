@@ -52,11 +52,11 @@ const PRODUCT_COLUMNS: ListColumnDef<ProductListRow, ProductCol>[] = [
       <div>
         <Link
           to={`/products/${encodeURIComponent(r.id)}`}
-          className="text-[13px] font-medium text-content-primary hover:text-accent focus-visible:outline-none focus-visible:text-accent"
+          className="text-sm font-medium text-content-primary hover:text-accent focus-visible:outline-none focus-visible:text-accent"
         >
           {r.title}
         </Link>
-        <p className="mt-0.5 font-mono text-[11px] text-content-tertiary">{r.sku}</p>
+        <p className="mt-0.5 font-mono text-2xs text-content-tertiary">{r.sku}</p>
       </div>
     ),
   },
@@ -73,7 +73,7 @@ const PRODUCT_COLUMNS: ListColumnDef<ProductListRow, ProductCol>[] = [
     sortable: true,
     getSortValue: (r) => r.collection,
     renderCell: (r) => (
-      <span className="text-[13px] text-content-secondary">{r.collection}</span>
+      <span className="text-sm text-content-secondary">{r.collection}</span>
     ),
   },
   {
@@ -82,7 +82,7 @@ const PRODUCT_COLUMNS: ListColumnDef<ProductListRow, ProductCol>[] = [
     sortable: true,
     getSortValue: (r) => new Date(r.updatedAt).getTime(),
     renderCell: (r) => (
-      <time dateTime={r.updatedAt} className="text-[13px] text-content-tertiary">
+      <time dateTime={r.updatedAt} className="text-sm text-content-tertiary">
         {new Date(r.updatedAt).toLocaleDateString(undefined, {
           month: "short",
           day: "numeric",
@@ -258,18 +258,18 @@ export function ProductListPage(): JSX.Element {
         {/* ── Heading ── */}
         <div className="flex items-center justify-between gap-3 border-b border-border-subtle px-4 py-3">
           <div className="flex items-center gap-2.5">
-            <h1 className="text-[15px] font-semibold tracking-tight text-content-primary">
+            <h1 className="text-interface font-semibold tracking-tight text-content-primary">
               Products
             </h1>
             {/* Live count badge — updates with filter state */}
-            <span className="inline-flex items-center rounded bg-surface-subtle px-1.5 py-0.5 text-[11px] font-semibold tabular-nums text-content-tertiary">
+            <span className="inline-flex items-center rounded bg-surface-subtle px-1.5 py-0.5 text-2xs font-semibold tabular-nums text-content-tertiary">
               {isFiltered ? `${sorted.length} of ${MOCK_PRODUCTS.length}` : MOCK_PRODUCTS.length}
             </span>
           </div>
           <div className="flex items-center gap-2">
             <Link
               to="/product-categories"
-              className="hidden text-[13px] font-medium text-content-tertiary transition-colors hover:text-content-secondary sm:block"
+              className="hidden text-sm font-medium text-content-tertiary transition-colors hover:text-content-secondary sm:block"
             >
               Categories
             </Link>
@@ -295,7 +295,7 @@ export function ProductListPage(): JSX.Element {
                 setPage(1)
               }}
               className={cn(
-                "relative flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-[13px] font-medium transition-colors",
+                "relative flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
                 statusFilter === tab.id
                   ? "border-content-primary text-content-primary"
                   : "border-transparent text-content-tertiary hover:text-content-secondary",
@@ -304,7 +304,7 @@ export function ProductListPage(): JSX.Element {
               {tab.label}
               <span
                 className={cn(
-                  "inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-sm px-1 text-[10px] font-semibold tabular-nums",
+                  "inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-sm px-1 text-3xs font-semibold tabular-nums",
                   statusFilter === tab.id
                     ? "bg-surface-subtle text-content-secondary"
                     : "text-content-tertiary",

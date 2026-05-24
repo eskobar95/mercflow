@@ -4,6 +4,8 @@ import { forwardRef, type ComponentPropsWithoutRef, type ReactNode } from "react
 import { ENTER_EASE } from "@/constants/motion"
 import { cn } from "@/lib/cn"
 
+import { overlayPanelClass } from "./formStyles"
+
 export const DropdownMenu = DropdownMenuPrimitive.Root
 export const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger
 export const DropdownMenuGroup = DropdownMenuPrimitive.Group
@@ -22,7 +24,8 @@ export const DropdownMenuContent = forwardRef<
         ref={ref}
         sideOffset={sideOffset}
         className={cn(
-          "z-dropdown min-w-44 overflow-hidden rounded-md border border-border-default bg-surface-raised p-1 shadow-md",
+          overlayPanelClass,
+          "z-dropdown min-w-44 overflow-hidden p-1",
           "origin-[var(--radix-dropdown-menu-content-transform-origin)]",
           "data-[state=open]:scale-100 data-[state=open]:opacity-100",
           "data-[state=closed]:scale-[0.97] data-[state=closed]:opacity-0",
@@ -54,7 +57,7 @@ export const DropdownMenuItem = forwardRef<HTMLDivElement, DropdownMenuItemProps
         className={cn(
           "relative flex min-h-11 cursor-pointer select-none items-center rounded-sm px-2 py-2 text-sm outline-none",
           "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-          "data-[highlighted]:bg-surface-subtle",
+          "data-[highlighted]:bg-accent-subtle",
           destructive
             ? "text-feedback-danger-content data-[highlighted]:bg-feedback-danger-subtle"
             : "text-content-primary",

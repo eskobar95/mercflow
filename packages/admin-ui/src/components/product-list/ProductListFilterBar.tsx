@@ -54,7 +54,7 @@ function CheckRow({
   return (
     <button
       type="button"
-      className="flex w-full items-center gap-2 px-2.5 py-1 text-left text-[12px] text-content-primary hover:bg-surface-subtle"
+      className="flex w-full items-center gap-2 px-2.5 py-1 text-left text-xs text-content-primary hover:bg-surface-subtle"
       onClick={onClick}
     >
       <span
@@ -95,7 +95,7 @@ function ValuePickerPopover({
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent align="start" className="w-40 p-0" sideOffset={4}>
         <div className="border-b border-border-subtle px-2.5 py-1.5">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-content-tertiary">
+          <span className="text-3xs font-semibold uppercase tracking-wider text-content-tertiary">
             {category.label}
           </span>
         </div>
@@ -132,7 +132,7 @@ function OperatorDropdown({
           type="button"
           className={cn(
             "inline-flex items-center gap-0.5 rounded px-1.5 py-px",
-            "text-[11px] font-medium text-content-tertiary",
+            "text-2xs font-medium text-content-tertiary",
             "transition-colors hover:bg-surface-subtle hover:text-content-secondary",
             "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-border-strong",
           )}
@@ -148,7 +148,7 @@ function OperatorDropdown({
           <DropdownMenuItem
             key={op}
             className={cn(
-              "!min-h-0 cursor-pointer gap-1.5 px-2 py-1 text-[12px]",
+              "!min-h-0 cursor-pointer gap-1.5 px-2 py-1 text-xs",
               op === operator ? "font-semibold text-accent" : "text-content-primary",
             )}
             onSelect={() => onSelect(op)}
@@ -192,7 +192,7 @@ function FilterChip({
       className={cn(
         "inline-flex h-[26px] shrink-0 items-center gap-px",
         "rounded border border-border-default bg-surface-default",
-        "text-[12px] ring-0 transition-shadow",
+        "text-xs ring-0 transition-shadow",
         "hover:border-border-strong",
       )}
     >
@@ -283,13 +283,13 @@ function FilterSearch({
           placeholder="Filter…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          className="w-full bg-transparent text-[12px] text-content-primary placeholder:text-content-tertiary focus:outline-none"
+          className="w-full bg-transparent text-xs text-content-primary placeholder:text-content-tertiary focus:outline-none"
         />
       </div>
       {/* Category rows */}
       <div className="py-0.5">
         {visible.length === 0 ? (
-          <p className="px-2.5 py-2 text-[11px] text-content-tertiary">No matches</p>
+          <p className="px-2.5 py-2 text-2xs text-content-tertiary">No matches</p>
         ) : (
           visible.map((cat) => {
             const count = selectedCount(cat.id)
@@ -297,13 +297,13 @@ function FilterSearch({
               <button
                 key={cat.id}
                 type="button"
-                className="flex w-full items-center justify-between gap-2 px-2.5 py-1 text-left text-[12px] text-content-primary hover:bg-surface-subtle"
+                className="flex w-full items-center justify-between gap-2 px-2.5 py-1 text-left text-xs text-content-primary hover:bg-surface-subtle"
                 onClick={() => onSelect(cat)}
               >
                 <span>{cat.label}</span>
                 <div className="flex items-center gap-1">
                   {count > 0 ? (
-                    <span className="inline-flex h-3.5 min-w-3.5 items-center justify-center rounded-sm bg-accent px-0.5 text-[9px] font-bold text-white tabular-nums">
+                    <span className="inline-flex h-3.5 min-w-3.5 items-center justify-center rounded-sm bg-accent px-0.5 text-3xs font-bold text-white tabular-nums">
                       {count}
                     </span>
                   ) : null}
@@ -364,7 +364,7 @@ function FilterMenuPopover({
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="inline-flex h-7 shrink-0 items-center gap-1.5 rounded px-2 text-[12px] font-medium text-content-secondary transition-colors hover:bg-surface-subtle hover:text-content-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-border-strong"
+          className="inline-flex h-7 shrink-0 items-center gap-1.5 rounded px-2 text-xs font-medium text-content-secondary transition-colors hover:bg-surface-subtle hover:text-content-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-border-strong"
         >
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
             <rect x="1.5" y="3"   width="10" height="1.25" rx="0.625" fill="currentColor" />
@@ -390,7 +390,7 @@ function FilterMenuPopover({
                   <path d="M6 2L3.5 5 6 8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
-              <span className="text-[11px] font-semibold text-content-secondary">
+              <span className="text-2xs font-semibold text-content-secondary">
                 {drill.label}
               </span>
             </div>
@@ -472,7 +472,7 @@ function SearchToggle({
         aria-label="Search products"
         className={cn(
           "h-7 w-44 rounded border border-border-default bg-surface-default pl-7 pr-6",
-          "text-[12px] text-content-primary placeholder:text-content-tertiary",
+          "text-xs text-content-primary placeholder:text-content-tertiary",
           "focus-visible:border-accent focus-visible:outline-none",
           "transition-[width,border-color] duration-150",
         )}
@@ -521,20 +521,20 @@ export function FilterResultsSummary({
 
   return (
     <div className="flex items-center gap-3 border-b border-border-subtle bg-surface-subtle/60 px-4 py-2">
-      <span className="text-[12px] text-content-tertiary">
+      <span className="text-xs text-content-tertiary">
         Showing{" "}
         <span className="font-medium text-content-secondary">{filteredItems}</span>{" "}
         of{" "}
         <span className="font-medium text-content-secondary">{totalItems}</span>
       </span>
       <span aria-hidden className="h-3 w-px bg-border-default" />
-      <span className="text-[12px] text-content-tertiary">
+      <span className="text-xs text-content-tertiary">
         <span className="font-medium text-content-secondary">{hiddenCount}</span>{" "}
         hidden by filters
       </span>
       <button
         type="button"
-        className="ml-auto inline-flex items-center gap-1 text-[11px] font-medium text-content-tertiary transition-colors hover:text-content-secondary"
+        className="ml-auto inline-flex items-center gap-1 text-2xs font-medium text-content-tertiary transition-colors hover:text-content-secondary"
         onClick={onClear}
       >
         Clear Filters
@@ -641,26 +641,26 @@ export function ProductListFilterBar({
           <span className="mx-0.5 h-4 w-px shrink-0 bg-border-default" aria-hidden />
           <button
             type="button"
-            className="shrink-0 text-[11px] font-medium text-content-tertiary transition-colors hover:text-content-secondary"
+            className="shrink-0 text-2xs font-medium text-content-tertiary transition-colors hover:text-content-secondary"
           >
             Match all
           </button>
           <button
             type="button"
             onClick={clearAll}
-            className="shrink-0 text-[11px] font-medium text-content-tertiary transition-colors hover:text-feedback-danger-content"
+            className="shrink-0 text-2xs font-medium text-content-tertiary transition-colors hover:text-feedback-danger-content"
           >
             Clear
           </button>
           <button
             type="button"
-            className="shrink-0 text-[11px] font-medium text-accent transition-colors hover:text-accent-strong"
+            className="shrink-0 text-2xs font-medium text-accent transition-colors hover:text-accent-strong"
           >
             Save
           </button>
         </>
       ) : (
-        <span className="text-[11px] text-content-tertiary">No active filters</span>
+        <span className="text-2xs text-content-tertiary">No active filters</span>
       )}
 
       {/* Push search to right */}

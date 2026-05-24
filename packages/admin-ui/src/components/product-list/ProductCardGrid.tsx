@@ -34,7 +34,7 @@ export function ProductCardGrid({ rows }: { rows: ProductListRow[] }): JSX.Eleme
             >
               <ProductThumbnail title={row.title} hue={row.thumbnailHue} size={40} />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[13px] font-medium text-content-primary">
+                <p className="truncate text-sm font-medium text-content-primary">
                   {row.title}
                 </p>
                 <p className="mt-0.5 truncate text-xs text-content-tertiary">
@@ -43,7 +43,7 @@ export function ProductCardGrid({ rows }: { rows: ProductListRow[] }): JSX.Eleme
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1">
                 <ProductStatusBadge status={row.status} />
-                <span className="text-[11px] text-content-tertiary">{date}</span>
+                <span className="text-2xs text-content-tertiary">{date}</span>
               </div>
             </Link>
           </li>

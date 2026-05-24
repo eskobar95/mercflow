@@ -4,6 +4,11 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { ContentLocaleSwitcher } from "@/components/content-locale/ContentLocaleSwitcher"
 import { ContentLocaleUnsavedDialog } from "@/components/content-locale/ContentLocaleUnsavedDialog"
 import { Card } from "@/components/ui/Card"
+import { Button } from "@/components/ui/Button"
+import { FormField } from "@/components/ui/FormField"
+import { Input } from "@/components/ui/Input"
+import { Textarea } from "@/components/ui/Textarea"
+import { sectionDescClass, sectionTitleClass } from "@/components/ui/formStyles"
 import { useAdminLocales, useContentLocale } from "@/features/content-locale"
 import {
   DEFAULT_PRODUCT_CONTENT_LOCALE,
@@ -250,39 +255,31 @@ export function ProductContentTab({
           resolvedContentLocale={content?.locale ?? null}
         />
 
-        <Card>
-          <h2 className="text-lg font-semibold text-content-primary">Description</h2>
-          <p className="mt-1 text-sm text-content-secondary">
+        <Card elevation="flat">
+          <h2 className={sectionTitleClass}>Description</h2>
+          <p className={sectionDescClass}>
             Rich text is stored as TipTap JSON (not HTML).
           </p>
-          <div className="mt-4">
-            <span className="mb-2 block text-sm font-medium text-content-primary">
-              Body
-            </span>
+          <div className="-mx-6 -mb-6 mt-5 border-t border-border-subtle">
             <ProductDescriptionEditor
               value={descriptionJson}
               onChange={setDescriptionJson}
               disabled={disabled}
+              variant="embedded"
             />
           </div>
         </Card>
 
-        <Card>
-          <h2 className="text-lg font-semibold text-content-primary">SEO</h2>
-          <p className="mt-1 text-sm text-content-secondary">
+        <Card elevation="flat">
+          <h2 className={sectionTitleClass}>SEO</h2>
+          <p className={sectionDescClass}>
             Meta title and description for this locale. Description is limited to{" "}
             {SEO_DESCRIPTION_MAX} characters in the API.
           </p>
           <div className="mt-4 grid gap-4 lg:grid-cols-2">
             <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor={`${formId}-seo-title`}
-                  className="block text-sm font-medium text-content-primary"
-                >
-                  Meta title
-                </label>
-                <input
+              <FormField label="Meta title" htmlFor={`${formId}-seo-title`}>
+                <Input
                   id={`${formId}-seo-title`}
                   type="text"
                   value={seoTitle}
@@ -291,17 +288,19 @@ export function ProductContentTab({
                   }}
                   disabled={disabled}
                   autoComplete="off"
-                  className="mt-1 w-full rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus disabled:opacity-50"
                 />
-              </div>
-              <div>
-                <label
-                  htmlFor={`${formId}-seo-desc`}
-                  className="block text-sm font-medium text-content-primary"
-                >
-                  Meta description
-                </label>
-                <textarea
+              </FormField>
+              <FormField
+                label="Meta description"
+                htmlFor={`${formId}-seo-desc`}
+                hint={`${seoDescription.length} / ${SEO_DESCRIPTION_MAX} characters${seoTooLong ? " — shorten before saving." : ""}`}
+                error={
+                  seoTooLong
+                    ? `Must be at most ${SEO_DESCRIPTION_MAX} characters.`
+                    : undefined
+                }
+              >
+                <Textarea
                   id={`${formId}-seo-desc`}
                   value={seoDescription}
                   onChange={(e) => {
@@ -314,35 +313,23 @@ export function ProductContentTab({
                   onBlur={() => {
                     if (seoDescription.length > SEO_DESCRIPTION_MAX) {
                       setValidationError(
-                        `SEO description must be at most ${SEO_DESCRIPTION_MAX} characters (currently ${seoDescription.length}).`
+                        `SEO description must be at most ${SEO_DESCRIPTION_MAX} characters (currently ${seoDescription.length}).`,
                       )
                     }
                   }}
                   disabled={disabled}
                   rows={4}
+                  error={seoTooLong}
                   aria-invalid={seoTooLong}
                   aria-describedby={`${formId}-seo-desc-counter`}
-                  className="mt-1 w-full rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus disabled:opacity-50"
                 />
-                <p
-                  id={`${formId}-seo-desc-counter`}
-                  className={`mt-1 text-xs ${seoTooLong ? "font-medium text-content-danger" : "text-content-tertiary"}`}
-                >
-                  {seoDescription.length} / {SEO_DESCRIPTION_MAX} characters
-                  {seoTooLong ? " — shorten before saving." : ""}
-                </p>
-              </div>
-              <div>
-                <label
-                  htmlFor={`${formId}-og-image`}
-                  className="block text-sm font-medium text-content-primary"
-                >
-                  Open Graph image ID
-                </label>
-                <p className="mt-0.5 text-xs text-content-tertiary">
-                  Optional file / media id for social previews.
-                </p>
-                <input
+              </FormField>
+              <FormField
+                label="Open Graph image ID"
+                htmlFor={`${formId}-og-image`}
+                hint="Optional file / media id for social previews."
+              >
+                <Input
                   id={`${formId}-og-image`}
                   type="text"
                   value={ogImageId}
@@ -351,9 +338,8 @@ export function ProductContentTab({
                   }}
                   disabled={disabled}
                   autoComplete="off"
-                  className="mt-1 w-full rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus disabled:opacity-50"
                 />
-              </div>
+              </FormField>
             </div>
             <div>
               <SEOPreview
@@ -365,9 +351,9 @@ export function ProductContentTab({
           </div>
         </Card>
 
-        <Card>
-          <h2 className="text-lg font-semibold text-content-primary">Media gallery</h2>
-          <p className="mt-1 text-sm text-content-secondary">
+        <Card elevation="flat">
+          <h2 className={sectionTitleClass}>Media gallery</h2>
+          <p className={sectionDescClass}>
             Ordered list of media IDs sent as <code className="text-xs">media_gallery</code> on
             save.
           </p>
@@ -377,23 +363,19 @@ export function ProductContentTab({
         </Card>
 
         <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="submit"
-            disabled={disabled || seoTooLong}
-            className="rounded-md bg-interactive-primary px-4 py-2 text-sm font-medium text-content-inverse hover:bg-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus disabled:opacity-50"
-          >
+          <Button type="submit" variant="primary" disabled={disabled || seoTooLong}>
             {saving ? "Saving…" : "Save content"}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="secondary"
             disabled={disabled}
             onClick={() => {
               void onDiscard()
             }}
-            className="rounded-md border border-border-default bg-surface-default px-4 py-2 text-sm font-medium text-content-primary shadow-sm hover:bg-surface-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus disabled:opacity-50"
           >
             Discard changes
-          </button>
+          </Button>
           {loading ? (
             <span className="text-sm text-content-secondary">Loading content…</span>
           ) : null}

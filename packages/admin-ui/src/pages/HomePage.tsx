@@ -98,28 +98,28 @@ export function HomePage(): JSX.Element {
         />
 
         <div className="relative flex flex-col gap-6">
-          <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-content-tertiary">
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-content-tertiary">
             <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />
             Store not connected
           </span>
 
           <h2
             id="workspace-status"
-            className="max-w-[20ch] text-[26px] font-semibold leading-[1.1] tracking-tight text-content-primary md:text-[34px]"
+            className="max-w-[20ch] text-2xl font-semibold leading-[1.1] tracking-tight text-content-primary md:text-4xl"
             style={{ textWrap: "balance" } as React.CSSProperties}
           >
             Your workspace is ready. Bring a store on board.
           </h2>
 
           <div className="flex flex-col items-start gap-5 md:flex-row md:items-end md:justify-between">
-            <p className="max-w-md text-[14px] leading-relaxed text-content-secondary">
+            <p className="max-w-md text-base leading-relaxed text-content-secondary">
               Connect Medusa and the catalogue, orders, customers, and revenue
               you see below will start flowing through this admin in real time.
             </p>
 
             <Link
               to="/settings/connectors"
-              className="group/cta inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-content-primary px-4 text-[13px] font-semibold text-content-inverse shadow-sm transition-[background-color,transform,box-shadow] duration-150 hover:shadow-md active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              className="group/cta inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-content-primary px-4 text-sm font-semibold text-content-inverse shadow-sm transition-[background-color,transform,box-shadow] duration-150 hover:shadow-md active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               style={{
                 transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)",
               }}
@@ -139,7 +139,7 @@ export function HomePage(): JSX.Element {
         <div className="flex items-end justify-between">
           <h3
             id="shortcuts-heading"
-            className="text-[13px] font-semibold uppercase tracking-label text-content-tertiary"
+            className="text-sm font-semibold uppercase tracking-label text-content-tertiary"
           >
             Open today
           </h3>
@@ -162,7 +162,7 @@ export function HomePage(): JSX.Element {
             >
               MercFlow is shipping in slices
             </h3>
-            <span className="hidden text-[12px] text-content-tertiary md:inline">
+            <span className="hidden text-xs text-content-tertiary md:inline">
               {SHIPPING_LOG.filter((s) => s.status === "shipped").length} live
               · {SHIPPING_LOG.filter((s) => s.status === "next").length} next
             </span>
@@ -177,7 +177,7 @@ export function HomePage(): JSX.Element {
                 <StatusGlyph status={item.status} />
                 <p
                   className={[
-                    "text-[13.5px]",
+                    "text-sm",
                     item.status === "shipped"
                       ? "text-content-secondary"
                       : "text-content-tertiary",
@@ -217,12 +217,12 @@ function Shortcut({ tile }: { tile: ShortcutTile }): JSX.Element {
       </span>
 
       <div className="flex flex-1 flex-col justify-end">
-        <p className="text-[15px] font-semibold tracking-tight text-content-primary">
+        <p className="text-interface font-semibold tracking-tight text-content-primary">
           {tile.title}
         </p>
-        <p className="mt-1 text-[12.5px] text-content-tertiary">{tile.hint}</p>
+        <p className="mt-1 text-sm text-content-tertiary">{tile.hint}</p>
         {loud ? (
-          <span className="mt-3 inline-flex items-center gap-1 text-[12.5px] font-medium text-accent-text">
+          <span className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-accent-text">
             Go
             <IconArrowUpRight
               size={12}

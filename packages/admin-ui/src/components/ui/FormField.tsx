@@ -34,21 +34,21 @@ export function FormField({
   const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined
 
   return (
-    <div className={cn("space-y-1", className)}>
+    <div className={cn("space-y-1.5", className)}>
       <Label htmlFor={fieldId} required={required}>
         {label}
       </Label>
-      {hint ? (
-        <p id={hintId} className={formHintClass}>
-          {hint}
-        </p>
-      ) : null}
       <div
         aria-describedby={describedBy}
         aria-invalid={error ? true : undefined}
       >
         {children}
       </div>
+      {hint ? (
+        <p id={hintId} className={formHintClass}>
+          {hint}
+        </p>
+      ) : null}
       {error ? (
         <p id={errorId} className={formErrorClass} role="alert">
           {error}

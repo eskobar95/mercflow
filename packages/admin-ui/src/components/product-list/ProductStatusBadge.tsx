@@ -13,7 +13,7 @@ const config: Record<Status, { label: string; className: string }> = {
   },
   proposed: {
     label: "Proposed",
-    className: "bg-[hsl(38,80%,94%)] text-[hsl(30,60%,36%)] border-[hsl(38,50%,84%)]",
+    className: "bg-feedback-warning-subtle text-feedback-warning-content border-feedback-warning-border",
   },
 }
 
@@ -22,7 +22,7 @@ export function ProductStatusBadge({ status }: { status: Status }): JSX.Element 
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded border px-1.5 py-0.5 text-[11px] font-medium",
+        "inline-flex items-center rounded border px-1.5 py-0.5 text-2xs font-medium",
         className,
       )}
     >

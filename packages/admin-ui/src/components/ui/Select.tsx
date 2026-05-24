@@ -4,7 +4,7 @@ import { forwardRef, type ComponentPropsWithoutRef, type ReactNode } from "react
 import { IconCheck, IconChevronDown } from "@/components/ui/icons"
 import { cn } from "@/lib/cn"
 
-import { fieldClassName } from "./formStyles"
+import { fieldClassName, menuItemClass, overlayPanelClass } from "./formStyles"
 
 export type SelectOption = {
   value: string
@@ -23,12 +23,14 @@ type SelectProps = {
   id?: string
   name?: string
   "aria-label"?: string
+  "aria-labelledby"?: string
+  "aria-describedby"?: string
   className?: string
   triggerClassName?: string
 }
 
 /**
- * Radix Select with MercFlow token styling.
+ * Radix Select — flat trigger, panel matches trigger width (Stripe settings pattern).
  */
 export function Select({
   value,
@@ -41,6 +43,8 @@ export function Select({
   id,
   name,
   "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledBy,
+  "aria-describedby": ariaDescribedBy,
   className,
   triggerClassName,
 }: SelectProps): JSX.Element {
@@ -55,28 +59,34 @@ export function Select({
       <SelectPrimitive.Trigger
         id={id}
         aria-label={ariaLabel}
+        aria-labelledby={ariaLabelledBy}
+        aria-describedby={ariaDescribedBy}
         className={cn(
           fieldClassName({ error, className: triggerClassName }),
-          "inline-flex items-center justify-between gap-2 text-left",
+          "inline-flex h-9 items-center justify-between gap-2 text-left text-sm",
           "data-[placeholder]:text-content-tertiary",
         )}
         style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
       >
         <SelectPrimitive.Value placeholder={placeholder} />
-        <SelectPrimitive.Icon className="text-content-tertiary">
-          <IconChevronDown size={14} />
+        <SelectPrimitive.Icon asChild>
+          <span className="text-content-tertiary">
+            <IconChevronDown size={14} />
+          </span>
         </SelectPrimitive.Icon>
       </SelectPrimitive.Trigger>
       <SelectPrimitive.Portal>
         <SelectPrimitive.Content
           className={cn(
-            "z-dropdown overflow-hidden rounded-md border border-border-default bg-surface-raised shadow-md",
+            overlayPanelClass,
+            "z-dropdown overflow-hidden",
             className,
           )}
           position="popper"
           sideOffset={4}
+          align="start"
         >
-          <SelectPrimitive.Viewport className="p-1">
+          <SelectPrimitive.Viewport className="min-w-[var(--radix-select-trigger-width)] p-1">
             {options.map((option) => (
               <SelectItem
                 key={option.value}
@@ -100,17 +110,12 @@ const SelectItem = forwardRef<
   return (
     <SelectPrimitive.Item
       ref={ref}
-      className={cn(
-        "relative flex min-h-11 cursor-pointer select-none items-center rounded-sm py-2 pl-8 pr-2 text-sm text-content-primary outline-none",
-        "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-        "data-[highlighted]:bg-surface-subtle",
-        className,
-      )}
+      className={cn(menuItemClass, className)}
       {...props}
     >
-      <span className="absolute left-2 flex h-4 w-4 items-center justify-center">
+      <span className="absolute left-2.5 flex h-3.5 w-3.5 items-center justify-center text-accent">
         <SelectPrimitive.ItemIndicator>
-          <IconCheck size={14} />
+          <IconCheck size={12} />
         </SelectPrimitive.ItemIndicator>
       </span>
       <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>

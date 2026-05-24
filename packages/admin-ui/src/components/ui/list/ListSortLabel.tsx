@@ -78,7 +78,7 @@ export function ListSortLabel<TCol extends string>({
 }: ListSortLabelProps<TCol>): JSX.Element {
   if (!sortable) {
     return (
-      <span className="text-[12px] font-medium text-content-tertiary">{label}</span>
+      <span className="text-xs font-medium text-content-tertiary">{label}</span>
     )
   }
 
@@ -87,7 +87,7 @@ export function ListSortLabel<TCol extends string>({
       type="button"
       id={id}
       className={cn(
-        "group inline-flex w-full items-center gap-1 text-left text-[12px] font-medium",
+        "group inline-flex w-full items-center gap-1 text-left text-xs font-medium",
         "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-border-strong",
         isActive ? "text-content-primary" : "text-content-tertiary hover:text-content-secondary",
       )}

@@ -9,12 +9,16 @@ import { useEffect, useId, useState } from "react"
 import type { JSONContent } from "@tiptap/core"
 
 import { Button } from "@/components/ui/Button"
-import { formIconButtonClass } from "@/components/ui/formStyles"
+import {
+  overlayPanelClass,
+  toolbarIconButtonClass,
+} from "@/components/ui/formStyles"
 import { Input } from "@/components/ui/Input"
 import { cn } from "@/lib/cn"
 import { EMPTY_TIPTAP_DOC, tiptapDocFromUnknown } from "@/lib/tiptap"
 
 export type RichTextEditorMode = "simple" | "full"
+export type RichTextEditorVariant = "standalone" | "embedded"
 
 export type RichTextEditorProps = {
   value: JSONContent | null | unknown
@@ -27,6 +31,11 @@ export type RichTextEditorProps = {
   label?: string
   error?: boolean
   className?: string
+  /**
+   * `embedded` — sits inside a Card (no outer border/shadow; card owns chrome).
+   * `standalone` — self-contained bordered surface.
+   */
+  variant?: RichTextEditorVariant
 }
 
 type ToolbarButtonProps = {
@@ -52,8 +61,8 @@ function ToolbarButton({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        formIconButtonClass,
-        "min-h-9 min-w-9 text-xs font-semibold",
+        toolbarIconButtonClass,
+        "text-xs font-semibold",
         pressed ? "bg-surface-subtle text-content-primary" : "",
       )}
       style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
@@ -93,8 +102,8 @@ function LinkPopover({
           aria-label="Insert link"
           disabled={disabled}
           className={cn(
-            formIconButtonClass,
-            "min-h-9 min-w-9 text-xs",
+            toolbarIconButtonClass,
+            "text-xs",
             hasLink ? "bg-surface-subtle text-content-primary" : "",
           )}
           style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
@@ -107,7 +116,8 @@ function LinkPopover({
           sideOffset={6}
           align="start"
           className={cn(
-            "z-popover w-72 rounded-md border border-border-default bg-surface-raised p-3 shadow-md",
+            overlayPanelClass,
+            "z-popover w-72 p-3",
             "origin-[var(--radix-popover-content-transform-origin)]",
           )}
           style={{
@@ -172,21 +182,23 @@ function LinkPopover({
 }
 
 /**
- * Reusable TipTap v3 rich text editor — token-backed toolbar and content surface.
+ * Reusable TipTap v3 rich text editor — flat when embedded in Card, toolbar + prose surface.
  */
 export function RichTextEditor({
   value,
   onChange,
   disabled = false,
-  placeholder,
+  placeholder = "Write something…",
   extensions = "simple",
   maxLength = 100_000,
   label = "Rich text editor",
   error = false,
   className,
+  variant = "standalone",
 }: RichTextEditorProps): JSX.Element {
   const labelId = useId()
   const initial = tiptapDocFromUnknown(value)
+  const embedded = variant === "embedded"
 
   const editor = useEditor(
     {
@@ -207,11 +219,17 @@ export function RichTextEditor({
       editorProps: {
         attributes: {
           "aria-labelledby": labelId,
-          "data-placeholder": placeholder ?? "",
+          "data-placeholder": placeholder,
           class: cn(
-            "prose-editor min-h-32 max-w-none px-3 py-2 text-sm text-content-primary focus:outline-none",
+            "prose-editor min-h-36 max-w-none text-sm leading-relaxed text-content-primary focus:outline-none",
+            embedded ? "px-6 py-4" : "px-4 py-3",
             "[&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6",
             "[&_a]:text-accent-text [&_a]:underline",
+            "[&_p.is-editor-empty:first-child]:before:pointer-events-none",
+            "[&_p.is-editor-empty:first-child]:before:float-left",
+            "[&_p.is-editor-empty:first-child]:before:h-0",
+            "[&_p.is-editor-empty:first-child]:before:text-content-tertiary",
+            "[&_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)]",
           ),
         },
       },
@@ -219,7 +237,7 @@ export function RichTextEditor({
         onChange(ed.getJSON())
       },
     },
-    [extensions],
+    [extensions, embedded, placeholder],
   )
 
   useEffect(() => {
@@ -251,8 +269,12 @@ export function RichTextEditor({
   return (
     <div
       className={cn(
-        "rounded-md border bg-surface-default shadow-sm",
-        error ? "border-feedback-danger" : "border-border-default",
+        embedded
+          ? "bg-surface-default"
+          : cn(
+              "rounded-sm border bg-surface-default",
+              error ? "border-feedback-danger" : "border-border-default",
+            ),
         className,
       )}
     >
@@ -260,7 +282,10 @@ export function RichTextEditor({
         {label}
       </span>
       <div
-        className="flex flex-wrap items-center gap-1 border-b border-border-subtle bg-surface-subtle px-2 py-1.5"
+        className={cn(
+          "flex flex-wrap items-center gap-0.5 border-b border-border-subtle bg-surface-default",
+          embedded ? "px-3 py-1" : "px-2 py-1",
+        )}
         role="toolbar"
         aria-label="Text formatting"
       >
@@ -284,6 +309,7 @@ export function RichTextEditor({
         >
           <span className="italic">I</span>
         </ToolbarButton>
+        <span className="mx-1 h-5 w-px bg-border-default" aria-hidden />
         <ToolbarButton
           label="Bullet list"
           pressed={editor?.isActive("bulletList") ?? false}
@@ -306,6 +332,7 @@ export function RichTextEditor({
         </ToolbarButton>
         {extensions === "full" ? (
           <>
+            <span className="mx-1 h-5 w-px bg-border-default" aria-hidden />
             <LinkPopover
               disabled={toolbarDisabled}
               hasLink={editor?.isActive("link") ?? false}
@@ -330,13 +357,13 @@ export function RichTextEditor({
             </ToolbarButton>
           </>
         ) : null}
-        <span className="ml-auto text-xs text-content-tertiary" aria-live="polite">
+        <span className="ml-auto text-xs tabular-nums text-content-tertiary" aria-live="polite">
           {chars} characters
         </span>
       </div>
       <EditorContent editor={editor} />
       {!editor ? (
-        <p className="px-3 py-2 text-sm text-content-secondary">Preparing editor…</p>
+        <p className="px-4 py-3 text-sm text-content-secondary">Preparing editor…</p>
       ) : null}
     </div>
   )
