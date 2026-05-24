@@ -63,7 +63,7 @@ export function OrderLineItemsTable(props: {
                   {item.thumbnailUrl !== null ? (
                     <img
                       src={item.thumbnailUrl}
-                      alt=""
+                      alt={item.title}
                       className={`${thumbBox} object-cover`}
                       width={48}
                       height={48}
