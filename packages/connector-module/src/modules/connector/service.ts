@@ -12,12 +12,19 @@ import type {
   PatchPlunkConnectorBody,
   PostPlunkConnectorTestBody,
   ShipmondoPatchBody,
+  ShipmondoPatchShippingRulesBody,
 } from "./http-schemas"
 import { ConnectorConfig } from "./models/connector-config"
 import { ConnectorLog } from "./models/connector-log"
 import { pingPlunkWithSecretKey, sendPlunkTestMail } from "./plunk-remote"
-import { probeShipmondoShipments } from "./shipmondo-http-client"
+import { fetchShipmondoProductsJson, probeShipmondoShipments } from "./shipmondo-http-client"
 import { shipmondoCredentialsSchema, type ShipmondoCredentials } from "./shipmondo-credentials"
+import { parseShipmondoCarrierProductsEnvelope } from "./shipmondo-product-catalog"
+import {
+  normalizeShipmondoRulesFromStoredJson,
+  shipmondoPatchShippingRulesBodySchema,
+  shipmondoRulesToStored,
+} from "./shipmondo-shipping-rules"
 import { maskStripeField } from "./stripe/stripe-mask"
 import type { StripePaymentOverviewRow } from "./stripe/stripe-payments-list"
 import { stripeListRecentPaymentIntents } from "./stripe/stripe-payments-list"
@@ -34,8 +41,11 @@ import type {
   PlunkConnectionTestResult,
   PlunkCredentialsStored,
   ShipmondoAdminGetDto,
+  ShipmondoCarrierProductAdminDto,
   ShipmondoConnectionTestDto,
+  ShipmondoShippingRulesAdminDto,
   StoreShipmondoActiveDto,
+  StoreShipmondoRulesDto,
   StripeConnectorAdminDto,
 } from "./types"
 
@@ -186,6 +196,9 @@ export default class ConnectorModuleService extends MedusaService({
             : false,
       },
       recentLogs,
+      shippingRules: normalizeShipmondoRulesFromStoredJson(
+        row === null ? null : (row.rules_json ?? null)
+      ),
     }
   }
 
@@ -296,6 +309,74 @@ export default class ConnectorModuleService extends MedusaService({
     return await this.getShipmondoAdminPayload()
   }
 
+  async fetchShipmondoCarrierProducts(opts: {
+    countryCode?: string
+    fetchImpl?: typeof fetch
+  }): Promise<ShipmondoCarrierProductAdminDto[]> {
+    const row = await this.retrieveShipmondoRow()
+    if (row === null) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "Shipmondo is not configured yet — save credentials before fetching carriers"
+      )
+    }
+
+    let creds: ShipmondoCredentials
+    try {
+      creds = this.requireDecryptedCredentials(row)
+    } catch {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "Stored Shipmondo credentials are unavailable"
+      )
+    }
+
+    shipmondoCredentialsSchema.parse(creds)
+
+    const res = await fetchShipmondoProductsJson({
+      apiUser: creds.api_user,
+      apiKey: creds.api_key,
+      countryCode: opts.countryCode,
+      fetchImpl: opts.fetchImpl,
+    })
+
+    if (!res.ok) {
+      const message =
+        res.httpStatus === 0
+          ? "Unable to reach the Shipmondo API"
+          : `Shipmondo products endpoint returned HTTP ${res.httpStatus}`
+      throw new MedusaError(MedusaError.Types.INVALID_DATA, message)
+    }
+
+    return parseShipmondoCarrierProductsEnvelope(res.body).map((entry) => ({
+      productCode: entry.productCode,
+      carrierCode: entry.carrierCode,
+      name: entry.name,
+      basePriceMinor: entry.basePriceMinor,
+    }))
+  }
+
+  async patchShipmondoShippingRules(
+    body: ShipmondoPatchShippingRulesBody
+  ): Promise<ShipmondoShippingRulesAdminDto> {
+    const normalized = shipmondoPatchShippingRulesBodySchema.parse(body)
+
+    const rowExisting = await this.retrieveShipmondoRow()
+    if (rowExisting === null) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "Shipmondo connector is not configured yet — save credentials before assigning shipping rules"
+      )
+    }
+
+    await this.updateConnectorConfigs({
+      id: rowExisting.id,
+      rules_json: shipmondoRulesToStored(normalized),
+    })
+
+    return normalized
+  }
+
   async testShipmondoConnection(fetchImpl?: typeof fetch): Promise<ShipmondoConnectionTestDto> {
     const row = await this.retrieveShipmondoRow()
     if (row === null) {
@@ -357,6 +438,21 @@ export default class ConnectorModuleService extends MedusaService({
         probe.httpStatus === 0
           ? "Unable to reach the Shipmondo API"
           : `Shipmondo returned HTTP ${probe.httpStatus}`,
+    }
+  }
+
+  async getShipmondoStoreShippingRules(): Promise<StoreShipmondoRulesDto> {
+    const activation = await this.getShipmondoStoreActivation()
+    const row = await this.retrieveShipmondoRow()
+    const defaults = normalizeShipmondoRulesFromStoredJson(null)
+
+    if (!activation.active || row === null) {
+      return { active: false, ...defaults }
+    }
+
+    return {
+      active: true,
+      ...normalizeShipmondoRulesFromStoredJson(row.rules_json ?? null),
     }
   }
 

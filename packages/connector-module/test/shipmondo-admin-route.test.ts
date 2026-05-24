@@ -25,6 +25,11 @@ const samplePayload: ShipmondoAdminGetDto = {
       success: true,
     },
   ],
+  shippingRules: {
+    markupAmountMinor: 0,
+    freeShippingThresholdMinor: 0,
+    enabledCarrierCodes: [],
+  },
 }
 
 describe("Shipmondo connector admin routes", (): void => {

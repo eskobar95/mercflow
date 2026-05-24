@@ -29,6 +29,7 @@ describe("buildConnectorAdminList", (): void => {
         webhook_secret_last4: null,
         connection_status: "ok",
         last_test_message: "ok",
+        rules_json: null,
       },
     ])
     const stripe = list.find((c) => c.type === "stripe")
@@ -54,6 +55,7 @@ describe("buildConnectorAdminList", (): void => {
         webhook_secret_last4: null,
         connection_status: null,
         last_test_message: null,
+        rules_json: null,
       },
     ])
     const row = list.find((c) => c.type === "shipmondo")
