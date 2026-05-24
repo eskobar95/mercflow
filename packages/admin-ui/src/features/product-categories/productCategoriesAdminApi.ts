@@ -219,7 +219,7 @@ export async function updateAdminProductCategory(
   const response = await fetch(
     `${base}/admin/product-categories/${encodeURIComponent(categoryId)}`,
     {
-      method: "POST",
+      method: "PATCH",
       credentials: "include",
       headers: buildMedusaAdminJsonHeaders(),
       body: JSON.stringify(payload),

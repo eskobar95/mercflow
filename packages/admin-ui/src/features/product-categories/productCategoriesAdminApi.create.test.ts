@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 
-import { createAdminProductCategory } from "./productCategoriesAdminApi"
+import { createAdminProductCategory, updateAdminProductCategory } from "./productCategoriesAdminApi"
 
 vi.mock("@/medusa-admin/medusaAdminFetch", (): typeof import("@/medusa-admin/medusaAdminFetch") => ({
   resolveMedusaAdminBackendUrl: (): string => "http://localhost:9000",
@@ -50,7 +50,7 @@ describe("createAdminProductCategory", (): void => {
     })
 
     expect(fetchMock).toHaveBeenCalled()
-    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
     expect(init.method).toBe("POST")
     const parsed: unknown = JSON.parse(String(init.body))
     expect(parsed).toMatchObject({
@@ -92,7 +92,7 @@ describe("createAdminProductCategory", (): void => {
     })
 
     expect(fetchMock).toHaveBeenCalled()
-    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
     const parsed: Record<string, unknown> = JSON.parse(String(init.body)) as Record<
       string,
       unknown
@@ -103,5 +103,45 @@ describe("createAdminProductCategory", (): void => {
       is_active: false,
     })
     expect("parent_category_id" in parsed).toBe(false)
+  })
+})
+
+describe("updateAdminProductCategory", (): void => {
+  afterEach((): void => {
+    vi.restoreAllMocks()
+  })
+
+  it("issues PATCH with only provided fields", async (): Promise<void> => {
+    const bodyFromServer = {
+      id: "pcat_test",
+      name: "Tops",
+      handle: "tops",
+      description: null,
+      parent_category_id: null,
+      is_active: true,
+      rank: 0,
+      created_at: "2020-01-01T00:00:00.000Z",
+      updated_at: "2020-01-01T00:00:00.000Z",
+      products: [],
+    }
+
+    const fetchMock = vi.fn(
+      async (): Promise<Response> =>
+        new Response(JSON.stringify({ product_category: bodyFromServer }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        })
+    )
+    vi.stubGlobal("fetch", fetchMock)
+
+    await updateAdminProductCategory("pcat_test", { name: "Coats" })
+
+    expect(fetchMock).toHaveBeenCalled()
+    const tuple = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
+    const [url, init] = tuple
+    expect(String(url)).toContain("/admin/product-categories/pcat_test")
+    expect(init.method).toBe("PATCH")
+    const parsed: unknown = JSON.parse(String(init.body))
+    expect(parsed).toEqual({ name: "Coats" })
   })
 })
