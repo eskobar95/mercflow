@@ -38,6 +38,7 @@ MercFlow Medusa v2 module that persists **per-store connector credentials** (`co
 
 - `@mercflow/connector-module/resolve-stripe-secret-key` — `mercflowResolveStripeSecretKey(scope)` returns the Stripe secret key from encrypted config when configured, falling back to `STRIPE_API_KEY` / `STRIPE_SECRET_KEY`.
 - `@mercflow/connector-module/mercflow-plunk-runtime-credentials` — `resolvePlunkSecretApiKeyWithFallback(container)` returns `sk_*` from encrypted config when configured, falling back to `PLUNK_SECRET_KEY` for deployments that still rely on env injection.
+- `@mercflow/connector-module/mercflow-shipmondo-runtime-credentials` — `resolveShipmondoCredentialsWithFallback(container)` returns `{ api_user, api_key, shipping_module_key? }` from encrypted `connector_config` when persisted, falling back to `SHIPMONDO_API_USER` / `SHIPMONDO_API_KEY` when the connector row is absent or not yet migrated.
 
 ## HTTP API
 

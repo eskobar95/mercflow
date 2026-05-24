@@ -361,6 +361,33 @@ export default class ConnectorModuleService extends MedusaService({
   }
 
   /**
+   * Returns decrypted Shipmondo credentials from `connector_config` when persisted and schema-valid — otherwise null.
+   * Caller integrations may fall back to `SHIPMONDO_API_*` env vars via `resolveShipmondoCredentialsWithFallback`.
+   */
+  async resolveShipmondoCredentialsOrNull(): Promise<ShipmondoCredentials | null> {
+    const row = await this.retrieveShipmondoRow()
+    if (row === null) {
+      return null
+    }
+    const creds = this.safeDecryptCredentials(row)
+    if (creds === null) {
+      return null
+    }
+
+    try {
+      shipmondoCredentialsSchema.parse(creds)
+    } catch {
+      return null
+    }
+
+    if (creds.api_user.trim() === "" || creds.api_key.trim() === "") {
+      return null
+    }
+
+    return creds
+  }
+
+  /**
    * Public VAT mode for storefront checkout — never exposes credentials.
    */
   async getStripeVatModeForStorefront(): Promise<"inclusive" | "exclusive"> {
