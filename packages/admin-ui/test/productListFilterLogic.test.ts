@@ -14,6 +14,10 @@ const sampleRow: ProductListRow = {
   sku: "FOOT-AUR-42",
   updatedAt: "2026-01-20T10:00:00.000Z",
   thumbnailHue: 210,
+  thumbnailUrl: null,
+  variantsCount: 1,
+  stockTotal: 120,
+  priceRangeLabel: "€99.95",
 }
 
 describe("startOfPeriod", (): void => {

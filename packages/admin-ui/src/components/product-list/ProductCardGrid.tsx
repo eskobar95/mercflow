@@ -32,13 +32,22 @@ export function ProductCardGrid({ rows }: { rows: ProductListRow[] }): JSX.Eleme
               to={`/products/${encodeURIComponent(row.id)}`}
               className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-border-strong"
             >
-              <ProductThumbnail title={row.title} hue={row.thumbnailHue} size={40} />
+              <ProductThumbnail
+                title={row.title}
+                imageUrl={row.thumbnailUrl ?? undefined}
+                hue={row.thumbnailHue}
+                size={40}
+              />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-content-primary">
                   {row.title}
                 </p>
                 <p className="mt-0.5 truncate text-xs text-content-tertiary">
-                  {row.collection} · <code className="font-mono">{row.sku}</code>
+                  {row.variantsCount}{" "}
+                  {row.variantsCount === 1 ? "variant" : "variants"}
+                  {" · "}Stock {typeof row.stockTotal === "number" ? row.stockTotal : "–"}
+                  {" · "}
+                  {row.priceRangeLabel}
                 </p>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1">
