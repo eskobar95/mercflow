@@ -48,7 +48,7 @@ Admin responses use `{ data: ... }`. Credentials are stored encrypted (`credenti
 | `GET`   | `/admin/connectors/stripe`              | Stripe connector summary: `configured`, `active`, `vat_mode`, masked keys, `last_tested_at` |
 | `PATCH` | `/admin/connectors/stripe`             | Upsert Stripe keys / webhook secret and optional `vat_mode` / `active` (Zod-validated body) |
 | `POST`  | `/admin/connectors/stripe/test`         | Validates configured secret key against Stripe API |
-| `POST`  | `/admin/connectors/stripe/sync-products` | Full MercFlow catalogue → Stripe Products + Prices (idempotent via `metadata.medusa_product_id` / `medusa_variant_id`) |
+| `POST`  | `/admin/connectors/stripe/sync-products` | Full MercFlow catalogue → Stripe Products + Prices (idempotent via `metadata.medusa_product_id` / `medusa_variant_id`). Created prices set Stripe `tax_behavior` from persisted `vat_mode` (`inclusive` / `exclusive`). Product-only price rows use metadata `medusa_variant_id = __product_only`. |
 | `GET`   | `/admin/connectors/stripe/payments`     | Recent Stripe PaymentIntents overview (`limit` query, default `20`, max `50`) |
 
 Storefront VAT hint (unauthenticated catalog/checkout integrations may read this; enforce your own auth if needed):
