@@ -24,11 +24,11 @@
   "dependencies": {
     "@medusajs/framework": "2.14.1",
     "@medusajs/medusa": "2.14.1",
+    "@medusajs/types": "2.14.1",
     "@medusajs/utils": "2.14.1",
     "zod": "^3.25.0"
   },
   "devDependencies": {
-    "@medusajs/types": "2.14.1",
     "@medusajs/cli": "2.14.1",
     "@types/node": "^22.10.1",
     "ts-node": "^10.9.2",
