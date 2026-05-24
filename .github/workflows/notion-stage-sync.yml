@@ -6,8 +6,9 @@ name: Notion Stage Sync
 #
 # Handles:
 #   1. check_run failure on code-quality checks → Stage: Fix
-#   2. Bugbot review with findings             → Stage: Fix
-#   3. Bugbot review with no findings          → Stage: Ready for Merge
+#   2. check_run failure on security scans      → Stage: Fix
+#   3. Bugbot review with findings             → Stage: Fix
+#   4. Bugbot review with no findings          → Stage: Ready for Merge
 
 on:
   check_run:
@@ -70,6 +71,55 @@ jobs:
             -d "{\"parent\":{\"page_id\":\"$PAGE_ID\"},\"rich_text\":[{\"text\":{\"content\":\"Agent: notion-stage-sync\nCI code-quality failure → Stage Fix\n\nFailing check on PR #${PR_NUMBER}: ${CHECK_NAME}\n\nImplementation Agent dispatched. Fix only this check — no scope changes.\"}}]}"
 
           echo "Stage → Fix for $NOTION_URL"
+
+  # ── 2. Security scan failure → Stage: Fix ──────────────────────────────────
+  ci-security-fix:
+    name: Stage → Fix on security scan failure
+    runs-on: ubuntu-latest
+    # Covers Gitleaks (false positives → allowlist) and pnpm audit (CVE in lockfile).
+    # GitGuardian and semgrep post external checks — excluded here (they don't fire
+    # as check_run events from this repo's workflows).
+    if: >
+      github.event_name == 'check_run' &&
+      github.event.check_run.conclusion == 'failure' &&
+      (
+        github.event.check_run.name == 'Secret scan (Gitleaks)' ||
+        github.event.check_run.name == 'pnpm audit (CVE lockfile)'
+      )
+    steps:
+      - name: Set Stage → Fix
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CHECK_NAME: ${{ github.event.check_run.name }}
+          CHECK_URL: ${{ github.event.check_run.html_url }}
+        run: |
+          set -euo pipefail
+
+          PR_NUMBER=$(echo '${{ toJson(github.event.check_run.pull_requests) }}' \
+            | jq -r '.[0].number // empty')
+          [ -z "$PR_NUMBER" ] && echo "No PR — skipping." && exit 0
+
+          PR_BODY=$(gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" --json body -q .body)
+          NOTION_URL=$(echo "$PR_BODY" | grep -oP 'https://www\.notion\.so/[a-zA-Z0-9/_-]+' | head -1 || true)
+          [ -z "$NOTION_URL" ] && echo "No Notion URL in PR body — skipping." && exit 0
+
+          HEX=$(echo "$NOTION_URL" | grep -oP '[0-9a-f]{32}' | tail -1)
+          PAGE_ID="${HEX:0:8}-${HEX:8:4}-${HEX:12:4}-${HEX:16:4}-${HEX:20}"
+
+          curl -sf -X PATCH "https://api.notion.com/v1/pages/$PAGE_ID" \
+            -H "Authorization: Bearer $NOTION_API_KEY" \
+            -H "Notion-Version: 2022-06-28" \
+            -H "Content-Type: application/json" \
+            -d '{"properties": {"Stage": {"select": {"name": "Fix"}}}}'
+
+          curl -sf -X POST "https://api.notion.com/v1/comments" \
+            -H "Authorization: Bearer $NOTION_API_KEY" \
+            -H "Notion-Version: 2022-06-28" \
+            -H "Content-Type: application/json" \
+            -d "{\"parent\":{\"page_id\":\"$PAGE_ID\"},\"rich_text\":[{\"text\":{\"content\":\"Agent: notion-stage-sync\nSecurity scan failure → Stage Fix\n\nFailing check on PR #${PR_NUMBER}: ${CHECK_NAME}\nDetails: ${CHECK_URL}\n\nFor Gitleaks: check if this is a false positive. If so, add an allowlist entry in .gitleaks.toml. Do NOT suppress the check itself.\nFor pnpm audit: update the vulnerable package or add a resolution override.\n\nImplementation Agent dispatched.\"}}]}"
+
+          echo "Stage → Fix (security) for $NOTION_URL"
 
   # ── 2. Bugbot findings → Stage: Fix ────────────────────────────────────────
   bugbot-fix:
