@@ -2,7 +2,7 @@ import type { JSONContent } from "@tiptap/core"
 
 import type { ProductContentResolved } from "@/features/product-content/types"
 
-import { tiptapDocFromUnknown } from "./tiptapDoc"
+import { EMPTY_TIPTAP_DOC, tiptapDocFromUnknown } from "@/lib/tiptap"
 
 function stableDocJson(doc: JSONContent): string {
   return JSON.stringify(doc)

@@ -1,6 +1,6 @@
 import type { JSONContent } from "@tiptap/core"
 
-import { tiptapDocFromUnknown } from "@/components/product-content/tiptapDoc"
+import { tiptapDocFromUnknown } from "@/lib/tiptap"
 import type { CategoryContentResolved } from "@/features/category-content/types"
 
 function stableDocJson(doc: JSONContent): string {

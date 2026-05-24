@@ -5,10 +5,7 @@ import { ContentLocaleSwitcher } from "@/components/content-locale/ContentLocale
 import { ContentLocaleUnsavedDialog } from "@/components/content-locale/ContentLocaleUnsavedDialog"
 import { ProductDescriptionEditor } from "@/components/product-content/ProductDescriptionEditor"
 import { SEOPreview } from "@/components/product-content/SEOPreview"
-import {
-  EMPTY_TIPTAP_DOC,
-  tiptapDocFromUnknown,
-} from "@/components/product-content/tiptapDoc"
+import { EMPTY_TIPTAP_DOC, tiptapDocFromUnknown } from "@/lib/tiptap"
 import { Card } from "@/components/ui/Card"
 import {
   DEFAULT_CATEGORY_CONTENT_LOCALE,

@@ -14,7 +14,7 @@ import { isProductContentDirty } from "./productContentDirty"
 import { MediaGalleryManager } from "./MediaGalleryManager"
 import { ProductDescriptionEditor } from "./ProductDescriptionEditor"
 import { SEOPreview } from "./SEOPreview"
-import { EMPTY_TIPTAP_DOC, tiptapDocFromUnknown } from "./tiptapDoc"
+import { EMPTY_TIPTAP_DOC, tiptapDocFromUnknown } from "@/lib/tiptap"
 
 const SEO_DESCRIPTION_MAX = 160
 
