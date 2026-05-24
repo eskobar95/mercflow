@@ -15,6 +15,8 @@ on:
     types: [completed]
   pull_request_review:
     types: [submitted]
+  schedule:
+    - cron: '*/15 * * * *'
 
 permissions:
   contents: read
@@ -253,3 +255,132 @@ jobs:
             -d "{\"event_type\":\"pr-ready-to-merge\",\"client_payload\":{\"pageUrl\":\"$NOTION_URL\",\"featureBranch\":\"$FEATURE_BRANCH\",\"prNumber\":\"$PR_NUMBER\"}}"
 
           echo "Dispatched pr-ready-to-merge for PR #$PR_NUMBER branch=$FEATURE_BRANCH"
+
+  # ── Cron fallback: catch PRs stuck in Bugbot stage ──────────────────────────
+  # The pull_request_review event is unreliable — we've seen Bugbot reviews that
+  # never triggered the webhook. This job runs every 15 min and picks up any PR
+  # that remains at Stage=Bugbot despite having a cursor[bot] review with
+  # BUGBOT_FIX_ALL. It sets Stage→Fix and dispatches the implementation event
+  # directly, bypassing the Notion automation entirely.
+  bugbot-stuck-fallback:
+    name: Bugbot stuck fallback (cron)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - name: Scan open PRs for stuck Bugbot stage
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          GH_TOKEN: ${{ secrets.SYNC_GITHUB_TOKEN }}
+        run: |
+          echo "=== Bugbot stuck fallback — $(date -u) ==="
+
+          OPEN_PRS=$(gh pr list \
+            --repo eskobar95/mercflow \
+            --state open \
+            --json number,body \
+            --limit 50 2>/dev/null || echo "[]")
+
+          PR_COUNT=$(echo "$OPEN_PRS" | jq 'length')
+          echo "Open PRs found: $PR_COUNT"
+
+          echo "$OPEN_PRS" | jq -c '.[]' | while IFS= read -r PR; do
+            PR_NUMBER=$(echo "$PR" | jq -r '.number')
+            PR_BODY=$(echo "$PR" | jq -r '.body // ""')
+
+            # Extract Notion URL from PR body
+            NOTION_URL=$(echo "$PR_BODY" \
+              | grep -oP 'https://www\.notion\.so/[a-zA-Z0-9/_-]+' \
+              | head -1 || true)
+            if [ -z "$NOTION_URL" ]; then
+              echo "PR #$PR_NUMBER — no Notion URL, skipping"
+              continue
+            fi
+
+            # Extract 32-char hex page ID and format as UUID
+            HEX=$(echo "$NOTION_URL" | grep -oP '[0-9a-f]{32}' | tail -1 || true)
+            if [ -z "$HEX" ]; then
+              echo "PR #$PR_NUMBER — cannot extract page ID from $NOTION_URL, skipping"
+              continue
+            fi
+            PAGE_ID="${HEX:0:8}-${HEX:8:4}-${HEX:12:4}-${HEX:16:4}-${HEX:20}"
+
+            # Fetch current Notion Stage for this task
+            PAGE=$(curl -sf "https://api.notion.com/v1/pages/$PAGE_ID" \
+              -H "Authorization: Bearer $NOTION_API_KEY" \
+              -H "Notion-Version: 2022-06-28" 2>/dev/null || echo "{}")
+            STAGE=$(echo "$PAGE" | jq -r '.properties.Stage.select.name // ""')
+
+            echo "PR #$PR_NUMBER — Notion Stage='$STAGE' ($NOTION_URL)"
+
+            if [ "$STAGE" != "Bugbot" ]; then
+              continue
+            fi
+
+            echo "PR #$PR_NUMBER — Stage=Bugbot, checking for stuck cursor[bot] review..."
+
+            # Fetch PR reviews and look for cursor[bot] with BUGBOT_FIX_ALL marker
+            REVIEWS_JSON=$(gh api \
+              "repos/eskobar95/mercflow/pulls/${PR_NUMBER}/reviews" \
+              2>/dev/null || echo "[]")
+
+            BUGBOT_REVIEW=$(echo "$REVIEWS_JSON" | jq -r \
+              '[.[] | select(.user.login == "cursor[bot]") | select((.body // "") | contains("BUGBOT_FIX_ALL"))][0] // "null"')
+
+            if [ "$BUGBOT_REVIEW" = "null" ]; then
+              echo "PR #$PR_NUMBER — no cursor[bot] review with BUGBOT_FIX_ALL, skipping"
+              continue
+            fi
+
+            # Truncate Bugbot body to avoid overly large dispatch payloads
+            BUGBOT_BODY=$(echo "$BUGBOT_REVIEW" | jq -r '.body // ""' | head -c 2000)
+
+            echo "PR #$PR_NUMBER — BUGBOT_FIX_ALL confirmed. Setting Stage → Fix and dispatching..."
+
+            # Set Stage → Fix in Notion
+            curl -sf -X PATCH "https://api.notion.com/v1/pages/$PAGE_ID" \
+              -H "Authorization: Bearer $NOTION_API_KEY" \
+              -H "Notion-Version: 2022-06-28" \
+              -H "Content-Type: application/json" \
+              -d '{"properties":{"Stage":{"select":{"name":"Fix"}}}}' > /dev/null || true
+
+            # Post audit comment to Notion task
+            curl -sf -X POST "https://api.notion.com/v1/comments" \
+              -H "Authorization: Bearer $NOTION_API_KEY" \
+              -H "Notion-Version: 2022-06-28" \
+              -H "Content-Type: application/json" \
+              -d "{\"parent\":{\"page_id\":\"$PAGE_ID\"},\"rich_text\":[{\"text\":{\"content\":\"Agent: notion-stage-sync (cron fallback)\nBugbot stuck fallback triggered\n\nPR #${PR_NUMBER} was stuck at Stage=Bugbot — the pull_request_review event likely did not fire. Found cursor[bot] review with BUGBOT_FIX_ALL.\n\nStage set to Fix. Implementation Agent dispatched.\"}}]}" > /dev/null || true
+
+            # Resolve the feature branch name for the dispatch payload
+            FEATURE_BRANCH=$(gh pr view "$PR_NUMBER" \
+              --repo eskobar95/mercflow \
+              --json headRefName \
+              -q .headRefName 2>/dev/null || echo "")
+
+            # Build dispatch payload using jq to safely handle special characters
+            DISPATCH_PAYLOAD=$(jq -n \
+              --arg pageUrl "$NOTION_URL" \
+              --arg featureBranch "$FEATURE_BRANCH" \
+              --arg prNumber "$PR_NUMBER" \
+              --arg reviewContext "$BUGBOT_BODY" \
+              '{
+                event_type: "implementation",
+                client_payload: {
+                  pageUrl: $pageUrl,
+                  featureBranch: $featureBranch,
+                  prNumber: $prNumber,
+                  skipBugbot: "false",
+                  reviewContext: $reviewContext
+                }
+              }')
+
+            curl -sf -X POST \
+              "https://api.github.com/repos/eskobar95/mercflow-os/dispatches" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              -d "$DISPATCH_PAYLOAD" > /dev/null || true
+
+            echo "PR #$PR_NUMBER — DONE: Stage → Fix + implementation dispatched (branch='$FEATURE_BRANCH')"
+          done
+
+          echo "=== Bugbot stuck fallback complete ==="
