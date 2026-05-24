@@ -12,6 +12,9 @@ import type { ReactNode } from "react"
  *
  * Dot variant: render a tiny colored dot before the label. Mercury / Stripe
  * use this in dense lists where the badge fill would be too loud.
+ *
+ * WCAG AA: text/background pairs use design-token values verified in batch1
+ * (primary on white ≥ 14:1, accent-text on accent-subtle, feedback-* pairs).
  */
 
 export type BadgeVariant = "neutral" | "accent" | "success" | "warning" | "danger"
