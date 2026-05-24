@@ -1,5 +1,21 @@
+function getMinorUnitDivisor(currencyCode: string, locale: string): number {
+  const code = currencyCode.trim().toUpperCase()
+  try {
+    const formatter = new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: code,
+    })
+    const { minimumFractionDigits } = formatter.resolvedOptions()
+    const fractionDigits = minimumFractionDigits ?? 2
+    return 10 ** fractionDigits
+  } catch {
+    return 100
+  }
+}
+
 /**
- * Formats Medusa admin monetary amounts (typically minor units, e.g. øre for DKK).
+ * Formats Medusa admin monetary amounts as minor units (e.g. øre, cents, or whole yen),
+ * using the currency's fraction digit count from `Intl.NumberFormat` (covers 0-, 2-, and 3-decimal ISO 4217 currencies).
  */
 export function formatAdminCurrency(
   amountMinor: number,
@@ -7,12 +23,14 @@ export function formatAdminCurrency(
   locale = "da-DK"
 ): string {
   const code = currencyCode.trim().toUpperCase()
+  const divisor = getMinorUnitDivisor(code, locale)
+  const fractionDigits = Math.max(0, Math.round(Math.log10(divisor)))
   try {
     return new Intl.NumberFormat(locale, {
       style: "currency",
       currency: code,
-    }).format(amountMinor / 100)
+    }).format(amountMinor / divisor)
   } catch {
-    return `${(amountMinor / 100).toFixed(2)} ${code}`
+    return `${(amountMinor / divisor).toFixed(fractionDigits)} ${code}`
   }
 }

@@ -2,6 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 
 import { compareSortValues, type ListSortState } from "@/components/ui/list/types"
 import { fetchAdminOrdersList, type OrdersListQuery } from "@/features/orders/ordersAdminApi"
+import {
+  ORDER_LIST_SORT_VALUE_GETTERS,
+  type OrdersListSortColumn,
+} from "@/features/orders/orderListSortValues"
 import { orderMatchesStatusBucket } from "@/features/orders/orderStatusFilter"
 import type {
   OrderListRow,
@@ -11,13 +15,7 @@ import type {
 const CHUNK_SIZE = 100
 const MAX_LOAD = 800
 
-export type OrdersListSortColumn =
-  | "displayId"
-  | "customer"
-  | "createdAt"
-  | "paymentStatus"
-  | "fulfillmentStatus"
-  | "total"
+export type { OrdersListSortColumn }
 
 type UseOrdersListArgs = {
   debouncedSearch: string
@@ -62,39 +60,12 @@ function sortRows(
     return rows
   }
   const col = sort.column
+  const getSortValue = ORDER_LIST_SORT_VALUE_GETTERS[col]
   const dir = sort.direction === "asc" ? 1 : -1
   const copied = [...rows]
   copied.sort((a, b) => {
-    let va: string | number | Date = ""
-    let vb: string | number | Date = ""
-    switch (col) {
-      case "displayId":
-        va = Number.parseInt(a.displayId, 10) || 0
-        vb = Number.parseInt(b.displayId, 10) || 0
-        break
-      case "customer":
-        va = `${a.customerName} ${a.customerEmail}`
-        vb = `${b.customerName} ${b.customerEmail}`
-        break
-      case "createdAt":
-        va = new Date(a.createdAt)
-        vb = new Date(b.createdAt)
-        break
-      case "paymentStatus":
-        va = a.paymentStatus
-        vb = b.paymentStatus
-        break
-      case "fulfillmentStatus":
-        va = a.fulfillmentStatus
-        vb = b.fulfillmentStatus
-        break
-      case "total":
-        va = a.totalMinor
-        vb = b.totalMinor
-        break
-      default:
-        break
-    }
+    const va = getSortValue(a)
+    const vb = getSortValue(b)
     return compareSortValues(va, vb) * dir
   })
   return copied

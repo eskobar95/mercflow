@@ -8,14 +8,14 @@ import { ListToolbar } from "@/components/ui/list/ListToolbar"
 import { type RowActionItem } from "@/components/ui/list/RowActionsMenu"
 import { type ListColumnDef, type ListSortState } from "@/components/ui/list/types"
 import { OrderAdminBadge } from "@/components/orders/OrderAdminBadge"
-import { useDebouncedValue } from "@/hooks/useDebouncedValue"
 import {
+  ORDER_LIST_SORT_VALUE_GETTERS,
   type OrdersListSortColumn,
-  useOrdersList,
-} from "@/hooks/useOrdersList"
-import { formatAdminCurrency } from "@/utils/formatAdminCurrency"
-
+} from "@/features/orders/orderListSortValues"
 import type { OrderListRow, OrderStatusFilterBucket } from "@/features/orders/orderTypes"
+import { useDebouncedValue } from "@/hooks/useDebouncedValue"
+import { useOrdersList } from "@/hooks/useOrdersList"
+import { formatAdminCurrency } from "@/utils/formatAdminCurrency"
 
 const STATUS_OPTIONS: { value: OrderStatusFilterBucket; label: string }[] = [
   { value: "all", label: "All" },
@@ -32,7 +32,7 @@ const ORDER_COLUMNS: ListColumnDef<OrderListRow, OrdersListSortColumn>[] = [
     header: "Order #",
     sortable: true,
     cellClassName: "font-medium",
-    getSortValue: (r) => Number.parseInt(r.displayId, 10) || 0,
+    getSortValue: ORDER_LIST_SORT_VALUE_GETTERS.displayId,
     renderCell: (r) => (
       <Link
         to={`/orders/${encodeURIComponent(r.id)}`}
@@ -46,7 +46,7 @@ const ORDER_COLUMNS: ListColumnDef<OrderListRow, OrdersListSortColumn>[] = [
     id: "customer",
     header: "Customer",
     sortable: true,
-    getSortValue: (r) => `${r.customerName} ${r.customerEmail}`,
+    getSortValue: ORDER_LIST_SORT_VALUE_GETTERS.customer,
     renderCell: (r) => (
       <div className="flex min-w-0 flex-col">
         <span className="truncate font-medium">{r.customerName}</span>
@@ -58,7 +58,7 @@ const ORDER_COLUMNS: ListColumnDef<OrderListRow, OrdersListSortColumn>[] = [
     id: "createdAt",
     header: "Date",
     sortable: true,
-    getSortValue: (r) => new Date(r.createdAt),
+    getSortValue: ORDER_LIST_SORT_VALUE_GETTERS.createdAt,
     renderCell: (r) => (
       <time dateTime={r.createdAt} className="text-content-secondary">
         {new Date(r.createdAt).toLocaleString("da-DK", {
@@ -72,21 +72,21 @@ const ORDER_COLUMNS: ListColumnDef<OrderListRow, OrdersListSortColumn>[] = [
     id: "paymentStatus",
     header: "Payment",
     sortable: true,
-    getSortValue: (r) => r.paymentStatus,
+    getSortValue: ORDER_LIST_SORT_VALUE_GETTERS.paymentStatus,
     renderCell: (r) => <OrderAdminBadge value={r.paymentStatus} />,
   },
   {
     id: "fulfillmentStatus",
     header: "Fulfillment",
     sortable: true,
-    getSortValue: (r) => r.fulfillmentStatus,
+    getSortValue: ORDER_LIST_SORT_VALUE_GETTERS.fulfillmentStatus,
     renderCell: (r) => <OrderAdminBadge value={r.fulfillmentStatus} />,
   },
   {
     id: "total",
     header: "Total",
     sortable: true,
-    getSortValue: (r) => r.totalMinor,
+    getSortValue: ORDER_LIST_SORT_VALUE_GETTERS.total,
     renderCell: (r) => (
       <span className="tabular-nums">{formatAdminCurrency(r.totalMinor, r.currencyCode)}</span>
     ),
