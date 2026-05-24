@@ -16,4 +16,8 @@ export const ConnectorConfig = model.define("connector_config", {
   connection_status: model.text().nullable(),
   /** Non-sensitive explanation for admins (errors are user-safe; never store API keys). */
   last_test_message: model.text().nullable(),
+  /**
+   * Connector-specific rules (non-secret). For Shipmondo: markup, free-shipping threshold, enabled carriers.
+   */
+  rules_json: model.json().nullable(),
 })
