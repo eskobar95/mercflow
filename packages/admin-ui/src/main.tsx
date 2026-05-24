@@ -2,6 +2,8 @@ import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { RouterProvider } from "react-router-dom"
 
+import { ToastProvider } from "@/components/ui/Toast"
+
 import { router } from "./router"
 import "./index.css"
 
@@ -12,6 +14,8 @@ if (!el) {
 
 createRoot(el).render(
   <StrictMode>
-    <RouterProvider router={router} />
-  </StrictMode>
+    <ToastProvider>
+      <RouterProvider router={router} />
+    </ToastProvider>
+  </StrictMode>,
 )
