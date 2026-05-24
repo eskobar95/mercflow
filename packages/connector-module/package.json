@@ -7,6 +7,10 @@
   "exports": {
     ".": "./src/modules/connector/index.ts",
     "./mercflow-connectors-admin-api": "./src/integrations/mercflow-connectors-admin-api.ts",
+    "./mercflow-shipmondo-admin-api": "./src/integrations/mercflow-shipmondo-admin-api.ts",
+    "./mercflow-shipmondo-test-admin-api": "./src/integrations/mercflow-shipmondo-test-admin-api.ts",
+    "./mercflow-shipmondo-store-api": "./src/integrations/mercflow-shipmondo-store-api.ts",
+    "./mercflow-shipmondo-runtime-credentials": "./src/integrations/resolve-shipmondo-credentials.ts",
     "./mercflow-stripe-admin-detail-route": "./src/integrations/mercflow-stripe-admin-detail-route.ts",
     "./mercflow-stripe-admin-test-route": "./src/integrations/mercflow-stripe-admin-test-route.ts",
     "./mercflow-stripe-admin-sync-products-route": "./src/integrations/mercflow-stripe-admin-sync-products-route.ts",

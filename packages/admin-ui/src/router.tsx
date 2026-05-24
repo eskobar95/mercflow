@@ -172,6 +172,16 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "settings/connectors/shipmondo",
+        handle: { title: "Shipmondo" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { ShipmondoConnectorSettingsPage } = await import(
+            "@/pages/ShipmondoConnectorSettingsPage"
+          )
+          return { Component: ShipmondoConnectorSettingsPage }
+        },
+      },
+      {
         path: "settings/connectors/:connectorType",
         handle: { title: "Connector" } satisfies AppRouteHandle,
         lazy: async () => {
