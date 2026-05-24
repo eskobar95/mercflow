@@ -13,23 +13,32 @@ import {
   ProductListFilterBar,
   type ActiveFilter,
   type FilterCategory,
-} from "@/components/product-list/ProductListFilterBar"
+} from "@/components/product-list/filter"
 import { ProductStatusBadge } from "@/components/product-list/ProductStatusBadge"
 import { ProductThumbnail } from "@/components/product-list/ProductThumbnail"
 import { MOCK_PRODUCTS, type ProductListRow } from "@/data/mockProducts"
 import { useMockEntityListState } from "@/hooks/useMockEntityListState"
 import { cn } from "@/lib/cn"
 
-// ── Column definitions ────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 type StatusFilter = "all" | "published" | "draft" | "proposed"
 type ProductCol = "thumbnail" | "title" | "status" | "collection" | "updatedAt"
+
+// ── Constants ─────────────────────────────────────────────────────────────────
 
 const STATUS_TABS: { id: StatusFilter; label: string }[] = [
   { id: "all",       label: "All"       },
   { id: "published", label: "Published" },
   { id: "draft",     label: "Draft"     },
   { id: "proposed",  label: "Proposed"  },
+]
+
+const ROW_ACTIONS: RowActionItem[] = [
+  { id: "view",      label: "View",      onSelect: () => {} },
+  { id: "edit",      label: "Edit",      onSelect: () => {} },
+  { id: "duplicate", label: "Duplicate", onSelect: () => {} },
+  { id: "delete",    label: "Delete",    destructive: true,  onSelect: () => {} },
 ]
 
 const PRODUCT_COLUMNS: ListColumnDef<ProductListRow, ProductCol>[] = [
@@ -92,6 +101,48 @@ const PRODUCT_COLUMNS: ListColumnDef<ProductListRow, ProductCol>[] = [
     ),
   },
 ]
+
+// ── StatusTabBar ──────────────────────────────────────────────────────────────
+
+function StatusTabBar({
+  active,
+  counts,
+  onChange,
+}: {
+  active: StatusFilter
+  counts: Record<StatusFilter, number>
+  onChange: (s: StatusFilter) => void
+}): JSX.Element {
+  return (
+    <div className="flex items-center border-b border-border-subtle px-4">
+      {STATUS_TABS.map((tab) => (
+        <button
+          key={tab.id}
+          type="button"
+          onClick={() => onChange(tab.id)}
+          className={cn(
+            "relative flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
+            active === tab.id
+              ? "border-content-primary text-content-primary"
+              : "border-transparent text-content-tertiary hover:text-content-secondary",
+          )}
+        >
+          {tab.label}
+          <span
+            className={cn(
+              "inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-sm px-1 text-3xs font-semibold tabular-nums",
+              active === tab.id
+                ? "bg-surface-subtle text-content-secondary"
+                : "text-content-tertiary",
+            )}
+          >
+            {counts[tab.id]}
+          </span>
+        </button>
+      ))}
+    </div>
+  )
+}
 
 // ── Filter categories ─────────────────────────────────────────────────────────
 
@@ -224,13 +275,6 @@ export function ProductListPage(): JSX.Element {
     filterRow,
   })
 
-  const getRowActions = (_row: ProductListRow): RowActionItem[] => [
-    { id: "view",      label: "View",      onSelect: () => {} },
-    { id: "edit",      label: "Edit",      onSelect: () => {} },
-    { id: "duplicate", label: "Duplicate", onSelect: () => {} },
-    { id: "delete",    label: "Delete",    destructive: true,  onSelect: () => {} },
-  ]
-
   const statusCounts = useMemo(
     () => ({
       all:       MOCK_PRODUCTS.length,
@@ -285,36 +329,11 @@ export function ProductListPage(): JSX.Element {
         </div>
 
         {/* ── Status tabs ── */}
-        <div className="flex items-center border-b border-border-subtle px-4">
-          {STATUS_TABS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => {
-                setStatusFilter(tab.id)
-                setPage(1)
-              }}
-              className={cn(
-                "relative flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
-                statusFilter === tab.id
-                  ? "border-content-primary text-content-primary"
-                  : "border-transparent text-content-tertiary hover:text-content-secondary",
-              )}
-            >
-              {tab.label}
-              <span
-                className={cn(
-                  "inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-sm px-1 text-3xs font-semibold tabular-nums",
-                  statusFilter === tab.id
-                    ? "bg-surface-subtle text-content-secondary"
-                    : "text-content-tertiary",
-                )}
-              >
-                {statusCounts[tab.id]}
-              </span>
-            </button>
-          ))}
-        </div>
+        <StatusTabBar
+          active={statusFilter}
+          counts={statusCounts}
+          onChange={(s) => { setStatusFilter(s); setPage(1) }}
+        />
 
         {/* ── Filter bar (Linear pattern) ── */}
         <ProductListFilterBar
@@ -347,7 +366,7 @@ export function ProductListPage(): JSX.Element {
             sortState={sort}
             onRequestSort={onRequestSort}
             selection={{ selectedIds, onSelectAll, onSelectRow }}
-            getRowActions={getRowActions}
+            getRowActions={() => ROW_ACTIONS}
             emptyState={
               <ListEmptyState
                 title="No products match"
