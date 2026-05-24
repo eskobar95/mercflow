@@ -136,15 +136,19 @@ const fontFamily = {
     mono: "var(--mf-font-family-mono)",
 };
 const fontSize = {
+    "3xs": "var(--mf-font-size-3xs)",
     "2xs": "var(--mf-font-size-2xs)",
     xs: "var(--mf-font-size-xs)",
     sm: "var(--mf-font-size-sm)",
     base: "var(--mf-font-size-base)",
+    interface: "var(--mf-font-size-interface)",
     md: "var(--mf-font-size-md)",
     lg: "var(--mf-font-size-lg)",
     xl: "var(--mf-font-size-xl)",
     "2xl": "var(--mf-font-size-2xl)",
     "3xl": "var(--mf-font-size-3xl)",
+    "4xl": "var(--mf-font-size-4xl)",
+    "5xl": "var(--mf-font-size-5xl)",
 };
 const fontWeight = {
     regular: "var(--mf-font-weight-regular)",

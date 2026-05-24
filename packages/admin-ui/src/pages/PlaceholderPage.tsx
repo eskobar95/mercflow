@@ -40,21 +40,21 @@ export function PlaceholderPage({
   return (
     <div className="px-4 py-12 md:px-8 md:py-16">
       <div className="mx-auto flex max-w-xl flex-col items-start">
-        <h2 className="text-[26px] font-semibold tracking-tight text-content-primary md:text-[30px]">
+        <h2 className="text-2xl font-semibold tracking-tight text-content-primary md:text-3xl">
           {title}
         </h2>
 
-        <p className="mt-3 text-[14px] leading-relaxed text-content-secondary">
+        <p className="mt-3 text-base leading-relaxed text-content-secondary">
           {description}
         </p>
 
-        <p className="mt-1 text-[13px] text-content-tertiary">
+        <p className="mt-1 text-sm text-content-tertiary">
           Not in this slice yet — landing in a later sprint.
         </p>
 
         <Link
           to={fallback.to}
-          className="group/cta mt-6 inline-flex h-9 items-center gap-1.5 rounded-full border border-border-default bg-surface-appCard px-3.5 text-[13px] font-semibold text-content-primary shadow-sm transition-[background-color,border-color,transform,box-shadow] duration-150 hover:border-border-strong hover:bg-surface-subtle hover:shadow-md active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          className="group/cta mt-6 inline-flex h-9 items-center gap-1.5 rounded-full border border-border-default bg-surface-appCard px-3.5 text-sm font-semibold text-content-primary shadow-sm transition-[background-color,border-color,transform,box-shadow] duration-150 hover:border-border-strong hover:bg-surface-subtle hover:shadow-md active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
         >
           {fallback.label}

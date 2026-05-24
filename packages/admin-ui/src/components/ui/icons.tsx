@@ -187,6 +187,24 @@ export function IconSparkle({ size = 16, ...rest }: IconProps): JSX.Element {
   )
 }
 
+/** Chevron pointing down — select triggers and expandable panels. */
+export function IconChevronDown({ size = 14, ...rest }: IconProps): JSX.Element {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  )
+}
+
+/** Check mark — checkbox and select item indicators. */
+export function IconCheck({ size = 14, ...rest }: IconProps): JSX.Element {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
+  )
+}
+
 /** Chevron used for expandable parent nav items. Rotates 90° when open. */
 export function IconChevronRight({ size = 14, ...rest }: IconProps): JSX.Element {
   return (

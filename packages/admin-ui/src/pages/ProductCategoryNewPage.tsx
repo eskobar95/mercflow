@@ -1,12 +1,10 @@
 import { useId, useState, type FormEvent } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
+import { Button } from "@/components/ui/Button"
 import { Card } from "@/components/ui/Card"
-
-const inputClassName =
-  "w-full min-w-0 rounded-md border border-border-default bg-surface-default px-3 py-2 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus"
-
-const labelClassName = "text-sm font-medium text-content-primary"
+import { FormField } from "@/components/ui/FormField"
+import { Input } from "@/components/ui/Input"
 
 /**
  * Create category flow (mock). URL-first, no Medusa. Deep-link: `/product-categories/new`.
@@ -32,7 +30,7 @@ export function ProductCategoryNewPage(): JSX.Element {
     }
     setError(null)
     setSuccessMessage(
-      `Mock save: category “${trimmed}” would be created (no API). You can add another or return to the list.`
+      `Mock save: category “${trimmed}” would be created (no API). You can add another or return to the list.`,
     )
   }
 
@@ -42,7 +40,7 @@ export function ProductCategoryNewPage(): JSX.Element {
         <h1 className="mb-6 text-2xl font-semibold text-content-primary">
           New product category
         </h1>
-        <Card>
+        <Card elevation="flat">
           {successMessage ? (
             <p
               className="mb-4 text-sm text-content-secondary"
@@ -53,41 +51,31 @@ export function ProductCategoryNewPage(): JSX.Element {
             </p>
           ) : null}
           <form className="space-y-4" onSubmit={onSubmit} noValidate>
-            <div>
-              <label htmlFor={nameId} className={labelClassName}>
-                Name <span className="text-content-danger">*</span>
-              </label>
-              <input
+            <FormField
+              label="Name"
+              htmlFor={nameId}
+              required
+              error={error ?? undefined}
+            >
+              <Input
                 id={nameId}
                 name="name"
                 type="text"
                 autoComplete="off"
                 value={name}
+                error={Boolean(error)}
                 onChange={(e) => {
                   setName(e.target.value)
                 }}
-                className={`mt-1 ${inputClassName}`}
                 aria-invalid={Boolean(error)}
-                aria-describedby={error ? `${nameId}-err` : undefined}
               />
-              {error ? (
-                <p
-                  id={`${nameId}-err`}
-                  className="mt-1 text-sm text-content-danger"
-                  role="alert"
-                >
-                  {error}
-                </p>
-              ) : null}
-            </div>
-            <div>
-              <label htmlFor={handleId} className={labelClassName}>
-                Handle
-              </label>
-              <p className="mb-1 text-xs text-content-tertiary">
-                Unique string for URLs (optional in this mock).
-              </p>
-              <input
+            </FormField>
+            <FormField
+              label="Handle"
+              htmlFor={handleId}
+              hint="Unique string for URLs (optional in this mock)."
+            >
+              <Input
                 id={handleId}
                 name="handle"
                 type="text"
@@ -96,26 +84,22 @@ export function ProductCategoryNewPage(): JSX.Element {
                 onChange={(e) => {
                   setHandle(e.target.value)
                 }}
-                className={`mt-1 ${inputClassName}`}
                 placeholder="e.g. outerwear"
               />
-            </div>
+            </FormField>
             <div className="flex flex-wrap items-center gap-2 pt-2">
-              <button
-                type="submit"
-                className="rounded-md bg-interactive-primary px-4 py-2 text-sm font-medium text-content-inverse transition hover:bg-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
-              >
+              <Button type="submit" variant="primary">
                 Save (mock)
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
-                className="rounded-md border border-border-default bg-surface-raised px-4 py-2 text-sm font-medium text-content-primary shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
+                variant="secondary"
                 onClick={() => {
                   navigate("/product-categories")
                 }}
               >
                 Cancel
-              </button>
+              </Button>
               <Link
                 to="/product-categories"
                 className="text-sm font-medium text-interactive-primary hover:text-interactive-primary-hover"

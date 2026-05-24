@@ -12,6 +12,9 @@ import type { ReactNode } from "react"
  *
  * Dot variant: render a tiny colored dot before the label. Mercury / Stripe
  * use this in dense lists where the badge fill would be too loud.
+ *
+ * WCAG AA: text/background pairs use design-token values verified in batch1
+ * (primary on white ≥ 14:1, accent-text on accent-subtle, feedback-* pairs).
  */
 
 export type BadgeVariant = "neutral" | "accent" | "success" | "warning" | "danger"
@@ -49,7 +52,7 @@ export function Badge({
   if (dot) {
     return (
       <span
-        className={`inline-flex items-center gap-1.5 text-[12px] font-medium text-content-secondary ${className}`}
+        className={`inline-flex items-center gap-1.5 text-xs font-medium text-content-secondary ${className}`}
       >
         <span className={`h-1.5 w-1.5 rounded-full ${dotColorMap[variant]}`} aria-hidden />
         {children}
@@ -59,7 +62,7 @@ export function Badge({
 
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${fillMap[variant]} ${className}`}
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-semibold ${fillMap[variant]} ${className}`}
     >
       {children}
     </span>

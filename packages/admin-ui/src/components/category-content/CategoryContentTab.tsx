@@ -5,11 +5,13 @@ import { ContentLocaleSwitcher } from "@/components/content-locale/ContentLocale
 import { ContentLocaleUnsavedDialog } from "@/components/content-locale/ContentLocaleUnsavedDialog"
 import { ProductDescriptionEditor } from "@/components/product-content/ProductDescriptionEditor"
 import { SEOPreview } from "@/components/product-content/SEOPreview"
-import {
-  EMPTY_TIPTAP_DOC,
-  tiptapDocFromUnknown,
-} from "@/components/product-content/tiptapDoc"
+import { EMPTY_TIPTAP_DOC, tiptapDocFromUnknown } from "@/lib/tiptap"
 import { Card } from "@/components/ui/Card"
+import { Button } from "@/components/ui/Button"
+import { sectionDescClass, sectionTitleClass } from "@/components/ui/formStyles"
+import { FormField } from "@/components/ui/FormField"
+import { Input } from "@/components/ui/Input"
+import { Textarea } from "@/components/ui/Textarea"
 import {
   DEFAULT_CATEGORY_CONTENT_LOCALE,
   useCategoryContentState,
@@ -31,7 +33,7 @@ export function CategoryContentTab({
   categoryTitleFallback,
 }: CategoryContentTabProps): JSX.Element {
   const formId = useId()
-  const unsavedDialogRef = useRef<HTMLDialogElement>(null)
+  const [unsavedDialogOpen, setUnsavedDialogOpen] = useState(false)
   const pendingLocaleRef = useRef<string | null>(null)
   const localeBeforeSwitchRef = useRef<string | null>(null)
 
@@ -124,7 +126,7 @@ export function CategoryContentTab({
         return
       }
       pendingLocaleRef.current = next
-      unsavedDialogRef.current?.showModal()
+      setUnsavedDialogOpen(true)
     },
     [activeLocaleCode, isDirty, completeLocaleSwitch]
   )
@@ -172,7 +174,7 @@ export function CategoryContentTab({
     }
     const target = pendingLocaleRef.current
     pendingLocaleRef.current = null
-    unsavedDialogRef.current?.close()
+    setUnsavedDialogOpen(false)
     if (target !== null) {
       completeLocaleSwitch(target)
     }
@@ -186,7 +188,7 @@ export function CategoryContentTab({
     }
     const target = pendingLocaleRef.current
     pendingLocaleRef.current = null
-    unsavedDialogRef.current?.close()
+    setUnsavedDialogOpen(false)
     if (target !== null) {
       completeLocaleSwitch(target)
     }
@@ -202,7 +204,8 @@ export function CategoryContentTab({
   return (
     <div className="space-y-6">
       <ContentLocaleUnsavedDialog
-        dialogRef={unsavedDialogRef}
+        open={unsavedDialogOpen}
+        onOpenChange={setUnsavedDialogOpen}
         actionDisabled={loading || saving}
         onSave={() => {
           void onDialogSave()
@@ -253,39 +256,31 @@ export function CategoryContentTab({
           resolvedContentLocale={content?.locale ?? null}
         />
 
-        <Card>
-          <h2 className="text-lg font-semibold text-content-primary">Description</h2>
-          <p className="mt-1 text-sm text-content-secondary">
+        <Card elevation="flat">
+          <h2 className={sectionTitleClass}>Description</h2>
+          <p className={sectionDescClass}>
             Rich text is stored as TipTap JSON (not HTML).
           </p>
-          <div className="mt-4">
-            <span className="mb-2 block text-sm font-medium text-content-primary">
-              Body
-            </span>
+          <div className="-mx-6 -mb-6 mt-5 border-t border-border-subtle">
             <ProductDescriptionEditor
               value={descriptionJson}
               onChange={setDescriptionJson}
               disabled={disabled}
+              variant="embedded"
             />
           </div>
         </Card>
 
-        <Card>
-          <h2 className="text-lg font-semibold text-content-primary">SEO</h2>
-          <p className="mt-1 text-sm text-content-secondary">
+        <Card elevation="flat">
+          <h2 className={sectionTitleClass}>SEO</h2>
+          <p className={sectionDescClass}>
             Meta title and description for this locale. Description is limited to{" "}
             {SEO_DESCRIPTION_MAX} characters in the API.
           </p>
           <div className="mt-4 grid gap-4 lg:grid-cols-2">
             <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor={`${formId}-seo-title`}
-                  className="block text-sm font-medium text-content-primary"
-                >
-                  Meta title
-                </label>
-                <input
+              <FormField label="Meta title" htmlFor={`${formId}-seo-title`}>
+                <Input
                   id={`${formId}-seo-title`}
                   type="text"
                   value={seoTitle}
@@ -294,17 +289,19 @@ export function CategoryContentTab({
                   }}
                   disabled={disabled}
                   autoComplete="off"
-                  className="mt-1 w-full rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus disabled:opacity-50"
                 />
-              </div>
-              <div>
-                <label
-                  htmlFor={`${formId}-seo-desc`}
-                  className="block text-sm font-medium text-content-primary"
-                >
-                  Meta description
-                </label>
-                <textarea
+              </FormField>
+              <FormField
+                label="Meta description"
+                htmlFor={`${formId}-seo-desc`}
+                hint={`${seoDescription.length} / ${SEO_DESCRIPTION_MAX} characters${seoTooLong ? " — shorten before saving." : ""}`}
+                error={
+                  seoTooLong
+                    ? `Must be at most ${SEO_DESCRIPTION_MAX} characters.`
+                    : undefined
+                }
+              >
+                <Textarea
                   id={`${formId}-seo-desc`}
                   value={seoDescription}
                   onChange={(e) => {
@@ -317,24 +314,17 @@ export function CategoryContentTab({
                   onBlur={() => {
                     if (seoDescription.length > SEO_DESCRIPTION_MAX) {
                       setValidationError(
-                        `SEO description must be at most ${SEO_DESCRIPTION_MAX} characters (currently ${seoDescription.length}).`
+                        `SEO description must be at most ${SEO_DESCRIPTION_MAX} characters (currently ${seoDescription.length}).`,
                       )
                     }
                   }}
                   disabled={disabled}
                   rows={4}
+                  error={seoTooLong}
                   aria-invalid={seoTooLong}
                   aria-describedby={`${formId}-seo-desc-counter`}
-                  className="mt-1 w-full rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus disabled:opacity-50"
                 />
-                <p
-                  id={`${formId}-seo-desc-counter`}
-                  className={`mt-1 text-xs ${seoTooLong ? "font-medium text-content-danger" : "text-content-tertiary"}`}
-                >
-                  {seoDescription.length} / {SEO_DESCRIPTION_MAX} characters
-                  {seoTooLong ? " — shorten before saving." : ""}
-                </p>
-              </div>
+              </FormField>
             </div>
             <div>
               <SEOPreview
@@ -346,9 +336,9 @@ export function CategoryContentTab({
           </div>
         </Card>
 
-        <Card>
-          <h2 className="text-lg font-semibold text-content-primary">Images</h2>
-          <p className="mt-1 text-sm text-content-secondary">
+        <Card elevation="flat">
+          <h2 className={sectionTitleClass}>Images</h2>
+          <p className={sectionDescClass}>
             Optional Medusa file / media IDs for Open Graph and category banner. No upload widget
             in this shell — use IDs from your dev database.
           </p>
@@ -358,14 +348,12 @@ export function CategoryContentTab({
             </p>
           ) : null}
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <div>
-              <label
-                htmlFor={`${formId}-og-image`}
-                className="block text-sm font-medium text-content-primary"
-              >
-                Open Graph image ID
-              </label>
-              <input
+            <FormField
+              label="Open Graph image ID"
+              htmlFor={`${formId}-og-image`}
+              hint="Optional file / media id for social previews."
+            >
+              <Input
                 id={`${formId}-og-image`}
                 type="text"
                 value={ogImageId}
@@ -375,17 +363,10 @@ export function CategoryContentTab({
                 disabled={disabled}
                 autoComplete="off"
                 placeholder="Optional"
-                className="mt-1 w-full rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus disabled:opacity-50"
               />
-            </div>
-            <div>
-              <label
-                htmlFor={`${formId}-banner-image`}
-                className="block text-sm font-medium text-content-primary"
-              >
-                Banner image ID
-              </label>
-              <input
+            </FormField>
+            <FormField label="Banner image ID" htmlFor={`${formId}-banner-image`}>
+              <Input
                 id={`${formId}-banner-image`}
                 type="text"
                 value={bannerImageId}
@@ -395,30 +376,25 @@ export function CategoryContentTab({
                 disabled={disabled}
                 autoComplete="off"
                 placeholder="Optional"
-                className="mt-1 w-full rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus disabled:opacity-50"
               />
-            </div>
+            </FormField>
           </div>
         </Card>
 
         <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="submit"
-            disabled={disabled || seoTooLong}
-            className="rounded-md bg-interactive-primary px-4 py-2 text-sm font-medium text-content-inverse hover:bg-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus disabled:opacity-50"
-          >
+          <Button type="submit" variant="primary" disabled={disabled || seoTooLong}>
             {saving ? "Saving…" : "Save content"}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="secondary"
             disabled={disabled}
             onClick={() => {
               void onDiscard()
             }}
-            className="rounded-md border border-border-default bg-surface-default px-4 py-2 text-sm font-medium text-content-primary shadow-sm hover:bg-surface-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus disabled:opacity-50"
           >
             Discard changes
-          </button>
+          </Button>
           {loading ? (
             <span className="text-sm text-content-secondary">Loading content…</span>
           ) : null}

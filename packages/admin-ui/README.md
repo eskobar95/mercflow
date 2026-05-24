@@ -88,6 +88,28 @@ A file-level map of the shell versus follow-up layout work is in `LAYOUT-AUDIT.m
 - Tailwind theme extensions: `tailwind.config.ts` — maps `surface`, `content`, `border`, `interactive`, spacing, radius, shadows, and typography to `var(--…)` from the design token sheet (see `.cursor/rules/admin-ui.mdc` for naming alignment).
 - Components should use utilities such as `bg-surface-canvas`, `text-content-primary`, `border-border-default`, and interactive tokens — not raw hex in class names.
 
+### Form controls (MER-52)
+
+Use primitives from `src/components/ui/` (`Input`, `Textarea`, `Select`, `FormField`, `RichTextEditor`) instead of ad-hoc `shadow-sm` on fields inside cards.
+
+**Reference lock:** form controls follow **Stripe Dashboard** density; page chrome (sidebar, top bar CTAs) stays **Mercury/Asana**.
+
+| Surface | Border radius | Shadow |
+|--------|---------------|--------|
+| Form section card | `rounded-md` (10px) | none — `elevation="flat"` |
+| Input / select trigger | `rounded-sm` (6px) | none — hairline border |
+| Checkbox | `rounded-sm` (6px), square | none |
+| Dropdown / popover panel | `rounded-sm` | `shadow-md` — single float layer |
+| Rich text (embedded in Card) | flush via `-mx-6` bleed | none on editor chrome |
+| Action buttons in forms | `rounded-sm` | none on secondary |
+| Field focus | accent border | no outer glow — `fieldFocusClass` |
+| Button focus (keyboard) | 1px offset outline | subtle, not 3px halo |
+
+- Labels: 13px medium; hints **below** the control (Stripe settings pattern).
+- Select menu hover/selected: `bg-accent-subtle`.
+- `RichTextEditor` with `variant="embedded"` belongs inside a flat `Card` that owns the title and description.
+- **Button shapes:** `shape="default"` for in-page actions; `shape="pill"` for global chrome only (TopBar Create, ⌘K). Always use `Button` — no inline discard buttons with `shadow-sm`.
+
 ## Product content API (dev)
 
 - **Data layer:** `src/features/product-content/` — types, `getProductContent` / `saveProductContent`, and `useProductContentState` (`loading`, `saving`, separate **`loadError`** / **`saveError`**, `load` / `save` return **`Promise<boolean>`** for success, `clearError`).

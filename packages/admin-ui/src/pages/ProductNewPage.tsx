@@ -1,12 +1,11 @@
 import { useId, useState, type FormEvent } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
+import { Button } from "@/components/ui/Button"
 import { Card } from "@/components/ui/Card"
-
-const inputClassName =
-  "w-full min-w-0 rounded-md border border-border-default bg-surface-default px-3 py-2 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus"
-
-const labelClassName = "text-sm font-medium text-content-primary"
+import { FormField } from "@/components/ui/FormField"
+import { Input } from "@/components/ui/Input"
+import { Select } from "@/components/ui/Select"
 
 type ProductFormStatus = "draft" | "published"
 
@@ -36,7 +35,7 @@ export function ProductNewPage(): JSX.Element {
     }
     setError(null)
     setSuccessMessage(
-      `Mock save: “${trimmed}” would be created (no API). You can add another or return to the list.`
+      `Mock save: “${trimmed}” would be created (no API). You can add another or return to the list.`,
     )
   }
 
@@ -46,7 +45,7 @@ export function ProductNewPage(): JSX.Element {
         <h1 className="mb-6 text-2xl font-semibold text-content-primary">
           New product
         </h1>
-        <Card>
+        <Card elevation="flat">
           {successMessage ? (
             <p
               className="mb-4 text-sm text-content-secondary"
@@ -57,41 +56,31 @@ export function ProductNewPage(): JSX.Element {
             </p>
           ) : null}
           <form className="space-y-4" onSubmit={onSubmit} noValidate>
-            <div>
-              <label htmlFor={titleId} className={labelClassName}>
-                Title <span className="text-content-danger">*</span>
-              </label>
-              <input
+            <FormField
+              label="Title"
+              htmlFor={titleId}
+              required
+              error={error ?? undefined}
+            >
+              <Input
                 id={titleId}
                 name="title"
                 type="text"
                 autoComplete="off"
                 value={title}
+                error={Boolean(error)}
                 onChange={(e) => {
                   setTitle(e.target.value)
                 }}
-                className={`mt-1 ${inputClassName}`}
                 aria-invalid={Boolean(error)}
-                aria-describedby={error ? `${titleId}-err` : undefined}
               />
-              {error ? (
-                <p
-                  id={`${titleId}-err`}
-                  className="mt-1 text-sm text-content-danger"
-                  role="alert"
-                >
-                  {error}
-                </p>
-              ) : null}
-            </div>
-            <div>
-              <label htmlFor={slugId} className={labelClassName}>
-                Handle
-              </label>
-              <p className="mb-1 text-xs text-content-tertiary">
-                URL slug (optional in this mock).
-              </p>
-              <input
+            </FormField>
+            <FormField
+              label="Handle"
+              htmlFor={slugId}
+              hint="URL slug (optional in this mock)."
+            >
+              <Input
                 id={slugId}
                 name="slug"
                 type="text"
@@ -100,43 +89,35 @@ export function ProductNewPage(): JSX.Element {
                 onChange={(e) => {
                   setSlug(e.target.value)
                 }}
-                className={`mt-1 ${inputClassName}`}
                 placeholder="e.g. winter-jacket"
               />
-            </div>
-            <div>
-              <label htmlFor={statusId} className={labelClassName}>
-                Status
-              </label>
-              <select
+            </FormField>
+            <FormField label="Status" htmlFor={statusId}>
+              <Select
                 id={statusId}
-                name="status"
                 value={status}
-                onChange={(e) => {
-                  setStatus(e.target.value as ProductFormStatus)
+                onValueChange={(v) => {
+                  setStatus(v as ProductFormStatus)
                 }}
-                className={`mt-1 ${inputClassName}`}
-              >
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
-              </select>
-            </div>
+                options={[
+                  { value: "draft", label: "Draft" },
+                  { value: "published", label: "Published" },
+                ]}
+              />
+            </FormField>
             <div className="flex flex-wrap items-center gap-2 pt-2">
-              <button
-                type="submit"
-                className="rounded-md bg-interactive-primary px-4 py-2 text-sm font-medium text-content-inverse transition hover:bg-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
-              >
+              <Button type="submit" variant="primary">
                 Save (mock)
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
-                className="rounded-md border border-border-default bg-surface-raised px-4 py-2 text-sm font-medium text-content-primary shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
+                variant="secondary"
                 onClick={() => {
                   navigate("/products")
                 }}
               >
                 Cancel
-              </button>
+              </Button>
               <Link
                 to="/products"
                 className="text-sm font-medium text-interactive-primary hover:text-interactive-primary-hover"

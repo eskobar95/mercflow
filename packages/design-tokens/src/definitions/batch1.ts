@@ -229,15 +229,19 @@ export const fontFamily = {
 } as const
 
 export const fontSize = {
-  "2xs": "0.6875rem",
-  xs:    "0.75rem",
-  sm:    "0.8125rem",
-  base:  "0.875rem",
-  md:    "1rem",
-  lg:    "1.125rem",
-  xl:    "1.25rem",
-  "2xl": "1.5rem",
-  "3xl": "1.875rem",
+  "3xs":      "0.625rem",   // 10px — micro labels, counters
+  "2xs":      "0.6875rem",  // 11px — caption, badge text
+  xs:         "0.75rem",    // 12px — compact UI (filter chips, table headers)
+  sm:         "0.8125rem",  // 13px — body / cell text
+  base:       "0.875rem",   // 14px — default body
+  interface:  "0.9375rem",  // 15px — page headings, section titles
+  md:         "1rem",       // 16px — large body
+  lg:         "1.125rem",   // 18px
+  xl:         "1.25rem",    // 20px
+  "2xl":      "1.5rem",     // 24px
+  "3xl":      "1.875rem",   // 30px
+  "4xl":      "2rem",       // 32px — display headings
+  "5xl":      "2.25rem",    // 36px — hero headings
 } as const
 
 export const fontWeight = {

@@ -1,4 +1,7 @@
-import { useEffect, useId, useRef, type ReactNode } from "react"
+import { useId, type ReactNode } from "react"
+
+import { Checkbox } from "@/components/ui/Checkbox"
+import { cn } from "@/lib/cn"
 
 import { ListSortLabel } from "./ListSortLabel"
 import { getColumnAriaSort } from "./listSortState"
@@ -6,34 +9,30 @@ import { RowActionsMenu, type RowActionItem } from "./RowActionsMenu"
 import { TableSkeleton } from "./TableSkeleton"
 import type { ListColumnDef, ListSelection, ListSortState } from "./types"
 
-const headerCell = "px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-content-tertiary"
-const dataCell = "px-4 py-3 text-sm text-content-primary"
+/** Header cell base — no uppercase, lighter density */
+const headerCellBase = "px-4 py-2 text-left"
+const dataCell = "px-4 py-2.5 text-sm text-content-primary align-middle"
 
 function HeaderSelectAllCheckbox({
   checked,
   indeterminate,
-  "aria-label": ariaLabel,
+  id,
   onChange,
 }: {
   checked: boolean
   indeterminate: boolean
-  "aria-label": string
+  id: string
   onChange: (select: boolean) => void
 }): JSX.Element {
-  const ref = useRef<HTMLInputElement | null>(null)
-  useEffect(() => {
-    if (ref.current) {
-      ref.current.indeterminate = indeterminate
-    }
-  }, [indeterminate])
   return (
-    <input
-      ref={ref}
-      type="checkbox"
-      className="h-4 w-4 rounded border-border-default text-content-primary focus:ring-2 focus:ring-border-focus"
-      checked={checked}
-      onChange={(e) => onChange(e.target.checked)}
-      aria-label={ariaLabel}
+    <Checkbox
+      id={id}
+      touchTarget
+      checked={indeterminate ? "indeterminate" : checked}
+      onCheckedChange={(value) => {
+        onChange(value === true)
+      }}
+      aria-label="Select all rows on this page"
     />
   )
 }
@@ -95,17 +94,17 @@ export function DataTable<TRow, TCol extends string>({
     : false
 
   const renderHeaderRow = (): JSX.Element => (
-    <tr className="border-b border-border-default bg-surface-subtle">
+    <tr className="border-b border-border-subtle bg-surface-default">
       {selection ? (
         <th
           scope="col"
-          className={`w-0 ${headerCell} align-middle`}
+          className={cn(headerCellBase, "w-0 align-middle")}
         >
           <span className="sr-only">Select rows</span>
           <HeaderSelectAllCheckbox
+            id={`${tableId}-select-all`}
             checked={allSelected}
             indeterminate={someSelected}
-            aria-label="Select all rows on this page"
             onChange={(v) => {
               selection.onSelectAll(v)
             }}
@@ -119,7 +118,12 @@ export function DataTable<TRow, TCol extends string>({
           <th
             key={col.id}
             scope="col"
-            className={`${headerCell} ${col.headerClassName ?? ""}`.trim()}
+            className={cn(
+              headerCellBase,
+              col.headerClassName,
+              isSortable && "transition-colors hover:bg-surface-subtle",
+              isSortable && isActive && "bg-accent-subtle/25",
+            )}
             aria-sort={
               isSortable
                 ? getColumnAriaSort(
@@ -129,7 +133,7 @@ export function DataTable<TRow, TCol extends string>({
                 : undefined
             }
           >
-            <ListSortLabel< TCol>
+            <ListSortLabel<TCol>
               id={`${tableId}-h-${col.id}`}
               label={col.header}
               columnId={col.id}
@@ -142,8 +146,8 @@ export function DataTable<TRow, TCol extends string>({
         )
       })}
       {showActions ? (
-        <th className={`${headerCell} w-0 text-right`} scope="col">
-          Actions
+        <th className={cn(headerCellBase, "w-0 text-right text-xs font-medium text-content-tertiary")} scope="col">
+          <span className="sr-only">Actions</span>
         </th>
       ) : null}
     </tr>
@@ -186,12 +190,11 @@ export function DataTable<TRow, TCol extends string>({
             >
               {selection ? (
                 <td className={`w-0 ${dataCell} align-top`}>
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-border-default"
+                  <Checkbox
+                    touchTarget
                     checked={isRowSelected}
-                    onChange={(e) => {
-                      selection.onSelectRow(rowId, e.target.checked)
+                    onCheckedChange={(value) => {
+                      selection.onSelectRow(rowId, value === true)
                     }}
                     aria-label={`Select row ${rowId}`}
                   />
@@ -223,12 +226,14 @@ export function DataTable<TRow, TCol extends string>({
   }
 
   return (
-    <div className="overflow-x-auto rounded-t-lg border border-b-0 border-border-default">
-      <table className="w-full min-w-0 border-collapse" aria-label={tableLabel}>
-        {caption ? <caption className="sr-only">{caption}</caption> : null}
-        <thead>{renderHeaderRow()}</thead>
-        {renderBody()}
-      </table>
+    <div className="overflow-x-auto">
+      <div className="min-w-[600px]">
+        <table className="w-full border-collapse" aria-label={tableLabel}>
+          {caption ? <caption className="sr-only">{caption}</caption> : null}
+          <thead>{renderHeaderRow()}</thead>
+          {renderBody()}
+        </table>
+      </div>
     </div>
   )
 }

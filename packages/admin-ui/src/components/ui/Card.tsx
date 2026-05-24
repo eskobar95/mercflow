@@ -10,14 +10,10 @@ type CardProps = {
 }
 
 /**
- * Card — standard MercFlow surface (Mercury card geometry).
+ * Card — MercFlow surface.
  *
- *   - 10px radius (radii.md)
- *   - hairline border + soft slate shadow (whisper-soft, never AI-drop-shadow)
- *   - white background, sits on the cool gray canvas
- *
- * Use `elevation="hover"` when the entire card is a link — adds the lift
- * transition Emil recommends.
+ * Stripe settings panels use `elevation="flat"` (border only, no shadow).
+ * Mercury marketing tiles use `elevation="resting"` or `"hover"`.
  */
 export function Card({
   children,

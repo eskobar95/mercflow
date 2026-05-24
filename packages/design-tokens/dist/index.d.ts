@@ -112,15 +112,19 @@ export declare const tokens: {
         readonly mono: string;
     };
     readonly fontSize: {
+        readonly "3xs": "0.625rem";
         readonly "2xs": "0.6875rem";
         readonly xs: "0.75rem";
         readonly sm: "0.8125rem";
         readonly base: "0.875rem";
+        readonly interface: "0.9375rem";
         readonly md: "1rem";
         readonly lg: "1.125rem";
         readonly xl: "1.25rem";
         readonly "2xl": "1.5rem";
         readonly "3xl": "1.875rem";
+        readonly "4xl": "2rem";
+        readonly "5xl": "2.25rem";
     };
     readonly fontWeight: {
         readonly regular: "400";

@@ -1,4 +1,9 @@
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/DropdownMenu"
 
 import type { ReactNode } from "react"
 
@@ -31,39 +36,30 @@ export function RowActionsMenu({
   trigger = defaultTrigger,
 }: RowActionsMenuProps): JSX.Element {
   return (
-    <DropdownMenu.Root>
-      <DropdownMenu.Trigger asChild>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-medium text-content-secondary transition hover:bg-surface-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
+          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-sm font-medium text-content-secondary transition-[background-color,color,transform] duration-150 hover:bg-surface-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100"
           aria-label={ariaLabel}
+          style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
         >
           {trigger}
         </button>
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Portal>
-        <DropdownMenu.Content
-          className="z-dropdown min-w-44 rounded-md border border-border-default bg-surface-raised p-1 shadow-md"
-          sideOffset={4}
-          align="end"
-        >
-          {items.map((item) => (
-            <DropdownMenu.Item
-              key={item.id}
-              className={
-                item.destructive
-                  ? "cursor-pointer rounded-sm px-2 py-1.5 text-sm text-content-danger outline-none data-[disabled]:text-content-disabled data-[highlighted]:bg-surface-subtle"
-                  : "cursor-pointer rounded-sm px-2 py-1.5 text-sm text-content-primary outline-none data-[disabled]:text-content-disabled data-[highlighted]:bg-surface-subtle"
-              }
-              onSelect={() => {
-                item.onSelect()
-              }}
-            >
-              {item.label}
-            </DropdownMenu.Item>
-          ))}
-        </DropdownMenu.Content>
-      </DropdownMenu.Portal>
-    </DropdownMenu.Root>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        {items.map((item) => (
+          <DropdownMenuItem
+            key={item.id}
+            destructive={item.destructive}
+            onSelect={() => {
+              item.onSelect()
+            }}
+          >
+            {item.label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
