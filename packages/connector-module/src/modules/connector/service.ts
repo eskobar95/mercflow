@@ -7,6 +7,7 @@ import { ContainerRegistrationKeys, MedusaError } from "@medusajs/utils"
 
 import { buildConnectorAdminList } from "./build-connector-admin-list"
 import EncryptionService from "./encryption-service"
+import { GtmConnector } from "./gtm-connector"
 import { ConnectorConfig } from "./models/connector-config"
 import { ConnectorLog } from "./models/connector-log"
 import type { PatchPlunkConnectorBody, PostPlunkConnectorTestBody } from "./http-schemas"
@@ -81,6 +82,13 @@ export default class ConnectorModuleService extends MedusaService({
 }) {
   private encryption(): EncryptionService {
     return new EncryptionService()
+  }
+
+  /**
+   * Google Tag Manager connector entry point (encrypted credentials + upsert into `connector_config`).
+   */
+  gtm(): GtmConnector {
+    return new GtmConnector(this, this.encryption())
   }
 
   /**

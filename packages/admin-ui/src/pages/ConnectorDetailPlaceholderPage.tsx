@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom"
+import { Link, Navigate, useParams } from "react-router-dom"
 
 import { Card } from "@/components/ui/Card"
 import { CONNECTOR_CATALOG } from "@/features/connectors/connectorsCatalog"
@@ -20,6 +20,10 @@ function parseConnectorSlugParam(raw: string | undefined): ConnectorSlug | null 
 export function ConnectorDetailPlaceholderPage(): JSX.Element {
   const { connectorType } = useParams<{ connectorType: string }>()
   const slug = parseConnectorSlugParam(connectorType)
+
+  if (slug === "gtm") {
+    return <Navigate to="/settings/connectors/gtm" replace />
+  }
 
   return (
     <div className="p-6">

@@ -15,7 +15,9 @@
     "./resolve-stripe-secret-key": "./src/integrations/resolve-stripe-secret-key.ts",
     "./mercflow-connector-plunk-admin-api": "./src/integrations/mercflow-connector-plunk-admin-api.ts",
     "./mercflow-connector-plunk-test-admin-api": "./src/integrations/mercflow-connector-plunk-test-admin-api.ts",
-    "./mercflow-plunk-runtime-credentials": "./src/integrations/resolve-plunk-secret-api-key.ts"
+    "./mercflow-plunk-runtime-credentials": "./src/integrations/resolve-plunk-secret-api-key.ts",
+    "./mercflow-connectors-gtm-admin-api": "./src/integrations/mercflow-connectors-gtm-admin-api.ts",
+    "./mercflow-connectors-gtm-store-api": "./src/integrations/mercflow-connectors-gtm-store-api.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
