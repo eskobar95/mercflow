@@ -111,7 +111,7 @@ describe("updateAdminProductCategory", (): void => {
     vi.restoreAllMocks()
   })
 
-  it("issues PATCH with only provided fields", async (): Promise<void> => {
+  it("issues POST with only provided fields", async (): Promise<void> => {
     const bodyFromServer = {
       id: "pcat_test",
       name: "Tops",
@@ -140,7 +140,7 @@ describe("updateAdminProductCategory", (): void => {
     const tuple = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
     const [url, init] = tuple
     expect(String(url)).toContain("/admin/product-categories/pcat_test")
-    expect(init.method).toBe("PATCH")
+    expect(init.method).toBe("POST")
     const parsed: unknown = JSON.parse(String(init.body))
     expect(parsed).toEqual({ name: "Coats" })
   })
