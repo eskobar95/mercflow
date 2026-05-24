@@ -90,10 +90,12 @@ describe("OrdersListPage", () => {
     })))
 
   beforeEach(() => {
+    vi.stubEnv("VITE_MEDUSA_ADMIN_BACKEND_URL", "http://localhost:9000")
     globalThis.fetch = fetchSpy as unknown as typeof fetch
   })
 
   afterEach(() => {
+    vi.unstubAllEnvs()
     cleanup()
     vi.restoreAllMocks()
   })
@@ -153,10 +155,12 @@ describe("OrderDetailPage", () => {
   )
 
   beforeEach(() => {
+    vi.stubEnv("VITE_MEDUSA_ADMIN_BACKEND_URL", "http://localhost:9000")
     globalThis.fetch = fetchSpy as unknown as typeof fetch
   })
 
   afterEach(() => {
+    vi.unstubAllEnvs()
     cleanup()
     vi.restoreAllMocks()
   })

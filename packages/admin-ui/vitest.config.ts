@@ -25,8 +25,5 @@ export default defineConfig({
         inline: ["@testing-library/react"],
       },
     },
-    env: {
-      VITE_MEDUSA_ADMIN_BACKEND_URL: "http://localhost:9000",
-    },
   },
 })
