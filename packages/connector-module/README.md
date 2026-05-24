@@ -57,6 +57,10 @@ Storefront VAT hint (unauthenticated catalog/checkout integrations may read this
 |--------|---------------------------------------|---------|
 | `GET`  | `/store/connectors/stripe/vat`        | `{ data: { vat_mode } }` where `vat_mode` is `inclusive` or `exclusive` |
 
+### Admin UI (MercFlow)
+
+Store operators configure Stripe credentials, VAT mode, product sync, and the payment overview in **`/settings/connectors/stripe`** inside `@mercflow/admin-ui`.
+
 ### Runtime Stripe secret resolution (payment providers)
 
 MercFlow backends can resolve the Stripe secret key **without** relying on `STRIPE_SECRET_KEY` / `STRIPE_API_KEY` when the Stripe connector row is configured:

@@ -87,6 +87,22 @@ describe("Stripe connector HTTP routes", (): void => {
     )
   })
 
+  it("PATCH /admin/connectors/stripe rejects strict-schema unknown keys", async (): Promise<void> => {
+    const patchStripeConnector = vi.fn()
+
+    const req = {
+      ...mockReq({ patchStripeConnector }),
+      body: { extra_field: true },
+    } as unknown as MedusaRequest
+
+    const { status, json } = mockRes()
+
+    await stripePatch(req, { status, json } as unknown as MedusaResponse)
+
+    expect(patchStripeConnector).not.toHaveBeenCalled()
+    expect(status).toHaveBeenCalledWith(400)
+  })
+
   it("POST /admin/connectors/stripe/test returns ok", async (): Promise<void> => {
     const stripeConnectionTestAdmin = vi.fn(async (): Promise<{ ok: true }> => ({ ok: true }))
 
@@ -153,6 +169,22 @@ describe("Stripe connector HTTP routes", (): void => {
         ],
       },
     })
+  })
+
+  it("GET /admin/connectors/stripe/payments returns 400 for invalid limit query", async (): Promise<void> => {
+    const stripeListPaymentsAdmin = vi.fn()
+
+    const req = {
+      ...mockReq({ stripeListPaymentsAdmin }),
+      query: { limit: "999" },
+    } as unknown as MedusaRequest
+
+    const { status, json } = mockRes()
+
+    await stripePaymentsGet(req, { status, json } as unknown as MedusaResponse)
+
+    expect(stripeListPaymentsAdmin).not.toHaveBeenCalled()
+    expect(status).toHaveBeenCalledWith(400)
   })
 
   it("GET /store/connectors/stripe/vat exposes vat_mode", async (): Promise<void> => {
