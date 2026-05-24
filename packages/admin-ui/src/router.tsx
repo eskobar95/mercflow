@@ -146,6 +146,14 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "settings/connectors/:connectorType",
+        handle: { title: "Connector" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { ConnectorConfigurePage } = await import("@/pages/ConnectorConfigurePage")
+          return { Component: ConnectorConfigurePage }
+        },
+      },
+      {
         path: "settings/workspace",
         handle: { title: "Workspace" } satisfies AppRouteHandle,
         lazy: async () => {
