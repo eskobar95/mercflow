@@ -1,4 +1,6 @@
-import { useEffect, useId, useRef, type ReactNode } from "react"
+import { useId, type ReactNode } from "react"
+
+import { Checkbox } from "@/components/ui/Checkbox"
 
 import { ListSortLabel } from "./ListSortLabel"
 import { getColumnAriaSort } from "./listSortState"
@@ -12,28 +14,22 @@ const dataCell = "px-4 py-3 text-sm text-content-primary"
 function HeaderSelectAllCheckbox({
   checked,
   indeterminate,
-  "aria-label": ariaLabel,
+  id,
   onChange,
 }: {
   checked: boolean
   indeterminate: boolean
-  "aria-label": string
+  id: string
   onChange: (select: boolean) => void
 }): JSX.Element {
-  const ref = useRef<HTMLInputElement | null>(null)
-  useEffect(() => {
-    if (ref.current) {
-      ref.current.indeterminate = indeterminate
-    }
-  }, [indeterminate])
   return (
-    <input
-      ref={ref}
-      type="checkbox"
-      className="h-4 w-4 rounded border-border-default text-content-primary focus:ring-2 focus:ring-border-focus"
-      checked={checked}
-      onChange={(e) => onChange(e.target.checked)}
-      aria-label={ariaLabel}
+    <Checkbox
+      id={id}
+      checked={indeterminate ? "indeterminate" : checked}
+      onCheckedChange={(value) => {
+        onChange(value === true)
+      }}
+      aria-label="Select all rows on this page"
     />
   )
 }
@@ -103,9 +99,9 @@ export function DataTable<TRow, TCol extends string>({
         >
           <span className="sr-only">Select rows</span>
           <HeaderSelectAllCheckbox
+            id={`${tableId}-select-all`}
             checked={allSelected}
             indeterminate={someSelected}
-            aria-label="Select all rows on this page"
             onChange={(v) => {
               selection.onSelectAll(v)
             }}
@@ -186,12 +182,10 @@ export function DataTable<TRow, TCol extends string>({
             >
               {selection ? (
                 <td className={`w-0 ${dataCell} align-top`}>
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-border-default"
+                  <Checkbox
                     checked={isRowSelected}
-                    onChange={(e) => {
-                      selection.onSelectRow(rowId, e.target.checked)
+                    onCheckedChange={(value) => {
+                      selection.onSelectRow(rowId, value === true)
                     }}
                     aria-label={`Select row ${rowId}`}
                   />
@@ -223,12 +217,14 @@ export function DataTable<TRow, TCol extends string>({
   }
 
   return (
-    <div className="overflow-x-auto rounded-t-lg border border-b-0 border-border-default">
-      <table className="w-full min-w-0 border-collapse" aria-label={tableLabel}>
+    <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+      <div className="min-w-[640px] overflow-x-auto rounded-t-lg border border-b-0 border-border-default">
+        <table className="w-full border-collapse" aria-label={tableLabel}>
         {caption ? <caption className="sr-only">{caption}</caption> : null}
         <thead>{renderHeaderRow()}</thead>
         {renderBody()}
       </table>
+      </div>
     </div>
   )
 }
