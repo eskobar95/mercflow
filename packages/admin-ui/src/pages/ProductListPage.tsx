@@ -9,6 +9,7 @@ import { type RowActionItem } from "@/components/ui/list/RowActionsMenu"
 import { type ListColumnDef } from "@/components/ui/list/types"
 import { ProductCardGrid } from "@/components/product-list/ProductCardGrid"
 import {
+  FilterResultsSummary,
   ProductListFilterBar,
   type ActiveFilter,
   type FilterCategory,
@@ -36,7 +37,7 @@ const PRODUCT_COLUMNS: ListColumnDef<ProductListRow, ProductCol>[] = [
     id: "thumbnail",
     header: "",
     sortable: false,
-    headerClassName: "w-10 px-4",
+    headerClassName: "w-10",
     cellClassName: "py-2 w-10",
     renderCell: (r) => (
       <ProductThumbnail title={r.title} hue={r.thumbnailHue} size={36} />
@@ -95,13 +96,15 @@ const PRODUCT_COLUMNS: ListColumnDef<ProductListRow, ProductCol>[] = [
 // ── Filter categories ─────────────────────────────────────────────────────────
 
 const ALL_COLLECTIONS = Array.from(
-  new Set(MOCK_PRODUCTS.map((r) => r.collection))
+  new Set(MOCK_PRODUCTS.map((r) => r.collection)),
 ).sort()
 
 const FILTER_CATEGORIES: FilterCategory[] = [
   {
     id: "status",
     label: "Status",
+    type: "enum",
+    operators: ["is", "is not"],
     values: [
       { id: "published", label: "Published" },
       { id: "draft",     label: "Draft"     },
@@ -111,11 +114,15 @@ const FILTER_CATEGORIES: FilterCategory[] = [
   {
     id: "collection",
     label: "Collection",
+    type: "enum",
+    operators: ["is", "is not"],
     values: ALL_COLLECTIONS.map((c) => ({ id: c, label: c })),
   },
   {
     id: "updated",
     label: "Updated",
+    type: "date",
+    operators: ["after", "before"],
     values: [
       { id: "today", label: "Today"      },
       { id: "week",  label: "This week"  },
@@ -124,7 +131,7 @@ const FILTER_CATEGORIES: FilterCategory[] = [
   },
 ]
 
-// ── Date helpers ──────────────────────────────────────────────────────────────
+// ── Filter logic ──────────────────────────────────────────────────────────────
 
 function startOfPeriod(period: "today" | "week" | "month"): number {
   const d = new Date()
@@ -140,11 +147,6 @@ function startOfPeriod(period: "today" | "week" | "month"): number {
   return d.getTime()
 }
 
-/**
- * Test whether a row matches a single ActiveFilter.
- * "is" → row field must match any selected value.
- * "is not" → row field must NOT match any selected value.
- */
 function rowMatchesFilter(row: ProductListRow, filter: ActiveFilter): boolean {
   if (filter.valueIds.length === 0) return true
 
@@ -157,12 +159,20 @@ function rowMatchesFilter(row: ProductListRow, filter: ActiveFilter): boolean {
     case "collection":
       positiveMatch = filter.valueIds.includes(row.collection)
       break
-    case "updated":
-      positiveMatch = filter.valueIds.some((v) => {
-        const threshold = startOfPeriod(v as "today" | "week" | "month")
-        return new Date(row.updatedAt).getTime() >= threshold
-      })
-      break
+    case "updated": {
+      const rowMs = new Date(row.updatedAt).getTime()
+      if (filter.operator === "after") {
+        positiveMatch = filter.valueIds.some(
+          (v) => rowMs >= startOfPeriod(v as "today" | "week" | "month"),
+        )
+      } else {
+        // "before"
+        positiveMatch = filter.valueIds.some(
+          (v) => rowMs < startOfPeriod(v as "today" | "week" | "month"),
+        )
+      }
+      return positiveMatch
+    }
     default:
       return true
   }
@@ -172,14 +182,6 @@ function rowMatchesFilter(row: ProductListRow, filter: ActiveFilter): boolean {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
-/**
- * Product list page.
- *
- * Desktop: DataTable with thumbnail column, Shopify-style status tabs,
- * Linear-style filter bar — two-level popover → chips with is/is-not operator.
- *
- * Mobile: card feed, no horizontal scroll.
- */
 export function ProductListPage(): JSX.Element {
   const navigate = useNavigate()
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
@@ -187,11 +189,8 @@ export function ProductListPage(): JSX.Element {
 
   const filterRow = useCallback(
     (r: ProductListRow, query: string): boolean => {
-      // Status tab
       if (statusFilter !== "all" && r.status !== statusFilter) return false
-      // Active filter chips (AND logic — all must match)
       if (!activeFilters.every((f) => rowMatchesFilter(r, f))) return false
-      // Text search
       if (!query.trim()) return true
       const t = query.toLowerCase()
       return (
@@ -229,7 +228,7 @@ export function ProductListPage(): JSX.Element {
     { id: "view",      label: "View",      onSelect: () => {} },
     { id: "edit",      label: "Edit",      onSelect: () => {} },
     { id: "duplicate", label: "Duplicate", onSelect: () => {} },
-    { id: "delete",    label: "Delete",    destructive: true, onSelect: () => {} },
+    { id: "delete",    label: "Delete",    destructive: true,  onSelect: () => {} },
   ]
 
   const statusCounts = useMemo(
@@ -242,10 +241,8 @@ export function ProductListPage(): JSX.Element {
     [],
   )
 
-  function handleFiltersChange(f: ActiveFilter[]): void {
-    setActiveFilters(f)
-    setPage(1)
-  }
+  const isFiltered =
+    activeFilters.length > 0 || search.trim().length > 0 || statusFilter !== "all"
 
   function clearAll(): void {
     setActiveFilters([])
@@ -258,17 +255,24 @@ export function ProductListPage(): JSX.Element {
     <div className="p-4 md:p-6">
       <div className="overflow-hidden rounded-md border border-border-default bg-surface-default">
 
-        {/* ── Header ── */}
-        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border-subtle px-4 py-4">
-          <div>
-            <h1 className="text-base font-semibold tracking-tight text-content-primary">
+        {/* ── Heading ── */}
+        <div className="flex items-center justify-between gap-3 border-b border-border-subtle px-4 py-3">
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-[15px] font-semibold tracking-tight text-content-primary">
               Products
             </h1>
-            <p className="mt-0.5 hidden text-[13px] text-content-tertiary md:block">
-              Everything you sell — variants, SKUs, status, and collections.
-            </p>
+            {/* Live count badge — updates with filter state */}
+            <span className="inline-flex items-center rounded bg-surface-subtle px-1.5 py-0.5 text-[11px] font-semibold tabular-nums text-content-tertiary">
+              {isFiltered ? `${sorted.length} of ${MOCK_PRODUCTS.length}` : MOCK_PRODUCTS.length}
+            </span>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2">
+            <Link
+              to="/product-categories"
+              className="hidden text-[13px] font-medium text-content-tertiary transition-colors hover:text-content-secondary sm:block"
+            >
+              Categories
+            </Link>
             <Button
               type="button"
               variant="primary"
@@ -277,16 +281,10 @@ export function ProductListPage(): JSX.Element {
             >
               New product
             </Button>
-            <Link
-              to="/product-categories"
-              className="text-[13px] font-medium text-accent hover:text-accent-strong"
-            >
-              Categories
-            </Link>
           </div>
         </div>
 
-        {/* ── Status tabs (Shopify) ── */}
+        {/* ── Status tabs ── */}
         <div className="flex items-center border-b border-border-subtle px-4">
           {STATUS_TABS.map((tab) => (
             <button
@@ -306,7 +304,7 @@ export function ProductListPage(): JSX.Element {
               {tab.label}
               <span
                 className={cn(
-                  "inline-flex h-4 min-w-4 items-center justify-center rounded-sm px-1 text-[10px] font-semibold tabular-nums",
+                  "inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-sm px-1 text-[10px] font-semibold tabular-nums",
                   statusFilter === tab.id
                     ? "bg-surface-subtle text-content-secondary"
                     : "text-content-tertiary",
@@ -318,14 +316,24 @@ export function ProductListPage(): JSX.Element {
           ))}
         </div>
 
-        {/* ── Linear-style filter bar ── */}
+        {/* ── Filter bar (Linear pattern) ── */}
         <ProductListFilterBar
           categories={FILTER_CATEGORIES}
           activeFilters={activeFilters}
-          onFiltersChange={handleFiltersChange}
+          onFiltersChange={(f) => {
+            setActiveFilters(f)
+            setPage(1)
+          }}
           search={search}
           onSearchChange={setSearch}
           onSearchClear={() => setSearch("")}
+        />
+
+        {/* ── Results summary (Linear "X hidden by filters") ── */}
+        <FilterResultsSummary
+          totalItems={MOCK_PRODUCTS.length}
+          filteredItems={sorted.length}
+          onClear={clearAll}
         />
 
         {/* ── Desktop: DataTable ── */}
