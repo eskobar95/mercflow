@@ -176,8 +176,35 @@ jobs:
       contains(github.event.review.body, 'BUGBOT_REVIEW') &&
       !contains(github.event.review.body, 'BUGBOT_FIX_ALL')
     steps:
+      - name: Guard — CI must be green before Ready for Merge
+        id: ci-guard
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+
+          # Fetch all checks for this PR. Exclude internal notion-stage-sync checks.
+          INTERNAL="Stage → Fix on code-quality failure|Stage → Fix on security scan failure|Stage → Fix on Bugbot findings|Stage → Ready for Merge on Bugbot approval|Notion Stage Sync"
+
+          CHECKS=$(gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" \
+            --json statusCheckRollup -q '.statusCheckRollup // []')
+
+          FAILURES=$(echo "$CHECKS" | jq -r \
+            '.[] | select(.conclusion == "FAILURE") | select(.name | test("'"$INTERNAL"'") | not) | .name')
+
+          if [ -n "$FAILURES" ]; then
+            echo "CI is NOT green — skipping Ready for Merge. Failing checks:"
+            echo "$FAILURES"
+            echo "ci_ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "CI is green — proceeding to Ready for Merge."
+            echo "ci_ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Set Stage → Ready for Merge
         id: set-stage
+        if: steps.ci-guard.outputs.ci_ok == 'true'
         env:
           NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -202,7 +229,7 @@ jobs:
             -H "Authorization: Bearer $NOTION_API_KEY" \
             -H "Notion-Version: 2022-06-28" \
             -H "Content-Type: application/json" \
-            -d "{\"parent\":{\"page_id\":\"$PAGE_ID\"},\"rich_text\":[{\"text\":{\"content\":\"Agent: notion-stage-sync\nBugbot: no findings → Stage Ready for Merge\n\nPR #${PR_NUMBER} passed Bugbot review. Tech Lead Merge Agent dispatched.\"}}]}"
+            -d "{\"parent\":{\"page_id\":\"$PAGE_ID\"},\"rich_text\":[{\"text\":{\"content\":\"Agent: notion-stage-sync\nBugbot: no findings → Stage Ready for Merge\n\nPR #${PR_NUMBER} passed Bugbot review. CI confirmed green. Tech Lead Merge Agent dispatched.\"}}]}"
 
           echo "notion_url=$NOTION_URL" >> "$GITHUB_OUTPUT"
           echo "Stage → Ready for Merge for $NOTION_URL"
