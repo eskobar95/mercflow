@@ -261,7 +261,13 @@ export default class ConnectorModuleService extends MedusaService({
 
     try {
       const stripe = new StripeSdk(secret)
-      const result = await syncMercflowCatalogToStripe(stripe, { graph: remoteQuery.graph })
+      const vatMode =
+        row?.vat_mode?.trim().toLowerCase() === "exclusive" ? "exclusive" : "inclusive"
+      const result = await syncMercflowCatalogToStripe(
+        stripe,
+        { graph: remoteQuery.graph },
+        { priceTaxBehavior: vatMode }
+      )
 
       if (row) {
         await this.createConnectorLogs({

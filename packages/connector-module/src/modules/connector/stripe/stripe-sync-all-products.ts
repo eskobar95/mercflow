@@ -8,6 +8,11 @@ export type StripeCatalogSyncDeps = {
   graph: RemoteQueryFunction["graph"]
 }
 
+export type StripeCatalogSyncOptions = {
+  /** Maps to Stripe Price `tax_behavior` so checkout matches MercFlow VAT configuration. */
+  priceTaxBehavior: "inclusive" | "exclusive"
+}
+
 export type StripeCatalogSyncResult = {
   products_processed: number
   stripe_products_created: number
@@ -30,6 +35,24 @@ async function lookupStripePriceId(
   try {
     const res = await stripe.prices.search({
       query: `metadata['medusa_variant_id']:'${q}' AND metadata['currency']:'${c}' AND active:'true'`,
+      limit: 1,
+    })
+    return res.data[0]?.id ?? null
+  } catch {
+    return null
+  }
+}
+
+async function lookupStripePriceIdForProductOnly(
+  stripe: Stripe,
+  medusaProductId: string,
+  currency: string
+): Promise<string | null> {
+  const p = escapeStripeQuery(medusaProductId)
+  const c = escapeStripeQuery(currency.toLowerCase())
+  try {
+    const res = await stripe.prices.search({
+      query: `metadata['medusa_product_id']:'${p}' AND metadata['medusa_variant_id']:'__product_only' AND metadata['currency']:'${c}' AND active:'true'`,
       limit: 1,
     })
     return res.data[0]?.id ?? null
@@ -128,13 +151,88 @@ function pickVariantPrices(input: unknown): Array<{ variantId: string; currency:
   return out
 }
 
+const PRODUCT_ONLY_VARIANT_SENTINEL = "__product_only"
+
+/**
+ * When Medusa returns no usable variant prices (e.g. zero variants in the queried graph), derive a single
+ * product-level Stripe Price per `(product × currency)` using the sentinel variant id metadata.
+ */
+function pickPseudoProductOnlyPrices(productId: string, variantsUnknown: unknown): Array<{
+  variantId: string
+  currency: string
+  amount: number
+}> {
+  const fromVariants = pickVariantPrices(variantsUnknown)
+  if (fromVariants.length > 0) {
+    return fromVariants
+  }
+
+  const pricesByCurrency = new Map<string, number>()
+
+  const applyPrice = (code: string | null, minor: unknown): void => {
+    if (!code) {
+      return
+    }
+    const amt = toMinor(minor)
+    if (amt === null || amt < 0) {
+      return
+    }
+    const cur = code.trim().toLowerCase()
+    if (!pricesByCurrency.has(cur)) {
+      pricesByCurrency.set(cur, amt)
+    }
+  }
+
+  if (!Array.isArray(variantsUnknown)) {
+    return []
+  }
+
+  for (const vUnknown of variantsUnknown) {
+    if (!isRecord(vUnknown)) {
+      continue
+    }
+    const pricesUnknown = vUnknown.prices
+    if (!Array.isArray(pricesUnknown)) {
+      continue
+    }
+    for (const pUnknown of pricesUnknown) {
+      if (!isRecord(pUnknown)) {
+        continue
+      }
+      const currency =
+        typeof pUnknown.currency_code === "string" ? pUnknown.currency_code.trim().toLowerCase() : null
+      applyPrice(currency, pUnknown.amount)
+    }
+  }
+
+  const rows: Array<{ variantId: string; currency: string; amount: number }> = []
+  for (const [currency, amount] of pricesByCurrency) {
+    rows.push({ variantId: PRODUCT_ONLY_VARIANT_SENTINEL + productId, currency, amount })
+  }
+
+  return rows
+}
+
+async function lookupPriceForRow(
+  stripe: Stripe,
+  medusaProductId: string,
+  variantId: string,
+  currency: string
+): Promise<string | null> {
+  if (variantId.includes(PRODUCT_ONLY_VARIANT_SENTINEL)) {
+    return lookupStripePriceIdForProductOnly(stripe, medusaProductId, currency)
+  }
+  return lookupStripePriceId(stripe, variantId, currency)
+}
+
 /**
  * Full catalog sync: upserts Stripe Products by `metadata.medusa_product_id` and one active Price per
  * (variant × currency).
  */
 export async function syncMercflowCatalogToStripe(
   stripe: Stripe,
-  deps: StripeCatalogSyncDeps
+  deps: StripeCatalogSyncDeps,
+  options: StripeCatalogSyncOptions = { priceTaxBehavior: "inclusive" }
 ): Promise<StripeCatalogSyncResult> {
   let skip = 0
   let productsProcessed = 0
@@ -200,16 +298,32 @@ export async function syncMercflowCatalogToStripe(
         stripeProductsUpdated += 1
       }
 
-      const variantPricing = pickVariantPrices(p.variants)
+      const variantPricing = pickPseudoProductOnlyPrices(pid, p.variants)
 
       for (const row of variantPricing) {
-        const existingPriceId = await lookupStripePriceId(stripe, row.variantId, row.currency)
+        const existingPriceId = await lookupPriceForRow(stripe, pid, row.variantId, row.currency)
+
+        const isProductOnlyVariant = row.variantId.includes(PRODUCT_ONLY_VARIANT_SENTINEL)
+        const variantMeta = isProductOnlyVariant ? PRODUCT_ONLY_VARIANT_SENTINEL : row.variantId
 
         if (existingPriceId) {
           const pi = await stripe.prices.retrieve(existingPriceId)
           const sameAmount = pi.unit_amount === row.amount
+          const stripeTaxBehavior =
+            pi.tax_behavior === "inclusive" || pi.tax_behavior === "exclusive"
+              ? pi.tax_behavior
+              : "unspecified"
+          const sameTax =
+            stripeTaxBehavior === options.priceTaxBehavior ||
+            /** Legacy Stripe rows without behaviour are treated like inclusive catalogue prices. */
+            (stripeTaxBehavior === "unspecified" && options.priceTaxBehavior === "inclusive")
 
-          if (sameAmount && pi.currency === row.currency.toLowerCase() && pi.active) {
+          if (
+            sameAmount &&
+            sameTax &&
+            pi.currency === row.currency.toLowerCase() &&
+            pi.active
+          ) {
             continue
           }
 
@@ -222,9 +336,10 @@ export async function syncMercflowCatalogToStripe(
           currency: row.currency.toLowerCase(),
           unit_amount: row.amount,
           nickname: `${row.variantId} ${row.currency.toUpperCase()}`,
+          tax_behavior: options.priceTaxBehavior,
           metadata: {
             medusa_product_id: pid,
-            medusa_variant_id: row.variantId,
+            medusa_variant_id: variantMeta,
             currency: row.currency.toLowerCase(),
           },
         })

@@ -40,6 +40,7 @@ describe("syncMercflowCatalogToStripe", (): void => {
       currency: "dkk",
       unit_amount: 1999,
       active: true,
+      tax_behavior: "inclusive",
     })
     const pricesCreate = vi.fn().mockResolvedValue({ id: "price_new", active: true })
 
@@ -58,6 +59,7 @@ describe("syncMercflowCatalogToStripe", (): void => {
 
     expect(productsCreate).toHaveBeenCalledTimes(1)
     expect(pricesCreate).toHaveBeenCalledTimes(1)
+    expect(pricesCreate.mock.calls[0]?.[0]).toMatchObject({ tax_behavior: "inclusive" })
     expect(productsUpdate.mock.calls.length).toBeGreaterThanOrEqual(1)
     expect(priceHits).toBeGreaterThanOrEqual(2)
   })
