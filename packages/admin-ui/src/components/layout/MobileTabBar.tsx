@@ -36,11 +36,12 @@ export function MobileTabBar(): JSX.Element {
   const slotCount = mobileTabBar.length
 
   const activeIndex = useMemo(() => {
+    const path = location.pathname
     const idx = mobileTabBar.findIndex((item) =>
-      matchesActive(location.pathname, item.to, item.end)
+      matchesActive(path, item.to, item.end)
     )
     return idx === -1 ? -1 : idx
-  }, [location.pathname])
+  }, [location])
 
   return (
     <nav
