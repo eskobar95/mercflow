@@ -29,7 +29,7 @@ export function ProductContentTab({
   productTitleFallback,
 }: ProductContentTabProps): JSX.Element {
   const formId = useId()
-  const unsavedDialogRef = useRef<HTMLDialogElement>(null)
+  const [unsavedDialogOpen, setUnsavedDialogOpen] = useState(false)
   const pendingLocaleRef = useRef<string | null>(null)
   const localeBeforeSwitchRef = useRef<string | null>(null)
 
@@ -122,7 +122,7 @@ export function ProductContentTab({
         return
       }
       pendingLocaleRef.current = next
-      unsavedDialogRef.current?.showModal()
+      setUnsavedDialogOpen(true)
     },
     [activeLocaleCode, isDirty, completeLocaleSwitch]
   )
@@ -170,7 +170,7 @@ export function ProductContentTab({
     }
     const target = pendingLocaleRef.current
     pendingLocaleRef.current = null
-    unsavedDialogRef.current?.close()
+    setUnsavedDialogOpen(false)
     if (target !== null) {
       completeLocaleSwitch(target)
     }
@@ -184,7 +184,7 @@ export function ProductContentTab({
     }
     const target = pendingLocaleRef.current
     pendingLocaleRef.current = null
-    unsavedDialogRef.current?.close()
+    setUnsavedDialogOpen(false)
     if (target !== null) {
       completeLocaleSwitch(target)
     }
@@ -198,7 +198,8 @@ export function ProductContentTab({
   return (
     <div className="space-y-6">
       <ContentLocaleUnsavedDialog
-        dialogRef={unsavedDialogRef}
+        open={unsavedDialogOpen}
+        onOpenChange={setUnsavedDialogOpen}
         actionDisabled={loading || saving}
         onSave={() => {
           void onDialogSave()

@@ -28,7 +28,7 @@ export function CategoryContentTab({
   categoryTitleFallback,
 }: CategoryContentTabProps): JSX.Element {
   const formId = useId()
-  const unsavedDialogRef = useRef<HTMLDialogElement>(null)
+  const [unsavedDialogOpen, setUnsavedDialogOpen] = useState(false)
   const pendingLocaleRef = useRef<string | null>(null)
   const localeBeforeSwitchRef = useRef<string | null>(null)
 
@@ -121,7 +121,7 @@ export function CategoryContentTab({
         return
       }
       pendingLocaleRef.current = next
-      unsavedDialogRef.current?.showModal()
+      setUnsavedDialogOpen(true)
     },
     [activeLocaleCode, isDirty, completeLocaleSwitch]
   )
@@ -169,7 +169,7 @@ export function CategoryContentTab({
     }
     const target = pendingLocaleRef.current
     pendingLocaleRef.current = null
-    unsavedDialogRef.current?.close()
+    setUnsavedDialogOpen(false)
     if (target !== null) {
       completeLocaleSwitch(target)
     }
@@ -183,7 +183,7 @@ export function CategoryContentTab({
     }
     const target = pendingLocaleRef.current
     pendingLocaleRef.current = null
-    unsavedDialogRef.current?.close()
+    setUnsavedDialogOpen(false)
     if (target !== null) {
       completeLocaleSwitch(target)
     }
@@ -199,7 +199,8 @@ export function CategoryContentTab({
   return (
     <div className="space-y-6">
       <ContentLocaleUnsavedDialog
-        dialogRef={unsavedDialogRef}
+        open={unsavedDialogOpen}
+        onOpenChange={setUnsavedDialogOpen}
         actionDisabled={loading || saving}
         onSave={() => {
           void onDialogSave()
