@@ -7,53 +7,28 @@ import {
 
 import type {
   CategoryContentReadPayload,
-  CategoryContentResolved,
   SaveCategoryContentBody,
 } from "./types"
-import { parseCategoryContentEnvelope, parseCategoryContentReadPayload } from "./parseCategoryResponses"
+import { parseCategoryContentReadPayload } from "./parseCategoryResponses"
 
 export const DEFAULT_CATEGORY_CONTENT_LOCALE = "en"
 
 export { resolveMedusaAdminBackendUrl }
 
-function categoryContentPath(categoryId: string, locale: string): string {
+function categoryContentReadPath(categoryId: string, locale: string): string {
   const params = new URLSearchParams()
   params.set("locale", locale)
-  const q = params.toString()
-  return `/admin/product-categories/${encodeURIComponent(categoryId)}/content?${q}`
+  return `/admin/category-content/${encodeURIComponent(categoryId)}?${params.toString()}`
 }
 
-function categoryContentMercflowReadPath(categoryId: string, locale: string): string {
+function categoryContentCollectionPath(locale: string): string {
   const params = new URLSearchParams()
   params.set("locale", locale)
-  const q = params.toString()
-  return `/admin/category-content/${encodeURIComponent(categoryId)}?${q}`
+  return `/admin/category-content?${params.toString()}`
 }
 
-export async function getCategoryContent(
-  categoryId: string,
-  locale: string = DEFAULT_CATEGORY_CONTENT_LOCALE
-): Promise<CategoryContentResolved | null> {
-  const base = resolveMedusaAdminBackendUrl()
-  if (base === null) {
-    throw new Error(
-      "Missing VITE_MEDUSA_ADMIN_BACKEND_URL. Set it to your Medusa backend origin (e.g. http://localhost:9000)."
-    )
-  }
-
-  const url = `${base}${categoryContentPath(categoryId, locale)}`
-  const response = await fetch(url, {
-    method: "GET",
-    headers: buildMedusaAdminJsonHeaders(),
-    credentials: "include",
-  })
-
-  if (!response.ok) {
-    throw new Error(await readMedusaAdminHttpErrorMessage(response))
-  }
-
-  const json = await parseMedusaAdminJsonResponse(response)
-  return parseCategoryContentEnvelope(json)
+function categoryContentPatchPath(cmsRowId: string): string {
+  return `/admin/category-content/${encodeURIComponent(cmsRowId)}`
 }
 
 export async function getCategoryContentRead(
@@ -67,7 +42,7 @@ export async function getCategoryContentRead(
     )
   }
 
-  const url = `${base}${categoryContentMercflowReadPath(categoryId, locale)}`
+  const url = `${base}${categoryContentReadPath(categoryId, locale)}`
   const response = await fetch(url, {
     method: "GET",
     headers: buildMedusaAdminJsonHeaders(),
@@ -90,11 +65,17 @@ export async function getCategoryContentRead(
   return parsed
 }
 
-export async function saveCategoryContent(
-  categoryId: string,
-  body: SaveCategoryContentBody,
-  locale: string = DEFAULT_CATEGORY_CONTENT_LOCALE
-): Promise<CategoryContentResolved> {
+/**
+ * Persist category CMS fields. Uses `POST /admin/category-content` when no row exists yet,
+ * otherwise `PATCH /admin/category-content/:cms_row_id`.
+ */
+export async function saveCategoryContent(options: {
+  categoryId: string
+  cmsContentId: string | null
+  body: SaveCategoryContentBody
+  locale?: string
+}): Promise<CategoryContentReadPayload> {
+  const locale = options.locale ?? DEFAULT_CATEGORY_CONTENT_LOCALE
   const base = resolveMedusaAdminBackendUrl()
   if (base === null) {
     throw new Error(
@@ -102,12 +83,22 @@ export async function saveCategoryContent(
     )
   }
 
-  const url = `${base}${categoryContentPath(categoryId, locale)}`
+  const patchPath = categoryContentPatchPath(options.cmsContentId ?? "")
+  const url =
+    options.cmsContentId !== null
+      ? `${base}${patchPath}`
+      : `${base}${categoryContentCollectionPath(locale)}`
+
+  const bodyJson =
+    options.cmsContentId !== null
+      ? options.body
+      : { category_id: options.categoryId, ...options.body }
+
   const response = await fetch(url, {
-    method: "POST",
+    method: options.cmsContentId !== null ? "PATCH" : "POST",
     headers: buildMedusaAdminJsonHeaders(),
     credentials: "include",
-    body: JSON.stringify(body),
+    body: JSON.stringify(bodyJson),
   })
 
   if (!response.ok) {
@@ -115,9 +106,9 @@ export async function saveCategoryContent(
   }
 
   const json = await parseMedusaAdminJsonResponse(response)
-  const content = parseCategoryContentEnvelope(json)
+  const content = parseCategoryContentReadPayload(json)
   if (content === null) {
-    throw new TypeError("Invalid API response: expected content after save")
+    throw new TypeError("Invalid API response: expected MercFlow CMS payload after save")
   }
   return content
 }

@@ -137,10 +137,9 @@ Use primitives from `src/components/ui/` (`Input`, `Textarea`, `Select`, `FormFi
 
 ## Category content API (dev)
 
-- **Read tab (MercFlow flattened payload):** `getCategoryContentRead` calls **`GET /admin/category-content/:categoryId?locale=`**, parses **`parseCategoryContentReadPayload`** (expects `version`, **`body_json`**, **`og_image_url`**, **`banner_image_url`**, mirrored catalog **`status`**), and treats **404 → `null`**. Powered by **`CategoryContentReadTab`** on **`/product-categories/:id?tab=content`** alongside Medusa-derived overview data (`useAdminProductCategoryDetail`).
-- **Legacy nested editors / mutations:** `getCategoryContent` / `saveCategoryContent` remain on **`GET/POST /admin/product-categories/:id/content?locale=…`** with `{ content: … }` envelopes for authoring flows (`CategoryContentTab` when re-enabled later).
-- **HTTP:** Prefer MercFlow **`/admin/category-content/:id`** for read-only storefront-style snapshots; **`/admin/product-categories/:id/content`** stays for **`POST`** saves with **`banner_image_id`** (still maps to **`banner_image_url`** server-side via the content module README).
-- **Env / auth:** Same as product — `VITE_MEDUSA_ADMIN_BACKEND_URL`, `VITE_MEDUSA_ADMIN_BEARER_TOKEN`, `credentials: "include"` (see `.env.example`).
+- **Data layer:** `src/features/category-content/` — **`getCategoryContentRead`** calls **`GET /admin/category-content/:categoryId?locale=`** (404 → `null`) and parses the MercFlow flat payload (`body_json`, **`og_image_url`**, **`banner_image_url`**, **`version`**). **`saveCategoryContent`** issues **`POST /admin/category-content?locale=`** until a CMS row exists, then **`PATCH /admin/category-content/:cmsRowId`**; responses match the read shape. **`useCategoryContentState`** mirrors the product hook (optimistic merge, `loadError` / `saveError`, `Promise<boolean>` from `load` / `save`).
+- **UI:** `CategoryContentTab` on **`/product-categories/:id?tab=content`** — same TipTap surface as **`ProductContentTab`**, SEO limits (title **255**, snippet **160**), OG + banner fields, **`SEOPreview`**, **Add content** when no row exists, version hint, and Discard when dirty. Editing locale prefers **Danish** when present in **`GET /admin/locales`** (same helper pattern as products); Sprint&nbsp;4 adds full locale switching UX.
+- **Legacy nested envelope:** **`GET` / `POST` `/admin/product-categories/:id/content`** with **`{ content: … }`** remains wired in the backend for older clients; MercFlow authoring should use flat routes documented in `packages/content-module/README.md`.
 
 ## Content editing locale (dev)
 
@@ -150,7 +149,7 @@ Use primitives from `src/components/ui/` (`Input`, `Textarea`, `Select`, `FormFi
 - **Save before switch:** Unsaved MercFlow content (rich text, SEO, IDs, gallery/banner) opens **`ContentLocaleUnsavedDialog`** (`<dialog>`): **Save and switch**, **Discard and switch** (reloads current locale from the API), or **Cancel** / Escape. A failed save or discard **does not** change the active language. With no dirty fields, changing the switcher updates the locale immediately.
 - **Failed content load after a switch:** The tabs revert the switcher to the **previous** locale and surface **`loadError`** so a failed fetch is not treated as a successful switch.
 - **Shared HTTP:** `src/medusa-admin/medusaAdminFetch.ts` centralizes backend URL resolution, JSON headers, and response parsing for admin requests (product/category content APIs and the locale list).
-- **Tabs:** Product and category **Content** tabs compose the switcher and pass the active code into `useProductContentState` / `useCategoryContentState` so reads and writes use `?locale=`. Product tab includes **Discard changes** like category. Core Medusa fields (title, handle, etc.) stay in Medusa’s own editors; MercFlow **Content** is for `description_rich`, SEO, and media/banner IDs per the content module README.
+- **Tabs:** Product **`Content`** tabs use **`useProductContentState`**. Category **`Content`** tabs use **`useCategoryContentState`** against the MercFlow **`/admin/category-content`** route family. Core Medusa fields stay in Medusa’s own editors.
 
 ## Field notes
 
