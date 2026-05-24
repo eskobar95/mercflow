@@ -1,5 +1,17 @@
 import { z } from "zod"
 
+/** PATCH /admin/connectors/shipmondo — partial credential + activation updates. */
+export const shipmondoPatchBodySchema = z
+  .object({
+    api_user: z.string().min(1).optional(),
+    api_key: z.string().min(1).optional(),
+    shipping_module_key: z.union([z.string().min(1), z.literal(""), z.null()]).optional(),
+    active: z.boolean().optional(),
+  })
+  .strict()
+
+export type ShipmondoPatchBody = z.infer<typeof shipmondoPatchBodySchema>
+
 export const patchPlunkConnectorSchema = z
   .object({
     api_key: z.string().min(1).optional(),

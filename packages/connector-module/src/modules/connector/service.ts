@@ -8,10 +8,16 @@ import { ContainerRegistrationKeys, MedusaError } from "@medusajs/utils"
 import { buildConnectorAdminList } from "./build-connector-admin-list"
 import EncryptionService from "./encryption-service"
 import { GtmConnector } from "./gtm-connector"
+import type {
+  PatchPlunkConnectorBody,
+  PostPlunkConnectorTestBody,
+  ShipmondoPatchBody,
+} from "./http-schemas"
 import { ConnectorConfig } from "./models/connector-config"
 import { ConnectorLog } from "./models/connector-log"
-import type { PatchPlunkConnectorBody, PostPlunkConnectorTestBody } from "./http-schemas"
 import { pingPlunkWithSecretKey, sendPlunkTestMail } from "./plunk-remote"
+import { probeShipmondoShipments } from "./shipmondo-http-client"
+import { shipmondoCredentialsSchema, type ShipmondoCredentials } from "./shipmondo-credentials"
 import { maskStripeField } from "./stripe/stripe-mask"
 import type { StripePaymentOverviewRow } from "./stripe/stripe-payments-list"
 import { stripeListRecentPaymentIntents } from "./stripe/stripe-payments-list"
@@ -27,9 +33,13 @@ import type {
   PlunkAdminConnectorState,
   PlunkConnectionTestResult,
   PlunkCredentialsStored,
+  ShipmondoAdminGetDto,
+  ShipmondoConnectionTestDto,
+  StoreShipmondoActiveDto,
   StripeConnectorAdminDto,
 } from "./types"
 
+const SHIPMONDO_TYPE = "shipmondo"
 const STRIPE_TYPE = "stripe"
 const PLUNK_TYPE = "plunk"
 
@@ -72,17 +82,55 @@ function parsePlunkPayloadJson(parsed: unknown): PlunkCredentialsStored | null {
   }
 }
 
+const CREDENTIAL_CIPHER_PREFIX = "mf1:"
+const CONNECTOR_EVENTS = {
+  testPass: "connection_test_pass",
+  testFail: "connection_test_fail",
+} as const
+
+type ConnectorLogRecord = {
+  id: string
+  connector_id: string
+  event: string
+  payload_json: unknown
+  created_at: Date | string
+}
+
 type ServiceContainerAware = ConnectorModuleService & {
   __container__: MedusaContainer
+}
+
+function toIsoStrict(value: Date | string): string {
+  const d = value instanceof Date ? value : new Date(value)
+  if (Number.isNaN(d.getTime())) {
+    return new Date(0).toISOString()
+  }
+  return d.toISOString()
+}
+
+function parseConnectorLogPayload(payload_json: unknown): {
+  summary: string
+  http_status?: number
+  success?: boolean
+} {
+  if (typeof payload_json !== "object" || payload_json === null) {
+    return { summary: "Connector activity recorded" }
+  }
+  const p = payload_json as Record<string, unknown>
+  const summary =
+    typeof p.summary === "string" && p.summary.trim().length > 0
+      ? p.summary
+      : "Connector activity recorded"
+  const http_status = typeof p.http_status === "number" ? p.http_status : undefined
+  const success = typeof p.success === "boolean" ? p.success : undefined
+  return { summary, http_status, success }
 }
 
 export default class ConnectorModuleService extends MedusaService({
   ConnectorConfig,
   ConnectorLog,
 }) {
-  private encryption(): EncryptionService {
-    return new EncryptionService()
-  }
+  private encryptionLazy: EncryptionService | null = null
 
   /**
    * Google Tag Manager connector entry point (encrypted credentials + upsert into `connector_config`).
@@ -97,6 +145,219 @@ export default class ConnectorModuleService extends MedusaService({
   async listConnectorsForAdmin(): Promise<ConnectorAdminListItem[]> {
     const rows = await this.listConnectorConfigs({})
     return buildConnectorAdminList(rows as ConnectorConfigRecord[])
+  }
+
+  async getShipmondoStoreActivation(): Promise<StoreShipmondoActiveDto> {
+    const row = await this.retrieveShipmondoRow()
+    const encrypted = row?.credentials_encrypted?.trim() ?? ""
+    const hasCipher =
+      encrypted.length > CREDENTIAL_CIPHER_PREFIX.length &&
+      encrypted.startsWith(CREDENTIAL_CIPHER_PREFIX)
+
+    const creds = row !== null ? this.safeDecryptCredentials(row) : null
+    const configured =
+      creds !== null &&
+      creds.api_user.trim().length > 0 &&
+      creds.api_key.trim().length > 0
+
+    const active = Boolean(hasCipher && configured && Boolean(row?.active))
+    return { active }
+  }
+
+  async getShipmondoAdminPayload(): Promise<ShipmondoAdminGetDto> {
+    const row = await this.retrieveShipmondoRow()
+    const creds = row !== null ? this.safeDecryptCredentials(row) : null
+    const recentLogs =
+      row === null ? [] : await this.listRecentLogsForConnector(row.id)
+    return {
+      type: "shipmondo",
+      active: row !== null ? Boolean(row.active) : false,
+      lastTestedAt: row?.last_tested_at
+        ? toIsoStrict(row.last_tested_at)
+        : null,
+      credentials: {
+        apiUserConfigured:
+          creds !== null ? creds.api_user.trim().length > 0 : false,
+        apiKeyConfigured:
+          creds !== null ? creds.api_key.trim().length > 0 : false,
+        shippingModuleKeyConfigured:
+          creds !== null
+            ? (creds.shipping_module_key?.trim().length ?? 0) > 0
+            : false,
+      },
+      recentLogs,
+    }
+  }
+
+  async patchShipmondo(body: ShipmondoPatchBody): Promise<ShipmondoAdminGetDto> {
+    const encryption = this.getEncryption()
+    const mentionsCredentials =
+      body.api_user !== undefined ||
+      body.api_key !== undefined ||
+      body.shipping_module_key !== undefined
+
+    const rowExisting = await this.retrieveShipmondoRow()
+
+    if (
+      rowExisting === null &&
+      body.active !== undefined &&
+      !mentionsCredentials
+    ) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "Save Shipmondo API credentials before toggling activation"
+      )
+    }
+
+    if (rowExisting === null && mentionsCredentials) {
+      const api_user = typeof body.api_user === "string" ? body.api_user.trim() : ""
+      const api_key = typeof body.api_key === "string" ? body.api_key.trim() : ""
+      if (api_user.length === 0 || api_key.length === 0) {
+        throw new MedusaError(
+          MedusaError.Types.INVALID_DATA,
+          "Shipmondo API User and API Key are required for the initial save"
+        )
+      }
+
+      let shipping_module_key: string | null = null
+      if (body.shipping_module_key === null || body.shipping_module_key === "") {
+        shipping_module_key = null
+      } else if (typeof body.shipping_module_key === "string") {
+        shipping_module_key = body.shipping_module_key.trim() || null
+      }
+
+      const credsPack: ShipmondoCredentials = {
+        api_user,
+        api_key,
+        ...(shipping_module_key !== null ? { shipping_module_key } : {}),
+      }
+      shipmondoCredentialsSchema.parse(credsPack)
+
+      const createdRaw = await this.createConnectorConfigs({
+        type: SHIPMONDO_TYPE,
+        credentials_encrypted: encryption.encrypt(JSON.stringify(credsPack)),
+        active: body.active ?? true,
+        last_tested_at: null,
+      })
+      void createdRaw
+
+      return await this.getShipmondoAdminPayload()
+    }
+
+    if (rowExisting === null) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "Shipmondo connector is not configured yet — provide credentials first"
+      )
+    }
+
+    let nextCred = this.requireDecryptedCredentials(rowExisting)
+
+    if (typeof body.api_user === "string") {
+      nextCred = { ...nextCred, api_user: body.api_user.trim() }
+    }
+    if (typeof body.api_key === "string") {
+      nextCred = { ...nextCred, api_key: body.api_key.trim() }
+    }
+
+    if (body.shipping_module_key !== undefined) {
+      if (body.shipping_module_key === "" || body.shipping_module_key === null) {
+        const rest: ShipmondoCredentials = {
+          api_user: nextCred.api_user,
+          api_key: nextCred.api_key,
+        }
+        nextCred = rest
+      } else {
+        nextCred = {
+          ...nextCred,
+          shipping_module_key: body.shipping_module_key.trim(),
+        }
+      }
+    }
+
+    shipmondoCredentialsSchema.parse(nextCred)
+
+    const updatePayload: {
+      credentials_encrypted: string
+      active?: boolean
+    } = {
+      credentials_encrypted: encryption.encrypt(JSON.stringify(nextCred)),
+    }
+
+    if (typeof body.active === "boolean") {
+      updatePayload.active = body.active
+    }
+
+    await this.updateConnectorConfigs({
+      id: rowExisting.id,
+      ...updatePayload,
+    })
+
+    return await this.getShipmondoAdminPayload()
+  }
+
+  async testShipmondoConnection(fetchImpl?: typeof fetch): Promise<ShipmondoConnectionTestDto> {
+    const row = await this.retrieveShipmondoRow()
+    if (row === null) {
+      return { success: false, error: "Shipmondo is not configured yet" }
+    }
+
+    let creds: ShipmondoCredentials
+    try {
+      creds = this.requireDecryptedCredentials(row)
+    } catch {
+      await this.persistConnectionLog({
+        connectorId: row.id,
+        success: false,
+        summary: "Stored credentials could not be decrypted",
+      })
+      return { success: false, error: "Stored Shipmondo credentials are unavailable" }
+    }
+
+    shipmondoCredentialsSchema.parse(creds)
+
+    const probe = await probeShipmondoShipments({
+      apiUser: creds.api_user,
+      apiKey: creds.api_key,
+      fetchImpl,
+    })
+
+    if (probe.ok) {
+      await this.updateConnectorConfigs({
+        id: row.id,
+        last_tested_at: new Date(),
+      })
+
+      await this.persistConnectionLog({
+        connectorId: row.id,
+        success: true,
+        summary: `Shipmondo responded with HTTP ${probe.httpStatus}`,
+        http_status: probe.httpStatus,
+      })
+
+      return {
+        success: true,
+        message: `Shipmondo connection succeeded (HTTP ${probe.httpStatus})`,
+      }
+    }
+
+    await this.persistConnectionLog({
+      connectorId: row.id,
+      success: false,
+      summary:
+        probe.httpStatus === 0
+          ? "Unable to reach Shipmondo"
+          : `Shipmondo rejected the probe (HTTP ${probe.httpStatus})`,
+      http_status: probe.httpStatus === 0 ? undefined : probe.httpStatus,
+    })
+
+    return {
+      success: false,
+      error:
+        probe.httpStatus === 0
+          ? "Unable to reach the Shipmondo API"
+          : `Shipmondo returned HTTP ${probe.httpStatus}`,
+    }
   }
 
   /**
@@ -134,7 +395,7 @@ export default class ConnectorModuleService extends MedusaService({
     }
 
     try {
-      const plain = parseStripePlainCredentialsJson(this.encryption().decrypt(row.credentials_encrypted))
+      const plain = parseStripePlainCredentialsJson(this.getEncryption().decrypt(row.credentials_encrypted))
       const sk = plain.secret_key.trim()
       return sk !== "" ? sk : null
     } catch {
@@ -182,7 +443,7 @@ export default class ConnectorModuleService extends MedusaService({
     let plain = emptyPlain
     if (row) {
       try {
-        plain = parseStripePlainCredentialsJson(this.encryption().decrypt(row.credentials_encrypted))
+        plain = parseStripePlainCredentialsJson(this.getEncryption().decrypt(row.credentials_encrypted))
       } catch {
         plain = emptyPlain
       }
@@ -207,7 +468,7 @@ export default class ConnectorModuleService extends MedusaService({
       )
     }
 
-    const encPayload = this.encryption().encrypt(JSON.stringify(nextPlain))
+    const encPayload = this.getEncryption().encrypt(JSON.stringify(nextPlain))
 
     const previews = {
       secret_key_last4: lastFour(nextPlain.secret_key),
@@ -550,6 +811,101 @@ export default class ConnectorModuleService extends MedusaService({
     } catch {
       return null
     }
+  }
+
+  private getEncryption(): EncryptionService {
+    if (this.encryptionLazy === null) {
+      this.encryptionLazy = new EncryptionService()
+    }
+    return this.encryptionLazy
+  }
+
+  private async retrieveShipmondoRow(): Promise<ConnectorConfigRecord | null> {
+    const rows = await this.listConnectorConfigs({ type: SHIPMONDO_TYPE })
+    const hit = rows[0] as ConnectorConfigRecord | undefined
+    return hit ?? null
+  }
+
+  private safeDecryptCredentials(
+    row: ConnectorConfigRecord
+  ): ShipmondoCredentials | null {
+    try {
+      return this.decryptCredentialPayload(row.credentials_encrypted)
+    } catch {
+      return null
+    }
+  }
+
+  private requireDecryptedCredentials(row: ConnectorConfigRecord): ShipmondoCredentials {
+    return this.decryptCredentialPayload(row.credentials_encrypted)
+  }
+
+  private decryptCredentialPayload(encoded: string): ShipmondoCredentials {
+    const encryption = this.getEncryption()
+    const raw = encryption.decrypt(encoded.trim())
+    const parsed: unknown = JSON.parse(raw)
+    return shipmondoCredentialsSchema.parse(parsed)
+  }
+
+  private async persistConnectionLog(input: {
+    connectorId: string
+    success: boolean
+    summary: string
+    http_status?: number
+  }): Promise<void> {
+    await this.createConnectorLogs({
+      connector_id: input.connectorId,
+      event: input.success ? CONNECTOR_EVENTS.testPass : CONNECTOR_EVENTS.testFail,
+      payload_json: {
+        success: input.success,
+        summary: input.summary.slice(0, 500),
+        ...(input.http_status !== undefined ? { http_status: input.http_status } : {}),
+      },
+    })
+  }
+
+  private async listRecentLogsForConnector(
+    connectorId: string
+  ): Promise<
+    Array<{
+      id: string
+      createdAt: string
+      message: string
+      success: boolean
+    }>
+  > {
+    type ListSvc = (
+      filters: { connector_id: string },
+      config?: { take: number }
+    ) => Promise<ConnectorLogRecord[]>
+    const listLogs = (
+      this as unknown as {
+        listConnectorLogs: ListSvc
+      }
+    ).listConnectorLogs
+
+    const rows = await listLogs({ connector_id: connectorId }, { take: 50 })
+
+    const sorted = [...rows].sort((a, b) => {
+      const tb = new Date(toIsoStrict(b.created_at)).getTime()
+      const ta = new Date(toIsoStrict(a.created_at)).getTime()
+      return tb - ta
+    })
+
+    return sorted.slice(0, 5).map((log) => {
+      const parsed = parseConnectorLogPayload(log.payload_json)
+      const inferredSuccess =
+        typeof parsed.success === "boolean"
+          ? parsed.success
+          : log.event === CONNECTOR_EVENTS.testPass
+
+      return {
+        id: log.id,
+        createdAt: toIsoStrict(log.created_at),
+        message: parsed.summary.slice(0, 400),
+        success: inferredSuccess,
+      }
+    })
   }
 
   private async findStripeConfigRow(): Promise<ConnectorConfigRecord | null> {

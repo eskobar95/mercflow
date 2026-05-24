@@ -69,3 +69,38 @@ export type PlunkConnectionTestResult = {
   success: boolean
   message: string
 }
+
+export type ShipmondoCredentialFlags = {
+  apiUserConfigured: boolean
+  apiKeyConfigured: boolean
+  shippingModuleKeyConfigured: boolean
+}
+
+export type ShipmondoAdminLogDto = {
+  id: string
+  /** ISO timestamp */
+  createdAt: string
+  /** Human-readable outcome (no secrets). */
+  message: string
+  /** Whether the Shipmondo API returned a success-class HTTP status during the probe. */
+  success: boolean
+}
+
+export type ShipmondoAdminGetDto = {
+  type: "shipmondo"
+  active: boolean
+  lastTestedAt: string | null
+  credentials: ShipmondoCredentialFlags
+  recentLogs: ShipmondoAdminLogDto[]
+}
+
+export type ShipmondoConnectionTestDto = {
+  success: boolean
+  message?: string
+  error?: string
+}
+
+export type StoreShipmondoActiveDto = {
+  /** True when Shipmondo is configured with credentials AND marked active — storefront should expose rates. */
+  active: boolean
+}
