@@ -146,6 +146,14 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "settings/connectors/stripe",
+        handle: { title: "Stripe connector" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { StripeConnectorSettingsPage } = await import("@/pages/StripeConnectorSettingsPage")
+          return { Component: StripeConnectorSettingsPage }
+        },
+      },
+      {
         path: "settings/connectors/:connectorType",
         handle: { title: "Connector" } satisfies AppRouteHandle,
         lazy: async () => {
