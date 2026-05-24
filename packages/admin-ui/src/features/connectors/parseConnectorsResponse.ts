@@ -1,7 +1,16 @@
-import { CONNECTOR_SLUGS, type ConnectorListItemDto, type ConnectorSlug } from "./types"
+import {
+  CONNECTOR_SLUGS,
+  type ConnectorConnectionHealthUi,
+  type ConnectorListItemDto,
+  type ConnectorSlug,
+} from "./types"
 
 function isConnectorSlug(value: string): value is ConnectorSlug {
   return (CONNECTOR_SLUGS as readonly string[]).includes(value)
+}
+
+function isHealthUi(value: string): value is ConnectorConnectionHealthUi {
+  return value === "ok" || value === "error" || value === "untested"
 }
 
 function parseConnectorItem(value: unknown): ConnectorListItemDto | null {
@@ -13,6 +22,7 @@ function parseConnectorItem(value: unknown): ConnectorListItemDto | null {
   const activeRaw = rec["active"]
   const configuredRaw = rec["configured"]
   const lastRaw = rec["lastTestedAt"]
+  const healthRaw = rec["connectionHealth"]
 
   if (typeof typeRaw !== "string" || !isConnectorSlug(typeRaw.trim())) {
     return null
@@ -25,11 +35,22 @@ function parseConnectorItem(value: unknown): ConnectorListItemDto | null {
     return null
   }
 
+  let connectionHealth: ConnectorConnectionHealthUi | null = null
+  if (configuredRaw === true) {
+    if (typeof healthRaw !== "string" || !isHealthUi(healthRaw)) {
+      return null
+    }
+    connectionHealth = healthRaw
+  } else if (healthRaw !== null && healthRaw !== undefined) {
+    return null
+  }
+
   return {
     type,
     active: activeRaw,
     configured: configuredRaw,
     lastTestedAt: lastRaw,
+    connectionHealth,
   }
 }
 

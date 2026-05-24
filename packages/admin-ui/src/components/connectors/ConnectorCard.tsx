@@ -7,6 +7,7 @@ import {
   type ConnectorListItemDto,
 } from "@/features/connectors/types"
 
+import { ConnectorConnectionBadge } from "./ConnectorConnectionBadge"
 import { ConnectorStatusBadge } from "./ConnectorStatusBadge"
 
 type ConnectorCardProps = {
@@ -32,7 +33,12 @@ export function ConnectorCard({ item }: ConnectorCardProps): JSX.Element {
               <p className="text-base font-semibold text-content-primary">{catalog.name}</p>
             </div>
           </div>
-          <ConnectorStatusBadge status={displayStatus} />
+          <div className="flex flex-col items-end gap-1">
+            <ConnectorStatusBadge status={displayStatus} />
+            {item.configured && item.connectionHealth !== null ? (
+              <ConnectorConnectionBadge health={item.connectionHealth} />
+            ) : null}
+          </div>
         </div>
 
         <p className="text-sm leading-relaxed text-content-secondary">{catalog.description}</p>

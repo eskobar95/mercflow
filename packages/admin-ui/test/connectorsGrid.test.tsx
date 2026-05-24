@@ -12,24 +12,28 @@ const FOUR_CONNECTORS: ConnectorListItemDto[] = [
     active: true,
     configured: true,
     lastTestedAt: "2026-05-01T10:00:00.000Z",
+    connectionHealth: "ok",
   },
   {
     type: "stripe",
     active: false,
     configured: true,
     lastTestedAt: null,
+    connectionHealth: "untested",
   },
   {
     type: "plunk",
     active: false,
     configured: false,
     lastTestedAt: null,
+    connectionHealth: null,
   },
   {
     type: "gtm",
     active: false,
     configured: false,
     lastTestedAt: null,
+    connectionHealth: null,
   },
 ]
 
@@ -59,8 +63,11 @@ describe("ConnectorOverviewGrid", (): void => {
 
     const shipmondoSurface = screen.getByTestId("connector-card-shipmondo")
     expect(within(shipmondoSurface).getByText("Active")).toBeInTheDocument()
+    expect(within(shipmondoSurface).getByText("API reachable")).toBeInTheDocument()
 
-    expect(within(screen.getByTestId("connector-card-stripe")).getByText("Inactive")).toBeInTheDocument()
+    const stripeSurface = screen.getByTestId("connector-card-stripe")
+    expect(within(stripeSurface).getByText("Inactive")).toBeInTheDocument()
+    expect(within(stripeSurface).getByText("Not tested yet")).toBeInTheDocument()
 
     for (const slug of ["plunk", "gtm"] as const) {
       expect(
