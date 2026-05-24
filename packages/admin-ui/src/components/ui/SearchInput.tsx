@@ -53,7 +53,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       <div className={cn("relative w-full", className)}>
         <Input
           ref={setRefs}
-          type="search"
+          type="text"
           value={value}
           defaultValue={defaultValue}
           error={error}

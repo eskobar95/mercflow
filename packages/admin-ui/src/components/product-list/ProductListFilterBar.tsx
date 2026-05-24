@@ -464,7 +464,7 @@ function SearchToggle({
       </span>
       <input
         ref={inputRef}
-        type="search"
+        type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onBlur={collapse}
