@@ -14,6 +14,8 @@
     "./mercflow-shipmondo-rules-admin-api": "./src/integrations/mercflow-shipmondo-rules-admin-api.ts",
     "./mercflow-shipmondo-store-rules-api": "./src/integrations/mercflow-shipmondo-store-rules-api.ts",
     "./mercflow-shipmondo-checkout-pricing": "./src/integrations/mercflow-shipmondo-checkout-pricing.ts",
+    "./mercflow-shipmondo-fulfillment-provider": "./src/fulfillment-providers/shipmondo-checkout/index.ts",
+    "./mercflow-shipmondo-fulfillment-option-data": "./src/fulfillment-providers/shipmondo-checkout/option-data.ts",
     "./mercflow-shipmondo-runtime-credentials": "./src/integrations/resolve-shipmondo-credentials.ts",
     "./mercflow-stripe-admin-detail-route": "./src/integrations/mercflow-stripe-admin-detail-route.ts",
     "./mercflow-stripe-admin-test-route": "./src/integrations/mercflow-stripe-admin-test-route.ts",

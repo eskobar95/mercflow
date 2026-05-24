@@ -66,7 +66,11 @@ MercFlow Medusa v2 module that persists **per-store connector credentials** (`co
 | `GET`  | `/store/connectors/shipmondo/active` | `{ data: { active } }` — Shipmondo is only advertised when ciphertext exists **and** the operator toggle stays on. |
 | `GET`  | `/store/connectors/shipmondo/rules` | `{ data: { active, markupAmountMinor, freeShippingThresholdMinor, enabledCarrierCodes } }` — public read model so storefront checkout calculators can honour connector pricing without ENV secrets. Duplicate `active` guard mirrors the activation endpoint for defensive consumers. |
 
-> **Checkout integration:** compose Shipmondo's live base price lookups with `@mercflow/connector-module/mercflow-shipmondo-checkout-pricing`, which exposes `calculateShipmondoCheckoutShippingMinor` (+ supporting rule helpers).
+> **Checkout integration:** register `@mercflow/connector-module/mercflow-shipmondo-fulfillment-provider` under the Fulfillment module `providers` option (see `apps/backend/medusa-config.ts`). Create **calculated** shipping options whose `data` includes:
+> - `mercflow_shipmondo_product_code` — Shipmondo `product_code` from the carrier catalogue
+> - `mercflow_shipmondo_base_price_minor` — baseline retail price in minor units (e.g. DKK øre) taken from the catalogue `basePriceMinor`
+>
+> At quote time Medusa runs `calculateShippingOptionsPricesWorkflow`, which invokes the MercFlow Shipmondo fulfillment provider so checkout honours `rules_json` markup, free-shipping threshold, and enabled product codes. Composer integrations can still import `@mercflow/connector-module/mercflow-shipmondo-checkout-pricing` for the same pure calculator (`calculateShipmondoCheckoutShippingMinor`).
 
 > **Operational note:** External apps that previously depended on raw `SHIPMONDO_API_*` secrets should migrate to these APIs so deployments no longer mandate environment variables once credentials are persisted.
 
