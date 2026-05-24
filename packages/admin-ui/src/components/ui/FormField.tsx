@@ -1,4 +1,11 @@
-import { useId, type ReactNode } from "react"
+import {
+  Children,
+  cloneElement,
+  isValidElement,
+  useId,
+  type ReactElement,
+  type ReactNode,
+} from "react"
 
 import { cn } from "@/lib/cn"
 
@@ -15,8 +22,30 @@ type FormFieldProps = {
   children: ReactNode
 }
 
+type AriaFieldProps = {
+  id?: string
+  "aria-describedby"?: string
+  "aria-invalid"?: boolean
+}
+
+function enhanceControl(
+  child: ReactNode,
+  ariaProps: AriaFieldProps,
+): ReactNode {
+  const only = Children.only(child)
+  if (!isValidElement(only)) return child
+
+  const existing = only.props as AriaFieldProps
+  return cloneElement(only as ReactElement<AriaFieldProps>, {
+    id: existing.id ?? ariaProps.id,
+    "aria-describedby": ariaProps["aria-describedby"],
+    "aria-invalid": ariaProps["aria-invalid"],
+  })
+}
+
 /**
  * Form field wrapper — label, optional hint, control slot, error message.
+ * ARIA attributes are injected onto the child control (not a wrapper div).
  */
 export function FormField({
   label,
@@ -38,12 +67,11 @@ export function FormField({
       <Label htmlFor={fieldId} required={required}>
         {label}
       </Label>
-      <div
-        aria-describedby={describedBy}
-        aria-invalid={error ? true : undefined}
-      >
-        {children}
-      </div>
+      {enhanceControl(children, {
+        id: fieldId,
+        "aria-describedby": describedBy,
+        "aria-invalid": error ? true : undefined,
+      })}
       {hint ? (
         <p id={hintId} className={formHintClass}>
           {hint}

@@ -32,17 +32,18 @@ export function rowMatchesProductFilter(row: ProductListRow, filter: ActiveFilte
       positiveMatch = filter.valueIds.includes(row.collection)
       break
     case "updated": {
+      if (filter.operator !== "after" && filter.operator !== "before") {
+        return true
+      }
       const rowMs = new Date(row.updatedAt).getTime()
       if (filter.operator === "after") {
-        positiveMatch = filter.valueIds.some(
+        return filter.valueIds.some(
           (v) => rowMs >= startOfPeriod(v as DatePeriod),
         )
-      } else {
-        positiveMatch = filter.valueIds.some(
-          (v) => rowMs < startOfPeriod(v as DatePeriod),
-        )
       }
-      return positiveMatch
+      return filter.valueIds.some(
+        (v) => rowMs < startOfPeriod(v as DatePeriod),
+      )
     }
     default:
       return true

@@ -126,4 +126,14 @@ describe("rowMatchesProductFilter", (): void => {
 
     vi.useRealTimers()
   })
+
+  it("ignores invalid operators on updated category", (): void => {
+    expect(
+      rowMatchesProductFilter(sampleRow, {
+        categoryId: "updated",
+        operator: "is",
+        valueIds: ["today"],
+      }),
+    ).toBe(true)
+  })
 })

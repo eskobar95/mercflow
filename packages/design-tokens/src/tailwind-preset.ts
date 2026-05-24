@@ -142,15 +142,19 @@ const fontFamily: Record<string, string> = {
 }
 
 const fontSize: Record<string, string> = {
-  "2xs": "var(--mf-font-size-2xs)",
-  xs:    "var(--mf-font-size-xs)",
-  sm:    "var(--mf-font-size-sm)",
-  base:  "var(--mf-font-size-base)",
-  md:    "var(--mf-font-size-md)",
-  lg:    "var(--mf-font-size-lg)",
-  xl:    "var(--mf-font-size-xl)",
-  "2xl": "var(--mf-font-size-2xl)",
-  "3xl": "var(--mf-font-size-3xl)",
+  "3xs":      "var(--mf-font-size-3xs)",
+  "2xs":      "var(--mf-font-size-2xs)",
+  xs:         "var(--mf-font-size-xs)",
+  sm:         "var(--mf-font-size-sm)",
+  base:       "var(--mf-font-size-base)",
+  interface:  "var(--mf-font-size-interface)",
+  md:         "var(--mf-font-size-md)",
+  lg:         "var(--mf-font-size-lg)",
+  xl:         "var(--mf-font-size-xl)",
+  "2xl":      "var(--mf-font-size-2xl)",
+  "3xl":      "var(--mf-font-size-3xl)",
+  "4xl":      "var(--mf-font-size-4xl)",
+  "5xl":      "var(--mf-font-size-5xl)",
 }
 
 const fontWeight: Record<string, string> = {
