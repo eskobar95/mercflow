@@ -19,52 +19,52 @@ import { tailwindPreset } from "../src/tailwind-preset.js"
 
 describe("colorTree — surface category", () => {
   it("surface.canvas matches snapshot", () => {
-    expect(colorTree.surface.canvas).toMatchInlineSnapshot(`"#F5EDE3"`)
+    expect(colorTree.surface.canvas).toMatchInlineSnapshot(`"#F7F8FA"`)
   })
 
   it("surface.default matches snapshot", () => {
-    expect(colorTree.surface.default).toMatchInlineSnapshot(`"#FDFAF7"`)
+    expect(colorTree.surface.default).toMatchInlineSnapshot(`"#FFFFFF"`)
   })
 
   it("surface.subtle matches snapshot", () => {
-    expect(colorTree.surface.subtle).toMatchInlineSnapshot(`"#EBE0D0"`)
+    expect(colorTree.surface.subtle).toMatchInlineSnapshot(`"#F3F4F6"`)
   })
 })
 
 describe("colorTree — content category", () => {
   it("content.primary matches snapshot", () => {
-    expect(colorTree.content.primary).toMatchInlineSnapshot(`"#1A1A2E"`)
+    expect(colorTree.content.primary).toMatchInlineSnapshot(`"#111827"`)
   })
 
   it("content.secondary matches snapshot", () => {
-    expect(colorTree.content.secondary).toMatchInlineSnapshot(`"rgba(26, 26, 46, 0.65)"`)
+    expect(colorTree.content.secondary).toMatchInlineSnapshot(`"#6B7280"`)
   })
 
   it("feedback.danger.content matches snapshot", () => {
-    expect(colorTree.feedback.danger.content).toMatchInlineSnapshot(`"#7A2A14"`)
+    expect(colorTree.feedback.danger.content).toMatchInlineSnapshot(`"#991B1B"`)
   })
 })
 
 describe("colorTree — border category", () => {
   it("border.default matches snapshot", () => {
-    expect(colorTree.border.default).toMatchInlineSnapshot(`"rgba(26, 26, 46, 0.15)"`)
+    expect(colorTree.border.default).toMatchInlineSnapshot(`"#E5E7EB"`)
   })
 
   it("border.focus matches snapshot", () => {
-    expect(colorTree.border.focus).toMatchInlineSnapshot(`"rgba(212, 135, 58, 0.60)"`)
+    expect(colorTree.border.focus).toMatchInlineSnapshot(`"rgba(37, 99, 235, 0.40)"`)
   })
 })
 
 describe("colorTree — interactive category", () => {
   it("interactive.primary.default matches snapshot", () => {
     expect(colorTree.interactive.primary.default).toMatchInlineSnapshot(
-      `"#1A1A2E"`
+      `"#2563EB"`
     )
   })
 
   it("interactive.destructive.default matches snapshot", () => {
     expect(colorTree.interactive.destructive.default).toMatchInlineSnapshot(
-      `"rgba(192, 67, 32, 0.13)"`
+      `"rgba(220, 38, 38, 0.10)"`
     )
   })
 })
@@ -110,8 +110,8 @@ describe("spacing scale", () => {
 })
 
 describe("typography tokens", () => {
-  it("fontFamily.sans contains Plus Jakarta Sans", () => {
-    expect(fontFamily.sans).toContain("Plus Jakarta Sans")
+  it("fontFamily.sans contains Geist", () => {
+    expect(fontFamily.sans).toContain("Geist")
   })
 
   it("fontSize.base matches snapshot", () => {
@@ -144,13 +144,13 @@ describe("radii tokens", () => {
 describe("shadow tokens", () => {
   it("shadows.sm matches snapshot", () => {
     expect(shadows.sm).toMatchInlineSnapshot(
-      `"0 1px 3px rgba(26, 26, 46, 0.06), 0 1px 2px rgba(26, 26, 46, 0.04)"`
+      `"0 1px 2px rgba(17, 24, 39, 0.04), 0 6px 18px rgba(17, 24, 39, 0.04)"`
     )
   })
 
   it("shadows.focus matches snapshot", () => {
     expect(shadows.focus).toMatchInlineSnapshot(
-      `"0 0 0 3px rgba(212, 135, 58, 0.40)"`
+      `"0 0 0 3px rgba(37, 99, 235, 0.40)"`
     )
   })
 })
@@ -172,7 +172,7 @@ describe("motion tokens", () => {
 
   it("motion.easing.enter matches snapshot", () => {
     expect(motion.easing.enter).toMatchInlineSnapshot(
-      `"cubic-bezier(0.2, 0, 0, 1)"`
+      `"cubic-bezier(0.23, 1, 0.32, 1)"`
     )
   })
 })
@@ -209,7 +209,7 @@ describe("buildRootStylesheet — --mf-* prefix convention", () => {
   })
 
   it("color vars use --mf-color- prefix", () => {
-    expect(css).toContain("--mf-color-surface-canvas: #F5EDE3;")
+    expect(css).toContain("--mf-color-surface-canvas: #F7F8FA;")
   })
 
   it("spacing vars use --mf-spacing- prefix", () => {

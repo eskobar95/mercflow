@@ -4,5 +4,8 @@ test("admin shell loads", async ({ page }): Promise<void> => {
   await page.goto("/")
 
   await expect(page).toHaveTitle(/MercFlow Admin/i)
-  await expect(page.getByRole("heading", { name: "Design token integration" })).toBeVisible()
+  // Sidebar nav is always present — confirms the shell rendered correctly
+  await expect(page.getByRole("link", { name: "Home" })).toBeVisible()
+  // Home page workspace banner is visible
+  await expect(page.getByText("Your workspace is ready")).toBeVisible()
 })

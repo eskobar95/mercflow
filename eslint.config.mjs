@@ -47,6 +47,19 @@ export default tseslint.config(
         tsconfigRootDir: monorepoRoot,
       },
     },
+    rules: {
+      // Allow _-prefixed names to signal intentionally unused params/vars.
+      // This is the standard TypeScript convention for satisfying a type
+      // signature without using the value (e.g. `(_row: T) => ...`).
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
+    },
   },
   {
     name: "mercflow/design-tokens-test",

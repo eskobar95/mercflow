@@ -1,187 +1,189 @@
 /**
- * Batch 1 design token source values — MercFlow Brand Kit v1.
+ * MercFlow design tokens — v2 (Mercury / Asana / Stripe synthesis).
  *
- * Brand foundation (locked from Logo v4 / Brand Kit):
- *   base:  #1A1A2E  — dark navy, primary text and button fill
- *   amber: #D4873A  — brand accent, logo, soft affordance buttons
- *   cream: #F5EDE3  — warm canvas background
+ * Reference lock:
+ *   - Primary foundation: Mercury dashboard (light canvas + white cards, modular
+ *     bento grid, soft hairline borders, single blue accent reserved for CTAs).
+ *   - Sidebar pattern: Asana (#131316 near-black with light-grey selected row —
+ *     no colored highlight; color is for action, not navigation).
+ *   - Restraint discipline: Stripe (information-dense, monochrome charts, single
+ *     accent #2563EB used surgically).
  *
- * Design decisions:
- *   - Font: Plus Jakarta Sans (UI) + JetBrains Mono (code/IDs)
- *   - Borders: opacity-based rgba(26,26,46,…) — adapts to any surface
- *   - Shadows: warm navy rgba(26,26,46,…) — never pure black
- *   - Semantic colors: all warm-toned — olive success, amber warning,
- *     terracotta danger, dusty-indigo info — never cold defaults
- *   - Primary button: dark navy (authority); amber = soft affordance only
- *   - Radius: base 8px (buttons/inputs), lg 12px (cards), pill (badges)
+ * Token NAMES are preserved for downstream compatibility. Token VALUES have
+ * been completely repurposed:
+ *   `amber.*` is now the BLUE ACCENT family (semantic legacy name, blue value).
+ *   `brand.amber` is the accent CTA blue.
+ *   `surface.sidebar` is Asana near-black, not navy.
  *
- * Color system layers:
- *   surface / content / border / brand / amber  — base structural tokens
- *   interactive.*                               — action/button tokens
- *   feedback.*                                  — semantic status tokens
+ * Typography: Geist + Geist Mono (modern, distinctive, avoids the Inter cliche).
  *
- * All sRGB color literals for the admin UI must originate here only.
+ * Color rules:
+ *   - Color is for action and status. Navigation, surfaces, and borders are neutral.
+ *   - `interactive.primary` blue appears only on primary CTAs.
+ *   - Selected sidebar row uses neutral light-grey wash, NOT the accent color.
+ *   - Soft accent fills (formerly amber-subtle) live in icon backgrounds, badges,
+ *     and progress indicators — never in chrome.
  */
 export declare const colorTree: {
     readonly surface: {
-        /** Warm cream canvas — page/app background · brand.cream */
-        readonly canvas: "#F5EDE3";
-        /** Cards, inputs, form fields — near-white warm */
-        readonly default: "#FDFAF7";
-        /** Panels, sidebar, hover fills, table stripe, disabled bg */
-        readonly subtle: "#EBE0D0";
-        /** Modals, popovers, command palette — pure white for focus */
+        /** Page canvas for marketing / brand contexts. Same as appCanvas in v2. */
+        readonly canvas: "#F7F8FA";
+        /** Cards, inputs, form fields — pure white. */
+        readonly default: "#FFFFFF";
+        /** Subtle hover fills, table stripe, disabled background. */
+        readonly subtle: "#F3F4F6";
+        /** Modals, popovers, command palette — pure white for focus. */
         readonly raised: "#FFFFFF";
-        /** Modal scrim overlay — dark navy tint */
-        readonly overlay: "rgba(26, 26, 46, 0.45)";
+        /** Modal scrim — slate tint. */
+        readonly overlay: "rgba(17, 24, 39, 0.50)";
+        /**
+         * Operational app canvas — neutral cool gray.
+         * Cards float on this surface with soft shadow.
+         */
+        readonly appCanvas: "#F7F8FA";
+        /** Operational card surface — pure white. */
+        readonly appCard: "#FFFFFF";
+        /** Sidebar — Asana near-black. */
+        readonly sidebar: "#131316";
+        /** Sidebar nav hover row — 4% white wash. */
+        readonly sidebarHover: "rgba(255, 255, 255, 0.04)";
+        /**
+         * Sidebar active item — 8% white wash (light-grey row, Asana style).
+         * Critical: this is NOT a colored highlight. Color stays out of navigation.
+         */
+        readonly sidebarActive: "rgba(255, 255, 255, 0.08)";
     };
     readonly content: {
-        /** Dark navy — brand.base · contrast ≫ 12:1 on all surfaces */
-        readonly primary: "#1A1A2E";
-        /** Secondary labels, descriptions · 65% opacity navy */
-        readonly secondary: "rgba(26, 26, 46, 0.65)";
-        /** Tertiary captions, placeholders, metadata · 45% opacity navy */
-        readonly tertiary: "rgba(26, 26, 46, 0.45)";
-        /** Non-interactive de-emphasis · 28% opacity navy */
-        readonly disabled: "rgba(26, 26, 46, 0.28)";
-        /** Text on dark fills (primary buttons, dark navy surfaces) */
-        readonly inverse: "#F5EDE3";
+        /** Primary text — slate-900. Contrast ≥ 14:1 on white. */
+        readonly primary: "#111827";
+        /** Secondary labels, descriptions — slate-500. */
+        readonly secondary: "#6B7280";
+        /** Tertiary captions, placeholders, metadata — slate-400. */
+        readonly tertiary: "#9CA3AF";
+        /** Non-interactive de-emphasis — slate-300. */
+        readonly disabled: "#D1D5DB";
+        /** Text on dark fills (primary buttons, dark surfaces). */
+        readonly inverse: "#FFFFFF";
+        /** Sidebar nav label — off-white. */
+        readonly onSidebar: "rgba(255, 255, 255, 0.85)";
+        /** Sidebar muted label, section header — 55% white. */
+        readonly onSidebarMuted: "rgba(255, 255, 255, 0.55)";
+        /** Sidebar active item label — pure white on the light-grey row. */
+        readonly onSidebarActive: "#FFFFFF";
     };
     readonly border: {
-        /** Hairlines, dividers, table rows · 8% opacity navy */
-        readonly subtle: "rgba(26, 26, 46, 0.08)";
-        /** Standard input/card borders · 15% opacity navy */
-        readonly default: "rgba(26, 26, 46, 0.15)";
-        /** Strong separators, active input border · 40% opacity navy */
-        readonly strong: "rgba(26, 26, 46, 0.40)";
-        /** Focus ring — amber tint · pairs with shadow.focus */
-        readonly focus: "rgba(212, 135, 58, 0.60)";
+        /** Hairlines, table rows — slate-100. */
+        readonly subtle: "#F3F4F6";
+        /** Standard input/card borders — Mercury #E6E9EE. */
+        readonly default: "#E5E7EB";
+        /** Strong separators, active input border — slate-300. */
+        readonly strong: "#D1D5DB";
+        /** Focus ring — blue accent at 40%. Pairs with shadow.focus. */
+        readonly focus: "rgba(37, 99, 235, 0.40)";
+        /** App-canvas border (topbar/card outlines). Same as `default`. */
+        readonly app: "#E5E7EB";
+        /** Sidebar internal divider — 8% white. */
+        readonly onSidebar: "rgba(255, 255, 255, 0.08)";
     };
     /**
-     * Core brand identity colors.
-     * Use these when building logo lockups, cover pages, and branded surfaces.
-     * Do not use brand.base directly in button styles — use interactive.primary.
+     * Brand identity. v2: navy → slate-900, amber → Mercury blue.
+     * `brand.amber` is the accent CTA color in code — keep the name for legacy.
      */
     readonly brand: {
-        readonly base: "#1A1A2E";
-        readonly amber: "#D4873A";
-        readonly cream: "#F5EDE3";
+        readonly base: "#111827";
+        readonly accent: "#2563EB";
+        readonly cream: "#F7F8FA";
     };
     /**
-     * Amber scale — the brand accent ramp.
-     * Used for: active nav states, soft buttons, checkboxes, toggles,
-     * amber badge variant, focus affordance fills.
-     * NOT for primary CTAs (use interactive.primary / dark navy for those).
+     * v2: the "amber" family is the BLUE ACCENT family. Name preserved for
+     * backward compatibility; component code reading `amber-subtle` now gets
+     * a soft blue tint — matching the Mercury/Stripe single-accent system.
      */
-    readonly amber: {
-        readonly subtle: "rgba(212, 135, 58, 0.12)";
-        readonly soft: "rgba(212, 135, 58, 0.22)";
-        readonly default: "#D4873A";
-        readonly strong: "#B36A1F";
-        /** Legible amber text on cream/light surfaces */
-        readonly text: "#8B4E15";
+    readonly accent: {
+        /** Soft accent fill — icon background, badge tint. */
+        readonly subtle: "rgba(37, 99, 235, 0.10)";
+        /** Stronger soft accent — hover on subtle, accent border. */
+        readonly soft: "rgba(37, 99, 235, 0.18)";
+        /** Solid accent — primary CTA, sparkline line, active indicators. */
+        readonly default: "#2563EB";
+        /** Hover state on solid accent. */
+        readonly strong: "#1D4FD7";
+        /** Legible accent text on light surfaces — blue-800. */
+        readonly text: "#1E40AF";
     };
     readonly interactive: {
-        /**
-         * Primary CTA button — dark navy fill.
-         * Hover: lighten to #2D2D4A. Pressed: darken to #10101F.
-         * Label: content.inverse (#F5EDE3) — contrast 12:1 ✓ WCAG AAA.
-         */
+        /** Primary CTA — Mercury blue. */
         readonly primary: {
-            readonly default: "#1A1A2E";
-            readonly hover: "#2D2D4A";
-            readonly pressed: "#10101F";
+            readonly default: "#2563EB";
+            readonly hover: "#1D4FD7";
+            readonly pressed: "#1A3F9F";
         };
-        /**
-         * Soft amber button — amber affordance (Connect, Enable, Add module).
-         * Label: amber.text (#8B4E15) on amber.subtle fill.
-         */
+        /** Soft button — used for secondary actions with accent affinity. */
         readonly soft: {
-            readonly default: "rgba(212, 135, 58, 0.12)";
-            readonly hover: "rgba(212, 135, 58, 0.22)";
-            readonly border: "rgba(212, 135, 58, 0.34)";
-            readonly label: "#8B4E15";
+            readonly default: "rgba(37, 99, 235, 0.10)";
+            readonly hover: "rgba(37, 99, 235, 0.18)";
+            readonly border: "rgba(37, 99, 235, 0.24)";
+            readonly label: "#1E40AF";
         };
-        /** Secondary button — transparent with default border, hover uses surface.subtle */
+        /** Secondary button — neutral. */
         readonly secondary: {
-            readonly default: "transparent";
-            readonly hover: "#EBE0D0";
+            readonly default: "#FFFFFF";
+            readonly hover: "#F3F4F6";
         };
-        /**
-         * Destructive action button — terracotta fill/tint.
-         * Matches feedback.danger for consistency.
-         */
+        /** Destructive — red-600. */
         readonly destructive: {
-            readonly default: "rgba(192, 67, 32, 0.13)";
-            readonly hover: "rgba(192, 67, 32, 0.20)";
-            readonly border: "rgba(192, 67, 32, 0.34)";
-            readonly label: "#7A2A14";
+            readonly default: "rgba(220, 38, 38, 0.10)";
+            readonly hover: "rgba(220, 38, 38, 0.18)";
+            readonly border: "rgba(220, 38, 38, 0.24)";
+            readonly label: "#991B1B";
         };
         readonly focus: {
-            readonly ring: "rgba(212, 135, 58, 0.40)";
+            readonly ring: "rgba(37, 99, 235, 0.40)";
         };
         readonly disabled: {
-            readonly background: "#EBE0D0";
-            readonly text: "rgba(26, 26, 46, 0.28)";
-            readonly border: "rgba(26, 26, 46, 0.08)";
+            readonly background: "#F3F4F6";
+            readonly text: "#9CA3AF";
+            readonly border: "#E5E7EB";
         };
     };
     /**
-     * Semantic feedback colors — alert banners, toasts, status tags, validation.
-     * All warm-toned: olive success, amber warning, terracotta danger, dusty indigo info.
-     *
-     * Each state:
-     *   default  — icon tint, strong border, filled badge bg
-     *   subtle   — banner/toast background
-     *   content  — text on subtle bg (all ≥ 7:1 contrast ✓ WCAG AA)
-     *   border   — banner border / tag outline
+     * Semantic feedback — neutral cool palette matching Mercury data viz.
+     *   success: emerald-500 (growth, positive deltas)
+     *   warning: amber-500 (genuinely amber here, not the brand)
+     *   danger:  red-500 (failed payment, validation error)
+     *   info:    blue-500 (system tip, neutral notification)
      */
     readonly feedback: {
         readonly success: {
-            /** Warm olive — order confirmed, product saved, payment received */
-            readonly default: "#7F9043";
-            readonly subtle: "rgba(127, 144, 67, 0.16)";
-            readonly content: "#4A6B22";
-            readonly border: "rgba(127, 144, 67, 0.32)";
+            readonly default: "#10B981";
+            readonly subtle: "rgba(16, 185, 129, 0.12)";
+            readonly content: "#047857";
+            readonly border: "rgba(16, 185, 129, 0.30)";
         };
         readonly warning: {
-            /** Warm amber-yellow — low stock, pending review, expiring promo */
-            readonly default: "#C29023";
-            readonly subtle: "rgba(194, 144, 35, 0.16)";
-            readonly content: "#6B4A12";
-            readonly border: "rgba(194, 144, 35, 0.32)";
+            readonly default: "#F59E0B";
+            readonly subtle: "rgba(245, 158, 11, 0.12)";
+            readonly content: "#92400E";
+            readonly border: "rgba(245, 158, 11, 0.30)";
         };
         readonly danger: {
-            /** Terracotta — payment failed, validation error, destructive result */
-            readonly default: "#C04320";
-            readonly subtle: "rgba(192, 67, 32, 0.13)";
-            readonly content: "#7A2A14";
-            readonly border: "rgba(192, 67, 32, 0.34)";
+            readonly default: "#EF4444";
+            readonly subtle: "rgba(239, 68, 68, 0.10)";
+            readonly content: "#991B1B";
+            readonly border: "rgba(239, 68, 68, 0.30)";
         };
         readonly info: {
-            /** Warm dusty indigo — new order notification, system tip */
-            readonly default: "#606B94";
-            readonly subtle: "rgba(96, 107, 148, 0.14)";
-            readonly content: "#3A4366";
-            readonly border: "rgba(96, 107, 148, 0.32)";
+            readonly default: "#3B82F6";
+            readonly subtle: "rgba(59, 130, 246, 0.10)";
+            readonly content: "#1E40AF";
+            readonly border: "rgba(59, 130, 246, 0.30)";
         };
     };
 };
-/**
- * Spacing scale aligned with Tailwind's default (rem → browser root).
- * Keys match Tailwind numeric spacing: 1 = 0.25rem, 2 = 0.5rem, …
- */
 export declare const spacingScale: Record<string, string>;
 /**
- * Typography:
- *   sans — Plus Jakarta Sans (UI text, headings, labels, body)
- *   mono — JetBrains Mono (order IDs, API keys, hex values, code)
- *
- * Weight guide (Plus Jakarta Sans):
- *   400 — body text, table cells
- *   500 — product names, nav labels, secondary headings
- *   600 — buttons (font-size 14, letter-spacing -0.005em), form labels, section headers
- *   700 — page titles, KPI numbers
+ * Typography — Geist (modern variable sans) + Geist Mono (numbers, IDs).
+ * Geist is intentionally chosen over Inter to avoid the AI/SaaS cliche.
  */
 export declare const fontFamily: {
     readonly sans: string;
@@ -196,7 +198,7 @@ export declare const fontSize: {
     readonly lg: "1.125rem";
     readonly xl: "1.25rem";
     readonly "2xl": "1.5rem";
-    readonly "3xl": "1.75rem";
+    readonly "3xl": "1.875rem";
 };
 export declare const fontWeight: {
     readonly regular: "400";
@@ -213,19 +215,17 @@ export declare const lineHeight: {
 export declare const letterSpacing: {
     readonly tight: "-0.01em";
     readonly normal: "0";
-    readonly label: "0.06em";
+    readonly label: "0.04em";
     readonly wide: "0.08em";
 };
 /**
- * Border-radius scale.
- *
- * Usage guide:
- *   sm   (6px)   — tags, badges, chips, checkboxes
- *   base (8px)   — inputs, buttons, small cards  ← default
- *   md   (10px)  — medium cards, dropdowns
- *   lg   (12px)  — panels, section cards, data tables
- *   xl   (16px)  — modals, dialogs, large containers
- *   pill (999px) — pill badges, avatars, toggles
+ * Radius — Mercury card geometry (10px) is the workhorse.
+ *   sm   (6px)  — tags, badges, chips, checkboxes
+ *   base (8px)  — inputs, buttons, small cards
+ *   md   (10px) — operational cards (Mercury standard)
+ *   lg   (12px) — panels, large containers
+ *   xl   (16px) — modals, dialogs
+ *   pill (999)  — pill badges, avatars, quick-action chips
  */
 export declare const radii: {
     readonly none: "0";
@@ -237,19 +237,17 @@ export declare const radii: {
     readonly pill: "9999px";
 };
 /**
- * Layered box shadows — warm navy rgba(26,26,46,…), never pure black.
- * Always two layers: ambient (spread) + directional (soft).
- *
- *   sm     — list rows, inputs, base cards
- *   md     — dropdowns, popovers, floating panels
- *   lg     — modals, command palette, sheets
- *   focus  — amber focus ring (3px outer glow)
+ * Shadows — whisper-soft, slate-tinted. Mercury card elevation.
+ *   sm     — base card resting state (`0 6px 18px rgba(17,24,39,0.04)`)
+ *   md     — hover, popover
+ *   lg     — modal, sheet
+ *   focus  — accent focus ring
  */
 export declare const shadows: {
-    readonly sm: "0 1px 3px rgba(26, 26, 46, 0.06), 0 1px 2px rgba(26, 26, 46, 0.04)";
-    readonly md: "0 4px 12px rgba(26, 26, 46, 0.08), 0 2px 4px rgba(26, 26, 46, 0.05)";
-    readonly lg: "0 12px 32px rgba(26, 26, 46, 0.10), 0 4px 8px rgba(26, 26, 46, 0.06)";
-    readonly focus: "0 0 0 3px rgba(212, 135, 58, 0.40)";
+    readonly sm: "0 1px 2px rgba(17, 24, 39, 0.04), 0 6px 18px rgba(17, 24, 39, 0.04)";
+    readonly md: "0 4px 12px rgba(17, 24, 39, 0.08), 0 2px 4px rgba(17, 24, 39, 0.04)";
+    readonly lg: "0 16px 40px rgba(17, 24, 39, 0.12), 0 4px 8px rgba(17, 24, 39, 0.06)";
+    readonly focus: "0 0 0 3px rgba(37, 99, 235, 0.40)";
 };
 export declare const zIndex: {
     readonly base: "0";
@@ -261,22 +259,25 @@ export declare const zIndex: {
     readonly toast: "1080";
 };
 /**
- * Motion tokens — route-level transitions and micro-interactions.
- * All components must respect prefers-reduced-motion.
+ * Motion — Emil's strong ease-out curves. UI feels intentional, not lazy.
+ *   instant — keyboard-driven, micro feedback (button press)
+ *   fast    — popovers, tooltips, dropdowns
+ *   page    — route transitions (kept under 300ms)
+ *   slow    — drawers, sheets
  */
 export declare const motion: {
     readonly duration: {
         readonly instant: "80ms";
-        readonly fast: "150ms";
+        readonly fast: "160ms";
         readonly page: "200ms";
-        readonly slow: "300ms";
+        readonly slow: "280ms";
     };
     readonly easing: {
-        /** Standard deceleration for entering elements */
-        readonly enter: "cubic-bezier(0.2, 0, 0, 1)";
-        /** Standard acceleration for exiting elements */
-        readonly exit: "cubic-bezier(0.4, 0, 1, 1)";
-        /** Spring-like — for interactive state changes */
+        /** Strong ease-out for entering UI — Emil curve. */
+        readonly enter: "cubic-bezier(0.23, 1, 0.32, 1)";
+        /** Strong ease-in-out for on-screen movement. */
+        readonly exit: "cubic-bezier(0.77, 0, 0.175, 1)";
+        /** Spring-like — interactive state changes, small playful moments. */
         readonly spring: "cubic-bezier(0.34, 1.56, 0.64, 1)";
     };
 };
