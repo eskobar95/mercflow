@@ -59,7 +59,7 @@ When the full Medusa admin fork is merged (or a larger subtree appears under `pa
 ## 5.3 follow-up (Batch 1 shell)
 
 - **Modal removal:** **N/A** for this tree’s empty baseline — there were no primary-entity `Dialog` / `AlertDialog` create flows to delete.
-- **Page-first “new” flows:** Batch 1 adds deep-linkable **mock** create pages: **`/products/new`** (`ProductNewPage`) and **`/product-categories/new`** (`ProductCategoryNewPage`), with toolbar and sidebar entry points, token-backed `Card` form shells, and no Radix dialog on the primary path.
+- **Page-first “new” flows:** **`/products/new`** uses **`ProductCreatePage`** (unified catalogue create: details, variant matrix, DKK pricing + stock via Medusa Admin API). **`/product-categories/new`** (`ProductCategoryNewPage`) remains a mock create flow, with toolbar and sidebar entry points, token-backed `Card` form shells, and no Radix dialog on the primary path.
 - **When the Medusa admin fork appears:** re-run this audit; map any upstream **new/edit product or category** modals to these URLs (or dedicated edit routes) and keep confirmations/destructive flows as `AlertDialog` or equivalent when they stay short and non-primary.
 
 ## References

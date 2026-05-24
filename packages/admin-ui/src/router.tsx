@@ -21,10 +21,18 @@ export const router = createBrowserRouter([
       },
       {
         path: "products/new",
-        handle: { title: "New product" } satisfies AppRouteHandle,
+        handle: { title: "Create product" } satisfies AppRouteHandle,
         lazy: async () => {
-          const { ProductNewPage } = await import("@/pages/ProductNewPage")
-          return { Component: ProductNewPage }
+          const { ProductCreatePage } = await import("@/pages/ProductCreatePage")
+          return { Component: ProductCreatePage }
+        },
+      },
+      {
+        path: "products/:productId/edit",
+        handle: { title: "Edit product" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { ProductEditPage } = await import("@/pages/ProductEditPage")
+          return { Component: ProductEditPage }
         },
       },
       {
