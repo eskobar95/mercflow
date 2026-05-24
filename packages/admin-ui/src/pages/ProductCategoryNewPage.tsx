@@ -1,38 +1,24 @@
-import { useId, useState, type FormEvent } from "react"
+import type { JSX } from "react"
+import { useMemo } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
-import { Button } from "@/components/ui/Button"
-import { Card } from "@/components/ui/Card"
-import { FormField } from "@/components/ui/FormField"
-import { Input } from "@/components/ui/Input"
+import { ProductCategoryCrudForm } from "@/components/product-categories/ProductCategoryCrudForm"
+import { buildHierarchyRowsFromCategories } from "@/features/product-categories/buildHierarchyRows"
+import { buildParentCategorySelectOptions } from "@/features/product-categories/buildParentCategorySelectOptions"
+import { useProductCategoryTreePicklist } from "@/hooks/useProductCategoryTreePicklist"
 
 /**
- * Create category flow (mock). URL-first, no Medusa. Deep-link: `/product-categories/new`.
+ * Create category — POST /admin/product-categories (Medusa). Configure
+ * `VITE_MEDUSA_ADMIN_BACKEND_URL` for live API; parent list loads in tree order.
  */
 export function ProductCategoryNewPage(): JSX.Element {
   const navigate = useNavigate()
-  const baseId = useId()
-  const nameId = `${baseId}-name`
-  const handleId = `${baseId}-handle`
+  const { categories, loading, errorMessage, reload } = useProductCategoryTreePicklist()
 
-  const [name, setName] = useState("")
-  const [handle, setHandle] = useState("")
-  const [error, setError] = useState<string | null>(null)
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
-
-  const onSubmit = (e: FormEvent<HTMLFormElement>): void => {
-    e.preventDefault()
-    setSuccessMessage(null)
-    const trimmed = name.trim()
-    if (!trimmed) {
-      setError("Name is required.")
-      return
-    }
-    setError(null)
-    setSuccessMessage(
-      `Mock save: category “${trimmed}” would be created (no API). You can add another or return to the list.`,
-    )
-  }
+  const parentSelectOptions = useMemo(() => {
+    const rows = buildHierarchyRowsFromCategories(categories)
+    return buildParentCategorySelectOptions(rows, new Set())
+  }, [categories])
 
   return (
     <div className="p-6">
@@ -40,75 +26,28 @@ export function ProductCategoryNewPage(): JSX.Element {
         <h1 className="mb-6 text-2xl font-semibold text-content-primary">
           New product category
         </h1>
-        <Card elevation="flat">
-          {successMessage ? (
-            <p
-              className="mb-4 text-sm text-content-secondary"
-              role="status"
-              aria-live="polite"
-            >
-              {successMessage}
-            </p>
-          ) : null}
-          <form className="space-y-4" onSubmit={onSubmit} noValidate>
-            <FormField
-              label="Name"
-              htmlFor={nameId}
-              required
-              error={error ?? undefined}
-            >
-              <Input
-                id={nameId}
-                name="name"
-                type="text"
-                autoComplete="off"
-                value={name}
-                error={Boolean(error)}
-                onChange={(e) => {
-                  setName(e.target.value)
-                }}
-                aria-invalid={Boolean(error)}
-              />
-            </FormField>
-            <FormField
-              label="Handle"
-              htmlFor={handleId}
-              hint="Unique string for URLs (optional in this mock)."
-            >
-              <Input
-                id={handleId}
-                name="handle"
-                type="text"
-                autoComplete="off"
-                value={handle}
-                onChange={(e) => {
-                  setHandle(e.target.value)
-                }}
-                placeholder="e.g. outerwear"
-              />
-            </FormField>
-            <div className="flex flex-wrap items-center gap-2 pt-2">
-              <Button type="submit" variant="primary">
-                Save (mock)
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  navigate("/product-categories")
-                }}
-              >
-                Cancel
-              </Button>
-              <Link
-                to="/product-categories"
-                className="text-sm font-medium text-interactive-primary hover:text-interactive-primary-hover"
-              >
-                Back to list
-              </Link>
-            </div>
-          </form>
-        </Card>
+        <ProductCategoryCrudForm
+          mode="create"
+          initialName=""
+          initialHandle=""
+          initialParentCategoryId={null}
+          initialIsActive
+          parentSelectOptions={parentSelectOptions}
+          parentOptionsLoading={loading}
+          parentOptionsError={errorMessage}
+          onReloadParentOptions={reload}
+          onCreated={(c) => {
+            navigate(`/product-categories/${encodeURIComponent(c.id)}`)
+          }}
+        />
+        <p className="mt-4 text-center text-sm text-content-tertiary">
+          <Link
+            to="/product-categories"
+            className="font-medium text-interactive-primary hover:text-interactive-primary-hover"
+          >
+            Back to product categories
+          </Link>
+        </p>
       </div>
     </div>
   )

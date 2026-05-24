@@ -39,10 +39,12 @@ Open the Vite dev URL printed in the terminal. The app loads the **admin shell**
 - **Detail:** `/products/:id` → `ProductDetailPage` — **Overview** (title, plain-text preview of Medusa `description`, status badge, media thumbnail strip from thumbnail + gallery) and **Variants** (one row per variant: name/SKU hint, merged price + stock/inventory summary). No separate inventory tab.
 - **Client:** Shared SDK factory `src/medusa-admin/createMercflowMedusaSdk.ts` (session + optional bearer header via env). Hooks use **`@tanstack/react-query`** queries; without `VITE_MEDUSA_ADMIN_BACKEND_URL`, catalogue pages fall back to `src/data/mockProducts.ts` for deterministic dev.
 
-## Product categories (read views)
+## Product categories
 
 - **Hierarchy list:** `/product-categories` → `ProductCategoryListPage` — depth-first **`buildHierarchyRowsFromCategories`** over Medusa **`parent_category_id`**, **`ProductCategoryHierarchyTable`** indents descendants with token spacing, exposes handle, **`products.length`** as the linked product badge, **`is_active`**, and `updated_at`.
-- **Detail overview:** `/product-categories/:id` → **`CategoryOverviewSummary`** — handle, truncated Medusa **`description`** preview when present, parent link from **`expand=parent_category`**, inactive/active badges, linked product counts, plus the MercFlow **Content** tab from `src/features/category-content/`.
+- **Create:** `/product-categories/new` → **`ProductCategoryNewPage`** composes **`ProductCategoryCrudForm`** — **`POST /admin/product-categories`** (`name`, `handle`, **`parent_category_id`**, **`is_active`**). Handle slugifies from the name until edited; parents load in hierarchical order for the select.
+- **Edit + delete:** `/product-categories/:id` (**Overview**) — same **`ProductCategoryCrudForm`** with **`POST /admin/product-categories/:id`** (Medusa update route) and **`DELETE /admin/product-categories/:id`**. Parents exclude the current category and its descendants to avoid cycles. Deletes use **`AlertDialog`** confirmation; API errors surface inline (including when products block deletion).
+- **Read-only context:** **`CategoryOverviewSummary`** — **`description`** preview and linked **product counts** beneath the edit card; the MercFlow **Content** tab stays in **`src/features/category-content/`**.
 
 ## Customers (read views)
 
@@ -52,7 +54,7 @@ Open the Vite dev URL printed in the terminal. The app loads the **admin shell**
 
 ## Demo fixtures & mock shells
 
-- **Routes:** **`/products/new`** → **`ProductCreatePage`** (unified product + variant + inventory create via Medusa Admin API). **`/product-categories/new`** remains a mock shell (no persistence). **`/product-categories`** and **`/product-categories/:id`** rely on Medusa reads described above.
+- **Routes:** **`/products/new`** → **`ProductCreatePage`** (unified product + variant + inventory create via Medusa Admin API). **`/product-categories/new`** persists via Medusa when the admin backend URL + session are configured. **`/product-categories`** and **`/product-categories/:id`** rely on the Medusa reads and writes described above when connected.
 - **Legacy fixtures:** `src/data/mockProductCategories.ts` is retained only for tooling or future storybook/demo seeds — the routed hierarchy list page no longer reads it.
 - **`useMockEntityListState`** powers `/list-demo` and deliberately static demos until corresponding fetch hooks land.
 

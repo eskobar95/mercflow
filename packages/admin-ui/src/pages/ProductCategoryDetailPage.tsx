@@ -1,11 +1,16 @@
 import type { JSX } from "react"
 import { useMemo } from "react"
-import { Link, useParams, useSearchParams } from "react-router-dom"
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 
 import { CategoryContentTab } from "@/components/category-content/CategoryContentTab"
 import { CategoryOverviewSummary } from "@/components/product-categories/CategoryOverviewSummary"
+import { ProductCategoryCrudForm } from "@/components/product-categories/ProductCategoryCrudForm"
 import { Card } from "@/components/ui/Card"
 import { useAdminProductCategoryDetail } from "@/features/product-categories"
+import { buildHierarchyRowsFromCategories } from "@/features/product-categories/buildHierarchyRows"
+import { buildParentCategorySelectOptions } from "@/features/product-categories/buildParentCategorySelectOptions"
+import { collectSelfAndDescendantCategoryIds } from "@/features/product-categories/collectCategoryDescendants"
+import { useProductCategoryTreePicklist } from "@/hooks/useProductCategoryTreePicklist"
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
 type CategoryTabId = "overview" | "content"
@@ -14,11 +19,27 @@ export function ProductCategoryDetailPage(): JSX.Element {
   const { categoryId } = useParams<{ categoryId: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
   const hasBackend = resolveMedusaAdminBackendUrl() !== null
+  const navigate = useNavigate()
 
   const tab: CategoryTabId =
     searchParams.get("tab") === "content" ? "content" : "overview"
 
-  const { state, reload } = useAdminProductCategoryDetail(categoryId)
+  const { state, reload: reloadDetail } = useAdminProductCategoryDetail(categoryId)
+
+  const {
+    categories: picklistCategories,
+    loading: picklistLoading,
+    errorMessage: picklistError,
+    reload: reloadPicklist,
+  } = useProductCategoryTreePicklist()
+
+  const parentSelectOptions = useMemo(() => {
+    const rows = buildHierarchyRowsFromCategories(picklistCategories)
+    const excluded = categoryId
+      ? collectSelfAndDescendantCategoryIds(picklistCategories, categoryId)
+      : new Set<string>()
+    return buildParentCategorySelectOptions(rows, excluded)
+  }, [picklistCategories, categoryId])
 
   const title = useMemo((): string => {
     if (state.status === "success") {
@@ -55,7 +76,7 @@ export function ProductCategoryDetailPage(): JSX.Element {
           type="button"
           className="mt-3 rounded-md bg-interactive-primary px-3 py-1.5 text-sm font-medium text-content-inverse transition hover:bg-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
           onClick={() => {
-            void reload()
+            void reloadDetail()
           }}
         >
           Retry
@@ -71,7 +92,7 @@ export function ProductCategoryDetailPage(): JSX.Element {
           type="button"
           className="mt-3 rounded-md bg-interactive-primary px-3 py-1.5 text-sm font-medium text-content-inverse transition hover:bg-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
           onClick={() => {
-            void reload()
+            void reloadDetail()
           }}
         >
           Retry
@@ -178,7 +199,28 @@ export function ProductCategoryDetailPage(): JSX.Element {
             hidden={tab !== "overview"}
           >
             {tab === "overview" ? (
-              <CategoryOverviewSummary category={state.category} categoryId={categoryId} />
+              <div className="space-y-6">
+                <ProductCategoryCrudForm
+                  mode="edit"
+                  categoryId={categoryId}
+                  initialName={state.category.name}
+                  initialHandle={state.category.handle}
+                  initialParentCategoryId={state.category.parent_category_id}
+                  initialIsActive={state.category.is_active}
+                  parentSelectOptions={parentSelectOptions}
+                  parentOptionsLoading={picklistLoading}
+                  parentOptionsError={picklistError}
+                  onReloadParentOptions={reloadPicklist}
+                  onUpdated={() => {
+                    void reloadDetail()
+                    void reloadPicklist()
+                  }}
+                  onDeleted={() => {
+                    navigate("/product-categories")
+                  }}
+                />
+                <CategoryOverviewSummary category={state.category} categoryId={categoryId} />
+              </div>
             ) : null}
           </div>
 
