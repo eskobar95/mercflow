@@ -6,7 +6,9 @@
   "main": "src/modules/connector/index.ts",
   "exports": {
     ".": "./src/modules/connector/index.ts",
-    "./mercflow-connectors-admin-api": "./src/integrations/mercflow-connectors-admin-api.ts"
+    "./mercflow-connectors-admin-api": "./src/integrations/mercflow-connectors-admin-api.ts",
+    "./mercflow-connectors-gtm-admin-api": "./src/integrations/mercflow-connectors-gtm-admin-api.ts",
+    "./mercflow-connectors-gtm-store-api": "./src/integrations/mercflow-connectors-gtm-store-api.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
