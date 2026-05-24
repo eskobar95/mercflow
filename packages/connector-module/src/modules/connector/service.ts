@@ -136,7 +136,7 @@ export default class ConnectorModuleService extends MedusaService({
    * Google Tag Manager connector entry point (encrypted credentials + upsert into `connector_config`).
    */
   gtm(): GtmConnector {
-    return new GtmConnector(this, this.encryption())
+    return new GtmConnector(this, this.getEncryption())
   }
 
   /**
