@@ -178,3 +178,4 @@ function ToasterViewport({
 }
 
 /** Mount once near app root — re-export for convenience. */
+export const Toaster = ToastProvider
