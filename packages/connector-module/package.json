@@ -6,7 +6,13 @@
   "main": "src/modules/connector/index.ts",
   "exports": {
     ".": "./src/modules/connector/index.ts",
-    "./mercflow-connectors-admin-api": "./src/integrations/mercflow-connectors-admin-api.ts"
+    "./mercflow-connectors-admin-api": "./src/integrations/mercflow-connectors-admin-api.ts",
+    "./mercflow-stripe-admin-detail-route": "./src/integrations/mercflow-stripe-admin-detail-route.ts",
+    "./mercflow-stripe-admin-test-route": "./src/integrations/mercflow-stripe-admin-test-route.ts",
+    "./mercflow-stripe-admin-sync-products-route": "./src/integrations/mercflow-stripe-admin-sync-products-route.ts",
+    "./mercflow-stripe-admin-payments-route": "./src/integrations/mercflow-stripe-admin-payments-route.ts",
+    "./mercflow-store-stripe-vat-route": "./src/integrations/mercflow-store-stripe-vat-route.ts",
+    "./resolve-stripe-secret-key": "./src/integrations/resolve-stripe-secret-key.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -18,7 +24,9 @@
   "dependencies": {
     "@medusajs/framework": "2.14.1",
     "@medusajs/medusa": "2.14.1",
+    "@medusajs/types": "2.14.1",
     "@medusajs/utils": "2.14.1",
+    "stripe": "15.12.0",
     "zod": "^3.25.0"
   },
   "devDependencies": {

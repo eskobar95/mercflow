@@ -22,6 +22,10 @@ describe("buildConnectorAdminList", (): void => {
         credentials_encrypted: "mf1:dummy",
         active: true,
         last_tested_at: new Date("2026-05-20T12:00:00.000Z"),
+        vat_mode: "inclusive",
+        secret_key_last4: null,
+        publishable_key_last4: null,
+        webhook_secret_last4: null,
       },
     ])
     const stripe = list.find((c) => c.type === "stripe")
@@ -40,6 +44,10 @@ describe("buildConnectorAdminList", (): void => {
         credentials_encrypted: "mf1:x",
         active: false,
         last_tested_at: null,
+        vat_mode: "inclusive",
+        secret_key_last4: null,
+        publishable_key_last4: null,
+        webhook_secret_last4: null,
       },
     ])
     const row = list.find((c) => c.type === "shipmondo")
