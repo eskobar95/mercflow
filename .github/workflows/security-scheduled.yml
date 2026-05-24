@@ -1,0 +1,157 @@
+name: Security (scheduled)
+
+on:
+  schedule:
+    # Every Monday at 08:00 UTC
+    - cron: "0 8 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  security-events: write
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Full filesystem scan with Trivy — catches CVEs that were published *after*
+  # the last PR merged (i.e., zero-days and late disclosures in existing deps)
+  # ─────────────────────────────────────────────────────────────────────────────
+  trivy:
+    name: Trivy full filesystem scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout development
+        uses: actions/checkout@v4
+        with:
+          ref: development
+
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          format: sarif
+          output: trivy.sarif
+          exit-code: "0"
+
+      - name: Upload SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy.sarif
+          category: trivy
+
+      - name: Trivy scan (fail gate — for issue creation below)
+        id: trivy-fail
+        uses: aquasecurity/trivy-action@master
+        continue-on-error: true
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          format: table
+          exit-code: "1"
+
+      - name: Open GitHub Issue on findings
+        if: steps.trivy-fail.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const today = new Date().toISOString().split('T')[0];
+            const title = `[Security] Trivy findings — ${today}`;
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'security,automated'
+            });
+            const alreadyOpen = existing.data.some(i => i.title === title);
+            if (!alreadyOpen) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body: [
+                  '## Trivy found CRITICAL/HIGH vulnerabilities',
+                  '',
+                  'The weekly scheduled Trivy scan found vulnerabilities in the `development` branch.',
+                  '',
+                  '**Next steps:**',
+                  '1. Check the [Security tab](../../security/code-scanning) for full details',
+                  '2. Run `pnpm audit --audit-level=high` locally to reproduce',
+                  '3. Update affected packages and open a `fix(deps):` PR',
+                  '',
+                  `Scan date: ${today}`,
+                  `Branch: development`,
+                ].join('\n'),
+                labels: ['security', 'automated']
+              });
+            }
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Full pnpm audit against development — belt-and-suspenders check
+  # ─────────────────────────────────────────────────────────────────────────────
+  audit:
+    name: pnpm audit (scheduled)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout development
+        uses: actions/checkout@v4
+        with:
+          ref: development
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Audit
+        id: audit-fail
+        continue-on-error: true
+        run: pnpm audit --audit-level=high
+
+      - name: Open GitHub Issue on audit findings
+        if: steps.audit-fail.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const today = new Date().toISOString().split('T')[0];
+            const title = `[Security] pnpm audit HIGH/CRITICAL — ${today}`;
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'security,automated'
+            });
+            const alreadyOpen = existing.data.some(i => i.title === title);
+            if (!alreadyOpen) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body: [
+                  '## pnpm audit found HIGH/CRITICAL vulnerabilities',
+                  '',
+                  'The weekly scheduled audit found vulnerable packages on the `development` branch.',
+                  '',
+                  '**Next steps:**',
+                  '1. Run `pnpm audit --audit-level=high` locally',
+                  '2. Run `pnpm audit --fix` for auto-upgradable CVEs',
+                  '3. For breaking upgrades: open a dedicated `fix(deps):` PR',
+                  '',
+                  `Scan date: ${today}`,
+                ].join('\n'),
+                labels: ['security', 'automated']
+              });
+            }

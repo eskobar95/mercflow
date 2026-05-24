@@ -1,0 +1,85 @@
+name: Security
+
+on:
+  pull_request:
+  push:
+    branches: [main, development]
+
+permissions:
+  contents: read
+  pull-requests: write
+  security-events: write
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 1. Dependency CVE review — flags new vulnerable packages introduced in this PR
+  # ─────────────────────────────────────────────────────────────────────────────
+  dependency-review:
+    name: Dependency review (new CVEs)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          comment-summary-in-pr: always
+          # Allow known false positives here if needed:
+          # allow-ghsas: GHSA-xxxx-xxxx-xxxx
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 2. pnpm audit — blocks on HIGH/CRITICAL CVEs in lockfile
+  # ─────────────────────────────────────────────────────────────────────────────
+  audit:
+    name: pnpm audit (CVE lockfile)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Audit (fail on HIGH+)
+        run: pnpm audit --audit-level=high
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 3. Gitleaks — detect secrets and credentials committed to the repo
+  # ─────────────────────────────────────────────────────────────────────────────
+  secrets:
+    name: Secret scan (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+  # Semgrep SAST runs via the installed Semgrep GitHub App — not in this workflow.
+  # Configure rules in .semgrep.yml at repo root.

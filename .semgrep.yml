@@ -1,0 +1,22 @@
+# Semgrep configuration for MercFlow
+# The Semgrep GitHub App reads this file automatically.
+# Docs: https://semgrep.dev/docs/semgrep-ci/configuration-reference/
+
+rules: []  # All rules come from the rulesets below
+
+# Rulesets to run on every PR
+# Semgrep App config: add these under "Policies" in the Semgrep dashboard,
+# or list them here for local runs: semgrep --config .semgrep.yml
+
+# Active rulesets (configure in Semgrep dashboard → Policies):
+#   p/typescript        — TypeScript anti-patterns and common bugs
+#   p/nodejs            — Node.js security (path traversal, command injection, etc.)
+#   p/owasp-top-ten     — OWASP Top 10 coverage
+#   p/secrets           — Hardcoded secrets and credentials
+#   p/react             — React-specific issues (XSS via dangerouslySetInnerHTML, etc.)
+
+# Severity thresholds — block PR merge on ERROR, warn on WARNING
+# Configure in Semgrep dashboard → Settings → Merge policies
+
+# Paths excluded from scanning (mirrors .semgrepignore)
+# .semgrepignore is the authoritative ignore list — this is for reference only.
