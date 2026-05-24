@@ -8,12 +8,18 @@ import { ListPagination } from "@/components/ui/list/ListPagination"
 import { type RowActionItem } from "@/components/ui/list/RowActionsMenu"
 import { type ListColumnDef } from "@/components/ui/list/types"
 import { ProductCardGrid } from "@/components/product-list/ProductCardGrid"
-import { ProductListFilterBar, type ActiveFilters } from "@/components/product-list/ProductListFilterBar"
+import {
+  ProductListFilterBar,
+  type ActiveFilter,
+  type FilterCategory,
+} from "@/components/product-list/ProductListFilterBar"
 import { ProductStatusBadge } from "@/components/product-list/ProductStatusBadge"
 import { ProductThumbnail } from "@/components/product-list/ProductThumbnail"
 import { MOCK_PRODUCTS, type ProductListRow } from "@/data/mockProducts"
 import { useMockEntityListState } from "@/hooks/useMockEntityListState"
 import { cn } from "@/lib/cn"
+
+// ── Column definitions ────────────────────────────────────────────────────────
 
 type StatusFilter = "all" | "published" | "draft" | "proposed"
 type ProductCol = "thumbnail" | "title" | "status" | "collection" | "updatedAt"
@@ -86,18 +92,46 @@ const PRODUCT_COLUMNS: ListColumnDef<ProductListRow, ProductCol>[] = [
   },
 ]
 
+// ── Filter categories ─────────────────────────────────────────────────────────
+
 const ALL_COLLECTIONS = Array.from(
   new Set(MOCK_PRODUCTS.map((r) => r.collection))
 ).sort()
 
-/** ms timestamp for "start of period" helpers */
-function startOf(period: "today" | "week" | "month"): number {
+const FILTER_CATEGORIES: FilterCategory[] = [
+  {
+    id: "status",
+    label: "Status",
+    values: [
+      { id: "published", label: "Published" },
+      { id: "draft",     label: "Draft"     },
+      { id: "proposed",  label: "Proposed"  },
+    ],
+  },
+  {
+    id: "collection",
+    label: "Collection",
+    values: ALL_COLLECTIONS.map((c) => ({ id: c, label: c })),
+  },
+  {
+    id: "updated",
+    label: "Updated",
+    values: [
+      { id: "today", label: "Today"      },
+      { id: "week",  label: "This week"  },
+      { id: "month", label: "This month" },
+    ],
+  },
+]
+
+// ── Date helpers ──────────────────────────────────────────────────────────────
+
+function startOfPeriod(period: "today" | "week" | "month"): number {
   const d = new Date()
   if (period === "today") {
     d.setHours(0, 0, 0, 0)
   } else if (period === "week") {
-    const day = d.getDay()
-    d.setDate(d.getDate() - day)
+    d.setDate(d.getDate() - d.getDay())
     d.setHours(0, 0, 0, 0)
   } else {
     d.setDate(1)
@@ -107,33 +141,57 @@ function startOf(period: "today" | "week" | "month"): number {
 }
 
 /**
+ * Test whether a row matches a single ActiveFilter.
+ * "is" → row field must match any selected value.
+ * "is not" → row field must NOT match any selected value.
+ */
+function rowMatchesFilter(row: ProductListRow, filter: ActiveFilter): boolean {
+  if (filter.valueIds.length === 0) return true
+
+  let positiveMatch: boolean
+
+  switch (filter.categoryId) {
+    case "status":
+      positiveMatch = filter.valueIds.includes(row.status)
+      break
+    case "collection":
+      positiveMatch = filter.valueIds.includes(row.collection)
+      break
+    case "updated":
+      positiveMatch = filter.valueIds.some((v) => {
+        const threshold = startOfPeriod(v as "today" | "week" | "month")
+        return new Date(row.updatedAt).getTime() >= threshold
+      })
+      break
+    default:
+      return true
+  }
+
+  return filter.operator === "is" ? positiveMatch : !positiveMatch
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+
+/**
  * Product list page.
  *
  * Desktop: DataTable with thumbnail column, Shopify-style status tabs,
- * Linear-style compact filter bar (Filter popover + expandable search + chips).
+ * Linear-style filter bar — two-level popover → chips with is/is-not operator.
  *
- * Mobile (<md): card list — thumbnail + key fields, no horizontal scroll.
+ * Mobile: card feed, no horizontal scroll.
  */
 export function ProductListPage(): JSX.Element {
   const navigate = useNavigate()
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
-  const [activeFilters, setActiveFilters] = useState<ActiveFilters>({
-    collections: [],
-    updatedRange: null,
-  })
+  const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>([])
 
   const filterRow = useCallback(
     (r: ProductListRow, query: string): boolean => {
+      // Status tab
       if (statusFilter !== "all" && r.status !== statusFilter) return false
-      if (
-        activeFilters.collections.length > 0 &&
-        !activeFilters.collections.includes(r.collection)
-      )
-        return false
-      if (activeFilters.updatedRange) {
-        const threshold = startOf(activeFilters.updatedRange)
-        if (new Date(r.updatedAt).getTime() < threshold) return false
-      }
+      // Active filter chips (AND logic — all must match)
+      if (!activeFilters.every((f) => rowMatchesFilter(r, f))) return false
+      // Text search
       if (!query.trim()) return true
       const t = query.toLowerCase()
       return (
@@ -184,8 +242,13 @@ export function ProductListPage(): JSX.Element {
     [],
   )
 
-  function clearAllFilters(): void {
-    setActiveFilters({ collections: [], updatedRange: null })
+  function handleFiltersChange(f: ActiveFilter[]): void {
+    setActiveFilters(f)
+    setPage(1)
+  }
+
+  function clearAll(): void {
+    setActiveFilters([])
     setSearch("")
     setStatusFilter("all")
     setPage(1)
@@ -223,7 +286,7 @@ export function ProductListPage(): JSX.Element {
           </div>
         </div>
 
-        {/* ── Status tabs (Shopify pattern) ── */}
+        {/* ── Status tabs (Shopify) ── */}
         <div className="flex items-center border-b border-border-subtle px-4">
           {STATUS_TABS.map((tab) => (
             <button
@@ -257,12 +320,9 @@ export function ProductListPage(): JSX.Element {
 
         {/* ── Linear-style filter bar ── */}
         <ProductListFilterBar
-          collections={ALL_COLLECTIONS}
+          categories={FILTER_CATEGORIES}
           activeFilters={activeFilters}
-          onFiltersChange={(f) => {
-            setActiveFilters(f)
-            setPage(1)
-          }}
+          onFiltersChange={handleFiltersChange}
           search={search}
           onSearchChange={setSearch}
           onSearchClear={() => setSearch("")}
@@ -289,7 +349,7 @@ export function ProductListPage(): JSX.Element {
                     type="button"
                     variant="secondary"
                     size="sm"
-                    onClick={clearAllFilters}
+                    onClick={clearAll}
                   >
                     Clear filters
                   </Button>
