@@ -21,7 +21,7 @@ const config = defineConfig({
 })
 
 /**
- * Minimal Medusa project root for local migration tooling (`pnpm db:generate`, etc.).
- * Production apps register `@mercflow/connector-module` from their own `medusa-config`.
+ * Minimal Medusa project root for connector-module migrations (`pnpm db:generate`).
+ * Production apps register `@mercflow/connector-module` from their backend `medusa-config`.
  */
 export default config
