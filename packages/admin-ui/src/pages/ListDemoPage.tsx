@@ -252,7 +252,9 @@ export function ListDemoPage(): JSX.Element {
     })
   }
 
-  const getRowActions = (_row: DemoRow): RowActionItem[] => [
+  const getRowActions = (row: DemoRow): RowActionItem[] => {
+    void row
+    return [
     {
       id: "view",
       label: "View (mock)",
@@ -270,6 +272,7 @@ export function ListDemoPage(): JSX.Element {
       onSelect: () => { /* demo stub */ },
     },
   ]
+  }
 
   return (
     <div className="p-6">

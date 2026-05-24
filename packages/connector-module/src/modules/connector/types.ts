@@ -1,22 +1,20 @@
-import { ConnectorTypeEnum } from "./models/connector-config"
+export const CONNECTOR_TYPE_SLUGS = ["shipmondo", "stripe", "plunk", "gtm"] as const
 
-export type ConnectorType =
-  (typeof ConnectorTypeEnum)[keyof typeof ConnectorTypeEnum]
+export type ConnectorTypeSlug = (typeof CONNECTOR_TYPE_SLUGS)[number]
 
-/**
- * Resolved connector row with decrypted credentials (never persist this shape).
- */
-export type ConnectorConfigPlain = {
+export type ConnectorConfigRecord = {
   id: string
-  type: ConnectorType
-  credentials: string
+  type: string
+  credentials_encrypted: string
   active: boolean
-  created_at: Date
-  updated_at: Date
+  last_tested_at: Date | null
 }
 
-export type SaveConnectorConfigInput = {
-  type: ConnectorType
-  credentials: string
-  active?: boolean
+/** Admin GET /admin/connectors item */
+export type ConnectorAdminListItem = {
+  type: ConnectorTypeSlug
+  active: boolean
+  /** ISO 8601 or null when never tested / not configured */
+  lastTestedAt: string | null
+  configured: boolean
 }

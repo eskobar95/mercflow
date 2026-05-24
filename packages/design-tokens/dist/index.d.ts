@@ -7,102 +7,124 @@ export { tailwindPreset } from "./tailwind-preset.js";
 export declare const tokens: {
     readonly color: {
         readonly surface: {
-            readonly canvas: "#F7F8FA";
-            readonly default: "#FFFFFF";
-            readonly subtle: "#F3F4F6";
-            readonly raised: "#FFFFFF";
-            readonly overlay: "rgba(17, 24, 39, 0.50)";
-            readonly appCanvas: "#F7F8FA";
-            readonly appCard: "#FFFFFF";
-            readonly sidebar: "#131316";
-            readonly sidebarHover: "rgba(255, 255, 255, 0.04)";
-            readonly sidebarActive: "rgba(255, 255, 255, 0.08)";
+            readonly canvas: "#f6f6f7";
+            readonly appCanvas: "#f6f6f7";
+            readonly default: "#ffffff";
+            readonly appCard: "#ffffff";
+            readonly subtle: "#f9f9f9";
+            readonly muted: "#f1f1f1";
+            readonly raised: "#ffffff";
+            readonly overlay: "rgba(16, 24, 32, 0.35)";
+            readonly sidebar: "#ebebeb";
+            readonly sidebarHover: "#e3e5e8";
+            readonly sidebarActive: "#ffffff";
         };
         readonly content: {
-            readonly primary: "#111827";
-            readonly secondary: "#6B7280";
-            readonly tertiary: "#9CA3AF";
-            readonly disabled: "#D1D5DB";
-            readonly inverse: "#FFFFFF";
-            readonly onSidebar: "rgba(255, 255, 255, 0.85)";
-            readonly onSidebarMuted: "rgba(255, 255, 255, 0.55)";
-            readonly onSidebarActive: "#FFFFFF";
+            readonly primary: "#202223";
+            readonly secondary: "#6d7175";
+            readonly tertiary: "#8c9196";
+            readonly placeholder: "#8c9196";
+            readonly inverse: "#ffffff";
+            readonly disabled: "#8c9196";
+            readonly danger: "#c52828";
+            readonly onSidebar: "#303030";
+            readonly onSidebarMuted: "#616161";
+            readonly onSidebarActive: "#202223";
         };
         readonly border: {
-            readonly subtle: "#F3F4F6";
-            readonly default: "#E5E7EB";
-            readonly strong: "#D1D5DB";
-            readonly focus: "rgba(37, 99, 235, 0.40)";
-            readonly app: "#E5E7EB";
-            readonly onSidebar: "rgba(255, 255, 255, 0.08)";
+            readonly default: "#e1e3e5";
+            readonly subtle: "#ebebeb";
+            readonly strong: "#8c9196";
+            readonly focus: "#2c6ecb";
+            readonly app: "#dadde0";
+            readonly onSidebar: "#d2d5d8";
         };
         readonly brand: {
-            readonly base: "#111827";
-            readonly accent: "#2563EB";
-            readonly cream: "#F7F8FA";
+            readonly base: "#202223";
+            readonly accent: "#2c6ecb";
+            readonly cream: "#f6f6f7";
         };
         readonly accent: {
-            readonly subtle: "rgba(37, 99, 235, 0.10)";
-            readonly soft: "rgba(37, 99, 235, 0.18)";
-            readonly default: "#2563EB";
-            readonly strong: "#1D4FD7";
-            readonly text: "#1E40AF";
+            readonly default: "#2c6ecb";
+            readonly subtle: "#e6f0ff";
+            readonly soft: "#d5ebff";
+            readonly strong: "#1a5cb0";
+            readonly text: "#174a8c";
         };
         readonly interactive: {
             readonly primary: {
-                readonly default: "#2563EB";
-                readonly hover: "#1D4FD7";
-                readonly pressed: "#1A3F9F";
+                readonly default: "#2c6ecb";
+                readonly hover: "#1a5cb0";
+                readonly pressed: "#134c92";
+                readonly subtle: "#e6f0ff";
             };
             readonly soft: {
-                readonly default: "rgba(37, 99, 235, 0.10)";
-                readonly hover: "rgba(37, 99, 235, 0.18)";
-                readonly border: "rgba(37, 99, 235, 0.24)";
-                readonly label: "#1E40AF";
+                readonly default: "#f1f3f5";
+                readonly hover: "#e3e7ea";
+                readonly border: "#cdd3d9";
+                readonly label: "#4a4d52";
             };
             readonly secondary: {
-                readonly default: "#FFFFFF";
-                readonly hover: "#F3F4F6";
+                readonly default: "#ffffff";
+                readonly hover: "#f6f7f9";
             };
             readonly destructive: {
-                readonly default: "rgba(220, 38, 38, 0.10)";
-                readonly hover: "rgba(220, 38, 38, 0.18)";
-                readonly border: "rgba(220, 38, 38, 0.24)";
-                readonly label: "#991B1B";
+                readonly default: "#c52828";
+                readonly hover: "#9e1f1f";
+                readonly subtle: "#fceded";
+                readonly border: "#eab4b4";
+                readonly label: "#8e1f18";
             };
             readonly focus: {
-                readonly ring: "rgba(37, 99, 235, 0.40)";
+                readonly ring: "#2c6ecb";
             };
             readonly disabled: {
-                readonly background: "#F3F4F6";
-                readonly text: "#9CA3AF";
-                readonly border: "#E5E7EB";
+                readonly background: "#f1f1f1";
+                readonly text: "#8c9196";
+                readonly border: "#e1e3e5";
             };
         };
         readonly feedback: {
             readonly success: {
-                readonly default: "#10B981";
-                readonly subtle: "rgba(16, 185, 129, 0.12)";
-                readonly content: "#047857";
-                readonly border: "rgba(16, 185, 129, 0.30)";
+                readonly default: "#007f5f";
+                readonly subtle: "#e3f6ef";
+                readonly content: "#0d4f3c";
+                readonly border: "#8fcbb5";
             };
             readonly warning: {
-                readonly default: "#F59E0B";
-                readonly subtle: "rgba(245, 158, 11, 0.12)";
-                readonly content: "#92400E";
-                readonly border: "rgba(245, 158, 11, 0.30)";
+                readonly default: "#b78600";
+                readonly subtle: "#fff5d9";
+                readonly content: "#5c4813";
+                readonly border: "#f0d878";
             };
             readonly danger: {
-                readonly default: "#EF4444";
-                readonly subtle: "rgba(239, 68, 68, 0.10)";
-                readonly content: "#991B1B";
-                readonly border: "rgba(239, 68, 68, 0.30)";
+                readonly default: "#c52828";
+                readonly subtle: "#fceded";
+                readonly content: "#771515";
+                readonly border: "#e89898";
             };
             readonly info: {
-                readonly default: "#3B82F6";
-                readonly subtle: "rgba(59, 130, 246, 0.10)";
-                readonly content: "#1E40AF";
-                readonly border: "rgba(59, 130, 246, 0.30)";
+                readonly default: "#2c6ecb";
+                readonly subtle: "#e6f0ff";
+                readonly content: "#133e7c";
+                readonly border: "#8fb5ea";
+            };
+        };
+        readonly connectorStatus: {
+            readonly active: {
+                readonly bg: "#e3f4ea";
+                readonly border: "#94d0b1";
+                readonly text: "#0f5132";
+            };
+            readonly inactive: {
+                readonly bg: "#f1f1f1";
+                readonly border: "#e1e3e5";
+                readonly text: "#6d7175";
+            };
+            readonly unconfigured: {
+                readonly bg: "#fff5d9";
+                readonly border: "#f0d878";
+                readonly text: "#5c4f1a";
             };
         };
     };
@@ -112,17 +134,17 @@ export declare const tokens: {
         readonly mono: string;
     };
     readonly fontSize: {
-        readonly "3xs": "0.625rem";
+        readonly "3xs": "0.5625rem";
         readonly "2xs": "0.6875rem";
         readonly xs: "0.75rem";
         readonly sm: "0.8125rem";
         readonly base: "0.875rem";
-        readonly interface: "0.9375rem";
+        readonly interface: "0.8125rem";
         readonly md: "1rem";
         readonly lg: "1.125rem";
         readonly xl: "1.25rem";
         readonly "2xl": "1.5rem";
-        readonly "3xl": "1.875rem";
+        readonly "3xl": "1.75rem";
         readonly "4xl": "2rem";
         readonly "5xl": "2.25rem";
     };
@@ -133,44 +155,43 @@ export declare const tokens: {
         readonly bold: "700";
     };
     readonly lineHeight: {
-        readonly tight: "1.2";
-        readonly snug: "1.3";
+        readonly tight: "1.25";
+        readonly snug: "1.375";
         readonly normal: "1.5";
         readonly relaxed: "1.625";
     };
     readonly letterSpacing: {
         readonly tight: "-0.01em";
         readonly normal: "0";
-        readonly label: "0.04em";
-        readonly wide: "0.08em";
+        readonly label: "0.08em";
+        readonly wide: "0.02em";
     };
     readonly motion: {
         readonly duration: {
-            readonly instant: "80ms";
-            readonly fast: "160ms";
             readonly page: "200ms";
-            readonly slow: "280ms";
+            readonly fast: "150ms";
         };
         readonly easing: {
-            readonly enter: "cubic-bezier(0.23, 1, 0.32, 1)";
-            readonly exit: "cubic-bezier(0.77, 0, 0.175, 1)";
+            readonly page: "cubic-bezier(0.2, 0, 0, 1)";
+            readonly enter: "cubic-bezier(0.2, 0, 0, 1)";
+            readonly exit: "cubic-bezier(0.4, 0, 1, 1)";
             readonly spring: "cubic-bezier(0.34, 1.56, 0.64, 1)";
         };
     };
     readonly radius: {
         readonly none: "0";
-        readonly sm: "0.375rem";
-        readonly base: "0.5rem";
-        readonly md: "0.625rem";
-        readonly lg: "0.75rem";
-        readonly xl: "1rem";
-        readonly pill: "9999px";
+        readonly sm: "0.25rem";
+        readonly md: "0.375rem";
+        readonly lg: "0.5rem";
+        readonly xl: "0.75rem";
+        readonly "2xl": "1rem";
+        readonly full: "9999px";
     };
     readonly shadow: {
-        readonly sm: "0 1px 2px rgba(17, 24, 39, 0.04), 0 6px 18px rgba(17, 24, 39, 0.04)";
-        readonly md: "0 4px 12px rgba(17, 24, 39, 0.08), 0 2px 4px rgba(17, 24, 39, 0.04)";
-        readonly lg: "0 16px 40px rgba(17, 24, 39, 0.12), 0 4px 8px rgba(17, 24, 39, 0.06)";
-        readonly focus: "0 0 0 3px rgba(37, 99, 235, 0.40)";
+        readonly sm: "0 1px 2px rgba(32, 34, 35, 0.08), 0 0 0 1px rgba(32, 34, 35, 0.04)";
+        readonly md: "0 2px 6px rgba(32, 34, 35, 0.1), 0 0 0 1px rgba(32, 34, 35, 0.06)";
+        readonly lg: "0 8px 24px rgba(32, 34, 35, 0.12), 0 0 0 1px rgba(32, 34, 35, 0.06)";
+        readonly focus: "0 0 0 3px rgba(44, 110, 203, 0.35)";
     };
     readonly zIndex: {
         readonly base: "0";

@@ -61,7 +61,7 @@ export function mergePaidSpendSummary(
 export function summarizeLifetimeDisplayText(
   summary: CustomerPaidSpendSummary
 ): { kind: "empty" } | { kind: "mixed" } | { kind: "single"; currency: string; minor: bigint } {
-  const entries = [...summary.lifetimeByCurrency.entries()].filter(([_, minor]) => {
+  const entries = [...summary.lifetimeByCurrency.entries()].filter(([, minor]) => {
     return minor > 0n
   })
 

@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "db:migrate": "medusa db:migrate",
-    "db:rollback": "medusa db:rollback --modules content"
+    "db:revert": "medusa db:revert"
   },
   "dependencies": {
     "@medusajs/admin-sdk": "2.14.1",
@@ -20,8 +20,8 @@
     "@medusajs/framework": "2.14.1",
     "@medusajs/medusa": "2.14.1",
     "@medusajs/utils": "2.14.1",
-    "@mercflow/content-module": "workspace:*",
     "@mercflow/connector-module": "workspace:*",
+    "@mercflow/content-module": "workspace:*",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },

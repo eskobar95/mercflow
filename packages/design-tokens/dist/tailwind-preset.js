@@ -72,9 +72,19 @@ const colors = {
             DEFAULT: "var(--mf-color-interactive-secondary)",
             hover: "var(--mf-color-interactive-secondary-hover)",
         },
+        /**
+         * Legacy alias used by MercFlow JSX utilities (`*-interactive-danger-*`).
+         * Values map to destructive tokens.
+         */
+        danger: {
+            DEFAULT: "var(--mf-color-interactive-destructive)",
+            hover: "var(--mf-color-interactive-destructive-hover)",
+            subtle: "var(--mf-color-interactive-destructive-subtle)",
+        },
         destructive: {
             DEFAULT: "var(--mf-color-interactive-destructive)",
             hover: "var(--mf-color-interactive-destructive-hover)",
+            subtle: "var(--mf-color-interactive-destructive-subtle)",
             border: "var(--mf-color-interactive-destructive-border)",
             label: "var(--mf-color-interactive-destructive-label)",
         },
@@ -171,13 +181,15 @@ const letterSpacing = {
 const borderRadius = {
     none: "var(--mf-radius-none)",
     sm: "var(--mf-radius-sm)",
-    DEFAULT: "var(--mf-radius-base)",
-    base: "var(--mf-radius-base)",
+    /** Default rounded-* utility */
+    DEFAULT: "var(--mf-radius-md)",
+    base: "var(--mf-radius-md)",
     md: "var(--mf-radius-md)",
     lg: "var(--mf-radius-lg)",
     xl: "var(--mf-radius-xl)",
-    pill: "var(--mf-radius-pill)",
-    full: "var(--mf-radius-pill)",
+    "2xl": "var(--mf-radius-2xl)",
+    pill: "var(--mf-radius-full)",
+    full: "var(--mf-radius-full)",
 };
 const boxShadow = {
     sm: "var(--mf-shadow-sm)",
