@@ -2,24 +2,34 @@ import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { refetchEntity } from "@medusajs/framework/http"
 import { MedusaError } from "@medusajs/utils"
 
-import { sendZodError } from "../../../http/zod-error"
-import { mapResolvedToReadPayload } from "../../../http/product-content-read-payload"
-import { CONTENT_MODULE } from "../../../../modules/content"
-import { localeQuerySchema } from "../../../../modules/content/http-schemas"
-import type ContentModuleService from "../../../../modules/content/service"
+import { sendZodError } from "../../http/zod-error"
+import { mapResolvedToReadPayload } from "../../http/product-content-read-payload"
+import { CONTENT_MODULE } from "../../../modules/content"
+import {
+  adminProductContentPostBodySchema,
+  localeQuerySchema,
+} from "../../../modules/content/http-schemas"
+import type ContentModuleService from "../../../modules/content/service"
 
-export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void> => {
-  const productId = req.params.product_id
-  if (!productId) {
-    throw new MedusaError(MedusaError.Types.INVALID_DATA, "Missing product id")
-  }
-
+/**
+ * POST /admin/product-content
+ * Creates or updates CMS content for a product locale (matches `UpsertProductContentInput`).
+ */
+export const POST = async (req: MedusaRequest, res: MedusaResponse): Promise<void> => {
   const query = localeQuerySchema.safeParse(req.query)
   if (!query.success) {
     sendZodError(res, query.error)
     return
   }
   const locale = query.data.locale
+
+  const parsed = adminProductContentPostBodySchema.safeParse(req.body ?? {})
+  if (!parsed.success) {
+    sendZodError(res, parsed.error)
+    return
+  }
+
+  const { product_id: productId, ...body } = parsed.data
 
   const product = await refetchEntity({
     entity: "product",
@@ -35,10 +45,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
   }
 
   const contentService = req.scope.resolve(CONTENT_MODULE) as ContentModuleService
-  const resolved = await contentService.findByProductId(productId, locale)
-  if (!resolved) {
-    throw new MedusaError(MedusaError.Types.NOT_FOUND, "Product content not found")
-  }
+  const resolved = await contentService.upsertProductContent(productId, locale, body)
 
   const productStatusRaw = (product as { status?: string }).status
   const productStatus =

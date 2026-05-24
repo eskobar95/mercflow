@@ -35,6 +35,7 @@ export type ResolvedProductContent = {
   id: string
   product_id: string
   locale: string
+  version: number
   /** TipTap JSON — same shape as stored `body_json`. */
   description_rich: unknown
   seo_title: string | null

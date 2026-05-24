@@ -11,6 +11,7 @@ function buildResolved(overrides: Partial<ResolvedProductContent> = {}): Resolve
     id: "pc_1",
     product_id: "prod_1",
     locale: "da",
+    version: 1,
     description_rich: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "Hej" }] }] },
     seo_title: "Title",
     seo_description: "Desc",
@@ -38,14 +39,32 @@ describe("mapResolvedToReadPayload", () => {
 
     const out = await mapResolvedToReadPayload(scope, buildResolved(), "published")
     expect(out).toMatchObject({
+      id: "pc_1",
+      product_id: "prod_1",
+      locale: "da",
+      version: 1,
       body_json: buildResolved().description_rich,
       seo_title: "Title",
       seo_description: "Desc",
       og_image_url: "https://example.com/img.png",
       status: "published",
-      locale: "da",
     })
     expect(retrieveFile).toHaveBeenCalledWith("file_1")
+  })
+
+  it("echoes og_image_url when seo id is already an absolute http url", async () => {
+    const resolve = vi.fn(() => {
+      throw new Error("FILE module should not be touched")
+    })
+    const scope = { resolve } as unknown as MedusaContainer
+
+    const out = await mapResolvedToReadPayload(
+      scope,
+      buildResolved({ seo_og_image_id: "https://cdn.example/direct.png" }),
+      "published"
+    )
+    expect(out.og_image_url).toBe("https://cdn.example/direct.png")
+    expect(resolve).not.toHaveBeenCalled()
   })
 
   it("falls back og_image_url when file lookup fails", async () => {
