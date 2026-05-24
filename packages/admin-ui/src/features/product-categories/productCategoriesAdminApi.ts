@@ -77,6 +77,45 @@ function parseSingleCategoryResponse(json: unknown): AdminProductCategoryParsed 
   return null
 }
 
+/**
+ * Loads every category the admin API exposes, following pagination until the
+ * catalog is exhausted (handles stores with more than one list page).
+ */
+export async function listAllAdminProductCategories(options?: {
+  signal?: AbortSignal
+}): Promise<AdminProductCategoryParsed[]> {
+  const pageSize = 200
+  const byId = new Map<string, AdminProductCategoryParsed>()
+  let offset = 0
+  let total: number | undefined
+
+  for (;;) {
+    const page = await listAdminProductCategories({
+      limit: pageSize,
+      offset,
+      signal: options?.signal,
+    })
+    if (page.count !== undefined) {
+      total = page.count
+    }
+    for (const c of page.categories) {
+      byId.set(c.id, c)
+    }
+    if (page.categories.length === 0) {
+      break
+    }
+    if (total !== undefined && byId.size >= total) {
+      break
+    }
+    if (page.categories.length < pageSize) {
+      break
+    }
+    offset += pageSize
+  }
+
+  return [...byId.values()]
+}
+
 export async function listAdminProductCategories(options: {
   limit?: number
   offset?: number

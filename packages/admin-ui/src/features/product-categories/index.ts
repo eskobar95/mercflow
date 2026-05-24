@@ -4,6 +4,7 @@ export {
   createAdminProductCategory,
   deleteAdminProductCategory,
   listAdminProductCategories,
+  listAllAdminProductCategories,
   retrieveAdminProductCategory,
   updateAdminProductCategory,
 } from "./productCategoriesAdminApi"

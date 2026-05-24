@@ -8,6 +8,8 @@ vi.mock("@/medusa-admin/medusaAdminFetch", (): typeof import("@/medusa-admin/med
     "Content-Type": "application/json",
   }),
   readMedusaAdminHttpErrorMessage: async (): Promise<string> => "error",
+  formatMedusaAdminHttpErrorMessageFromText: (...args: Parameters<typeof import("@/medusa-admin/medusaAdminFetch").formatMedusaAdminHttpErrorMessageFromText>): string =>
+    args[0],
   parseMedusaAdminJsonResponse: async (response: Response): Promise<unknown> => {
     const text = await response.text()
     return JSON.parse(text) as unknown

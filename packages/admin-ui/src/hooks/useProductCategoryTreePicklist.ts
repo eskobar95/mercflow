@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 
-import { listAdminProductCategories } from "@/features/product-categories/productCategoriesAdminApi"
+import { listAllAdminProductCategories } from "@/features/product-categories/productCategoriesAdminApi"
 import type { AdminProductCategoryParsed } from "@/features/product-categories/types"
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
@@ -32,8 +32,8 @@ export function useProductCategoryTreePicklist(): UseProductCategoryTreePicklist
     setLoading(true)
     setErrorMessage(null)
     try {
-      const result = await listAdminProductCategories({ limit: 500 })
-      setCategories(result.categories)
+      const all = await listAllAdminProductCategories()
+      setCategories(all)
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to load categories"
       setErrorMessage(msg)
