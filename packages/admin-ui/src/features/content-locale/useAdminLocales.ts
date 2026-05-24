@@ -10,7 +10,7 @@ function toErrorMessage(error: unknown): string {
   return "An unexpected error occurred."
 }
 
-export type UseAdminLocalesResult = {
+type UseAdminLocalesResult = {
   locales: AdminLocale[]
   loading: boolean
   error: string | null

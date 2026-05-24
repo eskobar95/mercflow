@@ -18,7 +18,7 @@ import { cn } from "@/lib/cn"
 import { EMPTY_TIPTAP_DOC, tiptapDocFromUnknown } from "@/lib/tiptap"
 
 export type RichTextEditorMode = "simple" | "full"
-export type RichTextEditorVariant = "standalone" | "embedded"
+type RichTextEditorVariant = "standalone" | "embedded"
 
 export type RichTextEditorProps = {
   value: JSONContent | null | unknown

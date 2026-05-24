@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn"
 
 import { fieldClassName, menuItemClass, overlayPanelClass } from "./formStyles"
 
-export type SelectOption = {
+type SelectOption = {
   value: string
   label: string
   disabled?: boolean

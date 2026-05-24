@@ -4,13 +4,13 @@ import type { AdminLocale } from "./types"
 
 export const DEFAULT_CONTENT_LOCALE_CODE = "en"
 
-export type UseContentLocaleOptions = {
+type UseContentLocaleOptions = {
   locales: AdminLocale[]
   /** Preferred code when locales load; must exist in the list to take effect. */
   preferredCode?: string
 }
 
-export type UseContentLocaleResult = {
+type UseContentLocaleResult = {
   activeLocaleCode: string
   setActiveLocaleCode: (code: string) => void
   activeLocale: AdminLocale | null

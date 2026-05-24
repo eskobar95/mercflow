@@ -15,8 +15,6 @@ import type {
 const CHUNK_SIZE = 100
 const MAX_LOAD = 800
 
-export type { OrdersListSortColumn }
-
 type UseOrdersListArgs = {
   debouncedSearch: string
   statusBucket: OrderStatusFilterBucket
