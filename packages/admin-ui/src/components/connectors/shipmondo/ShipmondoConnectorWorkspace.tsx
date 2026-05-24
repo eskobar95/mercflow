@@ -9,6 +9,11 @@ import { Label } from "@/components/ui/Label"
 import { Switch } from "@/components/ui/Switch"
 import { useShipmondoConnectorSettings } from "@/hooks/useShipmondoConnectorSettings"
 
+const lastTestedAtFormatter = new Intl.DateTimeFormat(undefined, {
+  dateStyle: "medium",
+  timeStyle: "short",
+})
+
 function formatLastTestedAt(value: string | null): string {
   if (value === null || value.trim() === "") {
     return "Never tested"
@@ -17,10 +22,7 @@ function formatLastTestedAt(value: string | null): string {
   if (Number.isNaN(d.getTime())) {
     return "Never tested"
   }
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(d)
+  return lastTestedAtFormatter.format(d)
 }
 
 /**
