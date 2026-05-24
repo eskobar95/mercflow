@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button"
 import { Card } from "@/components/ui/Card"
 import { FormField } from "@/components/ui/FormField"
 import { Input } from "@/components/ui/Input"
+import { Select } from "@/components/ui/Select"
 
 type ProductFormStatus = "draft" | "published"
 
@@ -92,18 +93,17 @@ export function ProductNewPage(): JSX.Element {
               />
             </FormField>
             <FormField label="Status" htmlFor={statusId}>
-              <select
+              <Select
                 id={statusId}
-                name="status"
                 value={status}
-                onChange={(e) => {
-                  setStatus(e.target.value as ProductFormStatus)
+                onValueChange={(v) => {
+                  setStatus(v as ProductFormStatus)
                 }}
-                className="w-full min-w-0 rounded-md border border-border-default bg-surface-default px-3 py-2 text-sm text-content-primary shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
-              >
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
-              </select>
+                options={[
+                  { value: "draft", label: "Draft" },
+                  { value: "published", label: "Published" },
+                ]}
+              />
             </FormField>
             <div className="flex flex-wrap items-center gap-2 pt-2">
               <Button type="submit" variant="primary">
