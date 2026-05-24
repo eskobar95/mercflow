@@ -23,11 +23,21 @@ export function buildMedusaAdminJsonHeaders(): HeadersInit {
 
 export async function readMedusaAdminHttpErrorMessage(response: Response): Promise<string> {
   const text = await response.text()
-  if (text.trim() === "") {
-    return `Request failed (${response.status} ${response.statusText})`
+  return formatMedusaAdminHttpErrorMessageFromText(text, response.status, response.statusText)
+}
+
+/** Format error text from an already-read body (when JSON parsing the success payload fails). */
+export function formatMedusaAdminHttpErrorMessageFromText(
+  text: string,
+  status: number,
+  statusText: string
+): string {
+  const trimmed = text.trim()
+  if (trimmed === "") {
+    return `Request failed (${status} ${statusText})`
   }
   try {
-    const parsed: unknown = JSON.parse(text)
+    const parsed: unknown = JSON.parse(trimmed)
     if (
       typeof parsed === "object" &&
       parsed !== null &&
@@ -37,9 +47,9 @@ export async function readMedusaAdminHttpErrorMessage(response: Response): Promi
       return (parsed as { message: string }).message
     }
   } catch {
-    // use raw text
+    // use raw body
   }
-  return text
+  return trimmed
 }
 
 export async function parseMedusaAdminJsonResponse(response: Response): Promise<unknown> {
