@@ -1,31 +1,58 @@
-import { useCallback } from "react"
-import { Link } from "react-router-dom"
+import { useCallback, useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
 
+import { Button } from "@/components/ui/Button"
+import { SearchInput } from "@/components/ui/SearchInput"
 import { DataTable } from "@/components/ui/list/DataTable"
 import { ListEmptyState } from "@/components/ui/list/ListEmptyState"
 import { ListPagination } from "@/components/ui/list/ListPagination"
-import { ListToolbar } from "@/components/ui/list/ListToolbar"
 import { type RowActionItem } from "@/components/ui/list/RowActionsMenu"
 import { type ListColumnDef } from "@/components/ui/list/types"
+import { ProductCardGrid } from "@/components/product-list/ProductCardGrid"
+import { ProductStatusBadge } from "@/components/product-list/ProductStatusBadge"
+import { ProductThumbnail } from "@/components/product-list/ProductThumbnail"
 import { MOCK_PRODUCTS, type ProductListRow } from "@/data/mockProducts"
 import { useMockEntityListState } from "@/hooks/useMockEntityListState"
+import { cn } from "@/lib/cn"
 
-type ProductCol = "title" | "status" | "collection" | "sku" | "updatedAt"
+// SKU is shown inline under the product title — removed from standalone column
+
+type StatusFilter = "all" | "published" | "draft" | "proposed"
+type ProductCol = "thumbnail" | "title" | "status" | "collection" | "updatedAt"
+
+const STATUS_TABS: { id: StatusFilter; label: string }[] = [
+  { id: "all",       label: "All"       },
+  { id: "published", label: "Published" },
+  { id: "draft",     label: "Draft"     },
+  { id: "proposed",  label: "Proposed"  },
+]
 
 const PRODUCT_COLUMNS: ListColumnDef<ProductListRow, ProductCol>[] = [
   {
+    id: "thumbnail",
+    header: "",
+    sortable: false,
+    headerClassName: "w-0",
+    cellClassName: "py-2",
+    renderCell: (r) => (
+      <ProductThumbnail title={r.title} hue={r.thumbnailHue} size={36} />
+    ),
+  },
+  {
     id: "title",
-    header: "Title",
+    header: "Product",
     sortable: true,
     getSortValue: (r) => r.title,
-    cellClassName: "font-medium",
     renderCell: (r) => (
-      <Link
-        to={`/products/${encodeURIComponent(r.id)}`}
-        className="text-interactive-primary hover:text-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
-      >
-        {r.title}
-      </Link>
+      <div>
+        <Link
+          to={`/products/${encodeURIComponent(r.id)}`}
+          className="text-[13px] font-medium text-content-primary hover:text-accent focus-visible:outline-none focus-visible:text-accent"
+        >
+          {r.title}
+        </Link>
+        <p className="mt-0.5 font-mono text-[11px] text-content-tertiary">{r.sku}</p>
+      </div>
     ),
   },
   {
@@ -33,39 +60,28 @@ const PRODUCT_COLUMNS: ListColumnDef<ProductListRow, ProductCol>[] = [
     header: "Status",
     sortable: true,
     getSortValue: (r) => r.status,
-    renderCell: (r) => (
-      <span className="inline-flex items-center rounded-md border border-border-subtle bg-surface-subtle px-2 py-0.5 text-xs font-medium capitalize text-content-secondary">
-        {r.status}
-      </span>
-    ),
+    renderCell: (r) => <ProductStatusBadge status={r.status} />,
   },
   {
     id: "collection",
     header: "Collection",
     sortable: true,
     getSortValue: (r) => r.collection,
-    renderCell: (r) => r.collection,
-  },
-  {
-    id: "sku",
-    header: "SKU",
-    sortable: true,
-    getSortValue: (r) => r.sku,
     renderCell: (r) => (
-      <code className="text-xs text-content-tertiary">{r.sku}</code>
+      <span className="text-[13px] text-content-secondary">{r.collection}</span>
     ),
   },
   {
     id: "updatedAt",
-    header: "Last updated",
+    header: "Updated",
     sortable: true,
     getSortValue: (r) => new Date(r.updatedAt).getTime(),
     renderCell: (r) => (
-      <time dateTime={r.updatedAt} className="text-content-secondary">
+      <time dateTime={r.updatedAt} className="text-[13px] text-content-tertiary">
         {new Date(r.updatedAt).toLocaleDateString(undefined, {
-          year: "numeric",
           month: "short",
           day: "numeric",
+          year: "numeric",
         })}
       </time>
     ),
@@ -73,20 +89,30 @@ const PRODUCT_COLUMNS: ListColumnDef<ProductListRow, ProductCol>[] = [
 ]
 
 /**
- * Product list. Backed by mock data today; will read from the Medusa Admin
- * product list API once the client wiring lands. Dev-only state toggles
- * (loading / empty) live on `/list-demo` so the real list page stays clean.
+ * Product list page.
+ *
+ * Desktop: DataTable with thumbnail column, Shopify-style status tabs,
+ * Linear-style compact filter/sort bar.
+ *
+ * Mobile (<md): card list — thumbnail + key fields, no horizontal scroll.
  */
 export function ProductListPage(): JSX.Element {
-  const filterRow = useCallback((r: ProductListRow, query: string) => {
-    const t = query.trim().toLowerCase()
-    return (
-      r.title.toLowerCase().includes(t) ||
-      r.status.toLowerCase().includes(t) ||
-      r.collection.toLowerCase().includes(t) ||
-      r.sku.toLowerCase().includes(t)
-    )
-  }, [])
+  const navigate = useNavigate()
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
+
+  const filterRow = useCallback(
+    (r: ProductListRow, query: string): boolean => {
+      if (statusFilter !== "all" && r.status !== statusFilter) return false
+      if (!query.trim()) return true
+      const t = query.toLowerCase()
+      return (
+        r.title.toLowerCase().includes(t) ||
+        r.collection.toLowerCase().includes(t) ||
+        r.sku.toLowerCase().includes(t)
+      )
+    },
+    [statusFilter],
+  )
 
   const {
     search,
@@ -111,49 +137,113 @@ export function ProductListPage(): JSX.Element {
   })
 
   const getRowActions = (_row: ProductListRow): RowActionItem[] => [
-    { id: "view", label: "View", onSelect: () => { /* TODO: navigate to /products/:id */ } },
-    { id: "edit", label: "Edit", onSelect: () => { /* TODO: navigate to /products/:id/edit */ } },
-    { id: "duplicate", label: "Duplicate", onSelect: () => { /* TODO: POST duplicate */ } },
-    { id: "delete", label: "Delete", destructive: true, onSelect: () => { /* TODO: DELETE product */ } },
+    { id: "view",      label: "View",      onSelect: () => {} },
+    { id: "edit",      label: "Edit",      onSelect: () => {} },
+    { id: "duplicate", label: "Duplicate", onSelect: () => {} },
+    { id: "delete",    label: "Delete",    destructive: true, onSelect: () => {} },
   ]
 
+  const statusCounts = {
+    all:       MOCK_PRODUCTS.length,
+    published: MOCK_PRODUCTS.filter((r) => r.status === "published").length,
+    draft:     MOCK_PRODUCTS.filter((r) => r.status === "draft").length,
+    proposed:  MOCK_PRODUCTS.filter((r) => r.status === "proposed").length,
+  }
+
+  const activeSort = sort.column !== "updatedAt" || sort.direction !== "desc"
+    ? `${sort.column === "updatedAt" ? "Updated" : sort.column === "title" ? "Product" : sort.column === "status" ? "Status" : sort.column === "collection" ? "Collection" : sort.column} ${sort.direction === "asc" ? "↑" : "↓"}`
+    : null
+
   return (
-    <div className="p-6">
-        <div className="overflow-hidden rounded-lg border border-border-default bg-surface-default shadow-sm">
-          <ListToolbar
-            title="Products"
-            description="Everything you sell — variants, SKUs, status, and the collection each one belongs to."
-            end={
-              <div className="flex flex-wrap items-center gap-2">
-                <Link
-                  to="/products/new"
-                  className="rounded-md bg-interactive-primary px-3 py-1.5 text-sm font-medium text-content-inverse transition hover:bg-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
-                >
-                  New product
-                </Link>
-                <Link
-                  to="/product-categories"
-                  className="text-sm font-medium text-interactive-primary hover:text-interactive-primary-hover"
-                >
-                  Product categories
-                </Link>
-              </div>
-            }
-          >
-            <label className="flex min-w-0 max-w-sm flex-1 items-center gap-2">
-              <span className="shrink-0 text-sm text-content-secondary">Search</span>
-              <input
-                type="search"
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value)
-                }}
-                placeholder="Title, status, collection, or SKU"
-                className="min-w-0 flex-1 rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus"
-                aria-label="Filter products by title, status, collection, or SKU"
-              />
-            </label>
-          </ListToolbar>
+    <div className="p-4 md:p-6">
+      <div className="overflow-hidden rounded-md border border-border-default bg-surface-default">
+
+        {/* ── Header ── */}
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border-subtle px-4 py-4">
+          <div>
+            <h1 className="text-base font-semibold tracking-tight text-content-primary">Products</h1>
+            <p className="mt-0.5 hidden text-[13px] text-content-tertiary md:block">
+              Everything you sell — variants, SKUs, status, and the collection each one belongs to.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              onClick={() => { navigate("/products/new") }}
+            >
+              New product
+            </Button>
+            <Link
+              to="/product-categories"
+              className="text-[13px] font-medium text-accent hover:text-accent-strong"
+            >
+              Categories
+            </Link>
+          </div>
+        </div>
+
+        {/* ── Status tabs (Shopify pattern) ── */}
+        <div className="flex items-center gap-0 border-b border-border-subtle px-4">
+          {STATUS_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => {
+                setStatusFilter(tab.id)
+                setPage(1)
+              }}
+              className={cn(
+                "relative flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-[13px] font-medium transition-colors",
+                statusFilter === tab.id
+                  ? "border-content-primary text-content-primary"
+                  : "border-transparent text-content-tertiary hover:text-content-secondary",
+              )}
+            >
+              {tab.label}
+              <span
+                className={cn(
+                  "inline-flex h-4 min-w-4 items-center justify-center rounded-sm px-1 text-[10px] font-semibold tabular-nums",
+                  statusFilter === tab.id
+                    ? "bg-surface-subtle text-content-secondary"
+                    : "bg-transparent text-content-tertiary",
+                )}
+              >
+                {statusCounts[tab.id]}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* ── Filter / sort toolbar (Linear pattern) ── */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-border-subtle px-4 py-2">
+          <SearchInput
+            value={search}
+            onChange={(e) => { setSearch(e.target.value) }}
+            onClear={() => { setSearch("") }}
+            placeholder="Search products…"
+            aria-label="Filter products"
+            className="max-w-xs flex-1"
+          />
+          {/* Active sort chip (Linear-style) */}
+          {activeSort ? (
+            <span className="inline-flex items-center gap-1 rounded border border-border-default bg-accent-subtle px-2 py-1 text-[11px] font-medium text-accent-text">
+              Sort: {activeSort}
+              <button
+                type="button"
+                aria-label="Clear sort"
+                className="ml-0.5 text-accent-text/60 hover:text-accent-text"
+                onClick={() => { onRequestSort("updatedAt" as ProductCol) }}
+              >
+                ×
+              </button>
+            </span>
+          ) : null}
+        </div>
+
+        {/* ── Desktop: DataTable — hidden on mobile ── */}
+        <div className="hidden md:block">
           <DataTable<ProductListRow, ProductCol>
             aria-label="Product list"
             caption="Product catalog"
@@ -169,29 +259,40 @@ export function ProductListPage(): JSX.Element {
                 title="No products match"
                 description="Try a different search or clear the filter."
                 action={
-                  <button
+                  <Button
                     type="button"
-                    className="rounded-md border border-border-default bg-surface-raised px-3 py-1.5 text-sm font-medium text-content-primary shadow-sm"
-                    onClick={() => { setSearch("") }}
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      setSearch("")
+                      setStatusFilter("all")
+                    }}
                   >
-                    Clear search
-                  </button>
+                    Clear filters
+                  </Button>
                 }
               />
             }
           />
-          <ListPagination
-            aria-label="Product list pagination"
-            currentPage={currentPage}
-            pageSize={pageSize}
-            totalItems={sorted.length}
-            onPageChange={setPage}
-            onPageSizeChange={(n) => {
-              setPageSize(n)
-              setPage(1)
-            }}
-          />
         </div>
+
+        {/* ── Mobile: card view — hidden on desktop ── */}
+        <div className="block md:hidden">
+          <ProductCardGrid rows={paged} />
+        </div>
+
+        <ListPagination
+          aria-label="Product list pagination"
+          currentPage={currentPage}
+          pageSize={pageSize}
+          totalItems={sorted.length}
+          onPageChange={setPage}
+          onPageSizeChange={(n) => {
+            setPageSize(n)
+            setPage(1)
+          }}
+        />
       </div>
+    </div>
   )
 }

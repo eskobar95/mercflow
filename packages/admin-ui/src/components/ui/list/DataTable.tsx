@@ -8,8 +8,8 @@ import { RowActionsMenu, type RowActionItem } from "./RowActionsMenu"
 import { TableSkeleton } from "./TableSkeleton"
 import type { ListColumnDef, ListSelection, ListSortState } from "./types"
 
-const headerCell = "px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-content-tertiary"
-const dataCell = "px-4 py-3 text-sm text-content-primary"
+const headerCell = "px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-wide text-content-tertiary"
+const dataCell = "px-4 py-2.5 text-[13px] text-content-primary align-middle"
 
 function HeaderSelectAllCheckbox({
   checked,
@@ -25,6 +25,7 @@ function HeaderSelectAllCheckbox({
   return (
     <Checkbox
       id={id}
+      touchTarget
       checked={indeterminate ? "indeterminate" : checked}
       onCheckedChange={(value) => {
         onChange(value === true)
@@ -183,6 +184,7 @@ export function DataTable<TRow, TCol extends string>({
               {selection ? (
                 <td className={`w-0 ${dataCell} align-top`}>
                   <Checkbox
+                    touchTarget
                     checked={isRowSelected}
                     onCheckedChange={(value) => {
                       selection.onSelectRow(rowId, value === true)
@@ -217,13 +219,13 @@ export function DataTable<TRow, TCol extends string>({
   }
 
   return (
-    <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-      <div className="min-w-[640px] overflow-x-auto rounded-t-lg border border-b-0 border-border-default">
+    <div className="overflow-x-auto">
+      <div className="min-w-[600px]">
         <table className="w-full border-collapse" aria-label={tableLabel}>
-        {caption ? <caption className="sr-only">{caption}</caption> : null}
-        <thead>{renderHeaderRow()}</thead>
-        {renderBody()}
-      </table>
+          {caption ? <caption className="sr-only">{caption}</caption> : null}
+          <thead>{renderHeaderRow()}</thead>
+          {renderBody()}
+        </table>
       </div>
     </div>
   )
