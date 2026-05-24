@@ -5,8 +5,8 @@ MercFlow Medusa v2 module that persists **per-store connector credentials** (`co
 ## Responsibility
 
 - DML models and migrations for `connector_config` + `connector_log`.
-- Module service helpers for summarising connector availability, activation, last connection tests, **Stripe-specific** behaviours (credential save, Stripe API test, catalogue sync to Stripe Prices, payment-intent summaries, storefront VAT hint), and **Plunk-specific** credential storage and connectivity probes.
-- Admin and store HTTP handlers (`/admin/connectors`, `/admin/connectors/stripe/*`, `/admin/connectors/plunk/*`, `/store/connectors/stripe/vat`), re-exported from `apps/backend` for Medusa route discovery.
+- Module service helpers for summarising connector availability, activation, last connection tests, **Stripe-specific** behaviours (credential save, Stripe API test, catalogue sync to Stripe Prices, payment-intent summaries, storefront VAT hint), **Plunk-specific** credential storage and connectivity probes, and **GTM-specific** container ID persistence for storefront injection.
+- Admin and store HTTP handlers (`/admin/connectors`, `/admin/connectors/stripe/*`, `/admin/connectors/plunk/*`, `/admin/connectors/gtm`, `/store/connectors/stripe/vat`, `/store/connectors/gtm`), re-exported from `apps/backend` for Medusa route discovery.
 
 ## Field definitions (`connector_config`)
 
@@ -14,7 +14,7 @@ MercFlow Medusa v2 module that persists **per-store connector credentials** (`co
 |----------------------------|-------------|-------|
 | `id`                       | text (pk)   | Medusa `model.id()` |
 | `type`                     | text        | Stable slug: `shipmondo`, `stripe`, `plunk`, `gtm` |
-| `credentials_encrypted`    | text        | AES-GCM payload at rest (never returned decrypted from overview routes except server-side Stripe calls) |
+| `credentials_encrypted`    | text        | AES-GCM payload at rest (e.g. `{ "container_id": "GTM-…" }` for `gtm`); never returned decrypted from overview routes except server-side Stripe calls |
 | `active`                   | boolean     | Whether the integration is switched on |
 | `last_tested_at`           | timestamptz | Nullable — timestamp of last connectivity probe run |
 | `vat_mode`                 | text        | Stripe storefront hint: `inclusive` \| `exclusive` — exposed at `GET /store/connectors/stripe/vat` |
@@ -71,6 +71,14 @@ Storefront VAT hint (unauthenticated catalog/checkout integrations may read this
 | `GET`  | `/admin/connectors/plunk`         | Masked credential summary + probe metadata |
 | `PATCH`| `/admin/connectors/plunk`         | Upsert encrypted Plunk credential JSON |
 | `POST` | `/admin/connectors/plunk/test`    | Connectivity probe (`/v1/track` by default or `/v1/send` when `test_email` is provided) |
+
+### GTM (`type = gtm`)
+
+| Method | Path                      | Purpose |
+|--------|---------------------------|---------|
+| `GET`  | `/admin/connectors/gtm`   | `{ container_id: string \| null }` for the storefront GTM container identifier |
+| `PATCH`| `/admin/connectors/gtm`   | Persists `{ container_id }` (`GTM-` + alphanumeric; case-insensitive input, stored uppercase) encrypted like other connectors |
+| `GET`  | `/store/connectors/gtm`   | Public read of `{ container_id }` for storefront injection (`AUTHENTICATE=false` route flag) |
 
 ### Runtime Stripe secret resolution (payment providers)
 
