@@ -1,6 +1,9 @@
 /**
  * Product thumbnail — 36×36px placeholder square with first-letter initial.
  * Replace `hue` + initials with a real <img> once media URLs are available.
+ *
+ * Inline HSL styles are an intentional exception: hue is per-row mock data and
+ * cannot be expressed as static design tokens until a real avatar component exists.
  */
 type ProductThumbnailProps = {
   title: string

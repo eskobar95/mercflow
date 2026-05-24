@@ -14,7 +14,7 @@ import { cn } from "@/lib/cn"
 
 /** Field label — Stripe settings density (13px medium). */
 export const formLabelClass =
-  "text-[13px] font-medium leading-snug text-content-primary"
+  "text-sm font-medium leading-snug text-content-primary"
 
 /** Hint / helper below a control. */
 export const formHintClass = "text-xs leading-relaxed text-content-tertiary"
@@ -55,7 +55,7 @@ export const buttonPrimaryFocusClass =
  * Base field surface — Stripe flat input on white panels.
  */
 export const fieldBaseClass = cn(
-  "w-full min-w-0 h-9 rounded-sm border bg-surface-default px-3 text-[13px] text-content-primary",
+  "w-full min-w-0 h-9 rounded-sm border bg-surface-default px-3 text-sm text-content-primary",
   "placeholder:text-content-tertiary",
   "hover:border-border-strong",
   fieldFocusClass,
@@ -103,7 +103,7 @@ export const overlayPanelClass = cn(
 
 /** Highlight row inside select / menu lists. */
 export const menuItemClass = cn(
-  "relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-[13px] text-content-primary outline-none",
+  "relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm text-content-primary outline-none",
   "min-h-8",
   "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
   "data-[highlighted]:bg-accent-subtle data-[highlighted]:text-content-primary",

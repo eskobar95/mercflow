@@ -31,16 +31,16 @@ export const AlertDialogOverlay = forwardRef<
 export const AlertDialogContent = forwardRef<
   HTMLDivElement,
   ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content>
->(function AlertDialogContent({ className, ...rest }, ref) {
+>(function AlertDialogContent({ className, children, ...rest }, ref) {
   return (
     <AlertDialogPortal>
       <AlertDialogOverlay />
-        <AlertDialogPrimitive.Content
+      <AlertDialogPrimitive.Content
         ref={ref}
         className={cn(
           "fixed z-modal w-full max-w-md border border-border-default bg-surface-raised shadow-lg",
           "left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg",
-          "max-sm:bottom-0 max-sm:top-auto max-sm:max-w-none max-sm:translate-y-full max-sm:rounded-b-none max-sm:rounded-t-xl",
+          "max-sm:inset-x-0 max-sm:bottom-0 max-sm:left-0 max-sm:top-auto max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-full max-sm:rounded-b-none max-sm:rounded-t-xl",
           "data-[state=open]:max-sm:translate-y-0",
           "data-[state=open]:scale-100 data-[state=open]:opacity-100",
           "data-[state=closed]:scale-[0.95] data-[state=closed]:opacity-0",
@@ -56,7 +56,7 @@ export const AlertDialogContent = forwardRef<
       >
         {/* Drag handle — only visible on mobile bottom drawer */}
         <div aria-hidden className="mx-auto mb-0 mt-2.5 hidden h-1 w-8 rounded-full bg-border-default max-sm:block" />
-        {rest.children}
+        {children}
       </AlertDialogPrimitive.Content>
     </AlertDialogPortal>
   )

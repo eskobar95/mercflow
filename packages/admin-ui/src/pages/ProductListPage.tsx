@@ -16,6 +16,7 @@ import {
 } from "@/components/product-list/filter"
 import { ProductStatusBadge } from "@/components/product-list/ProductStatusBadge"
 import { ProductThumbnail } from "@/components/product-list/ProductThumbnail"
+import { rowMatchesProductFilter } from "@/components/product-list/productListFilterLogic"
 import { MOCK_PRODUCTS, type ProductListRow } from "@/data/mockProducts"
 import { useMockEntityListState } from "@/hooks/useMockEntityListState"
 import { cn } from "@/lib/cn"
@@ -182,55 +183,6 @@ const FILTER_CATEGORIES: FilterCategory[] = [
   },
 ]
 
-// ── Filter logic ──────────────────────────────────────────────────────────────
-
-function startOfPeriod(period: "today" | "week" | "month"): number {
-  const d = new Date()
-  if (period === "today") {
-    d.setHours(0, 0, 0, 0)
-  } else if (period === "week") {
-    d.setDate(d.getDate() - d.getDay())
-    d.setHours(0, 0, 0, 0)
-  } else {
-    d.setDate(1)
-    d.setHours(0, 0, 0, 0)
-  }
-  return d.getTime()
-}
-
-function rowMatchesFilter(row: ProductListRow, filter: ActiveFilter): boolean {
-  if (filter.valueIds.length === 0) return true
-
-  let positiveMatch: boolean
-
-  switch (filter.categoryId) {
-    case "status":
-      positiveMatch = filter.valueIds.includes(row.status)
-      break
-    case "collection":
-      positiveMatch = filter.valueIds.includes(row.collection)
-      break
-    case "updated": {
-      const rowMs = new Date(row.updatedAt).getTime()
-      if (filter.operator === "after") {
-        positiveMatch = filter.valueIds.some(
-          (v) => rowMs >= startOfPeriod(v as "today" | "week" | "month"),
-        )
-      } else {
-        // "before"
-        positiveMatch = filter.valueIds.some(
-          (v) => rowMs < startOfPeriod(v as "today" | "week" | "month"),
-        )
-      }
-      return positiveMatch
-    }
-    default:
-      return true
-  }
-
-  return filter.operator === "is" ? positiveMatch : !positiveMatch
-}
-
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export function ProductListPage(): JSX.Element {
@@ -241,7 +193,7 @@ export function ProductListPage(): JSX.Element {
   const filterRow = useCallback(
     (r: ProductListRow, query: string): boolean => {
       if (statusFilter !== "all" && r.status !== statusFilter) return false
-      if (!activeFilters.every((f) => rowMatchesFilter(r, f))) return false
+      if (!activeFilters.every((f) => rowMatchesProductFilter(r, f))) return false
       if (!query.trim()) return true
       const t = query.toLowerCase()
       return (

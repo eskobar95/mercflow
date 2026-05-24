@@ -29,7 +29,7 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
         MercFlow
       </p>
       <p
-        class="truncate text-[11px] font-medium text-content-onSidebarMuted"
+        class="truncate text-2xs font-medium text-content-onSidebarMuted"
       >
         Workspace
       </p>
@@ -44,7 +44,7 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
     >
       <a
         aria-current="page"
-        class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent bg-surface-sidebarActive text-content-onSidebarActive"
+        class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent bg-surface-sidebarActive text-content-onSidebarActive"
         href="/"
       >
         <svg
@@ -74,7 +74,7 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
         </span>
       </a>
       <a
-        class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
+        class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
         href="/orders"
       >
         <svg
@@ -114,7 +114,7 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
       >
         <button
           aria-expanded="false"
-          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent w-full justify-between text-content-onSidebar hover:bg-surface-sidebarHover"
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent w-full justify-between text-content-onSidebar hover:bg-surface-sidebarHover"
           type="button"
         >
           <span
@@ -180,7 +180,7 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
             >
               <li>
                 <a
-                  class="group/sub flex h-8 items-center rounded-md px-2.5 text-[12.5px] transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent font-medium text-content-onSidebarMuted hover:bg-surface-sidebarHover hover:text-content-onSidebar"
+                  class="group/sub flex h-8 items-center rounded-md px-2.5 text-sm transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent font-medium text-content-onSidebarMuted hover:bg-surface-sidebarHover hover:text-content-onSidebar"
                   href="/products"
                 >
                   <span
@@ -192,7 +192,7 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
               </li>
               <li>
                 <a
-                  class="group/sub flex h-8 items-center rounded-md px-2.5 text-[12.5px] transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent font-medium text-content-onSidebarMuted hover:bg-surface-sidebarHover hover:text-content-onSidebar"
+                  class="group/sub flex h-8 items-center rounded-md px-2.5 text-sm transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent font-medium text-content-onSidebarMuted hover:bg-surface-sidebarHover hover:text-content-onSidebar"
                   href="/product-categories"
                 >
                   <span
@@ -207,7 +207,7 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
         </div>
       </div>
       <a
-        class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
+        class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
         href="/customers"
       >
         <svg
@@ -249,7 +249,7 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
       class="mt-6"
     >
       <p
-        class="px-3 pb-2 text-[11px] font-medium uppercase tracking-label text-content-onSidebarMuted"
+        class="px-3 pb-2 text-2xs font-medium uppercase tracking-label text-content-onSidebarMuted"
       >
         Content
       </p>
@@ -257,7 +257,7 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
         class="flex flex-col gap-0.5"
       >
         <a
-          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
           href="/content/articles"
         >
           <svg
@@ -296,7 +296,7 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
           </span>
         </a>
         <a
-          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
           href="/content/pages"
         >
           <svg
@@ -333,7 +333,7 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
           </span>
         </a>
         <a
-          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
           href="/content/globals"
         >
           <svg
@@ -373,7 +373,7 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
       class="mt-6"
     >
       <p
-        class="px-3 pb-2 text-[11px] font-medium uppercase tracking-label text-content-onSidebarMuted"
+        class="px-3 pb-2 text-2xs font-medium uppercase tracking-label text-content-onSidebarMuted"
       >
         Settings
       </p>
@@ -381,7 +381,7 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
         class="flex flex-col gap-0.5"
       >
         <a
-          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
           href="/settings"
         >
           <svg
@@ -413,7 +413,7 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
           </span>
         </a>
         <a
-          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
           href="/settings/connectors"
         >
           <svg
@@ -449,7 +449,7 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
           </span>
         </a>
         <a
-          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
           href="/settings/workspace"
         >
           <svg
@@ -488,7 +488,7 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
           </span>
         </a>
         <a
-          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
           href="/settings/team"
         >
           <svg
@@ -528,7 +528,7 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
           </span>
         </a>
         <a
-          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
           href="/settings/billing"
         >
           <svg

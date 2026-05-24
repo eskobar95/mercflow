@@ -45,7 +45,7 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
           className={cn(
             "fixed z-modal w-full max-w-lg border border-border-default bg-surface-raised shadow-lg",
             "left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg",
-            "max-sm:bottom-0 max-sm:top-auto max-sm:max-w-none max-sm:translate-y-full max-sm:rounded-b-none max-sm:rounded-t-xl",
+            "max-sm:inset-x-0 max-sm:bottom-0 max-sm:left-0 max-sm:top-auto max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-full max-sm:rounded-b-none max-sm:rounded-t-xl",
             "data-[state=open]:max-sm:translate-y-0",
             "data-[state=open]:scale-100 data-[state=open]:opacity-100",
             "data-[state=closed]:scale-[0.95] data-[state=closed]:opacity-0",

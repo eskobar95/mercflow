@@ -85,7 +85,10 @@ export function ProductListFilterBar({
           <span className="mx-0.5 h-4 w-px shrink-0 bg-border-default" aria-hidden />
           <button
             type="button"
-            className="shrink-0 text-2xs font-medium text-content-tertiary transition-colors hover:text-content-secondary"
+            disabled
+            title="Coming soon"
+            aria-disabled="true"
+            className="shrink-0 cursor-not-allowed text-2xs font-medium text-content-disabled"
           >
             Match all
           </button>
@@ -98,7 +101,10 @@ export function ProductListFilterBar({
           </button>
           <button
             type="button"
-            className="shrink-0 text-2xs font-medium text-accent transition-colors hover:text-accent-strong"
+            disabled
+            title="Coming soon"
+            aria-disabled="true"
+            className="shrink-0 cursor-not-allowed text-2xs font-medium text-content-disabled"
           >
             Save
           </button>
