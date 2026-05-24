@@ -1,12 +1,11 @@
+import type { JSX } from "react"
 import { useMemo } from "react"
 import { Link, useParams, useSearchParams } from "react-router-dom"
 
 import { CategoryContentTab } from "@/components/category-content/CategoryContentTab"
+import { CategoryOverviewSummary } from "@/components/product-categories/CategoryOverviewSummary"
 import { Card } from "@/components/ui/Card"
-import {
-  MOCK_PRODUCT_CATEGORIES,
-  type ProductCategoryListRow,
-} from "@/data/mockProductCategories"
+import { useAdminProductCategoryDetail } from "@/features/product-categories"
 
 type CategoryTabId = "overview" | "content"
 
@@ -17,12 +16,14 @@ export function ProductCategoryDetailPage(): JSX.Element {
   const tab: CategoryTabId =
     searchParams.get("tab") === "content" ? "content" : "overview"
 
-  const category = useMemo((): ProductCategoryListRow | undefined => {
-    if (!categoryId) {
-      return undefined
+  const { state, reload } = useAdminProductCategoryDetail(categoryId)
+
+  const title = useMemo((): string => {
+    if (state.status === "success") {
+      return state.category.name
     }
-    return MOCK_PRODUCT_CATEGORIES.find((c) => c.id === categoryId)
-  }, [categoryId])
+    return categoryId ?? "Category"
+  }, [categoryId, state])
 
   if (!categoryId) {
     return (
@@ -38,9 +39,61 @@ export function ProductCategoryDetailPage(): JSX.Element {
     )
   }
 
-  const title = category?.name ?? categoryId
   const overviewTabId = "category-tab-overview"
   const contentTabId = "category-tab-content"
+
+  let blockingCard: JSX.Element | null = null
+
+  if (state.status === "config_error") {
+    blockingCard = (
+      <Card>
+        <h2 className="text-lg font-semibold text-content-primary">Configuration</h2>
+        <p className="mt-2 text-sm text-content-secondary">{state.message}</p>
+        <button
+          type="button"
+          className="mt-3 rounded-md bg-interactive-primary px-3 py-1.5 text-sm font-medium text-content-inverse transition hover:bg-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
+          onClick={() => {
+            void reload()
+          }}
+        >
+          Retry
+        </button>
+      </Card>
+    )
+  } else if (state.status === "error") {
+    blockingCard = (
+      <Card>
+        <h2 className="text-lg font-semibold text-content-primary">Unable to load category</h2>
+        <p className="mt-2 text-sm text-content-secondary">{state.message}</p>
+        <button
+          type="button"
+          className="mt-3 rounded-md bg-interactive-primary px-3 py-1.5 text-sm font-medium text-content-inverse transition hover:bg-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
+          onClick={() => {
+            void reload()
+          }}
+        >
+          Retry
+        </button>
+      </Card>
+    )
+  } else if (state.status === "not_found") {
+    blockingCard = (
+      <Card>
+        <p className="text-sm text-content-secondary">
+          No category was found for{' '}
+          <code className="text-xs text-content-tertiary">{categoryId}</code>.
+        </p>
+        <Link
+          to="/product-categories"
+          className="mt-3 inline-flex text-sm font-medium text-interactive-primary hover:text-interactive-primary-hover"
+        >
+          Back to categories
+        </Link>
+      </Card>
+    )
+  }
+
+  const showLoadingCard = blockingCard === null && (state.status === "idle" || state.status === "loading")
 
   return (
     <div className="p-6">
@@ -53,96 +106,95 @@ export function ProductCategoryDetailPage(): JSX.Element {
         </Link>
         <h1 className="mt-2 text-2xl font-semibold text-content-primary">{title}</h1>
         <p className="mt-1 text-sm text-content-tertiary">
-          Mock category detail — content tab uses the Medusa admin category content API when{" "}
-          <code className="text-xs">VITE_MEDUSA_ADMIN_BACKEND_URL</code> is set.
+          Details from Medusa Admin product-category APIs (Medusa-compatible session or bearer token required).
         </p>
       </div>
 
-      <div
-        role="tablist"
-        aria-label="Category sections"
-        className="mb-4 flex gap-1 border-b border-border-subtle"
-      >
-        <button
-          type="button"
-          role="tab"
-          id={`${overviewTabId}-tab`}
-          aria-selected={tab === "overview"}
-          aria-controls={overviewTabId}
-          tabIndex={tab === "overview" ? 0 : -1}
-          className={`border-b-2 px-3 py-2 text-sm font-medium transition ${
-            tab === "overview"
-              ? "border-interactive-primary text-content-primary"
-              : "border-transparent text-content-secondary hover:text-content-primary"
-          }`}
-          onClick={() => {
-            setSearchParams({}, { replace: true })
-          }}
+      {showLoadingCard ? (
+        <div
+          aria-busy="true"
+          aria-live="polite"
+          className="rounded-lg border border-border-subtle bg-surface-subtle p-6 animate-pulse"
         >
-          Overview
-        </button>
-        <button
-          type="button"
-          role="tab"
-          id={`${contentTabId}-tab`}
-          aria-selected={tab === "content"}
-          aria-controls={contentTabId}
-          tabIndex={tab === "content" ? 0 : -1}
-          className={`border-b-2 px-3 py-2 text-sm font-medium transition ${
-            tab === "content"
-              ? "border-interactive-primary text-content-primary"
-              : "border-transparent text-content-secondary hover:text-content-primary"
-          }`}
-          onClick={() => {
-            setSearchParams({ tab: "content" }, { replace: true })
-          }}
-        >
-          Content
-        </button>
-      </div>
+          <div className="h-6 max-w-xs rounded-sm bg-surface-default" />
+          <div className="mt-4 h-4 max-w-lg rounded-sm bg-surface-default" />
+          <div className="mt-2 h-4 max-w-md rounded-sm bg-surface-default" />
+        </div>
+      ) : null}
 
-      <div
-        role="tabpanel"
-        id={overviewTabId}
-        aria-labelledby={`${overviewTabId}-tab`}
-        hidden={tab !== "overview"}
-      >
-        {tab === "overview" ? (
-          <Card>
-            <h2 className="text-lg font-semibold text-content-primary">Overview</h2>
-            <p className="mt-2 text-sm text-content-secondary">
-              Placeholder for catalog fields. Open the Content tab to edit description, SEO, and
-              image IDs for this category ({categoryId}).
-            </p>
-            {category ? (
-              <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-                <div>
-                  <dt className="text-content-tertiary">Handle</dt>
-                  <dd className="font-mono text-content-primary">{category.handle}</dd>
-                </div>
-                <div>
-                  <dt className="text-content-tertiary">Products</dt>
-                  <dd className="text-content-primary">{category.productCount}</dd>
-                </div>
-              </dl>
+      {blockingCard}
+
+      {state.status === "success" ? (
+        <>
+          <div
+            role="tablist"
+            aria-label="Category sections"
+            className="mb-4 flex gap-1 border-b border-border-subtle"
+          >
+            <button
+              type="button"
+              role="tab"
+              id={`${overviewTabId}-trigger`}
+              aria-selected={tab === "overview"}
+              aria-controls={overviewTabId}
+              tabIndex={tab === "overview" ? 0 : -1}
+              className={`border-b-2 px-3 py-2 text-sm font-medium transition ${
+                tab === "overview"
+                  ? "border-interactive-primary text-content-primary"
+                  : "border-transparent text-content-secondary hover:text-content-primary"
+              }`}
+              onClick={() => {
+                setSearchParams({}, { replace: true })
+              }}
+            >
+              Overview
+            </button>
+            <button
+              type="button"
+              role="tab"
+              id={`${contentTabId}-trigger`}
+              aria-selected={tab === "content"}
+              aria-controls={contentTabId}
+              tabIndex={tab === "content" ? 0 : -1}
+              className={`border-b-2 px-3 py-2 text-sm font-medium transition ${
+                tab === "content"
+                  ? "border-interactive-primary text-content-primary"
+                  : "border-transparent text-content-secondary hover:text-content-primary"
+              }`}
+              onClick={() => {
+                setSearchParams({ tab: "content" }, { replace: true })
+              }}
+            >
+              Content
+            </button>
+          </div>
+
+          <div
+            role="tabpanel"
+            id={overviewTabId}
+            aria-labelledby={`${overviewTabId}-trigger`}
+            hidden={tab !== "overview"}
+          >
+            {tab === "overview" ? (
+              <CategoryOverviewSummary category={state.category} categoryId={categoryId} />
             ) : null}
-          </Card>
-        ) : null}
-      </div>
+          </div>
 
-      <div
-        role="tabpanel"
-        id={contentTabId}
-        aria-labelledby={`${contentTabId}-tab`}
-        hidden={tab !== "content"}
-      >
-        {tab === "content" ? (
-          <CategoryContentTab
-            categoryId={categoryId}
-            categoryTitleFallback={title}
-          />
-        ) : null}
-      </div>
+          <div
+            role="tabpanel"
+            id={contentTabId}
+            aria-labelledby={`${contentTabId}-trigger`}
+            hidden={tab !== "content"}
+          >
+            {tab === "content" ? (
+              <CategoryContentTab
+                categoryId={categoryId}
+                categoryTitleFallback={title}
+              />
+            ) : null}
+          </div>
+        </>
+      ) : null}
     </div>
   )
 }
