@@ -22,6 +22,8 @@ regexes = [
   '''#[0-9a-fA-F]{3,8}''',
   # Sequential hex test fixtures (e.g. 0123456789abcdef... used in encryption unit tests)
   '''0123456789abcdef0123456789abcdef''',
+  # Test fixture variables: const TEST_*_KEY, TEST_HEX_KEY etc. in test files
+  '''const TEST_[A-Z_]+ =''',
 ]
 
 [[rules]]
@@ -31,3 +33,4 @@ regex = '''(?i)(DATABASE_URL|JWT_SECRET|COOKIE_SECRET|STRIPE_SECRET|POSTMARK_API
 paths = ['''\.env$''', '''\.env\.local$''', '''\.env\.production$''']
 severity = "CRITICAL"
 tags = ["mercflow", "env"]
+
