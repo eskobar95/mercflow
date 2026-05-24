@@ -75,9 +75,19 @@ const colors: Record<string, TailwindColorMap> = {
       DEFAULT: "var(--mf-color-interactive-secondary)",
       hover:   "var(--mf-color-interactive-secondary-hover)",
     } as unknown as string,
+    /**
+     * Legacy alias used by MercFlow JSX utilities (`*-interactive-danger-*`).
+     * Values map to destructive tokens.
+     */
+    danger: {
+      DEFAULT: "var(--mf-color-interactive-destructive)",
+      hover:   "var(--mf-color-interactive-destructive-hover)",
+      subtle:  "var(--mf-color-interactive-destructive-subtle)",
+    } as unknown as string,
     destructive: {
       DEFAULT: "var(--mf-color-interactive-destructive)",
       hover:   "var(--mf-color-interactive-destructive-hover)",
+      subtle:  "var(--mf-color-interactive-destructive-subtle)",
       border:  "var(--mf-color-interactive-destructive-border)",
       label:   "var(--mf-color-interactive-destructive-label)",
     } as unknown as string,
@@ -179,15 +189,17 @@ const letterSpacing: Record<string, string> = {
 }
 
 const borderRadius: Record<string, string> = {
-  none:    "var(--mf-radius-none)",
-  sm:      "var(--mf-radius-sm)",
-  DEFAULT: "var(--mf-radius-base)",
-  base:    "var(--mf-radius-base)",
-  md:      "var(--mf-radius-md)",
-  lg:      "var(--mf-radius-lg)",
-  xl:      "var(--mf-radius-xl)",
-  pill:    "var(--mf-radius-pill)",
-  full:    "var(--mf-radius-pill)",
+  none: "var(--mf-radius-none)",
+  sm: "var(--mf-radius-sm)",
+  /** Default rounded-* utility */
+  DEFAULT: "var(--mf-radius-md)",
+  base: "var(--mf-radius-md)",
+  md: "var(--mf-radius-md)",
+  lg: "var(--mf-radius-lg)",
+  xl: "var(--mf-radius-xl)",
+  "2xl": "var(--mf-radius-2xl)",
+  pill: "var(--mf-radius-full)",
+  full: "var(--mf-radius-full)",
 }
 
 const boxShadow: Record<string, string> = {

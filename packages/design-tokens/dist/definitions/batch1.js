@@ -6,8 +6,12 @@ export const colorTree = {
     surface: {
         /** Application canvas / page background */
         canvas: "#f6f6f7",
+        /** Same as canvas; semantic alias for MercFlow shell */
+        appCanvas: "#f6f6f7",
         /** Primary panels, cards, popovers (raised surfaces) */
         default: "#ffffff",
+        /** Same as default; semantic alias for card surfaces inside the shell */
+        appCard: "#ffffff",
         /** Secondary panels, table stripes */
         subtle: "#f9f9f9",
         /** Disabled inputs, low-emphasis areas */
@@ -16,6 +20,12 @@ export const colorTree = {
         raised: "#ffffff",
         /** Scrim for modal overlays (light theme) */
         overlay: "rgba(16, 24, 32, 0.35)",
+        /** Sidebar background (narrow rail) */
+        sidebar: "#ebebeb",
+        /** Sidebar row hover wash */
+        sidebarHover: "#e3e5e8",
+        /** Active sidebar item surface */
+        sidebarActive: "#ffffff",
     },
     content: {
         primary: "#202223",
@@ -28,12 +38,35 @@ export const colorTree = {
         disabled: "#8c9196",
         /** Links and critical inline messaging */
         danger: "#c52828",
+        /** Text on sidebar default state */
+        onSidebar: "#303030",
+        onSidebarMuted: "#616161",
+        onSidebarActive: "#202223",
     },
     border: {
         default: "#e1e3e5",
         subtle: "#ebebeb",
         strong: "#8c9196",
         focus: "#2c6ecb",
+        /** Divider between sidebar / top chrome and main canvas */
+        app: "#dadde0",
+        /** Hairline separators on the sidebar rail */
+        onSidebar: "#d2d5d8",
+    },
+    /** Brand primitives (MercFlow neutrals + primary accent cue) */
+    brand: {
+        base: "#202223",
+        accent: "#2c6ecb",
+        cream: "#f6f6f7",
+    },
+    /** Decorative / marketing accent ramps (paired with CTAs + highlights) */
+    accent: {
+        default: "#2c6ecb",
+        subtle: "#e6f0ff",
+        soft: "#d5ebff",
+        strong: "#1a5cb0",
+        /** Text readable on accent-subtle fills */
+        text: "#174a8c",
     },
     interactive: {
         primary: {
@@ -43,11 +76,26 @@ export const colorTree = {
             /** Ghost / low-emphasis control backgrounds */
             subtle: "#e6f0ff",
         },
-        danger: {
+        /** Soft tonal controls (muted fills) */
+        soft: {
+            default: "#f1f3f5",
+            hover: "#e3e7ea",
+            border: "#cdd3d9",
+            label: "#4a4d52",
+        },
+        /** Neutral secondary buttons */
+        secondary: {
+            default: "#ffffff",
+            hover: "#f6f7f9",
+        },
+        /** Destructive actions (paired with Tailwind interactive-destructive-*) */
+        destructive: {
             default: "#c52828",
             hover: "#9e1f1f",
-            /** Low-emphasis danger surfaces (e.g. banners) */
+            /** Low-emphasis danger surfaces */
             subtle: "#fceded",
+            border: "#eab4b4",
+            label: "#8e1f18",
         },
         /** Focus affordance; pair with focus outline styles in admin-ui */
         focus: {
@@ -57,6 +105,32 @@ export const colorTree = {
             background: "#f1f1f1",
             text: "#8c9196",
             border: "#e1e3e5",
+        },
+    },
+    feedback: {
+        success: {
+            default: "#007f5f",
+            subtle: "#e3f6ef",
+            content: "#0d4f3c",
+            border: "#8fcbb5",
+        },
+        warning: {
+            default: "#b78600",
+            subtle: "#fff5d9",
+            content: "#5c4813",
+            border: "#f0d878",
+        },
+        danger: {
+            default: "#c52828",
+            subtle: "#fceded",
+            content: "#771515",
+            border: "#e89898",
+        },
+        info: {
+            default: "#2c6ecb",
+            subtle: "#e6f0ff",
+            content: "#133e7c",
+            border: "#8fb5ea",
         },
     },
     /**
@@ -132,20 +206,26 @@ export const fontFamily = {
     ].join(", "),
 };
 export const fontSize = {
+    "3xs": "0.5625rem",
     "2xs": "0.6875rem",
     xs: "0.75rem",
     sm: "0.8125rem",
     base: "0.875rem",
+    /** Sidebar + compact UI rails (paired with Shopify-style compact density) */
+    interface: "0.8125rem",
     md: "1rem",
     lg: "1.125rem",
     xl: "1.25rem",
     "2xl": "1.5rem",
     "3xl": "1.75rem",
+    "4xl": "2rem",
+    "5xl": "2.25rem",
 };
 export const fontWeight = {
     regular: "400",
     medium: "500",
     semibold: "600",
+    bold: "700",
 };
 export const lineHeight = {
     tight: "1.25",
@@ -156,6 +236,8 @@ export const lineHeight = {
 export const letterSpacing = {
     tight: "-0.01em",
     normal: "0",
+    /** Caps / micro-metadata above lists */
+    label: "0.08em",
     wide: "0.02em",
 };
 export const radii = {
@@ -193,9 +275,15 @@ export const motion = {
     duration: {
         /** Default enter timing for main route outlet content */
         page: "200ms",
+        /** Micro-interactions (hover, ripple) */
+        fast: "150ms",
     },
     easing: {
-        /** Standard deceleration for page enter */
+        /** Standard deceleration for route outlet enter */
         page: "cubic-bezier(0.2, 0, 0, 1)",
+        /** Alias referenced by `@mercflow/admin-ui/index.css` */
+        enter: "cubic-bezier(0.2, 0, 0, 1)",
+        exit: "cubic-bezier(0.4, 0, 1, 1)",
+        spring: "cubic-bezier(0.34, 1.56, 0.64, 1)",
     },
 };

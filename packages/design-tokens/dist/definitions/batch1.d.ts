@@ -6,8 +6,12 @@ export declare const colorTree: {
     readonly surface: {
         /** Application canvas / page background */
         readonly canvas: "#f6f6f7";
+        /** Same as canvas; semantic alias for MercFlow shell */
+        readonly appCanvas: "#f6f6f7";
         /** Primary panels, cards, popovers (raised surfaces) */
         readonly default: "#ffffff";
+        /** Same as default; semantic alias for card surfaces inside the shell */
+        readonly appCard: "#ffffff";
         /** Secondary panels, table stripes */
         readonly subtle: "#f9f9f9";
         /** Disabled inputs, low-emphasis areas */
@@ -16,6 +20,12 @@ export declare const colorTree: {
         readonly raised: "#ffffff";
         /** Scrim for modal overlays (light theme) */
         readonly overlay: "rgba(16, 24, 32, 0.35)";
+        /** Sidebar background (narrow rail) */
+        readonly sidebar: "#ebebeb";
+        /** Sidebar row hover wash */
+        readonly sidebarHover: "#e3e5e8";
+        /** Active sidebar item surface */
+        readonly sidebarActive: "#ffffff";
     };
     readonly content: {
         readonly primary: "#202223";
@@ -28,12 +38,35 @@ export declare const colorTree: {
         readonly disabled: "#8c9196";
         /** Links and critical inline messaging */
         readonly danger: "#c52828";
+        /** Text on sidebar default state */
+        readonly onSidebar: "#303030";
+        readonly onSidebarMuted: "#616161";
+        readonly onSidebarActive: "#202223";
     };
     readonly border: {
         readonly default: "#e1e3e5";
         readonly subtle: "#ebebeb";
         readonly strong: "#8c9196";
         readonly focus: "#2c6ecb";
+        /** Divider between sidebar / top chrome and main canvas */
+        readonly app: "#dadde0";
+        /** Hairline separators on the sidebar rail */
+        readonly onSidebar: "#d2d5d8";
+    };
+    /** Brand primitives (MercFlow neutrals + primary accent cue) */
+    readonly brand: {
+        readonly base: "#202223";
+        readonly accent: "#2c6ecb";
+        readonly cream: "#f6f6f7";
+    };
+    /** Decorative / marketing accent ramps (paired with CTAs + highlights) */
+    readonly accent: {
+        readonly default: "#2c6ecb";
+        readonly subtle: "#e6f0ff";
+        readonly soft: "#d5ebff";
+        readonly strong: "#1a5cb0";
+        /** Text readable on accent-subtle fills */
+        readonly text: "#174a8c";
     };
     readonly interactive: {
         readonly primary: {
@@ -43,11 +76,26 @@ export declare const colorTree: {
             /** Ghost / low-emphasis control backgrounds */
             readonly subtle: "#e6f0ff";
         };
-        readonly danger: {
+        /** Soft tonal controls (muted fills) */
+        readonly soft: {
+            readonly default: "#f1f3f5";
+            readonly hover: "#e3e7ea";
+            readonly border: "#cdd3d9";
+            readonly label: "#4a4d52";
+        };
+        /** Neutral secondary buttons */
+        readonly secondary: {
+            readonly default: "#ffffff";
+            readonly hover: "#f6f7f9";
+        };
+        /** Destructive actions (paired with Tailwind interactive-destructive-*) */
+        readonly destructive: {
             readonly default: "#c52828";
             readonly hover: "#9e1f1f";
-            /** Low-emphasis danger surfaces (e.g. banners) */
+            /** Low-emphasis danger surfaces */
             readonly subtle: "#fceded";
+            readonly border: "#eab4b4";
+            readonly label: "#8e1f18";
         };
         /** Focus affordance; pair with focus outline styles in admin-ui */
         readonly focus: {
@@ -57,6 +105,32 @@ export declare const colorTree: {
             readonly background: "#f1f1f1";
             readonly text: "#8c9196";
             readonly border: "#e1e3e5";
+        };
+    };
+    readonly feedback: {
+        readonly success: {
+            readonly default: "#007f5f";
+            readonly subtle: "#e3f6ef";
+            readonly content: "#0d4f3c";
+            readonly border: "#8fcbb5";
+        };
+        readonly warning: {
+            readonly default: "#b78600";
+            readonly subtle: "#fff5d9";
+            readonly content: "#5c4813";
+            readonly border: "#f0d878";
+        };
+        readonly danger: {
+            readonly default: "#c52828";
+            readonly subtle: "#fceded";
+            readonly content: "#771515";
+            readonly border: "#e89898";
+        };
+        readonly info: {
+            readonly default: "#2c6ecb";
+            readonly subtle: "#e6f0ff";
+            readonly content: "#133e7c";
+            readonly border: "#8fb5ea";
         };
     };
     /**
@@ -90,20 +164,26 @@ export declare const fontFamily: {
     readonly mono: string;
 };
 export declare const fontSize: {
+    readonly "3xs": "0.5625rem";
     readonly "2xs": "0.6875rem";
     readonly xs: "0.75rem";
     readonly sm: "0.8125rem";
     readonly base: "0.875rem";
+    /** Sidebar + compact UI rails (paired with Shopify-style compact density) */
+    readonly interface: "0.8125rem";
     readonly md: "1rem";
     readonly lg: "1.125rem";
     readonly xl: "1.25rem";
     readonly "2xl": "1.5rem";
     readonly "3xl": "1.75rem";
+    readonly "4xl": "2rem";
+    readonly "5xl": "2.25rem";
 };
 export declare const fontWeight: {
     readonly regular: "400";
     readonly medium: "500";
     readonly semibold: "600";
+    readonly bold: "700";
 };
 export declare const lineHeight: {
     readonly tight: "1.25";
@@ -114,6 +194,8 @@ export declare const lineHeight: {
 export declare const letterSpacing: {
     readonly tight: "-0.01em";
     readonly normal: "0";
+    /** Caps / micro-metadata above lists */
+    readonly label: "0.08em";
     readonly wide: "0.02em";
 };
 export declare const radii: {
@@ -151,10 +233,16 @@ export declare const motion: {
     readonly duration: {
         /** Default enter timing for main route outlet content */
         readonly page: "200ms";
+        /** Micro-interactions (hover, ripple) */
+        readonly fast: "150ms";
     };
     readonly easing: {
-        /** Standard deceleration for page enter */
+        /** Standard deceleration for route outlet enter */
         readonly page: "cubic-bezier(0.2, 0, 0, 1)";
+        /** Alias referenced by `@mercflow/admin-ui/index.css` */
+        readonly enter: "cubic-bezier(0.2, 0, 0, 1)";
+        readonly exit: "cubic-bezier(0.4, 0, 1, 1)";
+        readonly spring: "cubic-bezier(0.34, 1.56, 0.64, 1)";
     };
 };
 //# sourceMappingURL=batch1.d.ts.map
