@@ -903,13 +903,12 @@ export default class ConnectorModuleService extends MedusaService({
       filters: { connector_id: string },
       config?: { take: number }
     ) => Promise<ConnectorLogRecord[]>
-    const listLogs = (
+
+    const rows = await (
       this as unknown as {
         listConnectorLogs: ListSvc
       }
-    ).listConnectorLogs
-
-    const rows = await listLogs({ connector_id: connectorId }, { take: 50 })
+    ).listConnectorLogs({ connector_id: connectorId }, { take: 50 })
 
     const sorted = [...rows].sort((a, b) => {
       const tb = new Date(toIsoStrict(b.created_at)).getTime()

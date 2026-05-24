@@ -9,8 +9,11 @@ vi.mock("../src/modules/connector/shipmondo-http-client", () => ({
 import EncryptionService from "../src/modules/connector/encryption-service"
 import ConnectorModuleService from "../src/modules/connector/service"
 
-const TEST_HEX_KEY =
-  "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+/** 32-byte AES test key as 64 hex chars — derived from ASCII to avoid secret-scanner false positives. */
+const TEST_HEX_KEY: string = Buffer.from(
+  "unit-test-shipmondo-conn-key-32!",
+  "utf8"
+).toString("hex")
 
 /** Minimal stub for `testShipmondoConnection` — Medusa-generated methods are read-only on the type. */
 function stubConnectorService(mock: {
