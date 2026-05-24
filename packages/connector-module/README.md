@@ -40,7 +40,13 @@ Do not commit real keys. Document the variable name in `.env.example` only.
 
 ## API routes
 
-None in the current slice. Future tasks may add admin routes; when they do, this section must list method + path and link to Zod schemas in this package.
+| Method & path | Description |
+|---|---|
+| `GET /admin/connectors` | Lists all four MercFlow connector types with `{ type, active, lastTestedAt, configured }`. Reads `connector_config` without decrypting credentials. |
+
+`lastTestedAt` is `null` until connection-test persistence ships in a future slice.
+
+There is currently no dedicated Zod schema for this endpoint (GET, no query or body).
 
 ## How to run / test locally
 

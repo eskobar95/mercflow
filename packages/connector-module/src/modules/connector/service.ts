@@ -3,10 +3,12 @@ import { MedusaService } from "@medusajs/framework/utils"
 import EncryptionService from "./encryption-service"
 import { ConnectorConfig } from "./models/connector-config"
 import { ConnectorLog } from "./models/connector-log"
-import type {
-  ConnectorConfigPlain,
-  ConnectorType,
-  SaveConnectorConfigInput,
+import {
+  CONNECTOR_ADMIN_ORDERED_TYPES,
+  type ConnectorAdminListItem,
+  type ConnectorConfigPlain,
+  type ConnectorType,
+  type SaveConnectorConfigInput,
 } from "./types"
 
 type ConnectorConfigRow = {
@@ -72,6 +74,32 @@ class ConnectorConfigService extends MedusaService({
   async list(): Promise<ConnectorConfigPlain[]> {
     const rows = await this.listConnectorConfigs()
     return rows.map((row) => this.mapRowToPlain(row as ConnectorConfigRow))
+  }
+
+  /**
+   * Full catalog of supported connector types merged with `connector_config` rows.
+   * Does not decrypt credentials — safe for lightweight admin listings.
+   */
+  async listConnectorAdminSummaries(): Promise<ConnectorAdminListItem[]> {
+    const rows = await this.listConnectorConfigs()
+    const byType = new Map<ConnectorType, ConnectorConfigRow>()
+    for (const row of rows) {
+      byType.set(row.type as ConnectorType, row as ConnectorConfigRow)
+    }
+
+    return CONNECTOR_ADMIN_ORDERED_TYPES.map((type) => {
+      const row = byType.get(type)
+      const configured = row !== undefined
+      const active = configured ? Boolean(row.active) : false
+
+      return {
+        type,
+        configured,
+        active,
+        // Populated when `last_tested_at` exists and connection tests ship (MER-25 list contract).
+        lastTestedAt: null,
+      }
+    })
   }
 
   async setActive(id: string, active: boolean): Promise<ConnectorConfigPlain> {

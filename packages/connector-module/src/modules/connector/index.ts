@@ -7,10 +7,12 @@ export const CONNECTOR_MODULE = "connector"
 export { default as EncryptionService } from "./encryption-service"
 export type { EncryptionServiceOptions } from "./encryption-service"
 export type {
+  ConnectorAdminListItem,
   ConnectorConfigPlain,
   ConnectorType,
   SaveConnectorConfigInput,
 } from "./types"
+export { CONNECTOR_ADMIN_ORDERED_TYPES } from "./types"
 export { ConnectorTypeEnum } from "./models/connector-config"
 
 export default Module(CONNECTOR_MODULE, {
