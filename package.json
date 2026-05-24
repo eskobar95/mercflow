@@ -7,10 +7,34 @@
     "build:admin-ui": "pnpm --filter @mercflow/admin-ui build",
     "build:design-tokens": "pnpm --filter @mercflow/design-tokens build",
     "dev:backend": "pnpm --filter @mercflow/backend dev",
+    "migration:run": "pnpm --filter @mercflow/backend db:migrate",
+    "migration:revert": "pnpm --filter @mercflow/backend exec -- medusa db:rollback --modules content",
     "lint": "eslint .",
     "test": "vitest run",
-    "typecheck": "pnpm --filter @mercflow/design-tokens typecheck && pnpm --filter @mercflow/admin-ui typecheck && pnpm --filter @mercflow/content-module typecheck && pnpm --filter @mercflow/backend typecheck",
+    "typecheck": "pnpm --filter @mercflow/design-tokens typecheck && pnpm --filter @mercflow/admin-ui typecheck && pnpm --filter @mercflow/content-module typecheck && pnpm --filter @mercflow/connector-module typecheck && pnpm --filter @mercflow/backend typecheck",
     "ci": "pnpm install --frozen-lockfile && pnpm lint && pnpm test && pnpm typecheck && pnpm build"
+  },
+  "pnpm": {
+    "overrides": {
+      "@remix-run/router": ">=1.23.2",
+      "lodash": ">=4.18.0",
+      "@mikro-orm/knex": ">=6.6.14",
+      "protobufjs": ">=7.5.6",
+      "fast-xml-builder": ">=1.1.7",
+      "@opentelemetry/sdk-node": ">=0.217.0",
+      "@opentelemetry/exporter-prometheus": ">=0.217.0"
+    }
+  },
+  "pnpm": {
+    "overrides": {
+      "@remix-run/router": ">=1.23.2",
+      "lodash": ">=4.18.0",
+      "@mikro-orm/knex": ">=6.6.14",
+      "protobufjs": ">=7.5.6",
+      "fast-xml-builder": ">=1.1.7",
+      "@opentelemetry/sdk-node": ">=0.217.0",
+      "@opentelemetry/exporter-prometheus": ">=0.217.0"
+    }
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",
