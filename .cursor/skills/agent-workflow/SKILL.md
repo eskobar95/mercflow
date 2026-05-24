@@ -2,6 +2,16 @@
 
 Complete pipeline from task creation to merge. Every task — regardless of whether it is executed by a Cloud Agent, CLI Agent, or manually — follows this pipeline without exception.
 
+## v2.3 — Stage + Assignee
+
+**Stage** (pipeline detail): Planning → Ready for Implementation → Implementing → Review → Fix → Bugbot → Ready for Merge → Merged
+
+**Status** (PM board): derived from Stage via Notion automation (In Progress / In Review / Done)
+
+**Assignee:** MercFlow Orchestrator bot = cloud dispatch; human assignee = manual
+
+Agents update **Stage** only. Max **3** review cycles (Cycle Count property); then Status → Blocked.
+
 ---
 
 ## Pipeline overview
@@ -244,6 +254,26 @@ Expose the service through an admin or public route:
 Build the UI surface that calls the API:
 
 ```
+0. Design research — before writing any UI code:
+
+   a. Check existing components first:
+      - packages/admin-ui/src/components/ui/   ← base components
+      - packages/admin-ui/src/components/      ← feature components
+      Reuse and compose. Do not recreate what already exists.
+
+   b. If the task requires a new UI pattern (new page type, new component
+      pattern, visual polish task):
+      → Read the refero-design SKILL.md and use the user-refero MCP tools
+        to research real product references BEFORE writing code.
+      → Translate Refero findings into MercFlow design tokens — never
+        introduce hardcoded values or external libraries from research.
+      → If pattern fits an existing template (standard list/detail/form):
+        skip Refero and go directly to step 1.
+
+   Refero MCP tools available: refero_search_styles, refero_search_screens,
+   refero_search_flows, refero_get_style, refero_get_screen,
+   refero_get_similar_screens, refero_get_flow, refero_get_screen_image
+
 1. Add types/hooks in packages/admin-ui/src/hooks/ or /types/
    - Define the fetch hook using the Medusa JS SDK or fetch
    - Type the response from the API (reuse or extend server types)
@@ -305,16 +335,30 @@ If any criterion fails: fix on the correct layer before continuing.
 
 Before handing off to Code Reviewer:
 
+**Correctness**
 - [ ] All acceptance criteria verified manually
+- [ ] UI states covered: loading, empty, error, success
+
+**Code quality**
 - [ ] `pnpm typecheck` passes in every touched package (no new errors)
 - [ ] `pnpm lint` passes in every touched package (no new errors)
 - [ ] Unit tests for service methods: written and passing
 - [ ] Integration tests for API routes: written and passing
-- [ ] UI states covered: loading, empty, error, success
-- [ ] No secrets, tokens, or credentials in code
 - [ ] No `console.log` in production paths
-- [ ] Migration has decision log comment
 - [ ] Each layer committed separately with clear commit messages
+
+**Security (non-negotiable — block delivery if any fail)**
+- [ ] No secrets, tokens, API keys, or credentials in code
+- [ ] All new API endpoints: request body validated with Zod before any field is accessed
+- [ ] No user input concatenated into SQL — ORM or parameterized queries only
+- [ ] Webhook handlers verify HMAC signature (if the slice adds a webhook handler)
+- [ ] Auth checks present on every new sensitive route/mutation
+- [ ] `pnpm audit --audit-level=high` clean — run it, paste result in Notion comment
+- [ ] Gitleaks clean — run `gitleaks detect --source . --staged` locally before final commit
+
+**Migration (skip if no schema changes)**
+- [ ] MIGRATION DECISION LOG comment at top of migration file
+- [ ] `down()` implemented and tested locally
 
 ---
 
@@ -355,11 +399,14 @@ The Code Reviewer reads the full diff of the feature branch against `development
 - [ ] Types are explicit where it matters; no unchecked `any`
 - [ ] Functions do one thing; no "god functions"
 
-**Security (non-negotiable)**
-- [ ] No user input concatenated into SQL (use ORM / parameterized queries)
-- [ ] Webhook signatures verified if applicable
-- [ ] No secrets in code or logs
-- [ ] API routes validate input before processing
+**Security (non-negotiable — any failure blocks approval)**
+- [ ] No secrets, tokens, API keys, or credentials in code or logs
+- [ ] All API route handlers validate request body with Zod before accessing fields
+- [ ] No user input concatenated into SQL — ORM or parameterized queries only
+- [ ] Webhook handlers verify HMAC signature (if applicable)
+- [ ] Auth checks present on every sensitive route/mutation (if applicable)
+- [ ] `pnpm audit --audit-level=high` was run — result noted in Notion comment
+- [ ] `dangerouslySetInnerHTML` usage (if any): sanitized with DOMPurify or equivalent
 
 **Tests**
 - [ ] New logic has test coverage
@@ -546,6 +593,20 @@ It reviews the open PR for security vulnerabilities, logic bugs, performance iss
 | Cosmetic (naming, whitespace) | "Won't fix" reply → continues to merge |
 
 You only need to intervene if the Tech Lead posts a Notion comment indicating it couldn't resolve findings automatically.
+
+### CI checks that must be green before merge
+
+| Check | Workflow | Failure action |
+|---|---|---|
+| Lint + test + typecheck + build | `ci.yml` | Fix code — never disable the check |
+| Dependency review (new CVEs) | `security.yml` | Update or document the vulnerability |
+| pnpm audit (HIGH+) | `security.yml` | Run `pnpm audit --fix` or pin a safe version |
+| Secret scan (Gitleaks) | `security.yml` | Remove secret, rotate credential, update allowlist if false positive |
+| SAST (Semgrep) | `security.yml` | Fix finding or document as false positive in PR Notes |
+| Backend migrations | `ci.yml` (backend-integration) | Fix migration schema |
+| Playwright smoke | `ci.yml` (admin-ui-e2e) | Fix component or update test |
+
+**Semgrep false positives:** Add a `// nosemgrep: <rule-id>` inline comment and document the reason in the PR Notes section. Never suppress entire files.
 
 ### DevOps Agent (CI)
 If CI goes red on the PR, run `/devops-check <pr-url>`. The DevOps Agent will:

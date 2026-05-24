@@ -1,0 +1,24 @@
+# Semgrep ignore — paths excluded from SAST scanning
+
+# Dependencies — never scan vendored code
+node_modules/
+**/node_modules/
+
+# Build artifacts
+dist/
+build/
+.next/
+**/.medusa/
+
+# Generated migration files are excluded from SAST
+# (they are SQL-like but parameterized — false positives expected)
+**/migrations/*.ts
+
+# Test fixtures may contain intentionally unsafe patterns for testing purposes
+**/__fixtures__/
+**/__mocks__/
+
+# Lock files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock

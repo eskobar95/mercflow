@@ -103,6 +103,7 @@ MercFlow uses [Conventional Commits](https://www.conventionalcommits.org/):
 | `chore` | Build process, dependency updates, config changes |
 | `docs` | Documentation only |
 | `migration` | Database migration (always use this type, never hide migrations in `feat`) |
+| `security` | Security fix, dependency vulnerability patch, secret rotation |
 
 **Scopes** (use the package or domain name):
 
@@ -220,12 +221,27 @@ Anything the reviewer should be aware of (edge cases, follow-up work, known limi
 
 ### PR checklist before opening
 
-- [ ] TypeScript compiles with no errors (`pnpm tsc --noEmit`)
+**Code quality**
+- [ ] `pnpm typecheck` passes — no new errors
+- [ ] `pnpm lint` passes — no new errors
+- [ ] `pnpm test` passes — no new failures
 - [ ] No `console.log` or debug statements left in
 - [ ] Commit messages follow conventional commits format
-- [ ] PR description filled out
-- [ ] No unrelated changes included (if you found something to fix, make a separate PR)
-- [ ] Migration files (if any) have been tested locally with `pnpm migration:run`
+- [ ] PR description (`.github/pull_request_template.md`) filled out
+- [ ] No unrelated changes included
+
+**Security (non-negotiable)**
+- [ ] `pnpm audit --audit-level=high` — no unaddressed HIGH/CRITICAL CVEs
+- [ ] No secrets, tokens, or credentials in code (`gitleaks detect --source . --staged`)
+- [ ] New API endpoints: request body validated with Zod
+- [ ] No SQL string concatenation with user input
+- [ ] Webhook handlers verify HMAC (if applicable)
+- [ ] `dangerouslySetInnerHTML` sanitized (if used)
+
+**Migration (skip if no schema changes)**
+- [ ] MIGRATION DECISION LOG comment at top of file
+- [ ] `down()` implemented
+- [ ] Tested locally with `pnpm migration:run`
 
 ---
 
