@@ -20,6 +20,8 @@ regexes = [
   '''JWT_SECRET=supersecret''',
   # Design token hex values are not secrets
   '''#[0-9a-fA-F]{3,8}''',
+  # Sequential hex test fixtures (e.g. 0123456789abcdef... used in encryption unit tests)
+  '''0123456789abcdef0123456789abcdef''',
 ]
 
 [[rules]]
