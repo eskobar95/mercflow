@@ -1,6 +1,7 @@
 import { useId, type ReactNode } from "react"
 
 import { Checkbox } from "@/components/ui/Checkbox"
+import { cn } from "@/lib/cn"
 
 import { ListSortLabel } from "./ListSortLabel"
 import { getColumnAriaSort } from "./listSortState"
@@ -8,7 +9,8 @@ import { RowActionsMenu, type RowActionItem } from "./RowActionsMenu"
 import { TableSkeleton } from "./TableSkeleton"
 import type { ListColumnDef, ListSelection, ListSortState } from "./types"
 
-const headerCell = "px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-wide text-content-tertiary"
+/** Header cell base — no uppercase, lighter density */
+const headerCellBase = "px-4 py-2 text-left"
 const dataCell = "px-4 py-2.5 text-[13px] text-content-primary align-middle"
 
 function HeaderSelectAllCheckbox({
@@ -92,11 +94,11 @@ export function DataTable<TRow, TCol extends string>({
     : false
 
   const renderHeaderRow = (): JSX.Element => (
-    <tr className="border-b border-border-default bg-surface-subtle">
+    <tr className="border-b border-border-subtle bg-surface-default">
       {selection ? (
         <th
           scope="col"
-          className={`w-0 ${headerCell} align-middle`}
+          className={cn(headerCellBase, "w-0 align-middle")}
         >
           <span className="sr-only">Select rows</span>
           <HeaderSelectAllCheckbox
@@ -116,7 +118,12 @@ export function DataTable<TRow, TCol extends string>({
           <th
             key={col.id}
             scope="col"
-            className={`${headerCell} ${col.headerClassName ?? ""}`.trim()}
+            className={cn(
+              headerCellBase,
+              col.headerClassName,
+              isSortable && "transition-colors hover:bg-surface-subtle",
+              isSortable && isActive && "bg-accent-subtle/25",
+            )}
             aria-sort={
               isSortable
                 ? getColumnAriaSort(
@@ -126,7 +133,7 @@ export function DataTable<TRow, TCol extends string>({
                 : undefined
             }
           >
-            <ListSortLabel< TCol>
+            <ListSortLabel<TCol>
               id={`${tableId}-h-${col.id}`}
               label={col.header}
               columnId={col.id}
@@ -139,8 +146,8 @@ export function DataTable<TRow, TCol extends string>({
         )
       })}
       {showActions ? (
-        <th className={`${headerCell} w-0 text-right`} scope="col">
-          Actions
+        <th className={cn(headerCellBase, "w-0 text-right text-[12px] font-medium text-content-tertiary")} scope="col">
+          <span className="sr-only">Actions</span>
         </th>
       ) : null}
     </tr>

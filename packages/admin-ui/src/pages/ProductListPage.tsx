@@ -1,21 +1,19 @@
-import { useCallback, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
 import { Button } from "@/components/ui/Button"
-import { SearchInput } from "@/components/ui/SearchInput"
 import { DataTable } from "@/components/ui/list/DataTable"
 import { ListEmptyState } from "@/components/ui/list/ListEmptyState"
 import { ListPagination } from "@/components/ui/list/ListPagination"
 import { type RowActionItem } from "@/components/ui/list/RowActionsMenu"
 import { type ListColumnDef } from "@/components/ui/list/types"
 import { ProductCardGrid } from "@/components/product-list/ProductCardGrid"
+import { ProductListFilterBar, type ActiveFilters } from "@/components/product-list/ProductListFilterBar"
 import { ProductStatusBadge } from "@/components/product-list/ProductStatusBadge"
 import { ProductThumbnail } from "@/components/product-list/ProductThumbnail"
 import { MOCK_PRODUCTS, type ProductListRow } from "@/data/mockProducts"
 import { useMockEntityListState } from "@/hooks/useMockEntityListState"
 import { cn } from "@/lib/cn"
-
-// SKU is shown inline under the product title — removed from standalone column
 
 type StatusFilter = "all" | "published" | "draft" | "proposed"
 type ProductCol = "thumbnail" | "title" | "status" | "collection" | "updatedAt"
@@ -32,8 +30,8 @@ const PRODUCT_COLUMNS: ListColumnDef<ProductListRow, ProductCol>[] = [
     id: "thumbnail",
     header: "",
     sortable: false,
-    headerClassName: "w-0",
-    cellClassName: "py-2",
+    headerClassName: "w-10 px-4",
+    cellClassName: "py-2 w-10",
     renderCell: (r) => (
       <ProductThumbnail title={r.title} hue={r.thumbnailHue} size={36} />
     ),
@@ -88,21 +86,54 @@ const PRODUCT_COLUMNS: ListColumnDef<ProductListRow, ProductCol>[] = [
   },
 ]
 
+const ALL_COLLECTIONS = Array.from(
+  new Set(MOCK_PRODUCTS.map((r) => r.collection))
+).sort()
+
+/** ms timestamp for "start of period" helpers */
+function startOf(period: "today" | "week" | "month"): number {
+  const d = new Date()
+  if (period === "today") {
+    d.setHours(0, 0, 0, 0)
+  } else if (period === "week") {
+    const day = d.getDay()
+    d.setDate(d.getDate() - day)
+    d.setHours(0, 0, 0, 0)
+  } else {
+    d.setDate(1)
+    d.setHours(0, 0, 0, 0)
+  }
+  return d.getTime()
+}
+
 /**
  * Product list page.
  *
  * Desktop: DataTable with thumbnail column, Shopify-style status tabs,
- * Linear-style compact filter/sort bar.
+ * Linear-style compact filter bar (Filter popover + expandable search + chips).
  *
  * Mobile (<md): card list — thumbnail + key fields, no horizontal scroll.
  */
 export function ProductListPage(): JSX.Element {
   const navigate = useNavigate()
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
+  const [activeFilters, setActiveFilters] = useState<ActiveFilters>({
+    collections: [],
+    updatedRange: null,
+  })
 
   const filterRow = useCallback(
     (r: ProductListRow, query: string): boolean => {
       if (statusFilter !== "all" && r.status !== statusFilter) return false
+      if (
+        activeFilters.collections.length > 0 &&
+        !activeFilters.collections.includes(r.collection)
+      )
+        return false
+      if (activeFilters.updatedRange) {
+        const threshold = startOf(activeFilters.updatedRange)
+        if (new Date(r.updatedAt).getTime() < threshold) return false
+      }
       if (!query.trim()) return true
       const t = query.toLowerCase()
       return (
@@ -111,7 +142,7 @@ export function ProductListPage(): JSX.Element {
         r.sku.toLowerCase().includes(t)
       )
     },
-    [statusFilter],
+    [statusFilter, activeFilters],
   )
 
   const {
@@ -143,16 +174,22 @@ export function ProductListPage(): JSX.Element {
     { id: "delete",    label: "Delete",    destructive: true, onSelect: () => {} },
   ]
 
-  const statusCounts = {
-    all:       MOCK_PRODUCTS.length,
-    published: MOCK_PRODUCTS.filter((r) => r.status === "published").length,
-    draft:     MOCK_PRODUCTS.filter((r) => r.status === "draft").length,
-    proposed:  MOCK_PRODUCTS.filter((r) => r.status === "proposed").length,
-  }
+  const statusCounts = useMemo(
+    () => ({
+      all:       MOCK_PRODUCTS.length,
+      published: MOCK_PRODUCTS.filter((r) => r.status === "published").length,
+      draft:     MOCK_PRODUCTS.filter((r) => r.status === "draft").length,
+      proposed:  MOCK_PRODUCTS.filter((r) => r.status === "proposed").length,
+    }),
+    [],
+  )
 
-  const activeSort = sort.column !== "updatedAt" || sort.direction !== "desc"
-    ? `${sort.column === "updatedAt" ? "Updated" : sort.column === "title" ? "Product" : sort.column === "status" ? "Status" : sort.column === "collection" ? "Collection" : sort.column} ${sort.direction === "asc" ? "↑" : "↓"}`
-    : null
+  function clearAllFilters(): void {
+    setActiveFilters({ collections: [], updatedRange: null })
+    setSearch("")
+    setStatusFilter("all")
+    setPage(1)
+  }
 
   return (
     <div className="p-4 md:p-6">
@@ -161,9 +198,11 @@ export function ProductListPage(): JSX.Element {
         {/* ── Header ── */}
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border-subtle px-4 py-4">
           <div>
-            <h1 className="text-base font-semibold tracking-tight text-content-primary">Products</h1>
+            <h1 className="text-base font-semibold tracking-tight text-content-primary">
+              Products
+            </h1>
             <p className="mt-0.5 hidden text-[13px] text-content-tertiary md:block">
-              Everything you sell — variants, SKUs, status, and the collection each one belongs to.
+              Everything you sell — variants, SKUs, status, and collections.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -185,7 +224,7 @@ export function ProductListPage(): JSX.Element {
         </div>
 
         {/* ── Status tabs (Shopify pattern) ── */}
-        <div className="flex items-center gap-0 border-b border-border-subtle px-4">
+        <div className="flex items-center border-b border-border-subtle px-4">
           {STATUS_TABS.map((tab) => (
             <button
               key={tab.id}
@@ -207,7 +246,7 @@ export function ProductListPage(): JSX.Element {
                   "inline-flex h-4 min-w-4 items-center justify-center rounded-sm px-1 text-[10px] font-semibold tabular-nums",
                   statusFilter === tab.id
                     ? "bg-surface-subtle text-content-secondary"
-                    : "bg-transparent text-content-tertiary",
+                    : "text-content-tertiary",
                 )}
               >
                 {statusCounts[tab.id]}
@@ -216,33 +255,20 @@ export function ProductListPage(): JSX.Element {
           ))}
         </div>
 
-        {/* ── Filter / sort toolbar (Linear pattern) ── */}
-        <div className="flex flex-wrap items-center gap-2 border-b border-border-subtle px-4 py-2">
-          <SearchInput
-            value={search}
-            onChange={(e) => { setSearch(e.target.value) }}
-            onClear={() => { setSearch("") }}
-            placeholder="Search products…"
-            aria-label="Filter products"
-            className="max-w-xs flex-1"
-          />
-          {/* Active sort chip (Linear-style) */}
-          {activeSort ? (
-            <span className="inline-flex items-center gap-1 rounded border border-border-default bg-accent-subtle px-2 py-1 text-[11px] font-medium text-accent-text">
-              Sort: {activeSort}
-              <button
-                type="button"
-                aria-label="Clear sort"
-                className="ml-0.5 text-accent-text/60 hover:text-accent-text"
-                onClick={() => { onRequestSort("updatedAt" as ProductCol) }}
-              >
-                ×
-              </button>
-            </span>
-          ) : null}
-        </div>
+        {/* ── Linear-style filter bar ── */}
+        <ProductListFilterBar
+          collections={ALL_COLLECTIONS}
+          activeFilters={activeFilters}
+          onFiltersChange={(f) => {
+            setActiveFilters(f)
+            setPage(1)
+          }}
+          search={search}
+          onSearchChange={setSearch}
+          onSearchClear={() => setSearch("")}
+        />
 
-        {/* ── Desktop: DataTable — hidden on mobile ── */}
+        {/* ── Desktop: DataTable ── */}
         <div className="hidden md:block">
           <DataTable<ProductListRow, ProductCol>
             aria-label="Product list"
@@ -257,16 +283,13 @@ export function ProductListPage(): JSX.Element {
             emptyState={
               <ListEmptyState
                 title="No products match"
-                description="Try a different search or clear the filter."
+                description="Try different filters or clear the search."
                 action={
                   <Button
                     type="button"
                     variant="secondary"
                     size="sm"
-                    onClick={() => {
-                      setSearch("")
-                      setStatusFilter("all")
-                    }}
+                    onClick={clearAllFilters}
                   >
                     Clear filters
                   </Button>
@@ -276,7 +299,7 @@ export function ProductListPage(): JSX.Element {
           />
         </div>
 
-        {/* ── Mobile: card view — hidden on desktop ── */}
+        {/* ── Mobile: card feed ── */}
         <div className="block md:hidden">
           <ProductCardGrid rows={paged} />
         </div>
