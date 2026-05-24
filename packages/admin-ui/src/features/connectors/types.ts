@@ -12,6 +12,10 @@ export type ConnectorListItemDto = {
 
 export type ConnectorDisplayStatus = "active" | "inactive" | "unconfigured"
 
+export type GtmConnectorAdminDto = {
+  container_id: string | null
+}
+
 export function resolveConnectorDisplayStatus(
   item: ConnectorListItemDto
 ): ConnectorDisplayStatus {
