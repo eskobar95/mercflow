@@ -8,6 +8,7 @@ import {
   DEFAULT_PRODUCT_CONTENT_LOCALE,
   useProductContentState,
 } from "@/features/product-content"
+import { preferProductContentLocale } from "@/features/product-content/preferProductContentLocale"
 import { EMPTY_TIPTAP_DOC, tiptapDocFromUnknown } from "@/lib/tiptap"
 
 import { isProductContentDirty } from "./productContentDirty"
@@ -38,7 +39,7 @@ export function ProductContentTab({
 }: ProductContentTabProps): JSX.Element {
   const formId = useId()
   const { locales, loading: localesLoading, error: localesError } = useAdminLocales()
-  const readLocale = locales[0]?.code ?? DEFAULT_PRODUCT_CONTENT_LOCALE
+  const readLocale = preferProductContentLocale(locales, DEFAULT_PRODUCT_CONTENT_LOCALE)
 
   const { content, loading, saving, loadError, saveError, save, load, clearError } =
     useProductContentState({
