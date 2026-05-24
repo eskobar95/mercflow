@@ -177,6 +177,7 @@ jobs:
       !contains(github.event.review.body, 'BUGBOT_FIX_ALL')
     steps:
       - name: Set Stage → Ready for Merge
+        id: set-stage
         env:
           NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -203,4 +204,25 @@ jobs:
             -H "Content-Type: application/json" \
             -d "{\"parent\":{\"page_id\":\"$PAGE_ID\"},\"rich_text\":[{\"text\":{\"content\":\"Agent: notion-stage-sync\nBugbot: no findings → Stage Ready for Merge\n\nPR #${PR_NUMBER} passed Bugbot review. Tech Lead Merge Agent dispatched.\"}}]}"
 
+          echo "notion_url=$NOTION_URL" >> "$GITHUB_OUTPUT"
           echo "Stage → Ready for Merge for $NOTION_URL"
+
+      - name: Dispatch merge agent
+        if: steps.set-stage.outputs.notion_url != ''
+        env:
+          GH_TOKEN: ${{ secrets.SYNC_GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          NOTION_URL: ${{ steps.set-stage.outputs.notion_url }}
+        run: |
+          set -euo pipefail
+
+          FEATURE_BRANCH=$(gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" --json headRefName -q .headRefName)
+
+          curl -sf -X POST \
+            "https://api.github.com/repos/eskobar95/mercflow-os/dispatches" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            -d "{\"event_type\":\"pr-ready-to-merge\",\"client_payload\":{\"pageUrl\":\"$NOTION_URL\",\"featureBranch\":\"$FEATURE_BRANCH\",\"prNumber\":\"$PR_NUMBER\"}}"
+
+          echo "Dispatched pr-ready-to-merge for PR #$PR_NUMBER branch=$FEATURE_BRANCH"
