@@ -263,6 +263,18 @@ export function parseShipmondoRulesPatchEnvelope(json: unknown): {
   }
 
   const inner = json.data
+  if (!isRecord(inner)) {
+    return { ok: false, error: "Missing Shipmondo rules data object" }
+  }
+
+  if (
+    typeof inner.markupAmountMinor !== "number" ||
+    typeof inner.freeShippingThresholdMinor !== "number" ||
+    !Array.isArray(inner.enabledCarrierCodes)
+  ) {
+    return { ok: false, error: "Malformed Shipmondo rules response" }
+  }
+
   const rules = parseShippingRulesField(inner)
   return { ok: true, data: rules }
 }
