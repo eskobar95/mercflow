@@ -1,185 +1,89 @@
 /**
- * MercFlow design tokens — v2 (Mercury / Asana / Stripe synthesis).
- *
- * Reference lock:
- *   - Primary foundation: Mercury dashboard (light canvas + white cards, modular
- *     bento grid, soft hairline borders, single blue accent reserved for CTAs).
- *   - Sidebar pattern: Asana (#131316 near-black with light-grey selected row —
- *     no colored highlight; color is for action, not navigation).
- *   - Restraint discipline: Stripe (information-dense, monochrome charts, single
- *     accent #2563EB used surgically).
- *
- * Token NAMES are preserved for downstream compatibility. Token VALUES have
- * been completely repurposed:
- *   `amber.*` is now the BLUE ACCENT family (semantic legacy name, blue value).
- *   `brand.amber` is the accent CTA blue.
- *   `surface.sidebar` is Asana near-black, not navy.
- *
- * Typography: Geist + Geist Mono (modern, distinctive, avoids the Inter cliche).
- *
- * Color rules:
- *   - Color is for action and status. Navigation, surfaces, and borders are neutral.
- *   - `interactive.primary` blue appears only on primary CTAs.
- *   - Selected sidebar row uses neutral light-grey wash, NOT the accent color.
- *   - Soft accent fills (formerly amber-subtle) live in icon backgrounds, badges,
- *     and progress indicators — never in chrome.
+ * Batch 1 design token source values (light, spacious admin — Shopify Admin–inspired).
+ * All sRGB color literals for the admin UI must originate here (or in this package only).
  */
 export const colorTree = {
     surface: {
-        /** Page canvas for marketing / brand contexts. Same as appCanvas in v2. */
-        canvas: "#F7F8FA",
-        /** Cards, inputs, form fields — pure white. */
-        default: "#FFFFFF",
-        /** Subtle hover fills, table stripe, disabled background. */
-        subtle: "#F3F4F6",
-        /** Modals, popovers, command palette — pure white for focus. */
-        raised: "#FFFFFF",
-        /** Modal scrim — slate tint. */
-        overlay: "rgba(17, 24, 39, 0.50)",
-        /**
-         * Operational app canvas — neutral cool gray.
-         * Cards float on this surface with soft shadow.
-         */
-        appCanvas: "#F7F8FA",
-        /** Operational card surface — pure white. */
-        appCard: "#FFFFFF",
-        /** Sidebar — Asana near-black. */
-        sidebar: "#131316",
-        /** Sidebar nav hover row — 4% white wash. */
-        sidebarHover: "rgba(255, 255, 255, 0.04)",
-        /**
-         * Sidebar active item — 8% white wash (light-grey row, Asana style).
-         * Critical: this is NOT a colored highlight. Color stays out of navigation.
-         */
-        sidebarActive: "rgba(255, 255, 255, 0.08)",
+        /** Application canvas / page background */
+        canvas: "#f6f6f7",
+        /** Primary panels, cards, popovers (raised surfaces) */
+        default: "#ffffff",
+        /** Secondary panels, table stripes */
+        subtle: "#f9f9f9",
+        /** Disabled inputs, low-emphasis areas */
+        muted: "#f1f1f1",
+        /** Same as default; use with shadow for elevation if needed */
+        raised: "#ffffff",
+        /** Scrim for modal overlays (light theme) */
+        overlay: "rgba(16, 24, 32, 0.35)",
     },
     content: {
-        /** Primary text — slate-900. Contrast ≥ 14:1 on white. */
-        primary: "#111827",
-        /** Secondary labels, descriptions — slate-500. */
-        secondary: "#6B7280",
-        /** Tertiary captions, placeholders, metadata — slate-400. */
-        tertiary: "#9CA3AF",
-        /** Non-interactive de-emphasis — slate-300. */
-        disabled: "#D1D5DB",
-        /** Text on dark fills (primary buttons, dark surfaces). */
-        inverse: "#FFFFFF",
-        /** Sidebar nav label — off-white. */
-        onSidebar: "rgba(255, 255, 255, 0.85)",
-        /** Sidebar muted label, section header — 55% white. */
-        onSidebarMuted: "rgba(255, 255, 255, 0.55)",
-        /** Sidebar active item label — pure white on the light-grey row. */
-        onSidebarActive: "#FFFFFF",
+        primary: "#202223",
+        secondary: "#6d7175",
+        tertiary: "#8c9196",
+        placeholder: "#8c9196",
+        /** Text on primary / danger fill buttons */
+        inverse: "#ffffff",
+        /** Non-interactive de-emphasis */
+        disabled: "#8c9196",
+        /** Links and critical inline messaging */
+        danger: "#c52828",
     },
     border: {
-        /** Hairlines, table rows — slate-100. */
-        subtle: "#F3F4F6",
-        /** Standard input/card borders — Mercury #E6E9EE. */
-        default: "#E5E7EB",
-        /** Strong separators, active input border — slate-300. */
-        strong: "#D1D5DB",
-        /** Focus ring — blue accent at 40%. Pairs with shadow.focus. */
-        focus: "rgba(37, 99, 235, 0.40)",
-        /** App-canvas border (topbar/card outlines). Same as `default`. */
-        app: "#E5E7EB",
-        /** Sidebar internal divider — 8% white. */
-        onSidebar: "rgba(255, 255, 255, 0.08)",
-    },
-    /**
-     * Brand identity. v2: navy → slate-900, amber → Mercury blue.
-     * `brand.amber` is the accent CTA color in code — keep the name for legacy.
-     */
-    brand: {
-        base: "#111827",
-        accent: "#2563EB",
-        cream: "#F7F8FA",
-    },
-    /**
-     * v2: the "amber" family is the BLUE ACCENT family. Name preserved for
-     * backward compatibility; component code reading `amber-subtle` now gets
-     * a soft blue tint — matching the Mercury/Stripe single-accent system.
-     */
-    accent: {
-        /** Soft accent fill — icon background, badge tint. */
-        subtle: "rgba(37, 99, 235, 0.10)",
-        /** Stronger soft accent — hover on subtle, accent border. */
-        soft: "rgba(37, 99, 235, 0.18)",
-        /** Solid accent — primary CTA, sparkline line, active indicators. */
-        default: "#2563EB",
-        /** Hover state on solid accent. */
-        strong: "#1D4FD7",
-        /** Legible accent text on light surfaces — blue-800. */
-        text: "#1E40AF",
+        default: "#e1e3e5",
+        subtle: "#ebebeb",
+        strong: "#8c9196",
+        focus: "#2c6ecb",
     },
     interactive: {
-        /** Primary CTA — Mercury blue. */
         primary: {
-            default: "#2563EB",
-            hover: "#1D4FD7",
-            pressed: "#1A3F9F",
+            default: "#2c6ecb",
+            hover: "#1a5cb0",
+            pressed: "#134c92",
+            /** Ghost / low-emphasis control backgrounds */
+            subtle: "#e6f0ff",
         },
-        /** Soft button — used for secondary actions with accent affinity. */
-        soft: {
-            default: "rgba(37, 99, 235, 0.10)",
-            hover: "rgba(37, 99, 235, 0.18)",
-            border: "rgba(37, 99, 235, 0.24)",
-            label: "#1E40AF",
+        danger: {
+            default: "#c52828",
+            hover: "#9e1f1f",
+            /** Low-emphasis danger surfaces (e.g. banners) */
+            subtle: "#fceded",
         },
-        /** Secondary button — neutral. */
-        secondary: {
-            default: "#FFFFFF",
-            hover: "#F3F4F6",
-        },
-        /** Destructive — red-600. */
-        destructive: {
-            default: "rgba(220, 38, 38, 0.10)",
-            hover: "rgba(220, 38, 38, 0.18)",
-            border: "rgba(220, 38, 38, 0.24)",
-            label: "#991B1B",
-        },
+        /** Focus affordance; pair with focus outline styles in admin-ui */
         focus: {
-            ring: "rgba(37, 99, 235, 0.40)",
+            ring: "#2c6ecb",
         },
         disabled: {
-            background: "#F3F4F6",
-            text: "#9CA3AF",
-            border: "#E5E7EB",
+            background: "#f1f1f1",
+            text: "#8c9196",
+            border: "#e1e3e5",
         },
     },
     /**
-     * Semantic feedback — neutral cool palette matching Mercury data viz.
-     *   success: emerald-500 (growth, positive deltas)
-     *   warning: amber-500 (genuinely amber here, not the brand)
-     *   danger:  red-500 (failed payment, validation error)
-     *   info:    blue-500 (system tip, neutral notification)
+     * Connector / integration status badges (admin Settings → Connectors).
      */
-    feedback: {
-        success: {
-            default: "#10B981",
-            subtle: "rgba(16, 185, 129, 0.12)",
-            content: "#047857",
-            border: "rgba(16, 185, 129, 0.30)",
+    connectorStatus: {
+        active: {
+            bg: "#e3f4ea",
+            border: "#94d0b1",
+            text: "#0f5132",
         },
-        warning: {
-            default: "#F59E0B",
-            subtle: "rgba(245, 158, 11, 0.12)",
-            content: "#92400E",
-            border: "rgba(245, 158, 11, 0.30)",
+        inactive: {
+            bg: "#f1f1f1",
+            border: "#e1e3e5",
+            text: "#6d7175",
         },
-        danger: {
-            default: "#EF4444",
-            subtle: "rgba(239, 68, 68, 0.10)",
-            content: "#991B1B",
-            border: "rgba(239, 68, 68, 0.30)",
-        },
-        info: {
-            default: "#3B82F6",
-            subtle: "rgba(59, 130, 246, 0.10)",
-            content: "#1E40AF",
-            border: "rgba(59, 130, 246, 0.30)",
+        unconfigured: {
+            bg: "#fff5d9",
+            border: "#f0d878",
+            text: "#5c4f1a",
         },
     },
 };
+/**
+ * Spacing scale aligned with Tailwind’s default (rem → browser root).
+ * Keys match Tailwind numeric spacing: 1 = 0.25rem, 2 = 0.5rem, …
+ */
 export const spacingScale = {
     "0": "0",
     "px": "1px",
@@ -205,89 +109,72 @@ export const spacingScale = {
     "24": "6rem",
     "32": "8rem",
 };
-/**
- * Typography — Geist (modern variable sans) + Geist Mono (numbers, IDs).
- * Geist is intentionally chosen over Inter to avoid the AI/SaaS cliche.
- */
 export const fontFamily = {
     sans: [
-        "Geist",
+        "Inter",
         "system-ui",
         "-apple-system",
         "Segoe UI",
+        "Roboto",
+        "Helvetica",
+        "Arial",
         "sans-serif",
     ].join(", "),
     mono: [
-        "Geist Mono",
         "ui-monospace",
         "SFMono-Regular",
         "Menlo",
+        "Monaco",
+        "Consolas",
+        "Liberation Mono",
+        "Courier New",
         "monospace",
     ].join(", "),
 };
 export const fontSize = {
-    "3xs": "0.625rem", // 10px — micro labels, counters
-    "2xs": "0.6875rem", // 11px — caption, badge text
-    xs: "0.75rem", // 12px — compact UI (filter chips, table headers)
-    sm: "0.8125rem", // 13px — body / cell text
-    base: "0.875rem", // 14px — default body
-    interface: "0.9375rem", // 15px — page headings, section titles
-    md: "1rem", // 16px — large body
-    lg: "1.125rem", // 18px
-    xl: "1.25rem", // 20px
-    "2xl": "1.5rem", // 24px
-    "3xl": "1.875rem", // 30px
-    "4xl": "2rem", // 32px — display headings
-    "5xl": "2.25rem", // 36px — hero headings
+    "2xs": "0.6875rem",
+    xs: "0.75rem",
+    sm: "0.8125rem",
+    base: "0.875rem",
+    md: "1rem",
+    lg: "1.125rem",
+    xl: "1.25rem",
+    "2xl": "1.5rem",
+    "3xl": "1.75rem",
 };
 export const fontWeight = {
     regular: "400",
     medium: "500",
     semibold: "600",
-    bold: "700",
 };
 export const lineHeight = {
-    tight: "1.2",
-    snug: "1.3",
+    tight: "1.25",
+    snug: "1.375",
     normal: "1.5",
     relaxed: "1.625",
 };
 export const letterSpacing = {
     tight: "-0.01em",
     normal: "0",
-    label: "0.04em",
-    wide: "0.08em",
+    wide: "0.02em",
 };
-/**
- * Radius — Mercury card geometry (10px) is the workhorse.
- *   sm   (6px)  — tags, badges, chips, checkboxes
- *   base (8px)  — inputs, buttons, small cards
- *   md   (10px) — operational cards (Mercury standard)
- *   lg   (12px) — panels, large containers
- *   xl   (16px) — modals, dialogs
- *   pill (999)  — pill badges, avatars, quick-action chips
- */
 export const radii = {
     none: "0",
-    sm: "0.375rem",
-    base: "0.5rem",
-    md: "0.625rem",
-    lg: "0.75rem",
-    xl: "1rem",
-    pill: "9999px",
+    sm: "0.25rem",
+    md: "0.375rem",
+    lg: "0.5rem",
+    xl: "0.75rem",
+    "2xl": "1rem",
+    full: "9999px",
 };
 /**
- * Shadows — whisper-soft, slate-tinted. Mercury card elevation.
- *   sm     — base card resting state (`0 6px 18px rgba(17,24,39,0.04)`)
- *   md     — hover, popover
- *   lg     — modal, sheet
- *   focus  — accent focus ring
+ * Layered box shadows. Values reference surface/content tokens for consistency.
  */
 export const shadows = {
-    sm: "0 1px 2px rgba(17, 24, 39, 0.04), 0 6px 18px rgba(17, 24, 39, 0.04)",
-    md: "0 4px 12px rgba(17, 24, 39, 0.08), 0 2px 4px rgba(17, 24, 39, 0.04)",
-    lg: "0 16px 40px rgba(17, 24, 39, 0.12), 0 4px 8px rgba(17, 24, 39, 0.06)",
-    focus: "0 0 0 3px rgba(37, 99, 235, 0.40)",
+    sm: "0 1px 2px rgba(32, 34, 35, 0.08), 0 0 0 1px rgba(32, 34, 35, 0.04)",
+    md: "0 2px 6px rgba(32, 34, 35, 0.1), 0 0 0 1px rgba(32, 34, 35, 0.06)",
+    lg: "0 8px 24px rgba(32, 34, 35, 0.12), 0 0 0 1px rgba(32, 34, 35, 0.06)",
+    focus: "0 0 0 3px rgba(44, 110, 203, 0.35)",
 };
 export const zIndex = {
     base: "0",
@@ -299,25 +186,16 @@ export const zIndex = {
     toast: "1080",
 };
 /**
- * Motion — Emil's strong ease-out curves. UI feels intentional, not lazy.
- *   instant — keyboard-driven, micro feedback (button press)
- *   fast    — popovers, tooltips, dropdowns
- *   page    — route transitions (kept under 300ms)
- *   slow    — drawers, sheets
+ * Motion tokens for route-level transitions and future UI motion (admin shell).
+ * Durations are explicit `ms` strings for `animation` / `transition` declarations.
  */
 export const motion = {
     duration: {
-        instant: "80ms",
-        fast: "160ms",
+        /** Default enter timing for main route outlet content */
         page: "200ms",
-        slow: "280ms",
     },
     easing: {
-        /** Strong ease-out for entering UI — Emil curve. */
-        enter: "cubic-bezier(0.23, 1, 0.32, 1)",
-        /** Strong ease-in-out for on-screen movement. */
-        exit: "cubic-bezier(0.77, 0, 0.175, 1)",
-        /** Spring-like — interactive state changes, small playful moments. */
-        spring: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        /** Standard deceleration for page enter */
+        page: "cubic-bezier(0.2, 0, 0, 1)",
     },
 };
