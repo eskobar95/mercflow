@@ -83,3 +83,42 @@ jobs:
 
   # Semgrep SAST runs via the installed Semgrep GitHub App — not in this workflow.
   # Configure rules in .semgrep.yml at repo root.
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 4. react-doctor — React code quality, performance, security, a11y, dead code
+  #    Scans only files changed in this PR (--diff) for fast feedback.
+  # ─────────────────────────────────────────────────────────────────────────────
+  react-doctor:
+    name: React Doctor (admin-ui)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: React Doctor (changed files only)
+        working-directory: packages/admin-ui
+        run: >
+          npx react-doctor
+          --diff origin/development
+          --annotations
+          --pr-comment
+          --fail-on error
+        continue-on-error: false
