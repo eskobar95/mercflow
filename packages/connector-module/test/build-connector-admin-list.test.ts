@@ -10,6 +10,7 @@ describe("buildConnectorAdminList", (): void => {
       expect(row.configured).toBe(false)
       expect(row.active).toBe(false)
       expect(row.lastTestedAt).toBeNull()
+      expect(row.connectionHealth).toBeNull()
     }
     expect(list.map((r) => r.type).sort()).toEqual(["gtm", "plunk", "shipmondo", "stripe"])
   })
@@ -26,12 +27,15 @@ describe("buildConnectorAdminList", (): void => {
         secret_key_last4: null,
         publishable_key_last4: null,
         webhook_secret_last4: null,
+        connection_status: "ok",
+        last_test_message: "ok",
       },
     ])
     const stripe = list.find((c) => c.type === "stripe")
     expect(stripe?.configured).toBe(true)
     expect(stripe?.active).toBe(true)
     expect(stripe?.lastTestedAt).toBe("2026-05-20T12:00:00.000Z")
+    expect(stripe?.connectionHealth).toBe("ok")
     const shipmondo = list.find((c) => c.type === "shipmondo")
     expect(shipmondo?.configured).toBe(false)
   })
@@ -48,11 +52,14 @@ describe("buildConnectorAdminList", (): void => {
         secret_key_last4: null,
         publishable_key_last4: null,
         webhook_secret_last4: null,
+        connection_status: null,
+        last_test_message: null,
       },
     ])
     const row = list.find((c) => c.type === "shipmondo")
     expect(row?.configured).toBe(true)
     expect(row?.active).toBe(false)
     expect(row?.lastTestedAt).toBeNull()
+    expect(row?.connectionHealth).toBe("untested")
   })
 })

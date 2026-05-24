@@ -154,6 +154,14 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "settings/connectors/plunk",
+        handle: { title: "Plunk email" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { PlunkConnectorPage } = await import("@/pages/PlunkConnectorPage")
+          return { Component: PlunkConnectorPage }
+        },
+      },
+      {
         path: "settings/connectors/:connectorType",
         handle: { title: "Connector" } satisfies AppRouteHandle,
         lazy: async () => {
