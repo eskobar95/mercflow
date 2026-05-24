@@ -15,7 +15,7 @@
  *
  * ```bash
  * cd packages/subscription-module
- * export DATABASE_URL=postgres://...
+ * export DATABASE_URL=<your_postgres_url>
  * pnpm db:generate # when DML changes
  * pnpm db:migrate  # forwards (run via backend in CI)
  * ```
