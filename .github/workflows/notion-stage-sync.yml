@@ -1,0 +1,156 @@
+name: Notion Stage Sync
+
+# Bridges GitHub events → Notion Stage changes.
+#
+# Replaces the never-deployed github-events Notion Worker.
+#
+# Handles:
+#   1. check_run failure on code-quality checks → Stage: Fix
+#   2. Bugbot review with findings             → Stage: Fix
+#   3. Bugbot review with no findings          → Stage: Ready for Merge
+
+on:
+  check_run:
+    types: [completed]
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Shared bash helper — extracts Notion page ID from a PR body and calls the
+# Notion API. Inlined in each job since GitHub Actions has no shared steps.
+# ─────────────────────────────────────────────────────────────────────────────
+
+jobs:
+
+  # ── 1. CI code-quality failure → Stage: Fix ────────────────────────────────
+  ci-quality-fix:
+    name: Stage → Fix on code-quality failure
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'check_run' &&
+      github.event.check_run.conclusion == 'failure' &&
+      (
+        github.event.check_run.name == 'React Doctor (admin-ui)' ||
+        github.event.check_run.name == 'Lint, test, typecheck, build'
+      )
+    steps:
+      - name: Set Stage → Fix
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CHECK_NAME: ${{ github.event.check_run.name }}
+        run: |
+          set -euo pipefail
+
+          PR_NUMBER=$(echo '${{ toJson(github.event.check_run.pull_requests) }}' \
+            | jq -r '.[0].number // empty')
+          [ -z "$PR_NUMBER" ] && echo "No PR — skipping." && exit 0
+
+          PR_BODY=$(gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" --json body -q .body)
+          NOTION_URL=$(echo "$PR_BODY" | grep -oP 'https://www\.notion\.so/[a-zA-Z0-9/_-]+' | head -1 || true)
+          [ -z "$NOTION_URL" ] && echo "No Notion URL in PR body — skipping." && exit 0
+
+          HEX=$(echo "$NOTION_URL" | grep -oP '[0-9a-f]{32}' | tail -1)
+          PAGE_ID="${HEX:0:8}-${HEX:8:4}-${HEX:12:4}-${HEX:16:4}-${HEX:20}"
+
+          curl -sf -X PATCH "https://api.notion.com/v1/pages/$PAGE_ID" \
+            -H "Authorization: Bearer $NOTION_API_KEY" \
+            -H "Notion-Version: 2022-06-28" \
+            -H "Content-Type: application/json" \
+            -d '{"properties": {"Stage": {"select": {"name": "Fix"}}}}'
+
+          curl -sf -X POST "https://api.notion.com/v1/comments" \
+            -H "Authorization: Bearer $NOTION_API_KEY" \
+            -H "Notion-Version: 2022-06-28" \
+            -H "Content-Type: application/json" \
+            -d "{\"parent\":{\"page_id\":\"$PAGE_ID\"},\"rich_text\":[{\"text\":{\"content\":\"Agent: notion-stage-sync\nCI code-quality failure → Stage Fix\n\nFailing check on PR #${PR_NUMBER}: ${CHECK_NAME}\n\nImplementation Agent dispatched. Fix only this check — no scope changes.\"}}]}"
+
+          echo "Stage → Fix for $NOTION_URL"
+
+  # ── 2. Bugbot findings → Stage: Fix ────────────────────────────────────────
+  bugbot-fix:
+    name: Stage → Fix on Bugbot findings
+    runs-on: ubuntu-latest
+    # Bugbot posts as cursor[bot] with COMMENTED state and <!-- BUGBOT_REVIEW --> marker.
+    # We detect findings by the presence of <!-- BUGBOT_FIX_ALL --> in the body.
+    if: >
+      github.event_name == 'pull_request_review' &&
+      github.event.review.user.login == 'cursor[bot]' &&
+      contains(github.event.review.body, 'BUGBOT_FIX_ALL')
+    steps:
+      - name: Set Stage → Fix
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+
+          PR_BODY=$(gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" --json body -q .body)
+          NOTION_URL=$(echo "$PR_BODY" | grep -oP 'https://www\.notion\.so/[a-zA-Z0-9/_-]+' | head -1 || true)
+          [ -z "$NOTION_URL" ] && echo "No Notion URL in PR body — skipping." && exit 0
+
+          HEX=$(echo "$NOTION_URL" | grep -oP '[0-9a-f]{32}' | tail -1)
+          PAGE_ID="${HEX:0:8}-${HEX:8:4}-${HEX:12:4}-${HEX:16:4}-${HEX:20}"
+
+          curl -sf -X PATCH "https://api.notion.com/v1/pages/$PAGE_ID" \
+            -H "Authorization: Bearer $NOTION_API_KEY" \
+            -H "Notion-Version: 2022-06-28" \
+            -H "Content-Type: application/json" \
+            -d '{"properties": {"Stage": {"select": {"name": "Fix"}}}}'
+
+          # Extract Bugbot summary (first 1500 chars of review body, stripped of HTML)
+          BUGBOT_SUMMARY=$(echo '${{ toJson(github.event.review.body) }}' \
+            | jq -r '.' | sed 's/<[^>]*>//g' | head -c 1500)
+
+          curl -sf -X POST "https://api.notion.com/v1/comments" \
+            -H "Authorization: Bearer $NOTION_API_KEY" \
+            -H "Notion-Version: 2022-06-28" \
+            -H "Content-Type: application/json" \
+            -d "{\"parent\":{\"page_id\":\"$PAGE_ID\"},\"rich_text\":[{\"text\":{\"content\":\"Agent: notion-stage-sync\nBugbot findings → Stage Fix\n\nPR #${PR_NUMBER} — Bugbot found issues. Implementation Agent dispatched.\n\nBugbot summary:\n${BUGBOT_SUMMARY}\"}}]}"
+
+          echo "Stage → Fix for $NOTION_URL"
+
+  # ── 3. Bugbot no findings → Stage: Ready for Merge ─────────────────────────
+  bugbot-ready:
+    name: Stage → Ready for Merge on Bugbot approval
+    runs-on: ubuntu-latest
+    # Bugbot posts BUGBOT_REVIEW but without BUGBOT_FIX_ALL when there are no findings.
+    if: >
+      github.event_name == 'pull_request_review' &&
+      github.event.review.user.login == 'cursor[bot]' &&
+      contains(github.event.review.body, 'BUGBOT_REVIEW') &&
+      !contains(github.event.review.body, 'BUGBOT_FIX_ALL')
+    steps:
+      - name: Set Stage → Ready for Merge
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+
+          PR_BODY=$(gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" --json body -q .body)
+          NOTION_URL=$(echo "$PR_BODY" | grep -oP 'https://www\.notion\.so/[a-zA-Z0-9/_-]+' | head -1 || true)
+          [ -z "$NOTION_URL" ] && echo "No Notion URL in PR body — skipping." && exit 0
+
+          HEX=$(echo "$NOTION_URL" | grep -oP '[0-9a-f]{32}' | tail -1)
+          PAGE_ID="${HEX:0:8}-${HEX:8:4}-${HEX:12:4}-${HEX:16:4}-${HEX:20}"
+
+          curl -sf -X PATCH "https://api.notion.com/v1/pages/$PAGE_ID" \
+            -H "Authorization: Bearer $NOTION_API_KEY" \
+            -H "Notion-Version: 2022-06-28" \
+            -H "Content-Type: application/json" \
+            -d '{"properties": {"Stage": {"select": {"name": "Ready for Merge"}}}}'
+
+          curl -sf -X POST "https://api.notion.com/v1/comments" \
+            -H "Authorization: Bearer $NOTION_API_KEY" \
+            -H "Notion-Version: 2022-06-28" \
+            -H "Content-Type: application/json" \
+            -d "{\"parent\":{\"page_id\":\"$PAGE_ID\"},\"rich_text\":[{\"text\":{\"content\":\"Agent: notion-stage-sync\nBugbot: no findings → Stage Ready for Merge\n\nPR #${PR_NUMBER} passed Bugbot review. Tech Lead Merge Agent dispatched.\"}}]}"
+
+          echo "Stage → Ready for Merge for $NOTION_URL"
