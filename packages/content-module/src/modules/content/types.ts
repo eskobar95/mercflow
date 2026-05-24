@@ -50,6 +50,9 @@ export type ResolvedCategoryContent = {
   id: string
   category_id: string
   locale: string
+  version: number
+  /** Row-level CMS publish state in `category_content`. */
+  cms_status: ContentPublishStatus
   description_rich: unknown
   seo_title: string | null
   seo_description: string | null
