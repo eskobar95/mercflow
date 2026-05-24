@@ -55,6 +55,14 @@ export function Sheet({
             transitionTimingFunction: DRAWER_EASE,
           }}
         >
+          {/* Drag handle — shown on mobile (right→bottom) and always for side="bottom" */}
+          <div
+            aria-hidden
+            className={cn(
+              "mx-auto h-1 w-8 rounded-full bg-border-default",
+              side === "bottom" ? "mt-2.5 mb-0 block" : "mt-2.5 mb-0 hidden max-sm:block",
+            )}
+          />
           <div className="flex items-start justify-between border-b border-border-subtle px-4 py-3">
             <div>
               <DialogPrimitive.Title className="text-base font-semibold text-content-primary">

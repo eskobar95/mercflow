@@ -35,7 +35,7 @@ export const AlertDialogContent = forwardRef<
   return (
     <AlertDialogPortal>
       <AlertDialogOverlay />
-      <AlertDialogPrimitive.Content
+        <AlertDialogPrimitive.Content
         ref={ref}
         className={cn(
           "fixed z-modal w-full max-w-md border border-border-default bg-surface-raised shadow-lg",
@@ -53,7 +53,11 @@ export const AlertDialogContent = forwardRef<
           transitionTimingFunction: ENTER_EASE,
         }}
         {...rest}
-      />
+      >
+        {/* Drag handle — only visible on mobile bottom drawer */}
+        <div aria-hidden className="mx-auto mb-0 mt-2.5 hidden h-1 w-8 rounded-full bg-border-default max-sm:block" />
+        {rest.children}
+      </AlertDialogPrimitive.Content>
     </AlertDialogPortal>
   )
 })

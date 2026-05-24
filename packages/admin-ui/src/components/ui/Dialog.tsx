@@ -60,6 +60,8 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
           }}
           {...rest}
         >
+          {/* Drag handle — only visible on mobile bottom drawer */}
+          <div aria-hidden className="mx-auto mb-0 mt-2.5 hidden h-1 w-8 rounded-full bg-border-default max-sm:block" />
           {children}
           {showClose ? (
             <DialogPrimitive.Close
