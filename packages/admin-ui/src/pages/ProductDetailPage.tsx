@@ -1,6 +1,7 @@
 import { useMemo } from "react"
 import { Link, useParams, useSearchParams } from "react-router-dom"
 
+import { ProductContentTab } from "@/components/product-content/ProductContentTab"
 import { ProductGalleryStrip } from "@/components/products/ProductGalleryStrip"
 import { ProductVariantsTable } from "@/components/products/ProductVariantsTable"
 import { Badge } from "@/components/ui/Badge"
@@ -17,7 +18,7 @@ import { previewPlainText } from "@/lib/text/previewPlainText"
 
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
-type DetailTabId = "overview" | "variants"
+type DetailTabId = "overview" | "variants" | "content"
 
 function mockVariantFallback(row: ProductListRow): DetailVariantRow[] {
   return [
@@ -36,7 +37,12 @@ export function ProductDetailPage(): JSX.Element {
   const [searchParams, setSearchParams] = useSearchParams()
   const hasBackend = resolveMedusaAdminBackendUrl() !== null
 
-  const tab: DetailTabId = searchParams.get("tab") === "variants" ? "variants" : "overview"
+  const tab: DetailTabId =
+    searchParams.get("tab") === "variants"
+      ? "variants"
+      : searchParams.get("tab") === "content"
+        ? "content"
+        : "overview"
 
   const detailQuery = useAdminProductDetail(hasBackend ? productId : undefined)
 
@@ -123,6 +129,7 @@ export function ProductDetailPage(): JSX.Element {
 
   const overviewTabId = "product-tab-overview"
   const variantsTabId = "product-tab-variants"
+  const contentTabId = "product-tab-content"
 
   const statusLabel = mockFallback?.status ?? detailQuery.data?.status ?? "draft"
 
@@ -217,6 +224,25 @@ export function ProductDetailPage(): JSX.Element {
         >
           Variants
         </button>
+
+        <button
+          type="button"
+          role="tab"
+          id={`${contentTabId}-tab`}
+          aria-selected={tab === "content"}
+          aria-controls={contentTabId}
+          tabIndex={tab === "content" ? 0 : -1}
+          className={`border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
+            tab === "content"
+              ? "border-interactive-primary text-content-primary"
+              : "border-transparent text-content-secondary hover:text-content-primary"
+          }`}
+          onClick={() => {
+            setSearchParams({ tab: "content" }, { replace: true })
+          }}
+        >
+          Content
+        </button>
       </div>
 
       {detailQuery.isLoading && hasBackend ? (
@@ -251,10 +277,28 @@ export function ProductDetailPage(): JSX.Element {
                   <ProductGalleryStrip thumbnails={galleryAssets} />
                 </div>
               </div>
-
-              {/* TODO: [Admin: Product … Sprint 3] — restore ProductContentTab routes once write-path UX ships */}
             </div>
           </Card>
+        ) : null}
+      </div>
+
+      <div
+        role="tabpanel"
+        id={contentTabId}
+        aria-labelledby={`${contentTabId}-tab`}
+        hidden={tab !== "content"}
+      >
+        {tab === "content" ? (
+          hasBackend ? (
+            <ProductContentTab productId={productId} productTitleFallback={title} />
+          ) : (
+            <Card>
+              <p className="text-sm text-content-secondary">
+                Connect <code className="text-xs">VITE_MEDUSA_ADMIN_BACKEND_URL</code> to load MercFlow CMS
+                content for this product.
+              </p>
+            </Card>
+          )
         ) : null}
       </div>
 

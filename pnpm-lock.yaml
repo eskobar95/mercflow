@@ -264,6 +264,9 @@ importers:
       '@medusajs/cli':
         specifier: 2.14.1
         version: 2.14.1(@types/node@22.19.17)
+      '@medusajs/types':
+        specifier: 2.14.1
+        version: 2.14.1(ioredis@5.10.1)(vite@5.4.21(@types/node@22.19.17))
       '@types/node':
         specifier: ^22.10.1
         version: 22.19.17
