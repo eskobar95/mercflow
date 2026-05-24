@@ -1,358 +1,434 @@
 import { useCallback, useMemo, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
-import { Button } from "@/components/ui/Button"
-import { DataTable } from "@/components/ui/list/DataTable"
-import { ListEmptyState } from "@/components/ui/list/ListEmptyState"
-import { ListPagination } from "@/components/ui/list/ListPagination"
-import { type RowActionItem } from "@/components/ui/list/RowActionsMenu"
-import { type ListColumnDef } from "@/components/ui/list/types"
 import { ProductCardGrid } from "@/components/product-list/ProductCardGrid"
-import {
-  FilterResultsSummary,
-  ProductListFilterBar,
-  type ActiveFilter,
-  type FilterCategory,
-} from "@/components/product-list/filter"
 import { ProductStatusBadge } from "@/components/product-list/ProductStatusBadge"
 import { ProductThumbnail } from "@/components/product-list/ProductThumbnail"
-import { rowMatchesProductFilter } from "@/components/product-list/productListFilterLogic"
+import { Button } from "@/components/ui/Button"
+import { DataTable } from "@/components/ui/list/DataTable"
+import { Input } from "@/components/ui/Input"
+import { ListEmptyState } from "@/components/ui/list/ListEmptyState"
+import { ListPagination } from "@/components/ui/list/ListPagination"
+import type { RowActionItem } from "@/components/ui/list/RowActionsMenu"
+import type { ListColumnDef, ListSortState } from "@/components/ui/list/types"
+
 import { MOCK_PRODUCTS, type ProductListRow } from "@/data/mockProducts"
-import { useMockEntityListState } from "@/hooks/useMockEntityListState"
+
+import type {
+  ProductsStatusTabFilter,
+  ProductSortColumnPayload,
+} from "@/hooks/products/useProductsCatalogList"
+import { useProductsCatalogList } from "@/hooks/products/useProductsCatalogList"
+import { useDebouncedValue } from "@/hooks/useDebouncedValue"
+
 import { cn } from "@/lib/cn"
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
-type StatusFilter = "all" | "published" | "draft" | "proposed"
-type ProductCol = "thumbnail" | "title" | "status" | "collection" | "updatedAt"
+const LIST_PAGE_SIZE = 20
 
-// ── Constants ─────────────────────────────────────────────────────────────────
+type ProductColumnId =
+  | "thumbnail"
+  | "title"
+  | "status"
+  | "variantsCount"
+  | "stockTotal"
+  | "priceRange"
+  | "updatedAt"
 
-const STATUS_TABS: { id: StatusFilter; label: string }[] = [
-  { id: "all",       label: "All"       },
-  { id: "published", label: "Published" },
-  { id: "draft",     label: "Draft"     },
-  { id: "proposed",  label: "Proposed"  },
+const STATUS_TAB_CONFIG: {
+  id: ProductsStatusTabFilter
+  label: string
+  description: string
+}[] = [
+  { id: "all", label: "All", description: "Every product regardless of storefront status." },
+  { id: "active", label: "Active", description: "Products published across sales channels." },
+  { id: "draft", label: "Draft", description: "Work-in-progress catalogue entries." },
 ]
 
-const ROW_ACTIONS: RowActionItem[] = [
-  { id: "view",      label: "View",      onSelect: () => {} },
-  { id: "edit",      label: "Edit",      onSelect: () => {} },
-  { id: "duplicate", label: "Duplicate", onSelect: () => {} },
-  { id: "delete",    label: "Delete",    destructive: true,  onSelect: () => {} },
-]
+const SORTABLE_PRODUCT_COLUMNS = new Set<ProductColumnId>([
+  "title",
+  "status",
+  "updatedAt",
+])
 
-const PRODUCT_COLUMNS: ListColumnDef<ProductListRow, ProductCol>[] = [
-  {
-    id: "thumbnail",
-    header: "",
-    sortable: false,
-    headerClassName: "w-10",
-    cellClassName: "py-2 w-10",
-    renderCell: (r) => (
-      <ProductThumbnail title={r.title} hue={r.thumbnailHue} size={36} />
-    ),
-  },
-  {
-    id: "title",
-    header: "Product",
-    sortable: true,
-    getSortValue: (r) => r.title,
-    renderCell: (r) => (
-      <div>
-        <Link
-          to={`/products/${encodeURIComponent(r.id)}`}
-          className="text-sm font-medium text-content-primary hover:text-accent focus-visible:outline-none focus-visible:text-accent"
-        >
-          {r.title}
-        </Link>
-        <p className="mt-0.5 font-mono text-2xs text-content-tertiary">{r.sku}</p>
-      </div>
-    ),
-  },
-  {
-    id: "status",
-    header: "Status",
-    sortable: true,
-    getSortValue: (r) => r.status,
-    renderCell: (r) => <ProductStatusBadge status={r.status} />,
-  },
-  {
-    id: "collection",
-    header: "Collection",
-    sortable: true,
-    getSortValue: (r) => r.collection,
-    renderCell: (r) => (
-      <span className="text-sm text-content-secondary">{r.collection}</span>
-    ),
-  },
-  {
-    id: "updatedAt",
-    header: "Updated",
-    sortable: true,
-    getSortValue: (r) => new Date(r.updatedAt).getTime(),
-    renderCell: (r) => (
-      <time dateTime={r.updatedAt} className="text-sm text-content-tertiary">
-        {new Date(r.updatedAt).toLocaleDateString(undefined, {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        })}
-      </time>
-    ),
-  },
-]
-
-// ── StatusTabBar ──────────────────────────────────────────────────────────────
-
-function StatusTabBar({
+function StatusTabRail({
   active,
   counts,
   onChange,
 }: {
-  active: StatusFilter
-  counts: Record<StatusFilter, number>
-  onChange: (s: StatusFilter) => void
+  active: ProductsStatusTabFilter
+  counts?: Partial<Record<ProductsStatusTabFilter, number>>
+  onChange: (value: ProductsStatusTabFilter) => void
 }): JSX.Element {
   return (
-    <div className="flex items-center border-b border-border-subtle px-4">
-      {STATUS_TABS.map((tab) => (
-        <button
-          key={tab.id}
-          type="button"
-          onClick={() => onChange(tab.id)}
-          className={cn(
-            "relative flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
-            active === tab.id
-              ? "border-content-primary text-content-primary"
-              : "border-transparent text-content-tertiary hover:text-content-secondary",
-          )}
-        >
-          {tab.label}
-          <span
+    <div className="flex flex-wrap gap-2 border-b border-border-subtle px-4 py-3">
+      {STATUS_TAB_CONFIG.map((tab) => {
+        const badge = counts?.[tab.id]
+        return (
+          <button
+            key={tab.id}
+            type="button"
+            aria-pressed={active === tab.id}
+            aria-label={
+              badge !== undefined ? `${tab.label}: ${badge} products.` : `${tab.label} filter`
+            }
+            title={tab.description}
+            onClick={() => {
+              onChange(tab.id)
+            }}
             className={cn(
-              "inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-sm px-1 text-3xs font-semibold tabular-nums",
+              "inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors",
               active === tab.id
-                ? "bg-surface-subtle text-content-secondary"
-                : "text-content-tertiary",
+                ? "border-interactive-primary bg-surface-subtle text-content-primary"
+                : "border-border-default bg-surface-default text-content-tertiary hover:text-content-secondary",
             )}
           >
-            {counts[tab.id]}
-          </span>
-        </button>
-      ))}
+            {tab.label}
+            {badge !== undefined ? (
+              <span className="text-3xs tabular-nums text-content-secondary">({badge})</span>
+            ) : null}
+          </button>
+        )
+      })}
     </div>
   )
 }
 
-// ── Filter categories ─────────────────────────────────────────────────────────
-
-const ALL_COLLECTIONS = Array.from(
-  new Set(MOCK_PRODUCTS.map((r) => r.collection)),
-).sort()
-
-const FILTER_CATEGORIES: FilterCategory[] = [
-  {
-    id: "status",
-    label: "Status",
-    type: "enum",
-    operators: ["is", "is not"],
-    values: [
-      { id: "published", label: "Published" },
-      { id: "draft",     label: "Draft"     },
-      { id: "proposed",  label: "Proposed"  },
-    ],
-  },
-  {
-    id: "collection",
-    label: "Collection",
-    type: "enum",
-    operators: ["is", "is not"],
-    values: ALL_COLLECTIONS.map((c) => ({ id: c, label: c })),
-  },
-  {
-    id: "updated",
-    label: "Updated",
-    type: "date",
-    operators: ["after", "before"],
-    values: [
-      { id: "today", label: "Today"      },
-      { id: "week",  label: "This week"  },
-      { id: "month", label: "This month" },
-    ],
-  },
-]
-
-// ── Page ──────────────────────────────────────────────────────────────────────
+function buildColumns(): ListColumnDef<ProductListRow, ProductColumnId>[] {
+  return [
+    {
+      id: "thumbnail",
+      header: "",
+      sortable: false,
+      headerClassName: "w-12 px-3",
+      cellClassName: "w-12 px-3",
+      renderCell: (row) => (
+        <ProductThumbnail
+          title={row.title}
+          imageUrl={row.thumbnailUrl ?? undefined}
+          hue={row.thumbnailHue}
+          size={40}
+        />
+      ),
+    },
+    {
+      id: "title",
+      header: "Product",
+      sortable: true,
+      getSortValue: (row) => row.title,
+      renderCell: (row) => (
+        <Link
+          to={`/products/${encodeURIComponent(row.id)}`}
+          className="font-medium text-accent hover:underline focus-visible:outline-none focus-visible:underline"
+        >
+          {row.title}
+        </Link>
+      ),
+    },
+    {
+      id: "status",
+      header: "Status",
+      sortable: true,
+      getSortValue: (row) => row.status,
+      renderCell: (row) => <ProductStatusBadge status={row.status} />,
+    },
+    {
+      id: "variantsCount",
+      header: "Variants",
+      sortable: false,
+      cellClassName: "text-sm tabular-nums text-content-secondary",
+      renderCell: (row) => row.variantsCount,
+    },
+    {
+      id: "stockTotal",
+      header: "Total stock",
+      sortable: false,
+      cellClassName: "text-sm tabular-nums text-content-secondary",
+      renderCell: (row) => (typeof row.stockTotal === "number" ? row.stockTotal : "–"),
+    },
+    {
+      id: "priceRange",
+      header: "Price range",
+      sortable: false,
+      cellClassName: "text-sm tabular-nums text-content-secondary",
+      renderCell: (row) => row.priceRangeLabel,
+    },
+    {
+      id: "updatedAt",
+      header: "Updated",
+      sortable: true,
+      getSortValue: (row) => new Date(row.updatedAt).getTime(),
+      cellClassName: "text-sm text-content-tertiary",
+      renderCell: (row) => (
+        <time dateTime={row.updatedAt}>
+          {new Date(row.updatedAt).toLocaleDateString(undefined, {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })}
+        </time>
+      ),
+    },
+  ]
+}
 
 export function ProductListPage(): JSX.Element {
   const navigate = useNavigate()
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
-  const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>([])
+  const hasBackend = resolveMedusaAdminBackendUrl() !== null
 
-  const filterRow = useCallback(
-    (r: ProductListRow, query: string): boolean => {
-      if (statusFilter !== "all" && r.status !== statusFilter) return false
-      if (!activeFilters.every((f) => rowMatchesProductFilter(r, f))) return false
-      if (!query.trim()) return true
-      const t = query.toLowerCase()
-      return (
-        r.title.toLowerCase().includes(t) ||
-        r.collection.toLowerCase().includes(t) ||
-        r.sku.toLowerCase().includes(t)
-      )
-    },
-    [statusFilter, activeFilters],
-  )
+  const [statusTab, setStatusTab] = useState<ProductsStatusTabFilter>("all")
+  const [searchDraft, setSearchDraft] = useState("")
+  const debouncedSearch = useDebouncedValue(searchDraft, 300)
+  const [page, setPage] = useState(1)
+  const columns = useMemo(() => buildColumns(), [])
 
-  const {
-    search,
-    setSearch,
-    pageSize,
-    sort,
-    onRequestSort,
-    paged,
-    sorted,
-    currentPage,
-    selectedIds,
-    onSelectAll,
-    onSelectRow,
-    setPage,
-    setPageSize,
-  } = useMockEntityListState({
-    allRows: MOCK_PRODUCTS,
-    columns: PRODUCT_COLUMNS,
-    getRowId: (r) => r.id,
-    initialSort: { column: "updatedAt", direction: "desc" },
-    filterRow,
+  const [sortState, setSortState] = useState<ListSortState<ProductColumnId>>({
+    column: "updatedAt",
+    direction: "desc",
   })
 
-  const statusCounts = useMemo(
-    () => ({
-      all:       MOCK_PRODUCTS.length,
-      published: MOCK_PRODUCTS.filter((r) => r.status === "published").length,
-      draft:     MOCK_PRODUCTS.filter((r) => r.status === "draft").length,
-      proposed:  MOCK_PRODUCTS.filter((r) => r.status === "proposed").length,
-    }),
-    [],
+  const filteredSortColumn: keyof ProductSortColumnPayload | null =
+    sortState.direction === "none" || sortState.column === null
+      ? null
+      : SORTABLE_PRODUCT_COLUMNS.has(sortState.column)
+        ? (sortState.column as keyof ProductSortColumnPayload)
+        : null
+
+  const listQuery = useProductsCatalogList({
+    debouncedSearch,
+    statusTab,
+    page,
+    pageSize: LIST_PAGE_SIZE,
+    sortColumn: filteredSortColumn,
+    sortDirection: sortState.direction,
+  })
+
+  const rows = listQuery.data?.rows ?? []
+
+  const onRequestSort = useCallback((columnId: ProductColumnId) => {
+    if (!SORTABLE_PRODUCT_COLUMNS.has(columnId)) {
+      return
+    }
+    setSortState((prev) => {
+      if (prev.column !== columnId) {
+        return {
+          column: columnId,
+          direction: columnId === "updatedAt" ? "desc" : "asc",
+        }
+      }
+      if (prev.direction === "asc") {
+        return { column: columnId, direction: "desc" }
+      }
+      if (prev.direction === "desc") {
+        return { column: null, direction: "none" }
+      }
+      return {
+        column: columnId,
+        direction: columnId === "updatedAt" ? "desc" : "asc",
+      }
+    })
+    setPage(1)
+  }, [])
+
+  const tabCountsMock = useMemo(() => {
+    const titleFilter = debouncedSearch.trim().toLowerCase()
+    let base = MOCK_PRODUCTS
+    if (titleFilter.length > 0) {
+      base = base.filter((product) => product.title.toLowerCase().includes(titleFilter))
+    }
+
+    function count(where: ProductsStatusTabFilter): number {
+      if (where === "all") {
+        return base.length
+      }
+      if (where === "active") {
+        return base.filter((product) => product.status === "published").length
+      }
+      return base.filter((product) => product.status === "draft").length
+    }
+
+    return {
+      all: count("all"),
+      active: count("active"),
+      draft: count("draft"),
+    } satisfies Partial<Record<ProductsStatusTabFilter, number>>
+  }, [debouncedSearch])
+
+  const backendNotice = debouncedSearch !== searchDraft ? "Applying search…" : null
+
+  const getRowActions = useCallback(
+    (row: ProductListRow): RowActionItem[] => [
+      {
+        id: "view",
+        label: "View detail",
+        onSelect: () => {
+          void navigate(`/products/${encodeURIComponent(row.id)}`)
+        },
+      },
+      {
+        id: "edit-placeholder",
+        label: "Manage inventory",
+        destructive: false,
+        onSelect: () => {
+          window.alert("Inventory editing ships in Sprint 3 — use Medusa Dashboard until then.")
+        },
+      },
+    ],
+    [navigate],
   )
 
-  const isFiltered =
-    activeFilters.length > 0 || search.trim().length > 0 || statusFilter !== "all"
+  const showingLabel = (): string => {
+    if (!listQuery.isFetched) {
+      return "…"
+    }
+    return `${listQuery.data?.totalCount ?? 0}`
+  }
 
-  function clearAll(): void {
-    setActiveFilters([])
-    setSearch("")
-    setStatusFilter("all")
-    setPage(1)
+  const emptyBanner = (): JSX.Element => {
+    if (listQuery.error instanceof Error) {
+      return (
+        <ListEmptyState
+          title="Could not load catalogue"
+          description={listQuery.error.message}
+        />
+      )
+    }
+    if (
+      rows.length === 0 &&
+      debouncedSearch.trim().length === 0 &&
+      statusTab === "all"
+    ) {
+      return (
+        <ListEmptyState
+          title="No catalogue entries yet"
+          description="Publish items in Medusa Admin to hydrate this read-only view automatically."
+        />
+      )
+    }
+    return (
+      <ListEmptyState
+        title="No matches"
+        description="Try another keyword or switch between Active vs Draft tabs."
+      />
+    )
   }
 
   return (
     <div className="p-4 md:p-6">
-      <div className="overflow-hidden rounded-md border border-border-default bg-surface-default">
-
-        {/* ── Heading ── */}
-        <div className="flex items-center justify-between gap-3 border-b border-border-subtle px-4 py-3">
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-interface font-semibold tracking-tight text-content-primary">
-              Products
-            </h1>
-            {/* Live count badge — updates with filter state */}
-            <span className="inline-flex items-center rounded bg-surface-subtle px-1.5 py-0.5 text-2xs font-semibold tabular-nums text-content-tertiary">
-              {isFiltered ? `${sorted.length} of ${MOCK_PRODUCTS.length}` : MOCK_PRODUCTS.length}
-            </span>
+      <div className="rounded-md border border-border-default bg-surface-default">
+        {/* Heading */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle px-4 py-3">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <h1 className="text-interface font-semibold tracking-tight text-content-primary">
+                Products
+              </h1>
+              <span className="rounded-md bg-surface-subtle px-2 py-0.5 text-3xs font-semibold tabular-nums text-content-tertiary">
+                {showingLabel()}
+              </span>
+            </div>
+            <p className="text-xs text-content-tertiary">
+              {hasBackend
+                ? "Live data arrives from GET /admin/products via `@medusajs/js-sdk` (session-aware fetch)."
+                : "Mock catalogue — configure `VITE_MEDUSA_ADMIN_BACKEND_URL` to talk to Medusa locally."}
+            </p>
           </div>
-          <div className="flex items-center gap-2">
+
+          <div className="flex flex-wrap gap-2">
             <Link
               to="/product-categories"
-              className="hidden text-sm font-medium text-content-tertiary transition-colors hover:text-content-secondary sm:block"
+              className="text-sm font-medium text-content-secondary transition hover:text-accent"
             >
               Categories
             </Link>
             <Button
-              type="button"
-              variant="primary"
+              variant="secondary"
               size="sm"
-              onClick={() => { navigate("/products/new") }}
+              type="button"
+              onClick={() => {
+                navigate("/products/new")
+              }}
             >
-              New product
+              New product (mock flow)
             </Button>
           </div>
         </div>
 
-        {/* ── Status tabs ── */}
-        <StatusTabBar
-          active={statusFilter}
-          counts={statusCounts}
-          onChange={(s) => { setStatusFilter(s); setPage(1) }}
-        />
-
-        {/* ── Filter bar (Linear pattern) ── */}
-        <ProductListFilterBar
-          categories={FILTER_CATEGORIES}
-          activeFilters={activeFilters}
-          onFiltersChange={(f) => {
-            setActiveFilters(f)
+        <StatusTabRail
+          active={statusTab}
+          counts={hasBackend ? undefined : tabCountsMock}
+          onChange={(next) => {
+            setStatusTab(next)
             setPage(1)
           }}
-          search={search}
-          onSearchChange={setSearch}
-          onSearchClear={() => setSearch("")}
         />
 
-        {/* ── Results summary (Linear "X hidden by filters") ── */}
-        <FilterResultsSummary
-          totalItems={MOCK_PRODUCTS.length}
-          filteredItems={sorted.length}
-          onClear={clearAll}
-        />
-
-        {/* ── Desktop: DataTable ── */}
-        <div className="hidden md:block">
-          <DataTable<ProductListRow, ProductCol>
-            aria-label="Product list"
-            caption="Product catalog"
-            columns={PRODUCT_COLUMNS}
-            data={paged}
-            getRowId={(r) => r.id}
-            sortState={sort}
-            onRequestSort={onRequestSort}
-            selection={{ selectedIds, onSelectAll, onSelectRow }}
-            getRowActions={() => ROW_ACTIONS}
-            emptyState={
-              <ListEmptyState
-                title="No products match"
-                description="Try different filters or clear the search."
-                action={
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    onClick={clearAll}
-                  >
-                    Clear filters
-                  </Button>
-                }
-              />
-            }
-          />
+        <div className="flex flex-wrap items-center gap-3 px-4 py-4">
+          <div className="flex min-w-0 flex-1 flex-col gap-1 md:max-w-md">
+            <label
+              className="text-xs font-semibold uppercase tracking-wide text-content-tertiary"
+              htmlFor="product-admin-search-input"
+            >
+              Search titles
+            </label>
+            <Input
+              id="product-admin-search-input"
+              type="search"
+              value={searchDraft}
+              aria-describedby="product-admin-search-hint"
+              onChange={(event) => {
+                setSearchDraft(event.target.value)
+                setPage(1)
+              }}
+              placeholder="Typing pauses updates for 300ms"
+            />
+            <p id="product-admin-search-hint" className="text-xs text-content-tertiary">
+              {backendNotice ??
+                `Server pagination returns ${LIST_PAGE_SIZE} catalogue rows per request.`}
+            </p>
+          </div>
         </div>
 
-        {/* ── Mobile: card feed ── */}
-        <div className="block md:hidden">
-          <ProductCardGrid rows={paged} />
+        <div className="border-t border-border-subtle">
+          <div className="hidden md:block">
+            <DataTable<ProductListRow, ProductColumnId>
+              aria-label="MercFlow product catalogue results"
+              columns={columns}
+              data={rows}
+              getRowId={(row) => row.id}
+              sortState={sortState}
+              onRequestSort={onRequestSort}
+              getRowActions={getRowActions}
+              hasRowActions
+              isLoading={listQuery.isLoading || listQuery.isFetching}
+              emptyState={emptyBanner()}
+            />
+          </div>
+
+          <div className="md:hidden">
+            {listQuery.isLoading || listQuery.isFetching ? (
+              <div className="px-4 py-8 text-center text-sm text-content-tertiary">
+                Loading catalogue…
+              </div>
+            ) : rows.length === 0 ? (
+              <div className="px-4 py-10 text-center">{emptyBanner()}</div>
+            ) : (
+              <ProductCardGrid rows={rows} />
+            )}
+          </div>
         </div>
 
         <ListPagination
-          aria-label="Product list pagination"
-          currentPage={currentPage}
-          pageSize={pageSize}
-          totalItems={sorted.length}
-          onPageChange={setPage}
-          onPageSizeChange={(n) => {
-            setPageSize(n)
-            setPage(1)
+          aria-label="MercFlow product pagination"
+          currentPage={page}
+          totalItems={listQuery.data?.totalCount ?? 0}
+          pageSize={LIST_PAGE_SIZE}
+          onPageChange={(value) => {
+            setPage(value)
           }}
+          onPageSizeChange={() => {}}
+          pageSizeOptions={[LIST_PAGE_SIZE]}
         />
       </div>
     </div>

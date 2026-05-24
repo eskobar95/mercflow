@@ -1,22 +1,26 @@
 /**
- * Static mock data for the Product list. Replace with Medusa Admin list queries
- * (e.g. `useAdminProductList` or SDK) when the backend is wired; keep the same
- * row shape or map DTOs into `ProductListRow` in the page layer.
- *
- * `thumbnailHue` drives the placeholder avatar background (HSL hue). Replace
- * with a real `thumbnailUrl` string once the media pipeline is wired.
+ * Canonical row shape used by `/products`: Medusa-derived rows map into this shape in `mapAdminProductToListRow`;
+ * mocks below match the same contract for offline development (`VITE_MEDUSA_ADMIN_BACKEND_URL` unset).
  */
 export type ProductListRow = {
   id: string
   title: string
   status: "draft" | "published" | "proposed"
+  /** Kept for existing mobile copy; MercFlow prefers collection data from CMS or category joins later */
   collection: string
   sku: string
   updatedAt: string
+  /** Placeholder initials colour when no `thumbnailUrl` */
   thumbnailHue: number
+  /** Resolved admin thumbnail URL when available */
+  thumbnailUrl?: string | null
+  variantsCount: number
+  /** Nullable when inventory is unmanaged or unavailable for all variants */
+  stockTotal: number | null
+  priceRangeLabel: string
 }
 
-export const MOCK_PRODUCTS: ProductListRow[] = [
+const BASE_MOCK_ROWS: Omit<ProductListRow, "variantsCount" | "stockTotal" | "priceRangeLabel">[] = [
   { id: "prod_1",  title: "Aurora running shoes",    status: "published", collection: "Footwear",     sku: "FOOT-AUR-42", updatedAt: "2026-01-20T10:00:00.000Z", thumbnailHue: 210 },
   { id: "prod_2",  title: "Canvas tote (medium)",    status: "draft",     collection: "Bags",         sku: "BAG-CAN-M",   updatedAt: "2026-02-14T12:15:00.000Z", thumbnailHue: 28  },
   { id: "prod_3",  title: "Merino beanie",            status: "published", collection: "Apparel",      sku: "APP-BEA-OS",  updatedAt: "2025-12-01T08:00:00.000Z", thumbnailHue: 340 },
@@ -34,3 +38,11 @@ export const MOCK_PRODUCTS: ProductListRow[] = [
   { id: "prod_15", title: "Insulated meal jar",       status: "published", collection: "Kitchen",      sku: "KIT-MJ-1",    updatedAt: "2026-02-22T10:00:00.000Z", thumbnailHue: 185 },
   { id: "prod_16", title: "Wool throw blanket",       status: "draft",     collection: "Home",         sku: "HOM-TB-1",    updatedAt: "2026-01-10T10:00:00.000Z", thumbnailHue: 75  },
 ]
+
+export const MOCK_PRODUCTS: ProductListRow[] = BASE_MOCK_ROWS.map((row, idx) => ({
+  ...row,
+  thumbnailUrl: null,
+  variantsCount: 1 + (idx % 3),
+  stockTotal: 40 + idx * 3,
+  priceRangeLabel: idx % 4 === 0 ? "€39.95 – €49.95" : "€19.95",
+}))

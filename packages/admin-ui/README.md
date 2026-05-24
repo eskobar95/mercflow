@@ -2,7 +2,7 @@
 
 ## Responsibility
 
-This package is the **MercFlow admin user interface** — a Vite + React client that will grow into the forked, page-driven Medusa admin. **Batch 1 (this state)** includes: a **global admin shell** (sidebar, top bar, main column) with **token-backed** styling, **React Router** and lazy-loaded pages, `ErrorBoundary` and `Suspense` around the main outlet for view errors and async loading, a **reusable list layer** in `src/components/ui/list/`, **entity list pages** for **Products** and **Product categories** (mock data, no Medusa client yet) plus a **`/list-demo` route** for the raw primitive smoke test, a home route with the **token integration proof**, and the design system rules from `.cursor/rules/admin-ui.mdc`. Wiring these lists to live Medusa Admin APIs lands in follow-up work.
+This package is the **MercFlow admin user interface** — a Vite + React client that will grow into the forked, page-driven Medusa admin. It includes a **global admin shell** (sidebar, top bar, main column) with **token-backed** styling, **React Router** and lazy-loaded pages, `ErrorBoundary` and `Suspense` around the main outlet, a **reusable list layer** in `src/components/ui/list/`, and **`/products` / `/products/:productId`** backed by **`@medusajs/js-sdk`** and **TanStack React Query v5** when `VITE_MEDUSA_ADMIN_BACKEND_URL` is set (with a mock catalogue fallback when it is omitted). **Product categories** lists and several other surfaces still use mock data until their fetch layers ship. **`/list-demo`** remains for raw list primitive smoke tests, plus the usual design-system rules from `.cursor/rules/admin-ui.mdc`.
 
 ## What does *not* belong in this package
 
@@ -33,16 +33,22 @@ Open the Vite dev URL printed in the terminal. The app loads the **admin shell**
 - **Demo:** `ListDemoPage` on `/list-demo` uses static mock rows (search, client-side sort, pagination, and mock “actions”). Use it to smoke test layout and a11y without a backend. Wire real fetches in later pages; keep filtering/sorting in the data layer of each route.
 - **Shell rule:** `DataTable` does not own API calls — parents pass rows, `sortState`, and selection setters, matching the `ListPage` split described in `admin-ui.mdc`.
 
-## Entity lists (mock data) (Batch 1)
+## Product catalogue (read views)
 
-- **Routes:** `/products` → `ProductListPage`, `/product-categories` → `ProductCategoryListPage`, **`/products/new` → `ProductNewPage`**, **`/product-categories/new` → `ProductCategoryNewPage`** (mock create forms; no Medusa client). Kebab paths; labels follow Medusa-style naming. List pages use the same `components/ui/list/*` stack as `/list-demo`, with entity-specific columns and copy.
-- **Data:** `src/data/mockProducts.ts` and `src/data/mockProductCategories.ts` export static rows. **`useMockEntityListState`** in `src/hooks/useMockEntityListState.ts` centralizes client-side filter, sort, pagination, and selection until a fetch layer exists.
-- **Future Medusa wiring:** In each page, replace the `allRows` input to the hook (or remove the hook and use your query hook) with results from the Medusa Admin API / JS SDK, map responses into the existing row types or adjust `ListColumnDef` and types together. Do not add API calls in this package until the project introduces a shared admin client; keep fetches in the page or a `hooks/useAdmin*List` module next to it.
+- **List:** `/products` → `ProductListPage` — columns for thumbnail, title, status, variant count, total stock (when tracked), derived price range, and `updated_at`; **All / Active / Draft** filter; title search debounced **300ms** and passed to `GET /admin/products`; pagination **20** per page (`useProductsCatalogList` under `src/hooks/products/`).
+- **Detail:** `/products/:id` → `ProductDetailPage` — **Overview** (title, plain-text preview of Medusa `description`, status badge, media thumbnail strip from thumbnail + gallery) and **Variants** (one row per variant: name/SKU hint, merged price + stock/inventory summary). No separate inventory tab.
+- **Client:** Shared SDK factory `src/medusa-admin/createMercflowMedusaSdk.ts` (session + optional bearer header via env). Hooks use **`@tanstack/react-query`** queries; without `VITE_MEDUSA_ADMIN_BACKEND_URL`, catalogue pages fall back to `src/data/mockProducts.ts` for deterministic dev.
+
+## Entity lists (mock or partial wiring)
+
+- **Routes:** `/product-categories` → `ProductCategoryListPage`, **`/products/new` → `ProductNewPage`**, **`/product-categories/new` → `ProductCategoryNewPage`** (mock create forms). Category list still uses mocks. Kebab paths; labels follow Medusa-style naming. List pages use the same `components/ui/list/*` stack as `/list-demo` where applicable.
+- **Mock data:** `src/data/mockProductCategories.ts`; product mocks remain for fallback and demos (`mockProducts`).
+- **`useMockEntityListState`** in `src/hooks/useMockEntityListState.ts` centralizes client-side filter, sort, pagination, and selection for surfaces that still use static rows (e.g. categories list).
 
 ## App shell and routing
 
-- **Entry:** `src/main.tsx` wraps the app in `BrowserRouter` and `React.StrictMode`.
-- **Routes:** `src/App.tsx` defines a layout route that renders `AdminShell` and lazy routes: `HomePage` (`/`), `ProductNewPage` (`/products/new`), `ProductListPage` (`/products`), **`ProductDetailPage` (`/products/:productId`)** with tab deep-link **`?tab=content`** for the MercFlow product content editor, `ProductCategoryNewPage` (`/product-categories/new`), **`ProductCategoryDetailPage` (`/product-categories/:categoryId`)** with **`?tab=content`** for category content (TipTap, SEO, banner + OG image IDs), `ProductCategoryListPage` (`/product-categories`), `ListDemoPage` (`/list-demo`).
+- **Entry:** `src/main.tsx` wraps the app in `BrowserRouter`, `React.StrictMode`, and **`QueryClientProvider`** (TanStack Query).
+- **Routes:** `src/router.tsx` defines a layout route that renders `AdminShell` and lazy routes: `HomePage` (`/`), `ProductNewPage` (`/products/new`), `ProductListPage` (`/products`), **`ProductDetailPage` (`/products/:productId`)** with tabs **Overview** and **Variants** (`?tab=variants` deep-link); the **Content** tab for MercFlow product fields is deferred to Sprint 3 (feature code remains under `src/features/product-content/`). `ProductCategoryNewPage` (`/product-categories/new`), **`ProductCategoryDetailPage` (`/product-categories/:categoryId`)** with **`?tab=content`** for category content (TipTap, SEO, banner + OG image IDs), `ProductCategoryListPage` (`/product-categories`), `ListDemoPage` (`/list-demo`).
 - **Layout:** `src/components/layout/AdminShell.tsx` provides `AppSidebar`, `TopBar`, and a scrollable `<main id="main-content">` with a **skip link** to that region. The main area wraps `ErrorBoundary` and `Suspense` (fallback `MainLoadingFallback`) around `<Outlet />` so chrome stays on screen when a view fails or suspends.
 - **Pages** live under `src/pages/`. Route-level transitions are applied once in `AdminShell` around `<Outlet />` via `PageTransition` (see `.cursor/rules/admin-ui.mdc`); page files render content only. Use token-backed classes in chrome and content.
 
@@ -113,7 +119,7 @@ Use primitives from `src/components/ui/` (`Input`, `Textarea`, `Select`, `FormFi
 ## Product content API (dev)
 
 - **Data layer:** `src/features/product-content/` — types, `getProductContent` / `saveProductContent`, and `useProductContentState` (`loading`, `saving`, separate **`loadError`** / **`saveError`**, `load` / `save` return **`Promise<boolean>`** for success, `clearError`).
-- **UI:** `src/components/product-content/` — TipTap v2 rich text (`description_rich` as JSON), SEO fields + preview, OG image id, sortable media ID list; composed on **`/products/:productId`** → **Content** tab. TipTap uses the standard extension set: `StarterKit`, `Link` (`openOnClick: false`), `Image`, `CharacterCount`.
+- **UI:** `src/components/product-content/` — TipTap v2 rich text (`description_rich` as JSON), SEO fields + preview, OG image id, sortable media ID list. Re-composing these on **`/products/:productId`** as a **Content** tab is **Sprint 3** scope; until then the read-only MercFlow catalogue detail uses Medusa core `description` in Overview only. TipTap uses the standard extension set: `StarterKit`, `Link` (`openOnClick: false`), `Image`, `CharacterCount`.
 - **Env:** Copy `.env.example` to `.env.local` and set `VITE_MEDUSA_ADMIN_BACKEND_URL` to the Medusa backend (see `apps/backend` README, default `http://localhost:9000`). If the Vite origin is not allowed by `ADMIN_CORS` on the backend, either add it there or use a dev proxy.
 - **Auth:** Requests use `credentials: "include"` for session cookies. For cross-origin setups without cookies, set `VITE_MEDUSA_ADMIN_BEARER_TOKEN` locally (never commit real tokens).
 - **Gallery / OG:** The tab stores **media file IDs** only; there is no Medusa upload widget in this shell — use known ids from your dev database or the backend file API separately.
