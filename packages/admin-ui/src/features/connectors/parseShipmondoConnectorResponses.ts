@@ -269,9 +269,21 @@ export function parseShipmondoRulesPatchEnvelope(json: unknown): {
 
   if (
     typeof inner.markupAmountMinor !== "number" ||
-    typeof inner.freeShippingThresholdMinor !== "number" ||
-    !Array.isArray(inner.enabledCarrierCodes)
+    !Number.isFinite(inner.markupAmountMinor) ||
+    inner.markupAmountMinor < 0
   ) {
+    return { ok: false, error: "Malformed Shipmondo rules response" }
+  }
+
+  if (
+    typeof inner.freeShippingThresholdMinor !== "number" ||
+    !Number.isFinite(inner.freeShippingThresholdMinor) ||
+    inner.freeShippingThresholdMinor < 0
+  ) {
+    return { ok: false, error: "Malformed Shipmondo rules response" }
+  }
+
+  if (!Array.isArray(inner.enabledCarrierCodes)) {
     return { ok: false, error: "Malformed Shipmondo rules response" }
   }
 
