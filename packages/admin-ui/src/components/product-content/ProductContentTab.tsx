@@ -1,31 +1,28 @@
-import type { JSONContent } from "@tiptap/core"
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
+import { useCallback } from "react"
 
-import { ContentLocaleSwitcher } from "@/components/content-locale/ContentLocaleSwitcher"
-import { ContentLocaleUnsavedDialog } from "@/components/content-locale/ContentLocaleUnsavedDialog"
+import { Badge } from "@/components/ui/Badge"
 import { Card } from "@/components/ui/Card"
-import { Button } from "@/components/ui/Button"
-import { FormField } from "@/components/ui/FormField"
-import { Input } from "@/components/ui/Input"
-import { Textarea } from "@/components/ui/Textarea"
-import { sectionDescClass, sectionTitleClass } from "@/components/ui/formStyles"
-import { useAdminLocales, useContentLocale } from "@/features/content-locale"
+import { useAdminLocales } from "@/features/content-locale"
 import {
   DEFAULT_PRODUCT_CONTENT_LOCALE,
   useProductContentState,
 } from "@/features/product-content"
+import { EMPTY_TIPTAP_DOC, plaintextPreviewFromTiptapJson } from "@/lib/tiptap"
 
-import { isProductContentDirty } from "./productContentDirty"
-import { MediaGalleryManager } from "./MediaGalleryManager"
-import { ProductDescriptionEditor } from "./ProductDescriptionEditor"
-import { SEOPreview } from "./SEOPreview"
-import { EMPTY_TIPTAP_DOC, tiptapDocFromUnknown } from "@/lib/tiptap"
+const BODY_PREVIEW_MAX = 200
 
-const SEO_DESCRIPTION_MAX = 160
+function localeBadgeLabel(locale: string): string {
+  const norm = locale.trim()
+  if (norm.length === 0) {
+    return "—"
+  }
+  const sub = norm.split("-")[0]
+  return sub?.toUpperCase() ?? norm.toUpperCase()
+}
 
 export type ProductContentTabProps = {
   productId: string
-  /** Used in SEO preview when meta title is empty */
+  /** Used when meta title is empty in previews */
   productTitleFallback: string
 }
 
@@ -33,354 +30,178 @@ export function ProductContentTab({
   productId,
   productTitleFallback,
 }: ProductContentTabProps): JSX.Element {
-  const formId = useId()
-  const [unsavedDialogOpen, setUnsavedDialogOpen] = useState(false)
-  const pendingLocaleRef = useRef<string | null>(null)
-  const localeBeforeSwitchRef = useRef<string | null>(null)
-
   const { locales, loading: localesLoading, error: localesError } = useAdminLocales()
-  const { activeLocaleCode, setActiveLocaleCode } = useContentLocale({
-    locales,
-    preferredCode: locales[0]?.code ?? DEFAULT_PRODUCT_CONTENT_LOCALE,
-  })
+  const readLocale = locales[0]?.code ?? DEFAULT_PRODUCT_CONTENT_LOCALE
 
-  const completeLocaleSwitch = useCallback(
-    (next: string): void => {
-      if (next === activeLocaleCode) {
-        return
-      }
-      localeBeforeSwitchRef.current = activeLocaleCode
-      setActiveLocaleCode(next)
-    },
-    [activeLocaleCode, setActiveLocaleCode]
-  )
-
-  const {
-    content,
-    loading,
-    saving,
-    loadError,
-    saveError,
-    save,
-    load,
-    clearError,
-  } = useProductContentState({
-    productId,
-    locale: activeLocaleCode,
-  })
-
-  const [descriptionJson, setDescriptionJson] = useState<JSONContent>(EMPTY_TIPTAP_DOC)
-  const [seoTitle, setSeoTitle] = useState("")
-  const [seoDescription, setSeoDescription] = useState("")
-  const [ogImageId, setOgImageId] = useState("")
-  const [galleryIds, setGalleryIds] = useState<string[]>([])
-  const [validationError, setValidationError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (loading) {
-      return
-    }
-    setDescriptionJson(tiptapDocFromUnknown(content?.description_rich))
-    setSeoTitle(content?.seo_title ?? "")
-    setSeoDescription(content?.seo_description ?? "")
-    setOgImageId(content?.seo_og_image_id ?? "")
-    setGalleryIds(content?.media_gallery ? [...content.media_gallery] : [])
-    setValidationError(null)
-  }, [loading, content])
-
-  useEffect(() => {
-    if (loading || localesLoading) {
-      return
-    }
-    if (loadError !== null && localeBeforeSwitchRef.current !== null) {
-      const revertTo = localeBeforeSwitchRef.current
-      localeBeforeSwitchRef.current = null
-      if (activeLocaleCode !== revertTo) {
-        setActiveLocaleCode(revertTo)
-      }
-    }
-  }, [loading, localesLoading, loadError, activeLocaleCode, setActiveLocaleCode])
-
-  const isDirty = useMemo(
-    () =>
-      isProductContentDirty(content, {
-        descriptionJson,
-        seoTitle,
-        seoDescription,
-        ogImageId,
-        galleryIds,
-      }),
-    [content, descriptionJson, seoTitle, seoDescription, ogImageId, galleryIds]
-  )
-
-  const clearPendingLocale = useCallback((): void => {
-    pendingLocaleRef.current = null
-  }, [])
-
-  const requestLocaleChange = useCallback(
-    (next: string): void => {
-      if (next === activeLocaleCode) {
-        return
-      }
-      if (!isDirty) {
-        completeLocaleSwitch(next)
-        return
-      }
-      pendingLocaleRef.current = next
-      setUnsavedDialogOpen(true)
-    },
-    [activeLocaleCode, isDirty, completeLocaleSwitch]
-  )
-
-  const runSave = useCallback(async (): Promise<boolean> => {
-    clearError()
-    if (seoDescription.length > SEO_DESCRIPTION_MAX) {
-      setValidationError(
-        `SEO description must be at most ${SEO_DESCRIPTION_MAX} characters (currently ${seoDescription.length}).`
-      )
-      return false
-    }
-    setValidationError(null)
-    return save({
-      description_rich: descriptionJson,
-      seo_title: seoTitle.trim() === "" ? null : seoTitle.trim(),
-      seo_description: seoDescription.trim() === "" ? null : seoDescription.trim(),
-      seo_og_image_id: ogImageId.trim() === "" ? null : ogImageId.trim(),
-      media_gallery: galleryIds.length === 0 ? null : galleryIds,
+  const { content, loading, saving, loadError, saveError, save, load, clearError } =
+    useProductContentState({
+      productId,
+      locale: readLocale,
+      loadOnMount: true,
     })
-  }, [
-    clearError,
-    save,
-    descriptionJson,
-    seoTitle,
-    seoDescription,
-    ogImageId,
-    galleryIds,
-  ])
 
-  const onSave = useCallback(async () => {
-    void runSave()
-  }, [runSave])
+  const bannerError = loadError ?? saveError
 
-  const onDiscard = useCallback(async () => {
-    setValidationError(null)
+  const onAddContent = useCallback(async () => {
+    clearError()
+    await save({
+      description_rich: EMPTY_TIPTAP_DOC,
+      seo_title: null,
+      seo_description: null,
+      seo_og_image_id: null,
+      media_gallery: null,
+    })
+  }, [clearError, save])
+
+  const onRetryLoad = useCallback(async () => {
     clearError()
     await load()
   }, [clearError, load])
 
-  const onDialogSave = useCallback(async () => {
-    const ok = await runSave()
-    if (!ok) {
-      return
-    }
-    const target = pendingLocaleRef.current
-    pendingLocaleRef.current = null
-    setUnsavedDialogOpen(false)
-    if (target !== null) {
-      completeLocaleSwitch(target)
-    }
-  }, [runSave, completeLocaleSwitch])
-
-  const onDialogDiscard = useCallback(async () => {
-    clearError()
-    const ok = await load()
-    if (!ok) {
-      return
-    }
-    const target = pendingLocaleRef.current
-    pendingLocaleRef.current = null
-    setUnsavedDialogOpen(false)
-    if (target !== null) {
-      completeLocaleSwitch(target)
-    }
-  }, [clearError, load, completeLocaleSwitch])
-
-  const disabled = loading || saving
-  const localeSwitcherDisabled = disabled || localesLoading || locales.length === 0
-  const seoTooLong = seoDescription.length > SEO_DESCRIPTION_MAX
-  const bannerError = validationError ?? loadError ?? saveError
-
-  return (
-    <div className="space-y-6">
-      <ContentLocaleUnsavedDialog
-        open={unsavedDialogOpen}
-        onOpenChange={setUnsavedDialogOpen}
-        actionDisabled={loading || saving}
-        onSave={() => {
-          void onDialogSave()
-        }}
-        onDiscard={() => {
-          void onDialogDiscard()
-        }}
-        onClose={clearPendingLocale}
-      />
-
-      <div aria-live="polite" className="sr-only">
-        {saving ? "Saving product content." : ""}
+  if (localesLoading) {
+    return (
+      <div className="space-y-4" aria-busy="true">
+        <p className="text-sm text-content-secondary">Loading store locales…</p>
       </div>
+    )
+  }
 
-      {bannerError ? (
-        <div
-          role="alert"
-          className="rounded-md border border-border-strong bg-surface-subtle px-3 py-2 text-sm text-content-primary"
-        >
-          {bannerError}
-        </div>
-      ) : null}
+  if (localesError !== null) {
+    return (
+      <div
+        role="alert"
+        className="rounded-md border border-border-strong bg-surface-subtle px-3 py-2 text-sm text-content-danger"
+      >
+        Could not load locales from Medusa ({localesError}). Fix your session or connection, then
+        refresh.
+      </div>
+    )
+  }
 
-      {localesError ? (
+  if (loading) {
+    return (
+      <div className="space-y-4" aria-busy="true">
+        <p className="text-sm text-content-secondary">Loading CMS content…</p>
+      </div>
+    )
+  }
+
+  if (bannerError !== null) {
+    return (
+      <div className="space-y-4">
         <div
           role="alert"
           className="rounded-md border border-border-strong bg-surface-subtle px-3 py-2 text-sm text-content-danger"
         >
-          Could not load the language list from Medusa. Check your connection and admin session,
-          then refresh. ({localesError})
+          {bannerError}
         </div>
-      ) : null}
+        <button
+          type="button"
+          onClick={() => {
+            void onRetryLoad()
+          }}
+          className="rounded-md bg-interactive-primary px-4 py-2 text-sm font-medium text-content-inverse hover:bg-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
+        >
+          Retry
+        </button>
+      </div>
+    )
+  }
 
-      <form
-        id={formId}
-        onSubmit={(e) => {
-          e.preventDefault()
-          void onSave()
-        }}
-        className="space-y-6"
-      >
-        <ContentLocaleSwitcher
-          locales={locales}
-          value={activeLocaleCode}
-          onChange={requestLocaleChange}
-          disabled={localeSwitcherDisabled}
-          localesLoading={localesLoading}
-          resolvedContentLocale={content?.locale ?? null}
-        />
-
-        <Card elevation="flat">
-          <h2 className={sectionTitleClass}>Description</h2>
-          <p className={sectionDescClass}>
-            Rich text is stored as TipTap JSON (not HTML).
-          </p>
-          <div className="-mx-6 -mb-6 mt-5 border-t border-border-subtle">
-            <ProductDescriptionEditor
-              value={descriptionJson}
-              onChange={setDescriptionJson}
-              disabled={disabled}
-              variant="embedded"
-            />
-          </div>
-        </Card>
-
-        <Card elevation="flat">
-          <h2 className={sectionTitleClass}>SEO</h2>
-          <p className={sectionDescClass}>
-            Meta title and description for this locale. Description is limited to{" "}
-            {SEO_DESCRIPTION_MAX} characters in the API.
-          </p>
-          <div className="mt-4 grid gap-4 lg:grid-cols-2">
-            <div className="space-y-4">
-              <FormField label="Meta title" htmlFor={`${formId}-seo-title`}>
-                <Input
-                  id={`${formId}-seo-title`}
-                  type="text"
-                  value={seoTitle}
-                  onChange={(e) => {
-                    setSeoTitle(e.target.value)
-                  }}
-                  disabled={disabled}
-                  autoComplete="off"
-                />
-              </FormField>
-              <FormField
-                label="Meta description"
-                htmlFor={`${formId}-seo-desc`}
-                hint={`${seoDescription.length} / ${SEO_DESCRIPTION_MAX} characters${seoTooLong ? " — shorten before saving." : ""}`}
-                error={
-                  seoTooLong
-                    ? `Must be at most ${SEO_DESCRIPTION_MAX} characters.`
-                    : undefined
-                }
-              >
-                <Textarea
-                  id={`${formId}-seo-desc`}
-                  value={seoDescription}
-                  onChange={(e) => {
-                    const v = e.target.value
-                    setSeoDescription(v)
-                    if (v.length <= SEO_DESCRIPTION_MAX) {
-                      setValidationError(null)
-                    }
-                  }}
-                  onBlur={() => {
-                    if (seoDescription.length > SEO_DESCRIPTION_MAX) {
-                      setValidationError(
-                        `SEO description must be at most ${SEO_DESCRIPTION_MAX} characters (currently ${seoDescription.length}).`,
-                      )
-                    }
-                  }}
-                  disabled={disabled}
-                  rows={4}
-                  error={seoTooLong}
-                  aria-invalid={seoTooLong}
-                  aria-describedby={`${formId}-seo-desc-counter`}
-                />
-              </FormField>
-              <FormField
-                label="Open Graph image ID"
-                htmlFor={`${formId}-og-image`}
-                hint="Optional file / media id for social previews."
-              >
-                <Input
-                  id={`${formId}-og-image`}
-                  type="text"
-                  value={ogImageId}
-                  onChange={(e) => {
-                    setOgImageId(e.target.value)
-                  }}
-                  disabled={disabled}
-                  autoComplete="off"
-                />
-              </FormField>
-            </div>
-            <div>
-              <SEOPreview
-                title={seoTitle}
-                description={seoDescription}
-                fallbackTitle={productTitleFallback}
-              />
-            </div>
-          </div>
-        </Card>
-
-        <Card elevation="flat">
-          <h2 className={sectionTitleClass}>Media gallery</h2>
-          <p className={sectionDescClass}>
-            Ordered list of media IDs sent as <code className="text-xs">media_gallery</code> on
-            save.
-          </p>
-          <div className="mt-4">
-            <MediaGalleryManager value={galleryIds} onChange={setGalleryIds} disabled={disabled} />
-          </div>
-        </Card>
-
-        <div className="flex flex-wrap items-center gap-3">
-          <Button type="submit" variant="primary" disabled={disabled || seoTooLong}>
-            {saving ? "Saving…" : "Save content"}
-          </Button>
-          <Button
+  if (content === null) {
+    return (
+      <Card className="space-y-3">
+        <p className="text-sm text-content-secondary">No content yet.</p>
+        <p className="text-xs text-content-tertiary">
+          Create initial CMS placeholders for rich text (TipTap JSON) and SEO metadata for locale{" "}
+          <code className="text-xs">{readLocale}</code>.
+        </p>
+        <div>
+          <button
             type="button"
-            variant="secondary"
-            disabled={disabled}
+            disabled={saving}
             onClick={() => {
-              void onDiscard()
+              void onAddContent()
             }}
+            className="rounded-md bg-interactive-primary px-4 py-2 text-sm font-medium text-content-inverse hover:bg-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus disabled:opacity-50"
           >
-            Discard changes
-          </Button>
-          {loading ? (
-            <span className="text-sm text-content-secondary">Loading content…</span>
-          ) : null}
+            {saving ? "Saving…" : "Add content"}
+          </button>
         </div>
-      </form>
+      </Card>
+    )
+  }
+
+  const preview = plaintextPreviewFromTiptapJson(content.body_json, BODY_PREVIEW_MAX)
+  const seoTitleFallback =
+    content.seo_title?.trim() ??
+    (productTitleFallback.trim() !== "" ? productTitleFallback.trim() : "—")
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm font-medium text-content-primary">Locale</span>
+        <Badge
+          variant="neutral"
+          aria-label={`CMS content locale ${content.locale}`}
+        >
+          {localeBadgeLabel(content.locale)}
+        </Badge>
+        <span className="text-xs text-content-tertiary">
+          Reads use the first locale from <code className="text-xs">GET /admin/locales</code> (
+          <span className="font-mono">{readLocale}</span>) until Sprint 4 adds an in-tab switcher.
+        </span>
+      </div>
+
+      <Card className="space-y-3">
+        <div>
+          <h2 className="text-lg font-semibold text-content-primary">Body preview</h2>
+          <p className="mt-1 text-sm text-content-secondary">
+            Stored as TipTap JSON; showing the first {BODY_PREVIEW_MAX} characters of plaintext.
+          </p>
+        </div>
+        <p className="rounded-md border border-border-subtle bg-surface-default p-4 text-sm text-content-primary whitespace-pre-wrap">
+          {preview.length === 0 ? "(No text in this locale yet.)" : preview}
+        </p>
+      </Card>
+
+      <Card className="space-y-4">
+        <h2 className="text-lg font-semibold text-content-primary">SEO</h2>
+        <dl className="grid gap-3 text-sm sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <dt className="text-content-tertiary">Preview title</dt>
+            <dd className="mt-1 font-medium text-content-primary">{seoTitleFallback}</dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="text-content-tertiary">Meta title</dt>
+            <dd className="mt-1 text-content-primary">
+              {content.seo_title != null && content.seo_title.trim() !== ""
+                ? content.seo_title
+                : "(Not set)"}
+            </dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="text-content-tertiary">Meta description</dt>
+            <dd className="mt-1 text-content-primary">
+              {content.seo_description != null && content.seo_description.trim() !== ""
+                ? content.seo_description
+                : "(Not set)"}
+            </dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="text-content-tertiary">Open Graph image URL</dt>
+            <dd className="mt-1 break-all text-content-primary">
+              {content.og_image_url != null && content.og_image_url.length > 0
+                ? content.og_image_url
+                : "(Not set)"}
+            </dd>
+          </div>
+        </dl>
+      </Card>
+
+      <p className="text-xs text-content-tertiary">
+        Rich text and SEO field editing arrives in Sprint 3; this tab is read-only for MER-26.
+      </p>
     </div>
   )
 }

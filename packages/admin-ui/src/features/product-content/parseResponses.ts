@@ -1,4 +1,4 @@
-import type { ProductContentResolved } from "./types"
+import type { ProductContentReadPayload, ProductContentResolved } from "./types"
 
 function isNonNullRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
@@ -25,6 +25,28 @@ function parseStringArrayOrNull(value: unknown): string[] | null {
     return null
   }
   return value
+}
+
+export function parseProductContentReadPayload(
+  value: unknown
+): ProductContentReadPayload | null {
+  if (!isNonNullRecord(value)) {
+    return null
+  }
+  const locale = value["locale"]
+  if (typeof locale !== "string" || locale.length === 0) {
+    return null
+  }
+  const statusRaw = value["status"]
+  const status = typeof statusRaw === "string" && statusRaw.length > 0 ? statusRaw : "unknown"
+  return {
+    body_json: value["body_json"] ?? null,
+    seo_title: parseNullableString(value["seo_title"]),
+    seo_description: parseNullableString(value["seo_description"]),
+    og_image_url: parseNullableString(value["og_image_url"]),
+    status,
+    locale,
+  }
 }
 
 export function parseResolvedProductContent(

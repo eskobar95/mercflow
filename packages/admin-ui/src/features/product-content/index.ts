@@ -1,4 +1,8 @@
-export type { ProductContentResolved, SaveProductContentBody } from "./types"
+export type {
+  ProductContentReadPayload,
+  ProductContentResolved,
+  SaveProductContentBody,
+} from "./types"
 export {
   DEFAULT_PRODUCT_CONTENT_LOCALE,
   getProductContent,

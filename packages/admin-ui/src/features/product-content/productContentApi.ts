@@ -5,14 +5,21 @@ import {
   resolveMedusaAdminBackendUrl,
 } from "@/medusa-admin/medusaAdminFetch"
 
-import type { ProductContentResolved, SaveProductContentBody } from "./types"
-import { parseProductContentEnvelope } from "./parseResponses"
+import type { ProductContentReadPayload, SaveProductContentBody } from "./types"
+import { parseProductContentEnvelope, parseProductContentReadPayload } from "./parseResponses"
 
 export const DEFAULT_PRODUCT_CONTENT_LOCALE = "en"
 
 export { resolveMedusaAdminBackendUrl }
 
-function productContentPath(productId: string, locale: string): string {
+function adminProductContentReadPath(productId: string, locale: string): string {
+  const params = new URLSearchParams()
+  params.set("locale", locale)
+  const q = params.toString()
+  return `/admin/product-content/${encodeURIComponent(productId)}?${q}`
+}
+
+function adminProductUpsertContentPath(productId: string, locale: string): string {
   const params = new URLSearchParams()
   params.set("locale", locale)
   const q = params.toString()
@@ -22,7 +29,7 @@ function productContentPath(productId: string, locale: string): string {
 export async function getProductContent(
   productId: string,
   locale: string = DEFAULT_PRODUCT_CONTENT_LOCALE
-): Promise<ProductContentResolved | null> {
+): Promise<ProductContentReadPayload | null> {
   const base = resolveMedusaAdminBackendUrl()
   if (base === null) {
     throw new Error(
@@ -30,26 +37,30 @@ export async function getProductContent(
     )
   }
 
-  const url = `${base}${productContentPath(productId, locale)}`
+  const url = `${base}${adminProductContentReadPath(productId, locale)}`
   const response = await fetch(url, {
     method: "GET",
     headers: buildMedusaAdminJsonHeaders(),
     credentials: "include",
   })
 
+  if (response.status === 404) {
+    return null
+  }
+
   if (!response.ok) {
     throw new Error(await readMedusaAdminHttpErrorMessage(response))
   }
 
   const json = await parseMedusaAdminJsonResponse(response)
-  return parseProductContentEnvelope(json)
+  return parseProductContentReadPayload(json)
 }
 
 export async function saveProductContent(
   productId: string,
   body: SaveProductContentBody,
   locale: string = DEFAULT_PRODUCT_CONTENT_LOCALE
-): Promise<ProductContentResolved> {
+): Promise<void> {
   const base = resolveMedusaAdminBackendUrl()
   if (base === null) {
     throw new Error(
@@ -57,7 +68,7 @@ export async function saveProductContent(
     )
   }
 
-  const url = `${base}${productContentPath(productId, locale)}`
+  const url = `${base}${adminProductUpsertContentPath(productId, locale)}`
   const response = await fetch(url, {
     method: "POST",
     headers: buildMedusaAdminJsonHeaders(),
@@ -74,5 +85,4 @@ export async function saveProductContent(
   if (content === null) {
     throw new TypeError("Invalid API response: expected content after save")
   }
-  return content
 }

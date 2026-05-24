@@ -73,6 +73,16 @@ class ContentModuleService extends MedusaService({
     )
   }
 
+  /**
+   * Returns resolved CMS row for one product locale, or null when no `product_content` row exists.
+   */
+  async findByProductId(
+    productId: string,
+    locale: string
+  ): Promise<ResolvedProductContent | null> {
+    return this.retrieveProductContentForLocale(productId, locale)
+  }
+
   async retrieveProductContentForLocale(
     productId: string,
     locale: string

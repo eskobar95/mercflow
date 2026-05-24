@@ -5,7 +5,7 @@ import {
   getProductContent,
   saveProductContent,
 } from "./productContentApi"
-import type { ProductContentResolved, SaveProductContentBody } from "./types"
+import type { ProductContentReadPayload, SaveProductContentBody } from "./types"
 
 function toErrorMessage(error: unknown): string {
   if (error instanceof Error) {
@@ -23,7 +23,7 @@ export type UseProductContentStateOptions = {
 }
 
 export type UseProductContentStateResult = {
-  content: ProductContentResolved | null
+  content: ProductContentReadPayload | null
   loading: boolean
   saving: boolean
   loadError: string | null
@@ -39,7 +39,7 @@ export function useProductContentState(
   const locale = options.locale ?? DEFAULT_PRODUCT_CONTENT_LOCALE
   const loadOnMount = options.loadOnMount ?? true
 
-  const [content, setContent] = useState<ProductContentResolved | null>(null)
+  const [content, setContent] = useState<ProductContentReadPayload | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [saving, setSaving] = useState<boolean>(false)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -65,8 +65,9 @@ export function useProductContentState(
       setSaving(true)
       setSaveError(null)
       try {
-        const next = await saveProductContent(options.productId, body, locale)
-        setContent(next)
+        await saveProductContent(options.productId, body, locale)
+        const refreshed = await getProductContent(options.productId, locale)
+        setContent(refreshed)
         return true
       } catch (e: unknown) {
         setSaveError(toErrorMessage(e))
