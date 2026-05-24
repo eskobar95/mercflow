@@ -814,9 +814,7 @@ export default class ConnectorModuleService extends MedusaService({
   }
 
   private getEncryption(): EncryptionService {
-    if (this.encryptionLazy === null) {
-      this.encryptionLazy = new EncryptionService()
-    }
+    this.encryptionLazy ??= new EncryptionService()
     return this.encryptionLazy
   }
 
