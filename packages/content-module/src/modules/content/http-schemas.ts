@@ -21,6 +21,18 @@ export const productContentBodySchema = z
   })
   .strict()
 
+/** POST /admin/product-content — identifies the product explicitly in the JSON body. */
+export const adminProductContentPostBodySchema = z
+  .object({
+    product_id: z.string().min(1),
+    description_rich: z.unknown().optional(),
+    seo_title: z.string().max(255).nullable().optional(),
+    seo_description: z.string().max(SEO_DESCRIPTION_MAX).nullable().optional(),
+    seo_og_image_id: z.string().nullable().optional(),
+    media_gallery: z.array(z.string()).nullable().optional(),
+  })
+  .strict()
+
 export const categoryContentBodySchema = z
   .object({
     description_rich: z.unknown().optional(),
@@ -32,4 +44,5 @@ export const categoryContentBodySchema = z
   .strict()
 
 export type ProductContentBody = z.infer<typeof productContentBodySchema>
+export type AdminProductContentPostBody = z.infer<typeof adminProductContentPostBodySchema>
 export type CategoryContentBody = z.infer<typeof categoryContentBodySchema>

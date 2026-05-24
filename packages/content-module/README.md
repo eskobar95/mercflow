@@ -169,7 +169,8 @@ modules: [
 The monorepo includes `@mercflow/backend` under `apps/backend`, which registers this module and exposes the admin content API. Medusa only loads `src/api` from the **process working directory** of the running app, so route **handlers** live in this package, while `apps/backend` contains **thin re-exports**:
 
 - `apps/backend/src/api/admin/products/[id]/content/route.ts` re-exports `GET` / `POST` from `@mercflow/content-module/mercflow-product-content-api`
-- `apps/backend/src/api/admin/product-content/[product_id]/route.ts` re-exports `GET` from `@mercflow/content-module/mercflow-admin-product-content-read-route`
+- `apps/backend/src/api/admin/product-content/route.ts` re-exports `POST` from `@mercflow/content-module/mercflow-admin-product-content-post-route`
+- `apps/backend/src/api/admin/product-content/[id]/route.ts` re-exports `GET` / `PATCH` from `@mercflow/content-module/mercflow-admin-product-content-read-route`
 - `apps/backend/src/api/store/product-content/[handle]/route.ts` re-exports `GET` from `@mercflow/content-module/mercflow-store-product-content-read-route`
 - `apps/backend/src/api/admin/product-categories/[id]/content/route.ts` re-exports from `@mercflow/content-module/mercflow-category-content-api`
 
@@ -179,27 +180,31 @@ Run the server from `apps/backend` (see that package’s README). Do not duplica
 
 All routes are under the **admin** prefix, require an authenticated admin session (or Medusa’s usual admin auth), and return JSON. Validation errors return **400** with `{ "message", "issues" }` (Zod). Missing product or category returns **404** via `MedusaError` / framework handling.
 
-| Method | Path | Query | Body (POST) |
+| Method | Path | Query | Body (POST/PATCH) |
 | --- | --- | --- | --- |
-| `GET` | `/admin/product-content/:product_id` | `locale` (optional, default `en`) | — |
+| `GET` | `/admin/product-content/:id` | `locale` (optional, default `en`) | — |
+| `POST` | `/admin/product-content` | `locale` | `product_id`, plus optional CMS fields (`description_rich`, `seo_*`, …) via strict Zod |
+| `PATCH` | `/admin/product-content/:id` | — | Same optional fields — **`PATCH` `:id` is `product_content.id`**, unlike `GET` which expects **`product.id`** (see overload note below). |
 | `GET` | `/admin/products/:id/content` | `locale` (optional, default `en`) | — |
 | `POST` | `/admin/products/:id/content` | `locale` (optional, default `en`) | `description_rich?`, `seo_title?`, `seo_description?`, `seo_og_image_id?`, `media_gallery?` (see Zod in `http-schemas.ts`) |
 | `GET` | `/admin/product-categories/:id/content` | `locale` (optional, default `en`) | — |
 | `POST` | `/admin/product-categories/:id/content` | `locale` (optional, default `en`) | same as product, plus `banner_image_id?` for categories |
 
-**MercFlow read slice response (`GET /admin/product-content/:product_id` and `GET /store/product-content/:handle`):** plain JSON **`{ body_json, seo_title, seo_description, og_image_url, status, locale }`** (no `{ content: … }` wrapper). **`og_image_url`** is resolved via Medusa **`FILE`** when `seo_og_image_id` is set; otherwise **`null`**. **`status`** is taken from **`product.status`** (`GET /admin/product-content`). Returns **404** when the catalog entity is missing, when no `product_content` row exists yet, when query validation fails (**400**), or (store only) when the product is not **`published`**.
+> **Overload note:** `/admin/product-content/:id` maps two semantics — `GET` treats `:id` as **`product.id`**, whereas `PATCH` treats `:id` as **`product_content.id`**.
+
+**MercFlow read / mutation payloads (`GET/POST/PATCH /admin/product-content…`, `POST` collection, plus `GET /store/product-content/:handle`):** plain JSON **`{ id, product_id, locale, version, body_json, seo_title, seo_description, og_image_url, status }`** (no `{ content: … }` wrapper). **`version`** increments on each successful **`upsert`**. **`og_image_url`** echoes absolute **`http(s)`** URLs or resolves uploads via **`FILE`** when the stored identifier matches a Media module record. **`status`** duplicates **`product.status`** on admin reads. Returns **404** when prerequisites fail (**400** on invalid query/body validation).
+
+For **nested legacy edits**, keep using **`POST /admin/products/:id/content`**; `{ "content": { … } }` responses stay unchanged.
+
+**Response shape (GET/POST on `/admin/products/:id/content` and category equivalent):** `{ "content": { ... } }` where `content` includes `id`, `product_id` or `category_id`, `locale`, resolved localized fields, and `null` for missing optional values. `GET` returns `{ "content": null }` when no row exists yet.
+
+**Limits:** `seo_description` must be at most **160** characters for the value being written for the active locale (enforced in Zod and the service). `seo_title` must be at most **255** characters.
 
 ## Store API (public CMS read)
 
 | Method | Path | Query | Notes |
 | --- | --- | --- | --- |
-| `GET` | `/store/product-content/:handle` | `locale` (optional, default `en`) | No admin auth required. **Published** products only. Same JSON shape as the admin mercflow read slice above (**404** if handle unknown, unpublished, or no CMS row). |
-
-For **upsert/editing**, keep using **`POST /admin/products/:id/content`**; the `{ "content": { … } }` envelope is unchanged.
-
-**Response shape (GET/POST on `/admin/products/:id/content` and category equivalent):** `{ "content": { ... } }` where `content` includes `id`, `product_id` or `category_id`, `locale`, resolved localized fields, and `null` for missing optional values. `GET` returns `{ "content": null }` when no row exists yet.
-
-**Limits:** `seo_description` must be at most **160** characters for the value being written for the active locale (enforced in Zod and the service). `seo_title` must be at most **255** characters.
+| `GET` | `/store/product-content/:handle` | `locale` (optional, default `en`) | No admin auth required. **Published** products only. Same JSON shape as the MercFlow CMS admin read/mutation payloads above (**404** if handle unknown, unpublished, or no CMS row). |
 
 ### Example `curl` (local)
 

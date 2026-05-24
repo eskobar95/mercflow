@@ -6,7 +6,7 @@ import {
 } from "@/medusa-admin/medusaAdminFetch"
 
 import type { ProductContentReadPayload, SaveProductContentBody } from "./types"
-import { parseProductContentEnvelope, parseProductContentReadPayload } from "./parseResponses"
+import { parseProductContentReadPayload } from "./parseResponses"
 
 export const DEFAULT_PRODUCT_CONTENT_LOCALE = "en"
 
@@ -19,11 +19,14 @@ function adminProductContentReadPath(productId: string, locale: string): string 
   return `/admin/product-content/${encodeURIComponent(productId)}?${q}`
 }
 
-function adminProductUpsertContentPath(productId: string, locale: string): string {
+function adminProductContentCollectionPath(locale: string): string {
   const params = new URLSearchParams()
   params.set("locale", locale)
-  const q = params.toString()
-  return `/admin/products/${encodeURIComponent(productId)}/content?${q}`
+  return `/admin/product-content?${params.toString()}`
+}
+
+function adminProductContentPatchPath(cmsRowId: string): string {
+  return `/admin/product-content/${encodeURIComponent(cmsRowId)}`
 }
 
 export async function getProductContent(
@@ -53,14 +56,24 @@ export async function getProductContent(
   }
 
   const json = await parseMedusaAdminJsonResponse(response)
-  return parseProductContentReadPayload(json)
+  const parsed = parseProductContentReadPayload(json)
+  if (parsed === null) {
+    throw new TypeError("Invalid API response: unexpected MercFlow CMS payload shape")
+  }
+  return parsed
 }
 
-export async function saveProductContent(
-  productId: string,
-  body: SaveProductContentBody,
-  locale: string = DEFAULT_PRODUCT_CONTENT_LOCALE
-): Promise<void> {
+/**
+ * Persist product CMS fields.
+ * Uses `POST /admin/product-content` when no row exists yet, otherwise `PATCH /admin/product-content/:cms_row_id`.
+ */
+export async function saveProductContent(options: {
+  productId: string
+  cmsContentId: string | null
+  body: SaveProductContentBody
+  locale?: string
+}): Promise<ProductContentReadPayload> {
+  const locale = options.locale ?? DEFAULT_PRODUCT_CONTENT_LOCALE
   const base = resolveMedusaAdminBackendUrl()
   if (base === null) {
     throw new Error(
@@ -68,12 +81,20 @@ export async function saveProductContent(
     )
   }
 
-  const url = `${base}${adminProductUpsertContentPath(productId, locale)}`
+  const patchPath = adminProductContentPatchPath(options.cmsContentId ?? "")
+  const url =
+    options.cmsContentId !== null
+      ? `${base}${patchPath}`
+      : `${base}${adminProductContentCollectionPath(locale)}`
+
+  const bodyJson =
+    options.cmsContentId !== null ? options.body : { product_id: options.productId, ...options.body }
+
   const response = await fetch(url, {
-    method: "POST",
+    method: options.cmsContentId !== null ? "PATCH" : "POST",
     headers: buildMedusaAdminJsonHeaders(),
     credentials: "include",
-    body: JSON.stringify(body),
+    body: JSON.stringify(bodyJson),
   })
 
   if (!response.ok) {
@@ -81,8 +102,9 @@ export async function saveProductContent(
   }
 
   const json = await parseMedusaAdminJsonResponse(response)
-  const content = parseProductContentEnvelope(json)
+  const content = parseProductContentReadPayload(json)
   if (content === null) {
-    throw new TypeError("Invalid API response: expected content after save")
+    throw new TypeError("Invalid API response: expected MercFlow CMS payload after save")
   }
+  return content
 }

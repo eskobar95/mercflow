@@ -205,8 +205,12 @@ export function RichTextEditor({
       extensions: [
         StarterKit.configure({
           heading: extensions === "full" ? { levels: [2, 3] } : false,
+          /** Starter Kit includes Link; in full mode we disable it and register Link below */
+          ...(extensions === "full" ? { link: false } : {}),
         }),
-        Link.configure({ openOnClick: false }),
+        ...(extensions === "full"
+          ? [Link.configure({ openOnClick: false })]
+          : []),
         ...(extensions === "full"
           ? [
               Image.configure({ allowBase64: false }),
@@ -309,6 +313,31 @@ export function RichTextEditor({
         >
           <span className="italic">I</span>
         </ToolbarButton>
+        {extensions === "full" ? (
+          <>
+            <span className="mx-1 h-5 w-px bg-border-default" aria-hidden />
+            <ToolbarButton
+              label="Heading 2"
+              pressed={editor?.isActive("heading", { level: 2 }) ?? false}
+              disabled={toolbarDisabled}
+              onClick={() => {
+                editor?.chain().focus().toggleHeading({ level: 2 }).run()
+              }}
+            >
+              H2
+            </ToolbarButton>
+            <ToolbarButton
+              label="Heading 3"
+              pressed={editor?.isActive("heading", { level: 3 }) ?? false}
+              disabled={toolbarDisabled}
+              onClick={() => {
+                editor?.chain().focus().toggleHeading({ level: 3 }).run()
+              }}
+            >
+              H3
+            </ToolbarButton>
+          </>
+        ) : null}
         <span className="mx-1 h-5 w-px bg-border-default" aria-hidden />
         <ToolbarButton
           label="Bullet list"

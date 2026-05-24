@@ -3,7 +3,7 @@ import type { IFileModuleService, IProductModuleService } from "@medusajs/types"
 import { Modules } from "@medusajs/framework/utils"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { GET as adminProductContentGet } from "../../src/api/admin/product-content/[product_id]/route"
+import { GET as adminProductContentGet } from "../../src/api/admin/product-content/[id]/route"
 import { GET as storeProductContentGet } from "../../src/api/store/product-content/[handle]/route"
 import { CONTENT_MODULE } from "../../src/modules/content"
 import type ContentModuleService from "../../src/modules/content/service"
@@ -19,7 +19,7 @@ vi.mock("@medusajs/framework/http", async (orig) => {
   }
 })
 
-describe("GET /admin/product-content/:product_id", () => {
+describe("GET /admin/product-content/:id (product lookup)", () => {
   beforeEach(async () => {
     const http = await import("@medusajs/framework/http")
     vi.mocked(http.refetchEntity).mockResolvedValue({
@@ -38,6 +38,7 @@ describe("GET /admin/product-content/:product_id", () => {
       id: "pc",
       product_id: "prod_z",
       locale: "da",
+      version: 3,
       description_rich: { type: "doc", content: [] },
       seo_title: "SEO",
       seo_description: null,
@@ -51,7 +52,7 @@ describe("GET /admin/product-content/:product_id", () => {
     } as unknown as MedusaResponse
 
     const req = {
-      params: { product_id: "prod_z" },
+      params: { id: "prod_z" },
       query: { locale: "da" },
       scope: {
         resolve: vi.fn((key: string) => {
@@ -71,7 +72,10 @@ describe("GET /admin/product-content/:product_id", () => {
     expect(findByProductId).toHaveBeenCalledWith("prod_z", "da")
     expect(res.status).toHaveBeenCalledWith(200)
     expect(resJson.mock.calls[0]?.[0]).toMatchObject({
+      id: "pc",
+      product_id: "prod_z",
       locale: "da",
+      version: 3,
       seo_title: "SEO",
       og_image_url: "https://example.com/files/f1.bin",
       status: "published",
@@ -91,6 +95,7 @@ describe("GET /store/product-content/:handle", () => {
       id: "pc",
       product_id: "prod_z",
       locale: "en",
+      version: 1,
       description_rich: null,
       seo_title: null,
       seo_description: "desc",

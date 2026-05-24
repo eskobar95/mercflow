@@ -1,4 +1,8 @@
 /**
- * Re-exports GET /admin/product-content/:product_id for `apps/backend` route discovery.
+ * Re-exports GET + PATCH handlers for MercFlow CMS product content mutations.
+ *
+ * Dynamic segment `:id`:
+ * - `GET` resolves `id` as a Medusa product id (`product.id`).
+ * - `PATCH` resolves `id` as a `product_content` row id.
  */
-export { GET } from "../api/admin/product-content/[product_id]/route"
+export { GET, PATCH } from "../api/admin/product-content/[id]/route"

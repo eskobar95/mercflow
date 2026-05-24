@@ -1,6 +1,6 @@
 import type { JSONContent } from "@tiptap/core"
 
-import type { ProductContentResolved } from "@/features/product-content/types"
+import type { ProductContentReadPayload } from "@/features/product-content/types"
 
 import { tiptapDocFromUnknown } from "@/lib/tiptap"
 
@@ -8,34 +8,22 @@ function stableDocJson(doc: JSONContent): string {
   return JSON.stringify(doc)
 }
 
-function normalizeGallery(ids: string[] | null | undefined): string {
-  if (ids === null || ids === undefined || ids.length === 0) {
-    return ""
-  }
-  return [...ids].sort().join("\u0001")
-}
-
 export type ProductContentFormSnapshot = {
   descriptionJson: JSONContent
   seoTitle: string
   seoDescription: string
-  ogImageId: string
-  galleryIds: string[]
+  ogImageUrl: string
 }
 
-/**
- * Whether the in-progress form differs from the last loaded server snapshot.
- * When `content` is null (initial load failed), treats as not dirty so locale changes stay usable.
- */
 export function isProductContentDirty(
-  content: ProductContentResolved | null,
+  content: ProductContentReadPayload | null,
   form: ProductContentFormSnapshot
 ): boolean {
   if (content === null) {
     return false
   }
 
-  const baselineDoc = stableDocJson(tiptapDocFromUnknown(content.description_rich))
+  const baselineDoc = stableDocJson(tiptapDocFromUnknown(content.body_json))
   const currentDoc = stableDocJson(form.descriptionJson)
   if (baselineDoc !== currentDoc) {
     return true
@@ -51,12 +39,8 @@ export function isProductContentDirty(
     return true
   }
 
-  const baseOg = content.seo_og_image_id ?? ""
-  if (baseOg !== form.ogImageId) {
-    return true
-  }
-
-  if (normalizeGallery(content.media_gallery) !== normalizeGallery(form.galleryIds)) {
+  const baseOg = content.og_image_url ?? ""
+  if (baseOg !== form.ogImageUrl) {
     return true
   }
 

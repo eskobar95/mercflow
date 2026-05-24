@@ -129,11 +129,11 @@ Use primitives from `src/components/ui/` (`Input`, `Textarea`, `Select`, `FormFi
 
 ## Product content API (dev)
 
-- **Data layer:** `src/features/product-content/` — `getProductContent` calls **`GET /admin/product-content/:product_id?locale=`** and returns a **`ProductContentReadPayload`** (or **`null`** on **404** — no CMS row yet). `saveProductContent` still uses **`POST /admin/products/:id/content`** for upserts. `useProductContentState` performs the same load/save wiring with separate **`loadError`** / **`saveError`** and `load` / `save` returning **`Promise<boolean>`**.
-- **UI:** `ProductContentTab` is **read-only** for MER-26: body plaintext preview (TipTap JSON excerpt), SEO readout, resolved OG image URL, locale badge (`en` default client locale until Sprint 4 switching), **Add content** CTA (calls save with an empty TipTap doc to create the row). Sprint 3 restores full TipTap editors and inline SEO editing.
+- **Data layer:** `src/features/product-content/` — **`getProductContent`** calls **`GET /admin/product-content/:productId?locale=`** + **`parseProductContentReadPayload`** (404 → `null`, otherwise expects metadata like `id`, `product_id`, `locale`, **`version`**). **`saveProductContent`** issues **`POST /admin/product-content?locale=`** until a row exists, then **`PATCH /admin/product-content/:cmsRowId`**. Saves return the same flattened payload shapes as reads. **`useProductContentState`** wires loading/saving, applies an **optimistic UI merge per save** (`version` bumps optimistically server-side authoritative after success), separates **`loadError`** / **`saveError`**, and keeps `Promise<boolean>` booleans from `load` / `save`.
+- **UI:** `ProductContentTab` composes the shared **`ProductDescriptionEditor` → RichTextEditor (full TipTap preset)** plus SEO controls (character counters — title 255, description 160), OG URL field, **`SEOPreview`**, **`Save content` / Discard changes**. Locale UX still reads the **first** entry from **`GET /admin/locales`** until Sprint&nbsp;4 adds switching.
 - **Env:** Copy `.env.example` to `.env.local` and set `VITE_MEDUSA_ADMIN_BACKEND_URL` to the Medusa backend (see `apps/backend` README, default `http://localhost:9000`). If the Vite origin is not allowed by `ADMIN_CORS` on the backend, either add it there or use a dev proxy.
 - **Auth:** Requests use `credentials: "include"` for session cookies. For cross-origin setups without cookies, set `VITE_MEDUSA_ADMIN_BEARER_TOKEN` locally (never commit real tokens).
-- **Gallery / OG:** The tab stores **media file IDs** only; there is no Medusa upload widget in this shell — use known ids from your dev database or the backend file API separately.
+- **Media:** This shell stores OG targets as opaque strings (`seo_og_image_id` key in mutations backs `og_image_url`). Provide public URLs (`https://…`) or IDs your FILE module resolves; there is no inline upload UX in this slice.
 
 ## Category content API (dev)
 

@@ -136,14 +136,20 @@ class ContentModuleService extends MedusaService({
         seo_title: payload.seo_title ?? null,
         seo_description: payload.seo_description ?? null,
         og_image_url: payload.og_image_url ?? null,
+        version: 1,
       })
       row = Array.isArray(created)
         ? (created[0] as ProductContentRecord)
         : (created as ProductContentRecord)
     } else {
+      const prevVersion =
+        typeof existing.version === "number" && !Number.isNaN(existing.version)
+          ? existing.version
+          : 0
       const updated = await this.updateProductContents({
         id: existing.id,
         ...payload,
+        version: prevVersion + 1,
       })
       row = Array.isArray(updated)
         ? (updated[0] as ProductContentRecord)
@@ -158,6 +164,7 @@ class ContentModuleService extends MedusaService({
       id: row.id,
       product_id: row.product_id,
       locale: row.locale,
+      version: row.version,
       description_rich: row.body_json,
       seo_title: row.seo_title,
       seo_description: row.seo_description,

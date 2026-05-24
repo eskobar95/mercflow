@@ -47,14 +47,16 @@ describe("ProductContentTab", () => {
     render(<ProductContentTab productId="p_1" productTitleFallback="" />)
 
     expect(screen.getByText("No content yet.")).toBeInTheDocument()
-    expect(
-      screen.getByRole("button", { name: "Add content" })
-    ).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Add content" })).toBeInTheDocument()
   })
 
-  it("shows locale badge and CMS summary when loaded", (): void => {
+  it("renders editable layout with headings and toolbar when content is loaded", (): void => {
     mockUseProductContentState.mockReturnValue({
       content: {
+        id: "pct_test",
+        product_id: "p_1",
+        locale: "da-DK",
+        version: 2,
         body_json: {
           type: "doc",
           content: [{ type: "paragraph", content: [{ type: "text", text: "Hello storefront" }] }],
@@ -63,7 +65,6 @@ describe("ProductContentTab", () => {
         seo_description: "Snippet",
         og_image_url: "https://example.com/img.png",
         status: "published",
-        locale: "da-DK",
       },
       loading: false,
       saving: false,
@@ -74,12 +75,13 @@ describe("ProductContentTab", () => {
       clearError: vi.fn(),
     })
 
-    render(<ProductContentTab productId="p_1" productTitleFallback="" />)
+    render(<ProductContentTab productId="p_1" productTitleFallback="Product name" />)
 
-    expect(screen.getByText("Hello storefront")).toBeInTheDocument()
-    expect(screen.getByText("DA")).toBeInTheDocument()
-    expect(screen.getAllByText("Sample CMS meta title").length).toBeGreaterThanOrEqual(1)
-    expect(screen.getByText("Snippet")).toBeInTheDocument()
-    expect(screen.getByText("https://example.com/img.png")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Rich text description" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Heading 2" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Heading 3" })).toBeInTheDocument()
+    expect(screen.getByLabelText("Content save version 2")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "SEO" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Save content" })).toBeInTheDocument()
   })
 })

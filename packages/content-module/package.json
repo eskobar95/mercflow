@@ -9,6 +9,7 @@
     ".": "./src/modules/content/index.ts",
     "./models": "./src/models/index.ts",
     "./mercflow-product-content-api": "./src/integrations/mercflow-product-content-api.ts",
+    "./mercflow-admin-product-content-post-route": "./src/integrations/mercflow-admin-product-content-post-route.ts",
     "./mercflow-admin-product-content-read-route": "./src/integrations/mercflow-admin-product-content-read-route.ts",
     "./mercflow-store-product-content-read-route": "./src/integrations/mercflow-store-product-content-read-route.ts",
     "./mercflow-category-content-api": "./src/integrations/mercflow-category-content-api.ts"
