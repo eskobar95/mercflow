@@ -12,4 +12,8 @@ export const ConnectorConfig = model.define("connector_config", {
   secret_key_last4: model.text().nullable(),
   publishable_key_last4: model.text().nullable(),
   webhook_secret_last4: model.text().nullable(),
+  /** Last outbound connectivity probe outcome: ok | error (null = no result stored yet). */
+  connection_status: model.text().nullable(),
+  /** Non-sensitive explanation for admins (errors are user-safe; never store API keys). */
+  last_test_message: model.text().nullable(),
 })

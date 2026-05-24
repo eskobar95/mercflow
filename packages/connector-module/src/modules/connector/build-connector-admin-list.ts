@@ -1,4 +1,9 @@
-import type { ConnectorAdminListItem, ConnectorConfigRecord, ConnectorTypeSlug } from "./types"
+import type {
+  ConnectorAdminListItem,
+  ConnectorConfigRecord,
+  ConnectorConnectionHealth,
+  ConnectorTypeSlug,
+} from "./types"
 import { CONNECTOR_TYPE_SLUGS } from "./types"
 
 function isConnectorTypeSlug(value: string): value is ConnectorTypeSlug {
@@ -16,6 +21,17 @@ function toIsoOrNull(value: Date | string | null | undefined): string | null {
   return d.toISOString()
 }
 
+function resolveStoredConnectionHealth(status: string | null | undefined): ConnectorConnectionHealth {
+  const s = (status ?? "").trim().toLowerCase()
+  if (s === "ok") {
+    return "ok"
+  }
+  if (s === "error") {
+    return "error"
+  }
+  return "untested"
+}
+
 /**
  * Builds a fixed-length list covering all MercFlow connector slugs so the admin UI can render a stable grid.
  */
@@ -24,7 +40,11 @@ export function buildConnectorAdminList(
 ): ConnectorAdminListItem[] {
   const bySlug = new Map<
     ConnectorTypeSlug,
-    { active: boolean; lastTestedAt: string | null }
+    {
+      active: boolean
+      lastTestedAt: string | null
+      connectionHealth: ConnectorConnectionHealth | null
+    }
   >()
 
   for (const row of rows) {
@@ -35,6 +55,7 @@ export function buildConnectorAdminList(
     bySlug.set(slug, {
       active: Boolean(row.active),
       lastTestedAt: toIsoOrNull(row.last_tested_at),
+      connectionHealth: resolveStoredConnectionHealth(row.connection_status ?? null),
     })
   }
 
@@ -45,6 +66,7 @@ export function buildConnectorAdminList(
       active: found?.active ?? false,
       lastTestedAt: found?.lastTestedAt ?? null,
       configured: found !== undefined,
+      connectionHealth: found !== undefined ? (found.connectionHealth ?? "untested") : null,
     }
   })
 }
