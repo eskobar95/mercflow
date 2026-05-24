@@ -46,7 +46,7 @@ describe("AppSidebar", (): void => {
       </MemoryRouter>
     )
 
-    const productsButton = screen.getByRole("button", { name: /^Products$/i })
+    const productsButton = screen.getAllByRole("button", { name: /^Products$/i })[0]
     // /orders → Products parent should be collapsed by default.
     expect(productsButton).toHaveAttribute("aria-expanded", "false")
 
@@ -71,12 +71,16 @@ describe("AppSidebar", (): void => {
       </MemoryRouter>
     )
 
-    const productsButton = screen.getByRole("button", { name: /^Products$/i })
+    const productsButton = screen.getAllByRole("button", { name: /^Products$/i })[0]
     expect(productsButton).toHaveAttribute("aria-expanded", "true")
 
     // Active sub-item carries aria-current.
-    const categoriesLink = screen.getByRole("link", { name: "Categories" })
-    expect(categoriesLink).toHaveAttribute("aria-current", "page")
+    const categoriesLinks = screen.getAllByRole("link", { name: "Categories" })
+    const categoriesLink = categoriesLinks.find(
+      (el) => el.getAttribute("aria-current") === "page"
+    )
+    expect(categoriesLink).toBeDefined()
+    expect(categoriesLink).toHaveAttribute("href", "/product-categories")
   })
 
   it("matches the structural snapshot", (): void => {

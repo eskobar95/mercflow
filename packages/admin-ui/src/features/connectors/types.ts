@@ -1,0 +1,25 @@
+/** Connector slug keys mirrored by `@mercflow/connector-module` GET /admin/connectors. */
+export const CONNECTOR_SLUGS = ["shipmondo", "stripe", "plunk", "gtm"] as const
+
+export type ConnectorSlug = (typeof CONNECTOR_SLUGS)[number]
+
+export type ConnectorListItemDto = {
+  type: ConnectorSlug
+  active: boolean
+  lastTestedAt: string | null
+  configured: boolean
+}
+
+export type ConnectorDisplayStatus = "active" | "inactive" | "unconfigured"
+
+export function resolveConnectorDisplayStatus(
+  item: ConnectorListItemDto
+): ConnectorDisplayStatus {
+  if (!item.configured) {
+    return "unconfigured"
+  }
+  if (item.active) {
+    return "active"
+  }
+  return "inactive"
+}
