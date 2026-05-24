@@ -2,7 +2,7 @@
 
 ## Responsibility
 
-This package is the **MercFlow admin user interface** — a Vite + React client that will grow into the forked, page-driven Medusa admin. It includes a **global admin shell** (sidebar, top bar, main column) with **token-backed** styling, **React Router** and lazy-loaded pages, `ErrorBoundary` and `Suspense` around the main outlet, a **reusable list layer** in `src/components/ui/list/`, and **`/products` / `/products/:productId`** backed by **`@medusajs/js-sdk`** and **TanStack React Query v5** when `VITE_MEDUSA_ADMIN_BACKEND_URL` is set (with a mock catalogue fallback when it is omitted). **Product categories** lists and several other surfaces still use mock data until their fetch layers ship. **`/list-demo`** remains for raw list primitive smoke tests, plus the usual design-system rules from `.cursor/rules/admin-ui.mdc`.
+This package is the **MercFlow admin user interface** — a Vite + React client that will grow into the forked, page-driven Medusa admin. It includes a **global admin shell** (sidebar, top bar, main column) with **token-backed** styling, **React Router** and lazy-loaded pages, `ErrorBoundary` and `Suspense` around the main outlet, a **reusable list layer** in `src/components/ui/list/`, and **`/products` / `/products/:productId`** backed by **`@medusajs/js-sdk`** and **TanStack React Query v5** when `VITE_MEDUSA_ADMIN_BACKEND_URL` is set (with a mock catalogue fallback when it is omitted). **`/product-categories`** is backed by **`src/features/product-categories/`**, which wraps **`GET /admin/product-categories`** ( **`expand=products`** for counts) and **`GET /admin/product-categories/:id`** for the overview/detail shell using the same Medusa Admin origin + auth conventions as **`medusaAdminFetch`** / category content helpers. **`/list-demo`** and a few mock-only flows remain for smoke demos, plus the usual design-system rules from `.cursor/rules/admin-ui.mdc`.
 
 ## What does *not* belong in this package
 
@@ -39,11 +39,16 @@ Open the Vite dev URL printed in the terminal. The app loads the **admin shell**
 - **Detail:** `/products/:id` → `ProductDetailPage` — **Overview** (title, plain-text preview of Medusa `description`, status badge, media thumbnail strip from thumbnail + gallery) and **Variants** (one row per variant: name/SKU hint, merged price + stock/inventory summary). No separate inventory tab.
 - **Client:** Shared SDK factory `src/medusa-admin/createMercflowMedusaSdk.ts` (session + optional bearer header via env). Hooks use **`@tanstack/react-query`** queries; without `VITE_MEDUSA_ADMIN_BACKEND_URL`, catalogue pages fall back to `src/data/mockProducts.ts` for deterministic dev.
 
-## Entity lists (mock or partial wiring)
+## Product categories (read views)
 
-- **Routes:** `/product-categories` → `ProductCategoryListPage`, **`/products/new` → `ProductNewPage`**, **`/product-categories/new` → `ProductCategoryNewPage`** (mock create forms). Category list still uses mocks. Kebab paths; labels follow Medusa-style naming. List pages use the same `components/ui/list/*` stack as `/list-demo` where applicable.
-- **Mock data:** `src/data/mockProductCategories.ts`; product mocks remain for fallback and demos (`mockProducts`).
-- **`useMockEntityListState`** in `src/hooks/useMockEntityListState.ts` centralizes client-side filter, sort, pagination, and selection for surfaces that still use static rows (e.g. categories list).
+- **Hierarchy list:** `/product-categories` → `ProductCategoryListPage` — depth-first **`buildHierarchyRowsFromCategories`** over Medusa **`parent_category_id`**, **`ProductCategoryHierarchyTable`** indents descendants with token spacing, exposes handle, **`products.length`** as the linked product badge, **`is_active`**, and `updated_at`.
+- **Detail overview:** `/product-categories/:id` → **`CategoryOverviewSummary`** — handle, truncated Medusa **`description`** preview when present, parent link from **`expand=parent_category`**, inactive/active badges, linked product counts, plus the MercFlow **Content** tab from `src/features/category-content/`.
+
+## Demo fixtures & mock shells
+
+- **Routes:** **`/products/new`** and **`/product-categories/new`** remain mock shells (no persistence). **`/product-categories`** and **`/product-categories/:id`** rely on Medusa reads described above.
+- **Legacy fixtures:** `src/data/mockProductCategories.ts` is retained only for tooling or future storybook/demo seeds — the routed hierarchy list page no longer reads it.
+- **`useMockEntityListState`** powers `/list-demo` and deliberately static demos until corresponding fetch hooks land.
 
 ## App shell and routing
 
@@ -75,7 +80,7 @@ Vite output is written to `dist/` in this package (gitignored). `@mercflow/desig
 
 ## Tests
 
-- **Unit / component tests (Vitest):** from the monorepo root, `pnpm test` runs the workspace test projects (this package is configured with a `jsdom` environment).
+- **Unit / component tests (Vitest):** from the monorepo root, `pnpm test` runs the workspace Vitest projects. This package configures `vitest.config.ts` with **`@vitejs/plugin-react`**, the `@/` alias, **`jsdom`**, and **`vitest-setup.ts`** (**`@testing-library/jest-dom`** matchers + **`@testing-library/react` `cleanup()`** after each case).
 - **Playwright smoke (E2E):** `pnpm --filter @mercflow/admin-ui test:e2e` (starts Vite via Playwright; CI starts Vite in the workflow instead — see `docs/CI.md`)
 
 On a fresh machine, install Playwright browsers once:

@@ -1,190 +1,232 @@
-import { useCallback } from "react"
-import { Link } from "react-router-dom"
+import type { JSX } from "react"
+import { useCallback, useMemo, useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
 
-import { SearchInput } from "@/components/ui/SearchInput"
-import { DataTable } from "@/components/ui/list/DataTable"
+import { ProductCategoryHierarchyTable } from "@/components/product-categories/ProductCategoryHierarchyTable"
 import { ListEmptyState } from "@/components/ui/list/ListEmptyState"
 import { ListPagination } from "@/components/ui/list/ListPagination"
 import { ListToolbar } from "@/components/ui/list/ListToolbar"
 import { type RowActionItem } from "@/components/ui/list/RowActionsMenu"
-import { type ListColumnDef } from "@/components/ui/list/types"
-import {
-  MOCK_PRODUCT_CATEGORIES,
-  type ProductCategoryListRow,
-} from "@/data/mockProductCategories"
-import { useMockEntityListState } from "@/hooks/useMockEntityListState"
-
-type CategoryCol = "name" | "handle" | "productCount" | "updatedAt"
-
-const CATEGORY_COLUMNS: ListColumnDef<ProductCategoryListRow, CategoryCol>[] =
-  [
-    {
-      id: "name",
-      header: "Name",
-      sortable: true,
-      getSortValue: (r) => r.name,
-      cellClassName: "font-medium",
-      renderCell: (r) => (
-        <Link
-          to={`/product-categories/${encodeURIComponent(r.id)}`}
-          className="text-interactive-primary hover:text-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
-        >
-          {r.name}
-        </Link>
-      ),
-    },
-    {
-      id: "handle",
-      header: "Handle",
-      sortable: true,
-      getSortValue: (r) => r.handle,
-      renderCell: (r) => (
-        <code className="text-xs text-content-tertiary">{r.handle}</code>
-      ),
-    },
-    {
-      id: "productCount",
-      header: "Products",
-      sortable: true,
-      getSortValue: (r) => r.productCount,
-      cellClassName: "text-content-secondary",
-      renderCell: (r) => String(r.productCount),
-    },
-    {
-      id: "updatedAt",
-      header: "Last updated",
-      sortable: true,
-      getSortValue: (r) => new Date(r.updatedAt).getTime(),
-      renderCell: (r) => (
-        <time dateTime={r.updatedAt} className="text-content-secondary">
-          {new Date(r.updatedAt).toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          })}
-        </time>
-      ),
-    },
-  ]
+import { useAdminProductCategories } from "@/features/product-categories"
+import type { AdminProductCategoryHierarchyRow } from "@/features/product-categories/types"
 
 /**
- * Product category list. Backed by mock data today; switches to the Medusa
- * Admin `product_categories` endpoint once the client lands. Dev state
- * toggles live on `/list-demo` so this page stays focused on the catalogue.
+ * Categories list backed by GET /admin/product-categories. Rows are rendered in
+ * depth-first hierarchical order so child categories render indented under parents.
  */
 export function ProductCategoryListPage(): JSX.Element {
-  const filterRow = useCallback((r: ProductCategoryListRow, query: string) => {
-    const t = query.trim().toLowerCase()
-    return (
-      r.name.toLowerCase().includes(t) ||
-      r.handle.toLowerCase().includes(t) ||
-      String(r.productCount).includes(t)
+  const navigate = useNavigate()
+  const { state, reload, filteredRows, totalRowCount, search, setSearch } =
+    useAdminProductCategories()
+
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+
+  const onSearchChange = useCallback(
+    (v: string): void => {
+      setSearch(v)
+      setPage(1)
+    },
+    [setSearch]
+  )
+
+  const pagedRows = useMemo(() => {
+    const start = (page - 1) * pageSize
+    return filteredRows.slice(start, start + pageSize)
+  }, [filteredRows, page, pageSize])
+
+  const getRowActions = useCallback(
+    (row: AdminProductCategoryHierarchyRow): RowActionItem[] => [
+      {
+        id: "open",
+        label: "Open detail",
+        onSelect: (): void => {
+          navigate(`/product-categories/${encodeURIComponent(row.id)}`)
+        },
+      },
+    ],
+    [navigate]
+  )
+
+  const blockingNotice =
+    state.status === "config_error" || state.status === "error"
+
+
+  const disableSearchInputs =
+    state.status === "idle" ||
+    state.status === "loading" ||
+    state.status === "config_error" ||
+    state.status === "error" ||
+    (state.status === "success" && totalRowCount === 0)
+
+  const showTableBodyLoading = state.status === "loading"
+
+  let notice: JSX.Element | null = null
+
+  if (blockingNotice) {
+    notice = (
+      <div
+        role="alert"
+        className="mb-4 rounded-md border border-border-default bg-surface-raised p-4 text-sm text-content-secondary"
+      >
+        <p className="font-medium text-content-primary">
+          {state.status === "config_error"
+            ? "Admin backend not configured"
+            : "Unable to load categories"}
+        </p>
+        <p className="mt-2">{state.message}</p>
+        <button
+          type="button"
+          className="mt-3 rounded-md bg-interactive-primary px-3 py-1.5 text-sm font-medium text-content-inverse transition hover:bg-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
+          onClick={() => {
+            void reload()
+          }}
+        >
+          Retry
+        </button>
+      </div>
     )
-  }, [])
+  }
 
-  const {
-    search,
-    setSearch,
-    pageSize,
-    sort,
-    onRequestSort,
-    paged,
-    sorted,
-    currentPage,
-    selectedIds,
-    onSelectAll,
-    onSelectRow,
-    setPage,
-    setPageSize,
-  } = useMockEntityListState({
-    allRows: MOCK_PRODUCT_CATEGORIES,
-    columns: CATEGORY_COLUMNS,
-    getRowId: (r) => r.id,
-    initialSort: { column: "name", direction: "asc" },
-    filterRow,
-  })
+  let emptyOverlay: JSX.Element | null = null
 
-  const getRowActions = (_row: ProductCategoryListRow): RowActionItem[] => [
-    { id: "view", label: "View", onSelect: () => { /* TODO: navigate to /product-categories/:id */ } },
-    { id: "edit", label: "Edit", onSelect: () => { /* TODO: navigate to /product-categories/:id/edit */ } },
-    { id: "reorder", label: "Move", onSelect: () => { /* TODO: PATCH sort order */ } },
-    { id: "delete", label: "Delete", destructive: true, onSelect: () => { /* TODO: DELETE category */ } },
-  ]
+  const showSkeleton =
+    !blockingNotice && (state.status === "idle" || state.status === "loading")
+
+  const showCatalogEmptyNotice =
+    !blockingNotice &&
+    state.status === "success" &&
+    totalRowCount === 0 &&
+    !showSkeleton
+
+  if (showCatalogEmptyNotice) {
+    emptyOverlay = (
+      <div className="p-10">
+        <ListEmptyState
+          title="No product categories yet"
+          description="Create categories in Medusa Admin, then refresh this page to see them grouped as a hierarchy."
+          action={
+            <button
+              type="button"
+              className="rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm font-medium text-content-primary shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
+              onClick={() => {
+                void reload()
+              }}
+            >
+              Refresh list
+            </button>
+          }
+        />
+      </div>
+    )
+  }
+
+  let filterEmptyOverlay: JSX.Element | null = null
+
+  if (
+    !blockingNotice &&
+    state.status === "success" &&
+    totalRowCount > 0 &&
+    filteredRows.length === 0
+  ) {
+    filterEmptyOverlay = (
+      <div className="p-10">
+        <ListEmptyState
+          title="No categories match your search"
+          description="Try a different name, handle, or product count."
+          action={
+            <button
+              type="button"
+              className="rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm font-medium text-content-primary shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
+              onClick={() => {
+                onSearchChange("")
+              }}
+            >
+              Clear search
+            </button>
+          }
+        />
+      </div>
+    )
+  }
+
+  const refreshDisabled =
+    state.status === "config_error" || state.status === "idle" || state.status === "loading"
 
   return (
     <div className="p-6">
-        <div className="overflow-hidden rounded-md border border-border-default bg-surface-default">
-          <ListToolbar
-            title="Product categories"
-            description="How products are grouped on the storefront — name, handle, and how many products each group holds."
-            end={
-              <div className="flex flex-wrap items-center gap-2">
-                <Link
-                  to="/product-categories/new"
-                  className="rounded-md bg-interactive-primary px-3 py-1.5 text-sm font-medium text-content-inverse transition hover:bg-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
-                >
-                  New category
-                </Link>
-                <Link
-                  to="/products"
-                  className="text-sm font-medium text-interactive-primary hover:text-interactive-primary-hover"
-                >
-                  Products
-                </Link>
-              </div>
-            }
-          >
-            <SearchInput
+      {notice}
+      <div className="overflow-hidden rounded-lg border border-border-default bg-surface-default shadow-sm">
+        <ListToolbar
+          title="Product categories"
+          description="Nested list from Medusa (parents with indented children)."
+          end={
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                to="/product-categories/new"
+                className="rounded-md bg-interactive-primary px-3 py-1.5 text-sm font-medium text-content-inverse transition hover:bg-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
+              >
+                New category
+              </Link>
+              <Link
+                to="/products"
+                className="text-sm font-medium text-interactive-primary hover:text-interactive-primary-hover"
+              >
+                Products
+              </Link>
+              <button
+                type="button"
+                className="rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm font-medium text-content-primary shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus disabled:opacity-50"
+                onClick={() => {
+                  void reload()
+                }}
+                disabled={refreshDisabled}
+              >
+                Refresh
+              </button>
+            </div>
+          }
+        >
+          <label className="flex min-w-0 max-w-sm flex-1 items-center gap-2">
+            <span className="shrink-0 text-sm text-content-secondary">Search</span>
+            <input
+              type="search"
               value={search}
               onChange={(e) => {
-                setSearch(e.target.value)
-              }}
-              onClear={() => {
-                setSearch("")
+                onSearchChange(e.target.value)
               }}
               placeholder="Name, handle, or count"
+              disabled={disableSearchInputs}
+              className="min-w-0 flex-1 rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus"
               aria-label="Filter categories by name, handle, or product count"
-              className="min-w-0 max-w-sm flex-1"
             />
-          </ListToolbar>
-          <DataTable<ProductCategoryListRow, CategoryCol>
-            aria-label="Product category list"
-            caption="Product categories"
-            columns={CATEGORY_COLUMNS}
-            data={paged}
-            getRowId={(r) => r.id}
-            sortState={sort}
-            onRequestSort={onRequestSort}
-            selection={{ selectedIds, onSelectAll, onSelectRow }}
-            getRowActions={getRowActions}
-            emptyState={
-              <ListEmptyState
-                title="No categories match"
-                description="Try a different search or clear the filter."
-                action={
-                  <button
-                    type="button"
-                    className="rounded-md border border-border-default bg-surface-raised px-3 py-1.5 text-sm font-medium text-content-primary shadow-sm"
-                    onClick={() => { setSearch("") }}
-                  >
-                    Clear search
-                  </button>
-                }
+          </label>
+        </ListToolbar>
+        {emptyOverlay}
+        {!blockingNotice && !emptyOverlay && (state.status === "success" || showSkeleton) ? (
+          <>
+            <ProductCategoryHierarchyTable
+              rows={showTableBodyLoading ? [] : pagedRows}
+              isLoading={showSkeleton}
+              emptyState={filterEmptyOverlay}
+              getRowActions={getRowActions}
+            />
+            {state.status === "success" && filteredRows.length > 0 ? (
+              <ListPagination
+                aria-label="Product category list pagination"
+                currentPage={page}
+                pageSize={pageSize}
+                totalItems={filteredRows.length}
+                onPageChange={setPage}
+                onPageSizeChange={(n) => {
+                  setPageSize(n)
+                  setPage(1)
+                }}
               />
-            }
-          />
-          <ListPagination
-            aria-label="Product category list pagination"
-            currentPage={currentPage}
-            pageSize={pageSize}
-            totalItems={sorted.length}
-            onPageChange={setPage}
-            onPageSizeChange={(n) => {
-              setPageSize(n)
-              setPage(1)
-            }}
-          />
-        </div>
+            ) : null}
+          </>
+        ) : null}
       </div>
+    </div>
   )
 }
