@@ -140,6 +140,14 @@ export function ProductDetailPage(): JSX.Element {
           <Badge variant="neutral" className="capitalize">
             {statusLabel}
           </Badge>
+          {hasBackend ? (
+            <Link
+              to={`/products/${productId}/edit`}
+              className="rounded-md border border-border-subtle bg-surface-raised px-3 py-1.5 text-sm font-medium text-content-primary hover:border-border-strong"
+            >
+              Edit product
+            </Link>
+          ) : null}
         </div>
         <p className="mt-2 text-xs text-content-tertiary">
           {hasBackend
