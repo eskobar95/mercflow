@@ -5,7 +5,6 @@ export type {
 } from "./types"
 export {
   DEFAULT_CATEGORY_CONTENT_LOCALE,
-  getCategoryContent,
   getCategoryContentRead,
   resolveMedusaAdminBackendUrl,
   saveCategoryContent,

@@ -2,7 +2,7 @@ import type { JSX } from "react"
 import { useMemo } from "react"
 import { Link, useParams, useSearchParams } from "react-router-dom"
 
-import { CategoryContentReadTab } from "@/components/category-content/CategoryContentReadTab"
+import { CategoryContentTab } from "@/components/category-content/CategoryContentTab"
 import { CategoryOverviewSummary } from "@/components/product-categories/CategoryOverviewSummary"
 import { Card } from "@/components/ui/Card"
 import { useAdminProductCategoryDetail } from "@/features/product-categories"
@@ -190,16 +190,13 @@ export function ProductCategoryDetailPage(): JSX.Element {
           >
             {tab === "content" ? (
               hasBackend ? (
-                <CategoryContentReadTab
-                  categoryId={categoryId}
-                  categoryTitleFallback={title}
-                />
+                <CategoryContentTab categoryId={categoryId} categoryTitleFallback={title} />
               ) : (
                 <Card>
                   <p className="text-sm text-content-secondary">
                     Connect{" "}
                     <code className="text-xs">VITE_MEDUSA_ADMIN_BACKEND_URL</code> to load MercFlow
-                    category CMS read data for this tab.
+                    category CMS content for this tab.
                   </p>
                 </Card>
               )

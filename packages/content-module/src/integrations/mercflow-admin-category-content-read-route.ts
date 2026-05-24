@@ -1,4 +1,4 @@
 /**
- * Re-exports GET /admin/category-content/:id for `apps/backend` route discovery.
+ * Re-exports GET — category id lookup — and PATCH — `category_content.id` mutations — for apps/backend.
  */
-export { GET } from "../api/admin/category-content/[id]/route"
+export { GET, PATCH } from "../api/admin/category-content/[id]/route"

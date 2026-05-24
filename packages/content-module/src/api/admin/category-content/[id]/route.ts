@@ -5,7 +5,11 @@ import { MedusaError } from "@medusajs/utils"
 import { mapResolvedCategoryToReadPayload } from "../../../http/category-content-read-payload"
 import { sendZodError } from "../../../http/zod-error"
 import { CONTENT_MODULE } from "../../../../modules/content"
-import { localeQuerySchema } from "../../../../modules/content/http-schemas"
+import {
+  categoryContentBodySchema,
+  localeQuerySchema,
+} from "../../../../modules/content/http-schemas"
+import type { CategoryContentRecord } from "../../../../modules/content/types"
 import type ContentModuleService from "../../../../modules/content/service"
 
 /**
@@ -51,6 +55,68 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
   if (!resolved) {
     throw new MedusaError(MedusaError.Types.NOT_FOUND, "Category content not found")
   }
+
+  const payload = await mapResolvedCategoryToReadPayload(
+    req.scope,
+    resolved,
+    catalogVisibilityStatus
+  )
+  res.status(200).json(payload)
+}
+
+/**
+ * PATCH /admin/category-content/:id
+ *
+ * `:id` must be the **`category_content` row id** (MercFlow mutation slice), not the Medusa category id.
+ */
+export const PATCH = async (req: MedusaRequest, res: MedusaResponse): Promise<void> => {
+  const contentRowId = req.params.id
+  if (!contentRowId) {
+    throw new MedusaError(MedusaError.Types.INVALID_DATA, "Missing category content id")
+  }
+
+  const body = categoryContentBodySchema.safeParse(req.body ?? {})
+  if (!body.success) {
+    sendZodError(res, body.error)
+    return
+  }
+
+  const contentService = req.scope.resolve(CONTENT_MODULE) as ContentModuleService
+
+  const rows = await contentService.listCategoryContents({ id: contentRowId })
+  const row = rows[0] as CategoryContentRecord | undefined
+  if (!row) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      `Category content with id "${contentRowId}" not found`
+    )
+  }
+
+  const resolved = await contentService.upsertCategoryContent(
+    row.category_id,
+    row.locale,
+    body.data
+  )
+
+  const category = await refetchEntity({
+    entity: "product_category",
+    idOrFilter: row.category_id,
+    scope: req.scope,
+    fields: ["id", "is_active", "is_internal"],
+  })
+  if (!category) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      `Product category with id "${row.category_id}" not found`
+    )
+  }
+
+  const ref = category as { is_active?: boolean; is_internal?: boolean }
+  const isListed =
+    typeof ref.is_active === "boolean" &&
+    ref.is_active &&
+    !(typeof ref.is_internal === "boolean" && ref.is_internal)
+  const catalogVisibilityStatus = isListed ? "published" : "draft"
 
   const payload = await mapResolvedCategoryToReadPayload(
     req.scope,

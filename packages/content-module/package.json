@@ -13,6 +13,7 @@
     "./mercflow-admin-product-content-read-route": "./src/integrations/mercflow-admin-product-content-read-route.ts",
     "./mercflow-store-product-content-read-route": "./src/integrations/mercflow-store-product-content-read-route.ts",
     "./mercflow-admin-category-content-read-route": "./src/integrations/mercflow-admin-category-content-read-route.ts",
+    "./mercflow-admin-category-content-post-route": "./src/integrations/mercflow-admin-category-content-post-route.ts",
     "./mercflow-store-category-content-read-route": "./src/integrations/mercflow-store-category-content-read-route.ts",
     "./mercflow-category-content-api": "./src/integrations/mercflow-category-content-api.ts"
   },

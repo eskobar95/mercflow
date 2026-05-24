@@ -46,3 +46,12 @@ export const categoryContentBodySchema = z
 export type ProductContentBody = z.infer<typeof productContentBodySchema>
 export type AdminProductContentPostBody = z.infer<typeof adminProductContentPostBodySchema>
 export type CategoryContentBody = z.infer<typeof categoryContentBodySchema>
+
+/** POST /admin/category-content — upsert by category + locale (body includes category_id). */
+export const categoryContentPostBodySchema = categoryContentBodySchema
+  .extend({
+    category_id: z.string().min(1),
+  })
+  .strict()
+
+export type CategoryContentPostBody = z.infer<typeof categoryContentPostBodySchema>

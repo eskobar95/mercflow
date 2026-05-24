@@ -2,16 +2,35 @@ import { useCallback, useEffect, useState } from "react"
 
 import {
   DEFAULT_CATEGORY_CONTENT_LOCALE,
-  getCategoryContent,
+  getCategoryContentRead,
   saveCategoryContent,
 } from "./categoryContentApi"
-import type { CategoryContentResolved, SaveCategoryContentBody } from "./types"
+import type { CategoryContentReadPayload, SaveCategoryContentBody } from "./types"
 
 function toErrorMessage(error: unknown): string {
   if (error instanceof Error) {
     return error.message
   }
   return "An unexpected error occurred"
+}
+
+function mergeOptimisticCategoryPayload(
+  snapshot: CategoryContentReadPayload,
+  body: SaveCategoryContentBody
+): CategoryContentReadPayload {
+  return {
+    ...snapshot,
+    body_json:
+      body.description_rich !== undefined ? body.description_rich : snapshot.body_json,
+    seo_title: body.seo_title !== undefined ? body.seo_title : snapshot.seo_title,
+    seo_description:
+      body.seo_description !== undefined ? body.seo_description : snapshot.seo_description,
+    og_image_url:
+      body.seo_og_image_id !== undefined ? body.seo_og_image_id : snapshot.og_image_url,
+    banner_image_url:
+      body.banner_image_id !== undefined ? body.banner_image_id : snapshot.banner_image_url,
+    version: snapshot.version + 1,
+  }
 }
 
 export type UseCategoryContentStateOptions = {
@@ -23,7 +42,7 @@ export type UseCategoryContentStateOptions = {
 }
 
 export type UseCategoryContentStateResult = {
-  content: CategoryContentResolved | null
+  content: CategoryContentReadPayload | null
   loading: boolean
   saving: boolean
   loadError: string | null
@@ -39,7 +58,7 @@ export function useCategoryContentState(
   const locale = options.locale ?? DEFAULT_CATEGORY_CONTENT_LOCALE
   const loadOnMount = options.loadOnMount ?? true
 
-  const [content, setContent] = useState<CategoryContentResolved | null>(null)
+  const [content, setContent] = useState<CategoryContentReadPayload | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [saving, setSaving] = useState<boolean>(false)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -49,7 +68,7 @@ export function useCategoryContentState(
     setLoading(true)
     setLoadError(null)
     try {
-      const next = await getCategoryContent(options.categoryId, locale)
+      const next = await getCategoryContentRead(options.categoryId, locale)
       setContent(next)
       return true
     } catch (e: unknown) {
@@ -64,18 +83,32 @@ export function useCategoryContentState(
     async (body: SaveCategoryContentBody): Promise<boolean> => {
       setSaving(true)
       setSaveError(null)
+      const snapshot = content
+
       try {
-        const next = await saveCategoryContent(options.categoryId, body, locale)
+        if (snapshot !== null) {
+          setContent(mergeOptimisticCategoryPayload(snapshot, body))
+        }
+
+        const next = await saveCategoryContent({
+          categoryId: options.categoryId,
+          cmsContentId: snapshot?.id ?? null,
+          body,
+          locale,
+        })
         setContent(next)
         return true
       } catch (e: unknown) {
+        if (snapshot !== null) {
+          setContent(snapshot)
+        }
         setSaveError(toErrorMessage(e))
         return false
       } finally {
         setSaving(false)
       }
     },
-    [options.categoryId, locale]
+    [content, locale, options.categoryId]
   )
 
   const clearError = useCallback((): void => {
