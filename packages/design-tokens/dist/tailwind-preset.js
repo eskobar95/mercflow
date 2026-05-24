@@ -114,6 +114,12 @@ const colors = {
             content: "var(--mf-color-feedback-info-content)",
             border: "var(--mf-color-feedback-info-border)",
         },
+        pending: {
+            DEFAULT: "var(--mf-color-feedback-pending)",
+            subtle: "var(--mf-color-feedback-pending-subtle)",
+            content: "var(--mf-color-feedback-pending-content)",
+            border: "var(--mf-color-feedback-pending-border)",
+        },
     },
 };
 const spacing = {

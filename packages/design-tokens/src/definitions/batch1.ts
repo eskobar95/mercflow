@@ -132,6 +132,13 @@ export const colorTree = {
       content: "#133e7c",
       border: "#8fb5ea",
     },
+    /** Amber-adjacent “attention” tone for on-hold / pending badges (distinct from warning). */
+    pending: {
+      default: "#EA580C",
+      subtle: "rgba(234, 88, 12, 0.12)",
+      content: "#9A3412",
+      border: "rgba(234, 88, 12, 0.30)",
+    },
   },
   /**
    * Connector / integration status badges (admin Settings → Connectors).

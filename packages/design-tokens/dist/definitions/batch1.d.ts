@@ -132,6 +132,13 @@ export declare const colorTree: {
             readonly content: "#133e7c";
             readonly border: "#8fb5ea";
         };
+        /** Amber-adjacent “attention” tone for on-hold / pending badges (distinct from warning). */
+        readonly pending: {
+            readonly default: "#EA580C";
+            readonly subtle: "rgba(234, 88, 12, 0.12)";
+            readonly content: "#9A3412";
+            readonly border: "rgba(234, 88, 12, 0.30)";
+        };
     };
     /**
      * Connector / integration status badges (admin Settings → Connectors).

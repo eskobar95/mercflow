@@ -117,6 +117,12 @@ const colors: Record<string, TailwindColorMap> = {
       content: "var(--mf-color-feedback-info-content)",
       border:  "var(--mf-color-feedback-info-border)",
     } as unknown as string,
+    pending: {
+      DEFAULT: "var(--mf-color-feedback-pending)",
+      subtle:  "var(--mf-color-feedback-pending-subtle)",
+      content: "var(--mf-color-feedback-pending-content)",
+      border:  "var(--mf-color-feedback-pending-border)",
+    } as unknown as string,
   },
 }
 
