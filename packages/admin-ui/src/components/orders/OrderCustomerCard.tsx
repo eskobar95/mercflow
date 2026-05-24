@@ -24,7 +24,7 @@ export function OrderCustomerCard(props: { detail: OrderDetail }): JSX.Element {
       </h2>
       {c === null ? (
         <p className="mt-2 text-sm text-content-secondary">
-          Guest checkout —{" "}
+          Guest checkout:{" "}
           <span className="text-content-primary">{primaryEmail}</span>
         </p>
       ) : (

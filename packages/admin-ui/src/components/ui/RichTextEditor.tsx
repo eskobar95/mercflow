@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/formStyles"
 import { Input } from "@/components/ui/Input"
 import { cn } from "@/lib/cn"
-import { EMPTY_TIPTAP_DOC, tiptapDocFromUnknown } from "@/lib/tiptap"
+import { tiptapDocFromUnknown } from "@/lib/tiptap"
 
 export type RichTextEditorMode = "simple" | "full"
 type RichTextEditorVariant = "standalone" | "embedded"
@@ -397,5 +397,3 @@ export function RichTextEditor({
     </div>
   )
 }
-
-export { EMPTY_TIPTAP_DOC, tiptapDocFromUnknown }
