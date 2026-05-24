@@ -105,7 +105,7 @@ export function PlunkConnectorSettingsForm({
             <time dateTime={dto.lastTestedAt}>{new Date(dto.lastTestedAt).toLocaleString()}</time>
           </p>
         ) : (
-          <p className="text-xs text-content-tertiary">No successful connection test logged yet.</p>
+          <p className="text-xs text-content-tertiary">No connection test recorded yet.</p>
         )}
       </Card>
 
