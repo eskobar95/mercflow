@@ -119,6 +119,5 @@ jobs:
           npx react-doctor
           --diff origin/development
           --annotations
-          --pr-comment
           --fail-on error
         continue-on-error: false
