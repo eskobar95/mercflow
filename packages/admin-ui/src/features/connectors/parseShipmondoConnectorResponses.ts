@@ -1,3 +1,8 @@
+import type {
+  ShipmondoCarrierProductDto,
+  ShipmondoShippingRulesDto,
+} from "./shipmondoTypes"
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null
 }
@@ -69,6 +74,50 @@ function parseLogs(
   return out
 }
 
+function parseShippingRulesField(raw: unknown): {
+  markupAmountMinor: number
+  freeShippingThresholdMinor: number
+  enabledCarrierCodes: string[]
+} {
+  if (!isRecord(raw)) {
+    return {
+      markupAmountMinor: 0,
+      freeShippingThresholdMinor: 0,
+      enabledCarrierCodes: [],
+    }
+  }
+
+  const markup =
+    typeof raw.markupAmountMinor === "number" && Number.isFinite(raw.markupAmountMinor)
+      ? Math.trunc(raw.markupAmountMinor)
+      : NaN
+
+  const threshold =
+    typeof raw.freeShippingThresholdMinor === "number" && Number.isFinite(raw.freeShippingThresholdMinor)
+      ? Math.trunc(raw.freeShippingThresholdMinor)
+      : NaN
+
+  const codesRaw = raw.enabledCarrierCodes
+  const codes: string[] = []
+  if (Array.isArray(codesRaw)) {
+    for (const item of codesRaw) {
+      if (typeof item === "string" && item.trim().length > 0) {
+        codes.push(item.trim())
+      }
+    }
+  }
+
+  const safeMk = Number.isFinite(markup) && markup >= 0 ? markup : 0
+  const safeTh =
+    Number.isFinite(threshold) && threshold >= 0 ? threshold : 0
+
+  return {
+    markupAmountMinor: safeMk,
+    freeShippingThresholdMinor: safeTh,
+    enabledCarrierCodes: codes,
+  }
+}
+
 export function parseShipmondoConnectorGetEnvelope(json: unknown): {
   ok: false
   error: string
@@ -89,6 +138,11 @@ export function parseShipmondoConnectorGetEnvelope(json: unknown): {
       message: string
       success: boolean
     }>
+    shippingRules: {
+      markupAmountMinor: number
+      freeShippingThresholdMinor: number
+      enabledCarrierCodes: string[]
+    }
   }
 } {
   if (!isRecord(json)) {
@@ -119,6 +173,7 @@ export function parseShipmondoConnectorGetEnvelope(json: unknown): {
 
   const credentials = parseCredentialFlags(data.credentials)
   const recentLogs = parseLogs(data.recentLogs)
+  const shippingRules = parseShippingRulesField(data.shippingRules)
 
   return {
     ok: true,
@@ -128,8 +183,88 @@ export function parseShipmondoConnectorGetEnvelope(json: unknown): {
       lastTestedAt,
       credentials,
       recentLogs,
+      shippingRules,
     },
   }
+}
+
+function parseCarrierProductRow(raw: unknown): ShipmondoCarrierProductDto | null {
+  if (!isRecord(raw)) {
+    return null
+  }
+
+  const productCode = typeof raw.productCode === "string" ? raw.productCode.trim() : ""
+  if (productCode === "") {
+    return null
+  }
+
+  let carrierCode: string | null = null
+  if (typeof raw.carrierCode === "string") {
+    const cc = raw.carrierCode.trim()
+    carrierCode = cc === "" ? null : cc
+  } else if (raw.carrierCode === null) {
+    carrierCode = null
+  }
+
+  const name = typeof raw.name === "string" && raw.name.trim() !== "" ? raw.name.trim() : productCode
+  const minor =
+    typeof raw.basePriceMinor === "number" && Number.isFinite(raw.basePriceMinor)
+      ? Math.trunc(raw.basePriceMinor)
+      : Number.NaN
+  if (!Number.isFinite(minor) || minor < 0) {
+    return null
+  }
+
+  return {
+    productCode,
+    carrierCode,
+    name,
+    basePriceMinor: minor,
+  }
+}
+
+export function parseShipmondoCarrierProductsGetEnvelope(json: unknown): {
+  ok: false
+  error: string
+} | {
+  ok: true
+  data: ShipmondoCarrierProductDto[]
+} {
+  if (!isRecord(json)) {
+    return { ok: false, error: "Expected JSON object" }
+  }
+
+  const dataRaw = json.data
+  if (!Array.isArray(dataRaw)) {
+    return { ok: false, error: "Missing Shipmondo carrier catalogue" }
+  }
+
+  const carriers: ShipmondoCarrierProductDto[] = []
+
+  for (const entry of dataRaw) {
+    const parsed = parseCarrierProductRow(entry)
+    if (parsed !== null) {
+      carriers.push(parsed)
+    }
+  }
+
+  return { ok: true, data: carriers }
+}
+
+export function parseShipmondoRulesPatchEnvelope(json: unknown): {
+  ok: false
+  error: string
+} | {
+  ok: true
+  data: ShipmondoShippingRulesDto
+} {
+  if (!isRecord(json)) {
+    return { ok: false, error: "Expected JSON object" }
+  }
+
+  const inner = json.data
+  const rules = parseShippingRulesField(inner)
+  return { ok: true, data: rules }
 }
 
 export function parseShipmondoTestEnvelope(json: unknown): {

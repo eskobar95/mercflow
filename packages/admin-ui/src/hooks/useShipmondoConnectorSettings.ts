@@ -7,7 +7,7 @@ import {
 } from "@/features/connectors/shipmondoConnectorApi"
 import type { ShipmondoConnectorGetDto, ShipmondoTestResultDto } from "@/features/connectors/shipmondoTypes"
 
-const SHIPMONDO_QUERY_KEY = ["admin-shipmondo-connector"] as const
+export const ADMIN_SHIPMONDO_SETTINGS_QUERY_KEY = ["admin-shipmondo-connector"] as const
 
 export function useShipmondoConnectorSettings(): {
   query: ReturnType<typeof useQuery<ShipmondoConnectorGetDto>>
@@ -17,21 +17,21 @@ export function useShipmondoConnectorSettings(): {
   const queryClient = useQueryClient()
 
   const query = useQuery({
-    queryKey: SHIPMONDO_QUERY_KEY,
+    queryKey: ADMIN_SHIPMONDO_SETTINGS_QUERY_KEY,
     queryFn: getShipmondoConnectorAdmin,
   })
 
   const patch = useMutation({
     mutationFn: patchShipmondoConnectorAdmin,
     onSuccess: (data) => {
-      queryClient.setQueryData(SHIPMONDO_QUERY_KEY, data)
+      queryClient.setQueryData(ADMIN_SHIPMONDO_SETTINGS_QUERY_KEY, data)
     },
   })
 
   const test = useMutation({
     mutationFn: async (): Promise<ShipmondoTestResultDto> => postShipmondoConnectorTest(),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: SHIPMONDO_QUERY_KEY })
+      await queryClient.invalidateQueries({ queryKey: ADMIN_SHIPMONDO_SETTINGS_QUERY_KEY })
     },
   })
 

@@ -1,3 +1,4 @@
+import type { ReactElement } from "react"
 import { render, screen } from "@testing-library/react"
 import { MemoryRouter } from "react-router-dom"
 import { describe, expect, it, vi } from "vitest"
@@ -22,6 +23,11 @@ vi.mock("@/hooks/useShipmondoConnectorSettings", () => ({
           shippingModuleKeyConfigured: false,
         },
         recentLogs: [],
+        shippingRules: {
+          markupAmountMinor: 0,
+          freeShippingThresholdMinor: 0,
+          enabledCarrierCodes: [],
+        },
       },
     },
     patch: {
@@ -38,6 +44,10 @@ vi.mock("@/hooks/useShipmondoConnectorSettings", () => ({
       mutate: mutateTest,
     },
   }),
+}))
+
+vi.mock("@/components/connectors/shipmondo/ShipmondoShippingRulesSection", (): { ShipmondoShippingRulesSection: () => ReactElement } => ({
+  ShipmondoShippingRulesSection: (): ReactElement => <></>,
 }))
 
 import { ShipmondoConnectorWorkspace } from "@/components/connectors/shipmondo/ShipmondoConnectorWorkspace"

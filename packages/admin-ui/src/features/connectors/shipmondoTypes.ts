@@ -11,12 +11,26 @@ export type ShipmondoAdminLogDto = {
   success: boolean
 }
 
+export type ShipmondoShippingRulesDto = {
+  markupAmountMinor: number
+  freeShippingThresholdMinor: number
+  enabledCarrierCodes: string[]
+}
+
+export type ShipmondoCarrierProductDto = {
+  productCode: string
+  carrierCode: string | null
+  name: string
+  basePriceMinor: number
+}
+
 export type ShipmondoConnectorGetDto = {
   type: "shipmondo"
   active: boolean
   lastTestedAt: string | null
   credentials: ShipmondoCredentialFlagsDto
   recentLogs: ShipmondoAdminLogDto[]
+  shippingRules: ShipmondoShippingRulesDto
 }
 
 export type ShipmondoTestResultDto = {
