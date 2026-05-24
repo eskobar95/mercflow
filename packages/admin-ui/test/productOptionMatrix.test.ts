@@ -5,9 +5,42 @@ import {
   buildVariantRowsFromOptionMatrix,
   DEFAULT_SINGLE_OPTION_TITLE,
   DEFAULT_SINGLE_OPTION_VALUE,
-  mergePresetVariantEconomics,
   splitOptionValuesCsv,
+  type VariantRowModel,
 } from "@/lib/products/productOptionMatrix"
+
+/**
+ * Test-only helper mirroring economics merge behaviour exercised by the catalogue form hook.
+ */
+function mergePresetVariantEconomics(params: {
+  combos: Array<Pick<VariantRowModel, "comboKey" | "selections">>
+  previousRows: VariantRowModel[]
+  medusaVariantIdsByKey?: Partial<Record<string, string>>
+}): VariantRowModel[] {
+  const byKeyFromPrevious = new Map(
+    params.previousRows.map((row) => [row.comboKey, row] as const),
+  )
+
+  return params.combos.map((combo): VariantRowModel => {
+    const previous = byKeyFromPrevious.get(combo.comboKey)
+
+    const medusaVariantId =
+      previous?.medusaVariantId ??
+      params.medusaVariantIdsByKey?.[combo.comboKey] ??
+      null
+
+    const priceDkk = previous?.comboKey === combo.comboKey ? previous.priceDkk : ""
+    const stock = previous?.comboKey === combo.comboKey ? previous.stock : ""
+
+    return {
+      comboKey: combo.comboKey,
+      selections: combo.selections,
+      priceDkk,
+      stock,
+      medusaVariantId: medusaVariantId ?? undefined,
+    }
+  })
+}
 
 describe("productOptionMatrix helpers", (): void => {
   it("splits comma- and semicolon-separated option values", (): void => {

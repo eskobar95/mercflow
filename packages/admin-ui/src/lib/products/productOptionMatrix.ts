@@ -94,36 +94,3 @@ export function buildVariantRowsFromOptionMatrix(
     comboKey: buildVariantComboKey(selections),
   }))
 }
-
-/**
- * Merges previous price/stock by combo key onto newly generated combos.
- */
-export function mergePresetVariantEconomics(params: {
-  combos: Array<Pick<VariantRowModel, "comboKey" | "selections">>
-  previousRows: VariantRowModel[]
-  medusaVariantIdsByKey?: Partial<Record<string, string>>
-}): VariantRowModel[] {
-  const byKeyFromPrevious = new Map(
-    params.previousRows.map((row) => [row.comboKey, row] as const),
-  )
-
-  return params.combos.map((combo): VariantRowModel => {
-    const previous = byKeyFromPrevious.get(combo.comboKey)
-
-    const medusaVariantId =
-      previous?.medusaVariantId ??
-      params.medusaVariantIdsByKey?.[combo.comboKey] ??
-      null
-
-    const priceDkk = previous?.comboKey === combo.comboKey ? previous.priceDkk : ""
-    const stock = previous?.comboKey === combo.comboKey ? previous.stock : ""
-
-    return {
-      comboKey: combo.comboKey,
-      selections: combo.selections,
-      priceDkk,
-      stock,
-      medusaVariantId: medusaVariantId ?? undefined,
-    }
-  })
-}

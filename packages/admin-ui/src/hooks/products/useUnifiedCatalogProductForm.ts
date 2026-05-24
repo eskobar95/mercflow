@@ -426,7 +426,7 @@ export function useUnifiedCatalogProductForm(params: {
           description,
           status: isPublished ? "published" : "draft",
           categoryIds,
-          optionRows,
+          optionRows: trimmedOptionRows,
           variants: cleanPayload,
         })
 
