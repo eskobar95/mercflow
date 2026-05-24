@@ -2,16 +2,18 @@ import type { JSX } from "react"
 import { useMemo } from "react"
 import { Link, useParams, useSearchParams } from "react-router-dom"
 
-import { CategoryContentTab } from "@/components/category-content/CategoryContentTab"
+import { CategoryContentReadTab } from "@/components/category-content/CategoryContentReadTab"
 import { CategoryOverviewSummary } from "@/components/product-categories/CategoryOverviewSummary"
 import { Card } from "@/components/ui/Card"
 import { useAdminProductCategoryDetail } from "@/features/product-categories"
+import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
 type CategoryTabId = "overview" | "content"
 
 export function ProductCategoryDetailPage(): JSX.Element {
   const { categoryId } = useParams<{ categoryId: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
+  const hasBackend = resolveMedusaAdminBackendUrl() !== null
 
   const tab: CategoryTabId =
     searchParams.get("tab") === "content" ? "content" : "overview"
@@ -187,10 +189,20 @@ export function ProductCategoryDetailPage(): JSX.Element {
             hidden={tab !== "content"}
           >
             {tab === "content" ? (
-              <CategoryContentTab
-                categoryId={categoryId}
-                categoryTitleFallback={title}
-              />
+              hasBackend ? (
+                <CategoryContentReadTab
+                  categoryId={categoryId}
+                  categoryTitleFallback={title}
+                />
+              ) : (
+                <Card>
+                  <p className="text-sm text-content-secondary">
+                    Connect{" "}
+                    <code className="text-xs">VITE_MEDUSA_ADMIN_BACKEND_URL</code> to load MercFlow
+                    category CMS read data for this tab.
+                  </p>
+                </Card>
+              )
             ) : null}
           </div>
         </>

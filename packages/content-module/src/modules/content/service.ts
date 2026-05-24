@@ -83,6 +83,16 @@ class ContentModuleService extends MedusaService({
     return this.retrieveProductContentForLocale(productId, locale)
   }
 
+  /**
+   * Reads category CMS fields for `category_content` keyed by category id + locale (MER-27).
+   */
+  async findByCategoryId(
+    categoryId: string,
+    locale: string
+  ): Promise<ResolvedCategoryContent | null> {
+    return this.retrieveCategoryContentForLocale(categoryId, locale)
+  }
+
   async retrieveProductContentForLocale(
     productId: string,
     locale: string
@@ -247,13 +257,13 @@ class ContentModuleService extends MedusaService({
     return this.resolveCategoryRow(row)
   }
 
-  private resolveCategoryRow(
-    row: CategoryContentRecord
-  ): ResolvedCategoryContent {
+  private resolveCategoryRow(row: CategoryContentRecord): ResolvedCategoryContent {
     return {
       id: row.id,
       category_id: row.category_id,
       locale: row.locale,
+      version: row.version,
+      cms_status: row.status,
       description_rich: row.body_json,
       seo_title: row.seo_title,
       seo_description: row.seo_description,

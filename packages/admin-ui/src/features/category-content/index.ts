@@ -1,7 +1,12 @@
-export type { CategoryContentResolved, SaveCategoryContentBody } from "./types"
+export type {
+  CategoryContentReadPayload,
+  CategoryContentResolved,
+  SaveCategoryContentBody,
+} from "./types"
 export {
   DEFAULT_CATEGORY_CONTENT_LOCALE,
   getCategoryContent,
+  getCategoryContentRead,
   resolveMedusaAdminBackendUrl,
   saveCategoryContent,
 } from "./categoryContentApi"
