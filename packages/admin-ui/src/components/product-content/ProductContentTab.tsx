@@ -1,6 +1,8 @@
 import { useCallback } from "react"
 
+import { Badge } from "@/components/ui/Badge"
 import { Card } from "@/components/ui/Card"
+import { useAdminLocales } from "@/features/content-locale"
 import {
   DEFAULT_PRODUCT_CONTENT_LOCALE,
   useProductContentState,
@@ -28,11 +30,13 @@ export function ProductContentTab({
   productId,
   productTitleFallback,
 }: ProductContentTabProps): JSX.Element {
-  const locale = DEFAULT_PRODUCT_CONTENT_LOCALE
+  const { locales, loading: localesLoading, error: localesError } = useAdminLocales()
+  const readLocale = locales[0]?.code ?? DEFAULT_PRODUCT_CONTENT_LOCALE
+
   const { content, loading, saving, loadError, saveError, save, load, clearError } =
     useProductContentState({
       productId,
-      locale,
+      locale: readLocale,
       loadOnMount: true,
     })
 
@@ -53,6 +57,26 @@ export function ProductContentTab({
     clearError()
     await load()
   }, [clearError, load])
+
+  if (localesLoading) {
+    return (
+      <div className="space-y-4" aria-busy="true">
+        <p className="text-sm text-content-secondary">Loading store locales…</p>
+      </div>
+    )
+  }
+
+  if (localesError !== null) {
+    return (
+      <div
+        role="alert"
+        className="rounded-md border border-border-strong bg-surface-subtle px-3 py-2 text-sm text-content-danger"
+      >
+        Could not load locales from Medusa ({localesError}). Fix your session or connection, then
+        refresh.
+      </div>
+    )
+  }
 
   if (loading) {
     return (
@@ -89,7 +113,8 @@ export function ProductContentTab({
       <Card className="space-y-3">
         <p className="text-sm text-content-secondary">No content yet.</p>
         <p className="text-xs text-content-tertiary">
-          Create initial CMS placeholders for rich text (TipTap JSON) and SEO metadata.
+          Create initial CMS placeholders for rich text (TipTap JSON) and SEO metadata for locale{" "}
+          <code className="text-xs">{readLocale}</code>.
         </p>
         <div>
           <button
@@ -108,19 +133,23 @@ export function ProductContentTab({
   }
 
   const preview = plaintextPreviewFromTiptapJson(content.body_json, BODY_PREVIEW_MAX)
-  const seoTitleFallback = content.seo_title?.trim()
-    ?? (productTitleFallback.trim() !== "" ? productTitleFallback.trim() : "—")
+  const seoTitleFallback =
+    content.seo_title?.trim() ??
+    (productTitleFallback.trim() !== "" ? productTitleFallback.trim() : "—")
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm font-medium text-content-primary">Locale</span>
-        <span className="inline-flex items-center rounded-full border border-border-default bg-surface-subtle px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-content-primary">
+        <Badge
+          variant="neutral"
+          aria-label={`CMS content locale ${content.locale}`}
+        >
           {localeBadgeLabel(content.locale)}
-        </span>
+        </Badge>
         <span className="text-xs text-content-tertiary">
-          Editing language switching is Sprint 4; reads currently use only the configured default locale
-          passed to <code className="text-xs">GET /admin/product-content</code>.
+          Reads use the first locale from <code className="text-xs">GET /admin/locales</code> (
+          <span className="font-mono">{readLocale}</span>) until Sprint 4 adds an in-tab switcher.
         </span>
       </div>
 

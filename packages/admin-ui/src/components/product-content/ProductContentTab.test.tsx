@@ -2,8 +2,14 @@ import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { ProductContentTab } from "@/components/product-content/ProductContentTab"
+import type { UseAdminLocalesResult } from "@/features/content-locale/useAdminLocales"
 
 const mockUseProductContentState = vi.fn()
+const mockUseAdminLocales = vi.hoisted(() => vi.fn())
+
+vi.mock("@/features/content-locale", () => ({
+  useAdminLocales: (): UseAdminLocalesResult => mockUseAdminLocales() as UseAdminLocalesResult,
+}))
 
 vi.mock("@/features/product-content", async (original) => {
   const actual = await original<(typeof import("@/features/product-content"))>()
@@ -16,6 +22,14 @@ vi.mock("@/features/product-content", async (original) => {
 
 describe("ProductContentTab", () => {
   beforeEach(() => {
+    mockUseAdminLocales.mockReset()
+    mockUseAdminLocales.mockReturnValue({
+      locales: [{ code: "en", name: "English" }],
+      loading: false,
+      error: null,
+      reload: vi.fn(),
+    })
+
     mockUseProductContentState.mockReset()
     mockUseProductContentState.mockReturnValue({
       content: null,

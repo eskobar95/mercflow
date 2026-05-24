@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import type { ComponentPropsWithoutRef, ReactNode } from "react"
 
 /**
  * Badge — small status indicator.
@@ -19,28 +19,29 @@ import type { ReactNode } from "react"
 
 export type BadgeVariant = "neutral" | "accent" | "success" | "warning" | "danger"
 
-type BadgeProps = {
+type BadgeNativeProps = Omit<ComponentPropsWithoutRef<"span">, "children">
+
+type BadgeProps = BadgeNativeProps & {
   variant?: BadgeVariant
   /** Render as a dot + label instead of a filled pill. */
   dot?: boolean
   children: ReactNode
-  className?: string
 }
 
 const fillMap: Record<BadgeVariant, string> = {
   neutral: "bg-surface-subtle text-content-secondary",
-  accent:  "bg-accent-subtle text-accent-text",
+  accent: "bg-accent-subtle text-accent-text",
   success: "bg-feedback-success-subtle text-feedback-success-content",
   warning: "bg-feedback-warning-subtle text-feedback-warning-content",
-  danger:  "bg-feedback-danger-subtle text-feedback-danger-content",
+  danger: "bg-feedback-danger-subtle text-feedback-danger-content",
 }
 
 const dotColorMap: Record<BadgeVariant, string> = {
   neutral: "bg-content-tertiary",
-  accent:  "bg-accent",
+  accent: "bg-accent",
   success: "bg-feedback-success",
   warning: "bg-feedback-warning",
-  danger:  "bg-feedback-danger",
+  danger: "bg-feedback-danger",
 }
 
 export function Badge({
@@ -48,10 +49,12 @@ export function Badge({
   dot = false,
   children,
   className = "",
+  ...rest
 }: BadgeProps): JSX.Element {
   if (dot) {
     return (
       <span
+        {...rest}
         className={`inline-flex items-center gap-1.5 text-xs font-medium text-content-secondary ${className}`}
       >
         <span className={`h-1.5 w-1.5 rounded-full ${dotColorMap[variant]}`} aria-hidden />
@@ -62,6 +65,7 @@ export function Badge({
 
   return (
     <span
+      {...rest}
       className={`inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-semibold ${fillMap[variant]} ${className}`}
     >
       {children}
