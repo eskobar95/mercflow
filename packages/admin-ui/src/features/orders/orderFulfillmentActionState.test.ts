@@ -103,6 +103,81 @@ describe("getOrderFulfillmentActionVisibility", () => {
     expect(v.showCreateFulfillment).toBe(false)
     expect(v.showMarkShipped).toBe(true)
     expect(v.unshippedFulfillmentId).toBe("ful_1")
+    expect(v.shipmentItemsPayload).toEqual([])
+  })
+
+  it("builds shipmentItemsPayload from fulfillment line rows (id or line_item_id)", () => {
+    const v = visibilityFrom({
+      ...baseOrderPayload,
+      payment_status: "captured",
+      fulfillment_status: "not_fulfilled",
+      fulfillments: [
+        {
+          id: "ful_1",
+          created_at: "2026-05-10T11:00:00.000Z",
+          items: [
+            { id: "fli_1", quantity: 1 },
+            { line_item_id: "oli_1", quantity: 1 },
+          ],
+        },
+      ],
+      payment_collections: [
+        {
+          payments: [{ id: "pay_cap", status: "captured", captured_at: "2026-05-10T10:05:00.000Z" }],
+        },
+      ],
+    })
+    expect(v.showMarkShipped).toBe(true)
+    expect(v.shipmentItemsPayload).toEqual([
+      { id: "fli_1", quantity: 1 },
+      { id: "oli_1", quantity: 1 },
+    ])
+  })
+
+  it("skips canceled fulfillments and prefers the first open unshipped fulfillment", () => {
+    const v = visibilityFrom({
+      ...baseOrderPayload,
+      payment_status: "captured",
+      fulfillment_status: "not_fulfilled",
+      fulfillments: [
+        {
+          id: "ful_cancel",
+          canceled_at: "2026-05-10T10:00:00.000Z",
+          created_at: "2026-05-10T09:00:00.000Z",
+        },
+        {
+          id: "ful_open",
+          created_at: "2026-05-10T11:00:00.000Z",
+        },
+      ],
+      payment_collections: [
+        {
+          payments: [{ id: "pay_cap", status: "captured", captured_at: "2026-05-10T10:05:00.000Z" }],
+        },
+      ],
+    })
+    expect(v.unshippedFulfillmentId).toBe("ful_open")
+  })
+
+  it("hides Mark as shipped when fulfillment already has shipment records", () => {
+    const v = visibilityFrom({
+      ...baseOrderPayload,
+      payment_status: "captured",
+      fulfillment_status: "shipped",
+      fulfillments: [
+        {
+          id: "ful_1",
+          created_at: "2026-05-10T11:00:00.000Z",
+          shipments: [{ id: "ship_1" }],
+        },
+      ],
+      payment_collections: [
+        {
+          payments: [{ id: "pay_cap", status: "captured", captured_at: "2026-05-10T10:05:00.000Z" }],
+        },
+      ],
+    })
+    expect(v.showMarkShipped).toBe(false)
   })
 
   it("hides fulfillment actions once the open fulfillment is shipped", () => {

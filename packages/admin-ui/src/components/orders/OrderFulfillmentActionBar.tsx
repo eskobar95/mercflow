@@ -108,7 +108,12 @@ export function OrderFulfillmentActionBar(props: {
         if (fulfillmentId === null) {
           throw new Error("No unshipped fulfillment is available.")
         }
-        await postCreateFulfillmentShipment(order.id, fulfillmentId)
+        const shipmentItems = visibility.shipmentItemsPayload
+        await postCreateFulfillmentShipment(
+          order.id,
+          fulfillmentId,
+          shipmentItems.length > 0 ? { items: shipmentItems } : undefined,
+        )
       }
       closeDialog()
       onDidMutate()
@@ -127,6 +132,7 @@ export function OrderFulfillmentActionBar(props: {
     visibility.capturablePaymentId,
     visibility.fulfillmentItemsPayload,
     visibility.unshippedFulfillmentId,
+    visibility.shipmentItemsPayload,
   ])
 
   const dialogMeta = useMemo(() => {

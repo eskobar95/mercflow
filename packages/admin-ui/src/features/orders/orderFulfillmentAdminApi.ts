@@ -82,7 +82,8 @@ export async function postCreateOrderFulfillment(
 
 export async function postCreateFulfillmentShipment(
   orderId: string,
-  fulfillmentId: string
+  fulfillmentId: string,
+  shipmentBody?: { items?: { id: string; quantity: number }[] }
 ): Promise<void> {
   const base = requireBackendBase()
   const url = `${base}/admin/orders/${encodeURIComponent(orderId)}/fulfillments/${encodeURIComponent(fulfillmentId)}/shipments`
@@ -90,7 +91,7 @@ export async function postCreateFulfillmentShipment(
     method: "POST",
     credentials: "include",
     headers: buildMedusaAdminJsonHeaders(),
-    body: JSON.stringify({}),
+    body: JSON.stringify(shipmentBody ?? {}),
   })
   if (!response.ok) {
     throw new Error(await readMedusaAdminHttpErrorMessage(response))

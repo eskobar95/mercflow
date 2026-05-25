@@ -63,6 +63,17 @@ describe("OrderDetailPage — fulfillment mutations", () => {
     let getCalls = 0
     const fetchSpy = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
       const url = typeof input === "string" ? input : input.toString()
+      const orderDetailPath = `/admin/orders/${encodeURIComponent("ord_fulfill_flow")}`
+      const isOrderDetailGet =
+        (init?.method === undefined || init.method === "GET") &&
+        (() => {
+          try {
+            return new URL(url).pathname.endsWith(orderDetailPath)
+          } catch {
+            const pathOnly = url.split("?")[0] ?? url
+            return pathOnly.endsWith(orderDetailPath)
+          }
+        })()
       if (url.startsWith("http://localhost:9000/admin/stock-locations")) {
         return jsonResponse({ stock_locations: [{ id: "sloc_test" }] })
       }
@@ -80,7 +91,7 @@ describe("OrderDetailPage — fulfillment mutations", () => {
         paidUnfulfilledOrder.fulfillment_status = "not_fulfilled"
         return jsonResponse({})
       }
-      if (url.endsWith(`/admin/orders/${encodeURIComponent("ord_fulfill_flow")}`)) {
+      if (isOrderDetailGet) {
         getCalls += 1
         return jsonResponse({
           order: paidUnfulfilledOrder,
