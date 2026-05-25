@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
 import { DataTable } from "@/components/ui/list/DataTable"
@@ -107,10 +107,6 @@ export function OrdersListPage(): JSX.Element {
     direction: "desc",
   })
 
-  useEffect(() => {
-    setPage(1)
-  }, [debouncedSearch, statusBucket, dateFrom, dateTo])
-
   const onRequestSort = useCallback((columnId: OrdersListSortColumn): void => {
     setSort((s) => {
       if (s.column !== columnId) {
@@ -175,6 +171,7 @@ export function OrdersListPage(): JSX.Element {
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value)
+                  setPage(1)
                 }}
                 placeholder="Order #, customer, email"
                 className="min-w-0 rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus"
@@ -187,6 +184,7 @@ export function OrdersListPage(): JSX.Element {
                 value={statusBucket}
                 onChange={(e) => {
                   setStatusBucket(e.target.value as OrderStatusFilterBucket)
+                  setPage(1)
                 }}
                 className="rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus"
                 aria-label="Filter by order status bucket"
@@ -205,6 +203,7 @@ export function OrdersListPage(): JSX.Element {
                 value={dateFrom}
                 onChange={(e) => {
                   setDateFrom(e.target.value)
+                  setPage(1)
                 }}
                 className="rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus"
                 aria-label="Created on or after"
@@ -217,6 +216,7 @@ export function OrdersListPage(): JSX.Element {
                 value={dateTo}
                 onChange={(e) => {
                   setDateTo(e.target.value)
+                  setPage(1)
                 }}
                 className="rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus"
                 aria-label="Created on or before"
@@ -267,6 +267,7 @@ export function OrdersListPage(): JSX.Element {
                     setDateFrom("")
                     setDateTo("")
                     setStatusBucket("all")
+                    setPage(1)
                   }}
                 >
                   Reset filters
