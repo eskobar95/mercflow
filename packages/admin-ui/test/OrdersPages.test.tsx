@@ -130,11 +130,22 @@ describe("OrdersListPage", () => {
   })
 })
 
+function orderDetailGetMatches(urlStr: string, orderId: string): boolean {
+  const expectedPath = `/admin/orders/${encodeURIComponent(orderId)}`
+  try {
+    const u = new URL(urlStr)
+    return u.pathname.endsWith(expectedPath)
+  } catch {
+    const pathOnly = urlStr.split("?")[0] ?? urlStr
+    return pathOnly.endsWith(expectedPath)
+  }
+}
+
 describe("OrderDetailPage", () => {
   const fetchSpy = vi.fn(
     async (input: RequestInfo | URL): Promise<Response> => {
       const url = typeof input === "string" ? input : input.toString()
-      if (url.endsWith(`/admin/orders/${encodeURIComponent("ord_test")}`)) {
+      if (orderDetailGetMatches(url, "ord_test")) {
         return jsonResponse({
           order: {
             ...sampleOrderPayload,
@@ -175,6 +186,9 @@ describe("OrderDetailPage", () => {
     )
 
     expect(await screen.findByRole("heading", { name: /Order #1001/ })).toBeInTheDocument()
+    expect(
+      screen.getByRole("region", { name: "Order fulfillment actions" }),
+    ).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Line items" })).toBeInTheDocument()
     expect(screen.getByText("Sample SKU")).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Status timeline" })).toBeInTheDocument()

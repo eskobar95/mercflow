@@ -104,6 +104,16 @@ function fulfillmentTimes(order: Record<string, unknown>): {
 }
 
 /**
+ * True when aggregate payment status or captured payment timestamps indicate the order is paid enough to begin fulfillment.
+ */
+export function orderIndicatesPaidCapture(detail: OrderDetail): boolean {
+  const order = detail.raw
+  const paymentStatus = detail.paymentStatus.toLowerCase()
+  const paidCapturedAt = firstCapturedPaymentAt(order)
+  return PAID_PAYMENT_STATUSES.has(paymentStatus) || paidCapturedAt !== null
+}
+
+/**
  * Derives a read-only timeline from aggregate order fields and related collections.
  * Medusa does not always expose granular transition timestamps; we best-effort map fulfillments and payments.
  */

@@ -86,6 +86,32 @@ export async function fetchAdminOrdersList(
   return { rows, count }
 }
 
+/**
+ * Expanded relations for fulfillment actions + timeline — Medusa selects fields recursively with `*` prefix.
+ * @see https://docs.medusajs.com/learn/fundamentals/api-routes/parameters#select-parameters
+ */
+const ADMIN_ORDER_DETAIL_FIELDS = [
+  "id",
+  "status",
+  "display_id",
+  "email",
+  "currency_code",
+  "created_at",
+  "updated_at",
+  "payment_status",
+  "fulfillment_status",
+  "total",
+  "summary",
+  "*customer",
+  "*shipping_address",
+  "*items",
+  "*payment_collections",
+  "*payment_collections.payments",
+  "*fulfillments",
+  "*fulfillments.items",
+  "*fulfillments.shipments",
+].join(",")
+
 export async function fetchAdminOrder(orderId: string): Promise<OrderDetail> {
   const base = resolveMedusaAdminBackendUrl()
   if (base === null) {
@@ -94,7 +120,8 @@ export async function fetchAdminOrder(orderId: string): Promise<OrderDetail> {
     )
   }
   const id = encodeURIComponent(orderId)
-  const url = `${base}/admin/orders/${id}`
+  const qp = new URLSearchParams({ fields: ADMIN_ORDER_DETAIL_FIELDS })
+  const url = `${base}/admin/orders/${id}?${qp.toString()}`
   const response = await fetch(url, {
     method: "GET",
     credentials: "include",
