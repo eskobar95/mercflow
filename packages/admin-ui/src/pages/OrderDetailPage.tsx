@@ -7,6 +7,7 @@ import { OrderLineItemsTable } from "@/components/orders/OrderLineItemsTable"
 import { OrderPaymentSummaryCard } from "@/components/orders/OrderPaymentSummaryCard"
 import { OrderAdminBadge } from "@/components/orders/OrderAdminBadge"
 import { OrderShippingAddressCard } from "@/components/orders/OrderShippingAddressCard"
+import { OrderFulfillmentActionBar } from "@/components/orders/OrderFulfillmentActionBar"
 import { OrderStatusTimeline } from "@/components/orders/OrderStatusTimeline"
 import { useOrderDetail } from "@/hooks/useOrderDetail"
 import { formatAdminCurrency } from "@/utils/formatAdminCurrency"
@@ -119,6 +120,8 @@ export function OrderDetailPage(): JSX.Element {
           </p>
         </div>
       </header>
+
+      <OrderFulfillmentActionBar order={order} onDidMutate={refetch} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
