@@ -55,3 +55,43 @@ export const categoryContentPostBodySchema = categoryContentBodySchema
   .strict()
 
 export type CategoryContentPostBody = z.infer<typeof categoryContentPostBodySchema>
+
+const pageTypeSchema = z.enum(["homepage", "landing", "content"])
+const pageStatusSchema = z.enum(["draft", "published"])
+
+const slugSchema = z
+  .string()
+  .min(1)
+  .max(256)
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "slug must be lowercase letters, digits, and single hyphens")
+
+export const adminPageCreateBodySchema = z
+  .object({
+    title: z.string().min(1).max(500),
+    slug: slugSchema,
+    page_type: pageTypeSchema,
+    status: pageStatusSchema,
+    locale: z.string().min(1).max(32),
+  })
+  .strict()
+
+export const adminPagePatchBodySchema = z
+  .object({
+    title: z.string().min(1).max(500).optional(),
+    slug: slugSchema.optional(),
+    page_type: pageTypeSchema.optional(),
+    status: pageStatusSchema.optional(),
+  })
+  .strict()
+
+export const adminPagesListQuerySchema = z
+  .object({
+    locale: z.string().min(1).max(32).optional().default("en"),
+    limit: z.coerce.number().int().min(1).max(100).optional().default(50),
+    offset: z.coerce.number().int().min(0).optional().default(0),
+  })
+  .strict()
+
+export type AdminPageCreateBody = z.infer<typeof adminPageCreateBodySchema>
+export type AdminPagePatchBody = z.infer<typeof adminPagePatchBodySchema>
+export type AdminPagesListQuery = z.infer<typeof adminPagesListQuerySchema>

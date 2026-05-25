@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "commonjs",
-  "description": "MercFlow Medusa v2 custom module: native product and category content fields (DML, migrations, service).",
+  "description": "MercFlow Medusa v2 custom module: product/category CMS fields, pages CRUD (admin + store APIs, slug redirects), articles, redirects, and related DML, migrations, and services.",
   "main": "src/modules/content/index.ts",
   "exports": {
     ".": "./src/modules/content/index.ts",
@@ -15,7 +15,10 @@
     "./mercflow-admin-category-content-read-route": "./src/integrations/mercflow-admin-category-content-read-route.ts",
     "./mercflow-admin-category-content-post-route": "./src/integrations/mercflow-admin-category-content-post-route.ts",
     "./mercflow-store-category-content-read-route": "./src/integrations/mercflow-store-category-content-read-route.ts",
-    "./mercflow-category-content-api": "./src/integrations/mercflow-category-content-api.ts"
+    "./mercflow-category-content-api": "./src/integrations/mercflow-category-content-api.ts",
+    "./mercflow-admin-pages-api": "./src/integrations/mercflow-admin-pages-api.ts",
+    "./mercflow-admin-pages-id-api": "./src/integrations/mercflow-admin-pages-id-api.ts",
+    "./mercflow-store-pages-read-route": "./src/integrations/mercflow-store-pages-read-route.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
