@@ -14,7 +14,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 export function coerceToMinorUnitsFromUnknownPrice(value: unknown): number | null {
   if (typeof value === "number" && Number.isFinite(value)) {
-    if (Number.isInteger(value)) {
+    // Numbers >= 500 000 are already in minor units (øre/cents) — return as-is.
+    // All other numbers are treated as major units (DKK/EUR) and multiplied by 100.
+    // This mirrors the string path heuristic below and fixes the case where the
+    // Shipmondo API returns integer major-unit values like `sales_price: 49` (49 DKK).
+    if (Math.abs(value) >= 500_000) {
       return Math.round(value)
     }
     return Math.round(value * 100)
