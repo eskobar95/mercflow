@@ -1,0 +1,202 @@
+# mercflow/.github/agent-pipeline.yml
+# Agent-readable manifest for the existing CI/security pipeline.
+# Chief Operator reads this to route failures to DevOps Workflow or escalate to human.
+# Update this file in the same PR that adds or modifies a CI check.
+
+version: 1
+
+# ─── Functional checks (ci.yml) ──────────────────────────────────────────────
+checks:
+  - id: lint
+    workflow: ci.yml
+    job: check
+    step: Lint
+    command: "pnpm lint"
+    fixable_by: devops
+    common_failures:
+      - pattern: '@typescript-eslint/no-explicit-any'
+        fix_strategy: "Replace 'any' with 'unknown' + type narrowing, or define proper type. Forbidden by project rules."
+      - pattern: 'react-hooks/exhaustive-deps'
+        fix_strategy: "Add missing dep to useEffect/useCallback dep array, or memoize the value. Do not disable rule."
+      - pattern: 'error'
+        fix_strategy: "Read ESLint output. Try `pnpm lint --fix` first for auto-fixable rules. Fix remaining at exact file/line. Do not disable rules — escalate if rule seems wrong."
+
+  - id: unit-tests
+    workflow: ci.yml
+    job: check
+    step: Unit tests
+    command: "pnpm test"
+    fixable_by: devops
+    common_failures:
+      - pattern: 'Expected.*Received|expected.*to.*received'
+        fix_strategy: "Fix the implementation to match the test expectation. Only change the test if test itself is provably wrong."
+      - pattern: 'Cannot find module'
+        fix_strategy: "Missing import or wrong path. Add import or fix path. Check tsconfig path aliases."
+
+  - id: typecheck
+    workflow: ci.yml
+    job: check
+    step: Typecheck
+    command: "pnpm typecheck"
+    packages_covered:
+      - "@mercflow/design-tokens"
+      - "@mercflow/admin-ui"
+      - "@mercflow/content-module"
+      - "@mercflow/connector-module"
+      - "@mercflow/backend"
+    fixable_by: devops
+    common_failures:
+      - pattern: 'error TS2345'
+        fix_strategy: "Type mismatch. Read expected vs actual type, fix at the exact location."
+      - pattern: 'error TS2304'
+        fix_strategy: "Cannot find name. Add missing import."
+      - pattern: 'error TS\d+'
+        fix_strategy: "Read TS error code + message + source location. Fix the type at the exact position. Never use 'any'."
+
+  - id: build
+    workflow: ci.yml
+    job: check
+    step: Build
+    command: "pnpm build"
+    packages_built:
+      - "@mercflow/design-tokens"
+      - "@mercflow/admin-ui"
+      - "@mercflow/backend"
+    fixable_by: devops
+    common_failures:
+      - pattern: 'Failed to resolve|Cannot resolve'
+        fix_strategy: "Missing dependency or import path. Verify package is in package.json + run pnpm install."
+
+  - id: backend-integration
+    workflow: ci.yml
+    job: backend-integration
+    fixable_by: devops_with_guard
+    requires_environment: "backend"
+    environment_secrets:
+      - DATABASE_URL
+      - JWT_SECRET
+      - COOKIE_SECRET
+    hard_rules:
+      - "NEVER edit a migration file that has already been merged to staging or main"
+      - "NEVER edit migration files that exist in main branch — only the migration file added in THIS PR may be modified"
+      - "If env secret is missing or wrong: STOP and escalate to human (DevOps cannot fix infrastructure)"
+    common_failures:
+      - pattern: 'MikroORM.*migration|migration.*failed'
+        fix_strategy: "New migration syntax error. Check DML model alignment in packages/content-module/src/models/. Verify column types and FKs. Only edit migration files added in THIS PR."
+      - pattern: 'connection refused|ECONNREFUSED'
+        fix_strategy: "Postgres service issue — likely infrastructure. STOP and escalate."
+      - pattern: 'JWT_SECRET|COOKIE_SECRET|DATABASE_URL.*undefined'
+        fix_strategy: "STOP. Environment secrets missing or misconfigured. Escalate to human."
+
+  - id: admin-ui-e2e
+    workflow: ci.yml
+    job: admin-ui-e2e
+    test_directory: "packages/admin-ui/e2e/"
+    config: "packages/admin-ui/playwright.config.ts"
+    fixable_by: devops
+    common_failures:
+      - pattern: 'TimeoutError|exceeded.*timeout'
+        fix_strategy: "Race condition or slow render. Add proper Playwright wait (waitFor, toBeVisible) OR fix component lifecycle. Do NOT just increase timeout without root cause."
+      - pattern: 'expect\(.*\)\.toBeVisible'
+        fix_strategy: "Component not rendering as expected. Read trace.zip artifact if available. Fix component OR update test if behavior changed intentionally per acceptance criteria."
+      - pattern: 'Vite.*ready|connection refused.*5173'
+        fix_strategy: "Vite dev server failed to start. Check Vite log in workflow output. Likely build error in admin-ui or design-tokens."
+
+# ─── Security checks (security.yml) ──────────────────────────────────────────
+security:
+  - id: dependency-review
+    workflow: security.yml
+    job: dependency-review
+    runs_on: pull_request
+    fixable_by: devops
+    threshold: "high severity blocks PR"
+    common_failures:
+      - pattern: 'high severity|critical severity'
+        fix_strategy: "Bump the vulnerable transitive or direct dependency in package.json. Use pnpm overrides if needed. Run pnpm install + verify pnpm-lock.yaml is updated."
+
+  - id: pnpm-audit
+    workflow: security.yml
+    job: audit
+    runs_on: [pull_request, push]
+    fixable_by: devops
+    threshold: "--audit-level=high"
+    common_failures:
+      - pattern: 'high|critical'
+        fix_strategy: "Run `pnpm audit --fix` first. For breaking upgrades, bump manually + verify nothing breaks. If fix unavailable, document in pnpm overrides."
+
+  - id: gitleaks
+    workflow: security.yml
+    job: secrets
+    config: ".gitleaks.toml"
+    fixable_by: human
+    severity: critical
+    fix_strategy: |
+      STOP. NEVER auto-fix secrets. Always escalate to human.
+      The secret must be:
+        1. Removed from git history (interactive rebase or BFG)
+        2. Rotated outside this pipeline (cloud console, vault, etc.)
+        3. Replaced with env var reference
+      Chief Operator must notify human immediately with file + line where secret was detected.
+
+  - id: semgrep
+    runs_via: "Semgrep GitHub App (not in .github/workflows/)"
+    config: ".semgrep.yml"
+    rulesets:
+      - p/typescript
+      - p/nodejs
+      - p/owasp-top-ten
+      - p/secrets
+      - p/react
+    findings_appear_as: "PR review comments from Semgrep bot"
+    fixable_by: severity_dependent
+    severity_routing:
+      ERROR: human       # security-critical
+      WARNING: devops    # may attempt fix
+      INFO: devops       # low-risk style/anti-pattern
+    fix_strategy:
+      ERROR: "STOP. Escalate to human. Security-critical findings require careful review."
+      WARNING: "Read finding + source location. Apply fix per Semgrep recommendation. Re-run security.yml to verify."
+      INFO: "Low-risk fix. May address inline."
+
+# ─── Cursor Bugbot (configured outside workflows) ────────────────────────────
+bugbot:
+  runs_via: "Cursor Bugbot settings (not GitHub Actions)"
+  runs_per_pr: 1
+  fixable_by: devops
+  hard_rules:
+    - "Bugbot runs EXACTLY ONCE per PR"
+    - "DevOps Workflow fixes Bugbot findings but does NOT re-trigger Bugbot"
+    - "If a Bugbot fix breaks CI, the CI failure goes through normal DevOps flow — Bugbot does not re-evaluate"
+  fix_strategy: |
+    Read the raw Bugbot review comments via GitHub API (do NOT use AI summaries).
+    For each comment:
+      1. Read file + line + finding
+      2. Apply fix in the exact file/line
+      3. Resolve the PR review comment via GitHub API
+    Push fix as a single commit. Wait for CI to re-run. Bugbot does not re-trigger.
+
+# ─── Scheduled scans (security-scheduled.yml) ────────────────────────────────
+scheduled:
+  - id: trivy-weekly
+    workflow: security-scheduled.yml
+    job: trivy
+    cron: "0 8 * * 1"
+    target_branch: development
+    findings_create_issue: true
+    issue_label: "security,automated"
+    handled_by: "Chief Operator monitors created issues, may create Notion task for DevOps if HIGH/CRITICAL"
+
+  - id: pnpm-audit-weekly
+    workflow: security-scheduled.yml
+    job: audit
+    cron: "0 8 * * 1"
+    target_branch: development
+    findings_create_issue: true
+    issue_label: "security,automated"
+    handled_by: "Same as trivy-weekly"
+
+# ─── Not yet integrated (informational) ──────────────────────────────────────
+not_integrated:
+  react-doctor:
+    status: "not present in ci.yml"
+    decision: "Skipped for Phase 1 — ESLint react-hooks plugin + Semgrep p/react + Bugbot cover the most common React issues. Can be added later as a step in ci.yml job 'check' without architectural changes."
