@@ -175,6 +175,9 @@ describe("OrderDetailPage", () => {
     )
 
     expect(await screen.findByRole("heading", { name: /Order #1001/ })).toBeInTheDocument()
+    expect(
+      screen.getByRole("region", { name: "Order fulfillment actions" }),
+    ).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Line items" })).toBeInTheDocument()
     expect(screen.getByText("Sample SKU")).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Status timeline" })).toBeInTheDocument()
