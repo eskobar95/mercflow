@@ -17,15 +17,15 @@ import { cn } from "@/lib/cn"
  *   primary / secondary / soft / ghost / destructive
  */
 
-export type ButtonVariant =
+type ButtonVariant =
   | "primary"
   | "secondary"
   | "soft"
   | "ghost"
   | "destructive"
 
-export type ButtonSize = "sm" | "md" | "lg"
-export type ButtonShape = "default" | "pill"
+type ButtonSize = "sm" | "md" | "lg"
+type ButtonShape = "default" | "pill"
 
 type ButtonProps = {
   variant?: ButtonVariant

@@ -46,9 +46,12 @@ describe("AppSidebar", (): void => {
       </MemoryRouter>
     )
 
+    const navRoots = screen.getAllByRole("complementary", { name: /Main navigation/i })
+    expect(navRoots[0]).toBeDefined()
+    const sidebarRoot = navRoots[0] as HTMLElement
     const productsButtons = screen.getAllByRole("button", { name: /^Products$/i })
     expect(productsButtons[0]).toBeDefined()
-    const productsButton = productsButtons[0]!
+    const productsButton = within(sidebarRoot).getByRole("button", { name: /^Products$/i })
     // /orders → Products parent should be collapsed by default.
     expect(productsButton).toHaveAttribute("aria-expanded", "false")
 
@@ -73,13 +76,20 @@ describe("AppSidebar", (): void => {
       </MemoryRouter>
     )
 
+    const navRoots = screen.getAllByRole("complementary", { name: /Main navigation/i })
+    expect(navRoots[0]).toBeDefined()
+    const sidebarRoot = navRoots[0] as HTMLElement
     const productsButtons = screen.getAllByRole("button", { name: /^Products$/i })
     expect(productsButtons[0]).toBeDefined()
-    const productsButton = productsButtons[0]!
+    const productsButton = within(sidebarRoot).getByRole("button", { name: /^Products$/i })
     expect(productsButton).toHaveAttribute("aria-expanded", "true")
 
     // Active sub-item carries aria-current.
     const categoriesLinks = screen.getAllByRole("link", { name: "Categories" })
+    const categoriesActive = categoriesLinks.filter(
+      (link) => link.getAttribute("aria-current") === "page"
+    )
+    expect(categoriesActive).toHaveLength(1)
     const categoriesLink = categoriesLinks.find(
       (el) => el.getAttribute("aria-current") === "page"
     )

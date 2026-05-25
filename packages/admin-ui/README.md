@@ -58,6 +58,14 @@ Open the Vite dev URL printed in the terminal. The app loads the **admin shell**
 - **Legacy fixtures:** `src/data/mockProductCategories.ts` is retained only for tooling or future storybook/demo seeds — the routed hierarchy list page no longer reads it.
 - **`useMockEntityListState`** powers `/list-demo` and deliberately static demos until corresponding fetch hooks land.
 
+## Orders (read-only — Medusa Admin API)
+
+- **Routes:** `/orders` → `OrdersListPage` (via `OrdersPage` re-export in `src/pages/OrdersPage.tsx`), `/orders/:orderId` → `OrderDetailPage`. Declared in `src/router.tsx` with list and detail paths (detail registered first so params resolve correctly).
+- **HTTP:** `src/features/orders/ordersAdminApi.ts` uses `GET /admin/orders` and `GET /admin/orders/:id` with the same origin + cookie / bearer pattern as `src/medusa-admin/medusaAdminFetch.ts` (see `.env.example`: `VITE_MEDUSA_ADMIN_BACKEND_URL`, optional `VITE_MEDUSA_ADMIN_BEARER_TOKEN`).
+- **Parsing:** `orderJson.ts` maps Medusa JSON into narrow list/detail types; money is treated as **minor units** and formatted with `formatAdminCurrency` (`da-DK` locale).
+- **UI:** Feature components under `src/components/orders/` (timeline, line items, customer + shipping + payment cards). Status bucket filters (All / Pending / Processing / …) are applied **client-side** on a capped fetch window (see `useOrdersList` — up to ~800 rows) so operators get consistent grouping without extra backend work in this slice.
+- **Tests:** `test/OrdersPages.test.tsx` mocks `fetch` for list + detail render checks.
+
 ## App shell and routing
 
 - **Entry:** `src/main.tsx` wraps the app in `BrowserRouter`, `React.StrictMode`, and **`QueryClientProvider`** (TanStack Query).

@@ -2,7 +2,9 @@ import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { CategoryContentTab } from "@/components/category-content/CategoryContentTab"
-import type { UseAdminLocalesResult } from "@/features/content-locale/useAdminLocales"
+import { useAdminLocales } from "@/features/content-locale"
+
+type UseAdminLocalesResult = ReturnType<typeof useAdminLocales>
 
 const mockUseCategoryContentState = vi.fn()
 const mockUseAdminLocales = vi.hoisted(() => vi.fn())

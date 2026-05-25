@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 
 import { cn } from "@/lib/cn"
 
-export type PageHeaderBreadcrumb = {
+type PageHeaderBreadcrumb = {
   label: string
   href?: string
 }

@@ -96,7 +96,7 @@ export const DropdownMenuSeparator = forwardRef<
   )
 })
 
-export type DropdownMenuOption = {
+type DropdownMenuOption = {
   id: string
   label: ReactNode
   onSelect: () => void

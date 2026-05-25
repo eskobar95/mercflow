@@ -17,7 +17,7 @@ import type { ComponentPropsWithoutRef, ReactNode } from "react"
  * (primary on white ≥ 14:1, accent-text on accent-subtle, feedback-* pairs).
  */
 
-export type BadgeVariant = "neutral" | "accent" | "success" | "warning" | "danger"
+type BadgeVariant = "neutral" | "accent" | "success" | "warning" | "danger"
 
 type BadgeNativeProps = Omit<ComponentPropsWithoutRef<"span">, "children">
 

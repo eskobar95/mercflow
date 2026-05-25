@@ -2,7 +2,8 @@ import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { CategoryContentReadTab } from "@/components/category-content/CategoryContentReadTab"
-import type { UseAdminLocalesResult } from "@/features/content-locale/useAdminLocales"
+
+import { useAdminLocales } from "@/features/content-locale/useAdminLocales"
 
 const mockGetCategoryContentRead = vi.hoisted(() => vi.fn())
 const mockUseAdminLocales = vi.hoisted(() => vi.fn())
@@ -16,8 +17,11 @@ vi.mock("@/features/category-content/categoryContentApi", async (original) => {
   }
 })
 
+type AdminLocalesHookResult = ReturnType<typeof useAdminLocales>
+
 vi.mock("@/features/content-locale", () => ({
-  useAdminLocales: (): UseAdminLocalesResult => mockUseAdminLocales() as UseAdminLocalesResult,
+  useAdminLocales: (): AdminLocalesHookResult =>
+    mockUseAdminLocales() as AdminLocalesHookResult,
 }))
 
 describe("CategoryContentReadTab", () => {

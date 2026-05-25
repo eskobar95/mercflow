@@ -1,5 +1,5 @@
 import type { FormEvent } from "react"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 import {
@@ -75,23 +75,6 @@ export function ProductCategoryCrudForm({
   const [formError, setFormError] = useState<string | null>(null)
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
-
-  useEffect(() => {
-    setName(initialName)
-    setHandle(initialHandle)
-    setParentSelectValue(parentCategoryIdToSelectValue(initialParentCategoryId))
-    setIsActive(initialIsActive)
-    setHandleManuallyEdited(mode === "edit")
-    setFormError(null)
-    setStatusMessage(null)
-  }, [
-    initialName,
-    initialHandle,
-    initialParentCategoryId,
-    initialIsActive,
-    mode,
-    categoryId,
-  ])
 
   const resolvedHandle = useMemo((): string => {
     const t = handle.trim()
@@ -274,7 +257,7 @@ export function ProductCategoryCrudForm({
         <Switch
           label="Active in storefront"
           checked={isActive}
-          onCheckedChange={(v): void => {
+          onCheckedChange={(v: boolean): void => {
             setIsActive(v)
           }}
           disabled={submitting}

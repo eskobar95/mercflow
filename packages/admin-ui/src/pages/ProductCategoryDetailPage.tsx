@@ -201,6 +201,7 @@ export function ProductCategoryDetailPage(): JSX.Element {
             {tab === "overview" ? (
               <div className="space-y-6">
                 <ProductCategoryCrudForm
+                  key={categoryId}
                   mode="edit"
                   categoryId={categoryId}
                   initialName={state.category.name}
