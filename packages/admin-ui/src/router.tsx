@@ -114,11 +114,27 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "content/articles/new",
+        handle: { title: "New article" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { ArticleEditPage } = await import("@/pages/ArticleEditPage")
+          return { Component: ArticleEditPage }
+        },
+      },
+      {
+        path: "content/articles/:articleId",
+        handle: { title: "Article" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { ArticleEditPage } = await import("@/pages/ArticleEditPage")
+          return { Component: ArticleEditPage }
+        },
+      },
+      {
         path: "content/articles",
         handle: { title: "Articles" } satisfies AppRouteHandle,
         lazy: async () => {
-          const { ContentArticlesPage } = await import("@/pages/ContentArticlesPage")
-          return { Component: ContentArticlesPage }
+          const { ArticlesListPage } = await import("@/pages/ArticlesListPage")
+          return { Component: ArticlesListPage }
         },
       },
       {

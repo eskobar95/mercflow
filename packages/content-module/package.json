@@ -15,6 +15,10 @@
     "./mercflow-admin-category-content-read-route": "./src/integrations/mercflow-admin-category-content-read-route.ts",
     "./mercflow-admin-category-content-post-route": "./src/integrations/mercflow-admin-category-content-post-route.ts",
     "./mercflow-store-category-content-read-route": "./src/integrations/mercflow-store-category-content-read-route.ts",
+    "./mercflow-admin-articles-route": "./src/integrations/mercflow-admin-articles-route.ts",
+    "./mercflow-admin-articles-id-route": "./src/integrations/mercflow-admin-articles-id-route.ts",
+    "./mercflow-store-articles-route": "./src/integrations/mercflow-store-articles-route.ts",
+    "./mercflow-store-articles-slug-route": "./src/integrations/mercflow-store-articles-slug-route.ts",
     "./mercflow-category-content-api": "./src/integrations/mercflow-category-content-api.ts"
   },
   "scripts": {
