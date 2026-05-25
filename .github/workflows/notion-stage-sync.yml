@@ -66,11 +66,40 @@ jobs:
           HEX=$(echo "$NOTION_URL" | grep -oP '[0-9a-f]{32}' | tail -1)
           PAGE_ID="${HEX:0:8}-${HEX:8:4}-${HEX:12:4}-${HEX:16:4}-${HEX:20}"
 
-          # Fetch failing job names from the workflow run for context
-          FAILING_JOBS=$(gh api \
+          # Fetch failing jobs with their IDs
+          FAILING_JOBS_JSON=$(gh api \
             "repos/${{ github.repository }}/actions/runs/${RUN_ID}/jobs" \
-            --jq '[.jobs[] | select(.conclusion == "failure") | .name] | join(", ")' \
-            2>/dev/null || echo "unknown")
+            --jq '[.jobs[] | select(.conclusion == "failure") | {name: .name, id: .id}]' \
+            2>/dev/null || echo "[]")
+          FAILING_JOBS=$(echo "$FAILING_JOBS_JSON" | jq -r '[.[].name] | join(", ")' || echo "unknown")
+
+          # For each failing job, fetch log and extract actionable error lines.
+          # React Doctor, TypeScript, ESLint and similar tools emit structured output
+          # that we pass verbatim so the implementation agent knows exactly what to fix.
+          REVIEW_CONTEXT=""
+          while IFS= read -r JOB; do
+            JOB_NAME=$(echo "$JOB" | jq -r '.name')
+            JOB_ID=$(echo "$JOB"  | jq -r '.id')
+
+            # Download the job log (GitHub returns a redirect to a zip; use --location)
+            JOB_LOG=$(gh api "repos/${{ github.repository }}/actions/jobs/${JOB_ID}/logs" \
+              --accept application/vnd.github.v3.raw 2>/dev/null | head -c 32000 || echo "")
+
+            # Extract actionable lines: ##[error], ##[warning], file:line patterns,
+            # React Doctor rules, TypeScript errors, ESLint violations.
+            EXTRACTED=$(echo "$JOB_LOG" | grep -E \
+              '##\[error\]|##\[warning\]|\.(ts|tsx):[0-9]+|error TS[0-9]+|State reset|Unused (file|type)|Duplicate export|Missing key|react-hooks/' \
+              | head -40 || echo "")
+
+            if [ -n "$EXTRACTED" ]; then
+              REVIEW_CONTEXT=$(printf '%s=== %s ===\n%s\n\n' "$REVIEW_CONTEXT" "$JOB_NAME" "$EXTRACTED")
+            fi
+          done < <(echo "$FAILING_JOBS_JSON" | jq -c '.[]')
+
+          # Fall back to job names only if no structured errors were extracted
+          if [ -z "$REVIEW_CONTEXT" ]; then
+            REVIEW_CONTEXT="Failing jobs: ${FAILING_JOBS}\nRun: ${RUN_URL}"
+          fi
 
           # Check current Notion Stage — skip if already in Fix/Implementing to avoid duplicates
           CURRENT_STAGE=$(curl -sf "https://api.notion.com/v1/pages/$PAGE_ID" \
@@ -88,11 +117,47 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{"properties": {"Stage": {"select": {"name": "Fix"}}}}'
 
-          curl -sf -X POST "https://api.notion.com/v1/comments" \
+          COMMENT_BODY=$(printf "Agent: notion-stage-sync\n%s workflow failure → Stage Fix\n\nPR #%s — failing jobs: %s\nRun: %s\n\nGATE4_CI_FAIL\n%s" \
+            "$WORKFLOW_NAME" "$PR_NUMBER" "$FAILING_JOBS" "$RUN_URL" "$REVIEW_CONTEXT")
+
+          jq -n --arg page_id "$PAGE_ID" --arg body "$COMMENT_BODY" \
+            '{"parent":{"page_id":$page_id},"rich_text":[{"text":{"content":$body}}]}' \
+          | curl -sf -X POST "https://api.notion.com/v1/comments" \
             -H "Authorization: Bearer $NOTION_API_KEY" \
             -H "Notion-Version: 2022-06-28" \
             -H "Content-Type: application/json" \
-            -d "{\"parent\":{\"page_id\":\"$PAGE_ID\"},\"rich_text\":[{\"text\":{\"content\":\"Agent: notion-stage-sync\n${WORKFLOW_NAME} workflow failure → Stage Fix\n\nPR #${PR_NUMBER} — failing jobs: ${FAILING_JOBS}\nRun: ${RUN_URL}\n\nImplementation Agent dispatched. Fix only the failing checks — no scope changes.\"}}]}"
+            -d @-
+
+          # Dispatch implementation agent DIRECTLY with reviewContext —
+          # bypasses Notion webhook chain which loses reviewContext.
+          FEATURE_BRANCH=$(gh pr view "$PR_NUMBER" \
+            --repo "${{ github.repository }}" --json headRefName -q .headRefName 2>/dev/null || echo "")
+
+          FULL_REVIEW_CONTEXT=$(printf 'GATE4_CI_FAIL: %s\n%s\nFix ONLY the issues listed above. Run the relevant check locally before pushing.' \
+            "$FAILING_JOBS" "$REVIEW_CONTEXT")
+
+          DISPATCH_PAYLOAD=$(jq -n \
+            --arg pageUrl "$NOTION_URL" \
+            --arg featureBranch "$FEATURE_BRANCH" \
+            --arg prNumber "$PR_NUMBER" \
+            --arg reviewContext "$FULL_REVIEW_CONTEXT" \
+            '{
+              event_type: "implementation",
+              client_payload: {
+                pageUrl: $pageUrl,
+                featureBranch: $featureBranch,
+                prNumber: $prNumber,
+                skipBugbot: "false",
+                reviewContext: $reviewContext
+              }
+            }')
+
+          curl -sf -X POST \
+            "https://api.github.com/repos/eskobar95/mercflow-os/dispatches" \
+            -H "Authorization: Bearer ${{ secrets.SYNC_GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            -d "$DISPATCH_PAYLOAD" && echo "Implementation agent dispatched with reviewContext" || true
 
           echo "Stage → Fix for PR #$PR_NUMBER ($NOTION_URL) — ${WORKFLOW_NAME} failed: $FAILING_JOBS"
 
