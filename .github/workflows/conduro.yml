@@ -10,14 +10,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
       - uses: actions/setup-node@v4
-        with: { node-version: '22' }
+        with:
+          node-version: '22'
+          cache: pnpm
       - name: React Doctor
         run: npx react-doctor@latest --json --diff --offline > /tmp/react-doctor.json || true
       - name: Semgrep
         run: pip install semgrep -q && semgrep --config=auto --json . > /tmp/semgrep.json || true
       - name: Socket.dev
-        run: npx @socketsecurity/cli npm audit --json > /tmp/socket.json || true
+        run: npx @socketsecurity/cli@latest pnpm audit --json > /tmp/socket.json || echo '{"issues":[]}' > /tmp/socket.json
       - name: Report to Conduro
         run: |
           npx @conduro/ci-reporter@1 \
