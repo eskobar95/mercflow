@@ -1,0 +1,32 @@
+# Managed by Conduro - do not edit manually
+name: Conduro CI
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  conduro-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - name: React Doctor
+        run: npx react-doctor@latest --json --diff --offline > /tmp/react-doctor.json || true
+      - name: Semgrep
+        run: pip install semgrep -q && semgrep --config=auto --json . > /tmp/semgrep.json || true
+      - name: Socket.dev
+        run: npx @socketsecurity/cli npm audit --json > /tmp/socket.json || true
+      - name: Report to Conduro
+        run: |
+          npx @conduro/ci-reporter@1 \
+            --react-doctor /tmp/react-doctor.json \
+            --semgrep /tmp/semgrep.json \
+            --socket /tmp/socket.json \
+            --pr-number ${{ github.event.pull_request.number }} \
+            --commit-sha ${{ github.event.pull_request.head.sha }} \
+            --repo ${{ github.repository }}
+        env:
+          CONDURO_API_KEY: ${{ secrets.CONDURO_API_KEY }}
+          CONDURO_WORKER_URL: ${{ vars.CONDURO_WORKER_URL }}
