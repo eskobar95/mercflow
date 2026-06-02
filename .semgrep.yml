@@ -1,22 +1,16 @@
-# Semgrep configuration for MercFlow
-# The Semgrep GitHub App reads this file automatically.
-# Docs: https://semgrep.dev/docs/semgrep-ci/configuration-reference/
+# Semgrep rulesets for Conduro CI (local + conduro.yml).
+# Semgrep GitHub App removed — SAST runs in Conduro CI only.
+# Secrets: covered by Gitleaks in security.yml (p/secrets omitted here).
 
-rules: []  # All rules come from the rulesets below
+rules: []
 
-# Rulesets to run on every PR
-# Semgrep App config: add these under "Policies" in the Semgrep dashboard,
-# or list them here for local runs: semgrep --config .semgrep.yml
-
-# Active rulesets (configure in Semgrep dashboard → Policies):
-#   p/typescript        — TypeScript anti-patterns and common bugs
-#   p/nodejs            — Node.js security (path traversal, command injection, etc.)
-#   p/owasp-top-ten     — OWASP Top 10 coverage
-#   p/secrets           — Hardcoded secrets and credentials
-#   p/react             — React-specific issues (XSS via dangerouslySetInnerHTML, etc.)
-
-# Severity thresholds — block PR merge on ERROR, warn on WARNING
-# Configure in Semgrep dashboard → Settings → Merge policies
-
-# Paths excluded from scanning (mirrors .semgrepignore)
-# .semgrepignore is the authoritative ignore list — this is for reference only.
+# Active rulesets (mirrored in conduro.yml):
+#   p/typescript    — TypeScript anti-patterns
+#   p/nodejs        — Node.js security (injection, traversal, etc.)
+#   p/owasp-top-ten — OWASP Top 10
+#   p/react         — React-specific issues (XSS, etc.)
+#
+# Local scan (PR diff vs main):
+#   semgrep scan --config p/typescript --config p/nodejs \
+#     --config p/owasp-top-ten --config p/react \
+#     --baseline-commit origin/main --json .

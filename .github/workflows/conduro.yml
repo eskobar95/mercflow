@@ -4,23 +4,110 @@ on:
   pull_request:
     types: [opened, synchronize]
 
+concurrency:
+  group: conduro-ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
-  conduro-ci:
+  react-doctor:
+    name: React Doctor
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
       - uses: actions/setup-node@v4
-        with: { node-version: '22' }
-      - name: React Doctor
-        run: npx react-doctor@latest --json --diff --offline > /tmp/react-doctor.json || true
-      - name: Semgrep
-        run: pip install semgrep -q && semgrep --config=auto --json . > /tmp/semgrep.json || true
-      - name: Socket.dev
-        run: npx @socketsecurity/cli npm audit --json > /tmp/socket.json || true
+        with:
+          node-version: "22"
+          cache: pnpm
+      - name: Scan
+        run: |
+          npx react-doctor@latest --json --diff --offline > react-doctor.json || true
+          test -s react-doctor.json || echo "{}" > react-doctor.json
+      - name: Gate (blocking findings)
+        run: npx @conduro/ci-reporter@1.0.2 gate --react-doctor react-doctor.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: react-doctor
+          path: react-doctor.json
+          retention-days: 1
+
+  semgrep:
+    name: Semgrep (SAST)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Scan
+        run: |
+          pip install semgrep -q
+          semgrep scan \
+            --config p/typescript \
+            --config p/nodejs \
+            --config p/owasp-top-ten \
+            --config p/react \
+            --baseline-commit "${{ github.event.pull_request.base.sha }}" \
+            --json --output semgrep.json \
+            . || true
+          test -s semgrep.json || echo '{"results":[]}' > semgrep.json
+      - name: Gate (blocking findings)
+        run: npx @conduro/ci-reporter@1.0.2 gate --semgrep semgrep.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: semgrep
+          path: semgrep.json
+          retention-days: 1
+
+  socket:
+    name: Socket (supply chain)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+      - name: Scan
+        run: |
+          npx @socketsecurity/cli@latest pnpm audit --json > socket.json || true
+          test -s socket.json || echo '{"issues":[]}' > socket.json
+      - name: Gate (blocking findings)
+        run: npx @conduro/ci-reporter@1.0.2 gate --socket socket.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: socket
+          path: socket.json
+          retention-days: 1
+
+  report:
+    name: Conduro report
+    runs-on: ubuntu-latest
+    needs: [react-doctor, semgrep, socket]
+    if: ${{ always() && !cancelled() }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: findings
+      - name: Prepare finding files
+        run: |
+          cp findings/react-doctor/react-doctor.json /tmp/react-doctor.json 2>/dev/null || echo "{}" > /tmp/react-doctor.json
+          cp findings/semgrep/semgrep.json /tmp/semgrep.json 2>/dev/null || echo '{"results":[]}' > /tmp/semgrep.json
+          cp findings/socket/socket.json /tmp/socket.json 2>/dev/null || echo '{"issues":[]}' > /tmp/socket.json
       - name: Report to Conduro
         run: |
-          npx @conduro/ci-reporter@1 \
+          npx @conduro/ci-reporter@1.0.2 \
             --react-doctor /tmp/react-doctor.json \
             --semgrep /tmp/semgrep.json \
             --socket /tmp/socket.json \
