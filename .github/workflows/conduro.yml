@@ -23,12 +23,23 @@ jobs:
         with:
           node-version: "22"
           cache: pnpm
+      - name: Install @conduro/ci-reporter
+        run: |
+          if npm view @conduro/ci-reporter@1.0.2 version >/dev/null 2>&1; then
+            echo "CONDURO_REPORTER=npx --yes @conduro/ci-reporter@1.0.2" >> "$GITHUB_ENV"
+          else
+            git clone --depth 1 --branch feature/sprint-10-conduro-ci \
+              https://github.com/eskobar95/conduro-platform.git /tmp/conduro-platform
+            cd /tmp/conduro-platform/packages/ci-reporter
+            npm install && npm run build
+            echo "CONDURO_REPORTER=node /tmp/conduro-platform/packages/ci-reporter/dist/index.js" >> "$GITHUB_ENV"
+          fi
       - name: Scan
         run: |
           npx react-doctor@latest --json --diff --offline > react-doctor.json || true
           test -s react-doctor.json || echo "{}" > react-doctor.json
       - name: Gate (blocking findings)
-        run: npx @conduro/ci-reporter@1.0.2 gate --react-doctor react-doctor.json
+        run: ${{ env.CONDURO_REPORTER }} gate --react-doctor react-doctor.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -43,6 +54,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install @conduro/ci-reporter
+        run: |
+          if npm view @conduro/ci-reporter@1.0.2 version >/dev/null 2>&1; then
+            echo "CONDURO_REPORTER=npx --yes @conduro/ci-reporter@1.0.2" >> "$GITHUB_ENV"
+          else
+            git clone --depth 1 --branch feature/sprint-10-conduro-ci \
+              https://github.com/eskobar95/conduro-platform.git /tmp/conduro-platform
+            cd /tmp/conduro-platform/packages/ci-reporter
+            npm install && npm run build
+            echo "CONDURO_REPORTER=node /tmp/conduro-platform/packages/ci-reporter/dist/index.js" >> "$GITHUB_ENV"
+          fi
       - name: Scan
         run: |
           pip install semgrep -q
@@ -56,7 +81,7 @@ jobs:
             . || true
           test -s semgrep.json || echo '{"results":[]}' > semgrep.json
       - name: Gate (blocking findings)
-        run: npx @conduro/ci-reporter@1.0.2 gate --semgrep semgrep.json
+        run: ${{ env.CONDURO_REPORTER }} gate --semgrep semgrep.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -77,12 +102,23 @@ jobs:
         with:
           node-version: "22"
           cache: pnpm
+      - name: Install @conduro/ci-reporter
+        run: |
+          if npm view @conduro/ci-reporter@1.0.2 version >/dev/null 2>&1; then
+            echo "CONDURO_REPORTER=npx --yes @conduro/ci-reporter@1.0.2" >> "$GITHUB_ENV"
+          else
+            git clone --depth 1 --branch feature/sprint-10-conduro-ci \
+              https://github.com/eskobar95/conduro-platform.git /tmp/conduro-platform
+            cd /tmp/conduro-platform/packages/ci-reporter
+            npm install && npm run build
+            echo "CONDURO_REPORTER=node /tmp/conduro-platform/packages/ci-reporter/dist/index.js" >> "$GITHUB_ENV"
+          fi
       - name: Scan
         run: |
           npx @socketsecurity/cli@latest pnpm audit --json > socket.json || true
           test -s socket.json || echo '{"issues":[]}' > socket.json
       - name: Gate (blocking findings)
-        run: npx @conduro/ci-reporter@1.0.2 gate --socket socket.json
+        run: ${{ env.CONDURO_REPORTER }} gate --socket socket.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -100,6 +136,20 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: findings
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install @conduro/ci-reporter
+        run: |
+          if npm view @conduro/ci-reporter@1.0.2 version >/dev/null 2>&1; then
+            echo "CONDURO_REPORTER=npx --yes @conduro/ci-reporter@1.0.2" >> "$GITHUB_ENV"
+          else
+            git clone --depth 1 --branch feature/sprint-10-conduro-ci \
+              https://github.com/eskobar95/conduro-platform.git /tmp/conduro-platform
+            cd /tmp/conduro-platform/packages/ci-reporter
+            npm install && npm run build
+            echo "CONDURO_REPORTER=node /tmp/conduro-platform/packages/ci-reporter/dist/index.js" >> "$GITHUB_ENV"
+          fi
       - name: Prepare finding files
         run: |
           cp findings/react-doctor/react-doctor.json /tmp/react-doctor.json 2>/dev/null || echo "{}" > /tmp/react-doctor.json
@@ -107,7 +157,7 @@ jobs:
           cp findings/socket/socket.json /tmp/socket.json 2>/dev/null || echo '{"issues":[]}' > /tmp/socket.json
       - name: Report to Conduro
         run: |
-          npx @conduro/ci-reporter@1.0.2 \
+          ${{ env.CONDURO_REPORTER }} \
             --react-doctor /tmp/react-doctor.json \
             --semgrep /tmp/semgrep.json \
             --socket /tmp/socket.json \
