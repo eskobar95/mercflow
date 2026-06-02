@@ -24,7 +24,11 @@ jobs:
           node-version: "22"
           cache: pnpm
       - name: Scan
-        run: npx react-doctor@latest --json --diff --offline > react-doctor.json || echo "{}" > react-doctor.json
+        run: |
+          npx react-doctor@latest --json --diff --offline > react-doctor.json || true
+          test -s react-doctor.json || echo "{}" > react-doctor.json
+      - name: Gate (blocking findings)
+        run: npx @conduro/ci-reporter@1.0.2 gate --react-doctor react-doctor.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -49,7 +53,10 @@ jobs:
             --config p/react \
             --baseline-commit "${{ github.event.pull_request.base.sha }}" \
             --json --output semgrep.json \
-            . || echo '{"results":[]}' > semgrep.json
+            . || true
+          test -s semgrep.json || echo '{"results":[]}' > semgrep.json
+      - name: Gate (blocking findings)
+        run: npx @conduro/ci-reporter@1.0.2 gate --semgrep semgrep.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -71,7 +78,11 @@ jobs:
           node-version: "22"
           cache: pnpm
       - name: Scan
-        run: npx @socketsecurity/cli@latest pnpm audit --json > socket.json || echo '{"issues":[]}' > socket.json
+        run: |
+          npx @socketsecurity/cli@latest pnpm audit --json > socket.json || true
+          test -s socket.json || echo '{"issues":[]}' > socket.json
+      - name: Gate (blocking findings)
+        run: npx @conduro/ci-reporter@1.0.2 gate --socket socket.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -83,7 +94,7 @@ jobs:
     name: Conduro report
     runs-on: ubuntu-latest
     needs: [react-doctor, semgrep, socket]
-    if: ${{ !cancelled() }}
+    if: ${{ always() && !cancelled() }}
     timeout-minutes: 10
     steps:
       - uses: actions/download-artifact@v4
@@ -96,7 +107,7 @@ jobs:
           cp findings/socket/socket.json /tmp/socket.json 2>/dev/null || echo '{"issues":[]}' > /tmp/socket.json
       - name: Report to Conduro
         run: |
-          npx @conduro/ci-reporter@1.0.1 \
+          npx @conduro/ci-reporter@1.0.2 \
             --react-doctor /tmp/react-doctor.json \
             --semgrep /tmp/semgrep.json \
             --socket /tmp/socket.json \
