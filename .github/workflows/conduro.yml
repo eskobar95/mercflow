@@ -25,7 +25,7 @@ jobs:
         run: npx @socketsecurity/cli@latest pnpm audit --json > /tmp/socket.json || echo '{"issues":[]}' > /tmp/socket.json
       - name: Report to Conduro
         run: |
-          npx @conduro/ci-reporter@1 \
+          npx @conduro/ci-reporter@1.0.1 \
             --react-doctor /tmp/react-doctor.json \
             --semgrep /tmp/semgrep.json \
             --socket /tmp/socket.json \
