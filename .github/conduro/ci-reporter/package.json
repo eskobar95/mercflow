@@ -1,0 +1,30 @@
+{
+  "name": "@conduro/ci-reporter",
+  "version": "1.0.2",
+  "description": "Report Conduro CI check findings to the Conductor Worker",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "conduro-reporter": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.18",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}

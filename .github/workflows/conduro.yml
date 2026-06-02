@@ -28,11 +28,7 @@ jobs:
           if npm view @conduro/ci-reporter@1.0.2 version >/dev/null 2>&1; then
             echo "CONDURO_REPORTER=npx --yes @conduro/ci-reporter@1.0.2" >> "$GITHUB_ENV"
           else
-            git clone --depth 1 --branch feature/sprint-10-conduro-ci \
-              https://github.com/eskobar95/conduro-platform.git /tmp/conduro-platform
-            cd /tmp/conduro-platform/packages/ci-reporter
-            npm install && npm run build
-            echo "CONDURO_REPORTER=node /tmp/conduro-platform/packages/ci-reporter/dist/index.js" >> "$GITHUB_ENV"
+            echo "CONDURO_REPORTER=node ${GITHUB_WORKSPACE}/.github/conduro/ci-reporter/dist/index.js" >> "$GITHUB_ENV"
           fi
       - name: Scan
         run: |
@@ -62,11 +58,7 @@ jobs:
           if npm view @conduro/ci-reporter@1.0.2 version >/dev/null 2>&1; then
             echo "CONDURO_REPORTER=npx --yes @conduro/ci-reporter@1.0.2" >> "$GITHUB_ENV"
           else
-            git clone --depth 1 --branch feature/sprint-10-conduro-ci \
-              https://github.com/eskobar95/conduro-platform.git /tmp/conduro-platform
-            cd /tmp/conduro-platform/packages/ci-reporter
-            npm install && npm run build
-            echo "CONDURO_REPORTER=node /tmp/conduro-platform/packages/ci-reporter/dist/index.js" >> "$GITHUB_ENV"
+            echo "CONDURO_REPORTER=node ${GITHUB_WORKSPACE}/.github/conduro/ci-reporter/dist/index.js" >> "$GITHUB_ENV"
           fi
       - name: Scan
         run: |
@@ -107,11 +99,7 @@ jobs:
           if npm view @conduro/ci-reporter@1.0.2 version >/dev/null 2>&1; then
             echo "CONDURO_REPORTER=npx --yes @conduro/ci-reporter@1.0.2" >> "$GITHUB_ENV"
           else
-            git clone --depth 1 --branch feature/sprint-10-conduro-ci \
-              https://github.com/eskobar95/conduro-platform.git /tmp/conduro-platform
-            cd /tmp/conduro-platform/packages/ci-reporter
-            npm install && npm run build
-            echo "CONDURO_REPORTER=node /tmp/conduro-platform/packages/ci-reporter/dist/index.js" >> "$GITHUB_ENV"
+            echo "CONDURO_REPORTER=node ${GITHUB_WORKSPACE}/.github/conduro/ci-reporter/dist/index.js" >> "$GITHUB_ENV"
           fi
       - name: Scan
         run: |
@@ -133,6 +121,7 @@ jobs:
     if: ${{ always() && !cancelled() }}
     timeout-minutes: 10
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           path: findings
@@ -144,11 +133,7 @@ jobs:
           if npm view @conduro/ci-reporter@1.0.2 version >/dev/null 2>&1; then
             echo "CONDURO_REPORTER=npx --yes @conduro/ci-reporter@1.0.2" >> "$GITHUB_ENV"
           else
-            git clone --depth 1 --branch feature/sprint-10-conduro-ci \
-              https://github.com/eskobar95/conduro-platform.git /tmp/conduro-platform
-            cd /tmp/conduro-platform/packages/ci-reporter
-            npm install && npm run build
-            echo "CONDURO_REPORTER=node /tmp/conduro-platform/packages/ci-reporter/dist/index.js" >> "$GITHUB_ENV"
+            echo "CONDURO_REPORTER=node ${GITHUB_WORKSPACE}/.github/conduro/ci-reporter/dist/index.js" >> "$GITHUB_ENV"
           fi
       - name: Prepare finding files
         run: |
