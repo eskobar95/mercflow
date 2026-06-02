@@ -81,5 +81,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
 
-  # Semgrep SAST runs via the installed Semgrep GitHub App — not in this workflow.
-  # Configure rules in .semgrep.yml at repo root.
+  # SAST runs in Conduro CI (conduro.yml) — see .semgrep.yml for rulesets.

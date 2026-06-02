@@ -20,7 +20,16 @@ jobs:
       - name: React Doctor
         run: npx react-doctor@latest --json --diff --offline > /tmp/react-doctor.json || true
       - name: Semgrep
-        run: pip install semgrep -q && semgrep --config=auto --json . > /tmp/semgrep.json || true
+        run: |
+          pip install semgrep -q
+          semgrep scan \
+            --config p/typescript \
+            --config p/nodejs \
+            --config p/owasp-top-ten \
+            --config p/react \
+            --baseline-commit "${{ github.event.pull_request.base.sha }}" \
+            --json --output /tmp/semgrep.json \
+            . || true
       - name: Socket.dev
         run: npx @socketsecurity/cli@latest pnpm audit --json > /tmp/socket.json || echo '{"issues":[]}' > /tmp/socket.json
       - name: Report to Conduro
