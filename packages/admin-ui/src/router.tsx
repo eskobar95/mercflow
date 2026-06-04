@@ -186,6 +186,14 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "feed",
+        handle: { title: "Feed" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { FeedOverviewPage } = await import("@/pages/FeedOverviewPage")
+          return { Component: FeedOverviewPage }
+        },
+      },
+      {
         path: "settings",
         handle: { title: "Settings" } satisfies AppRouteHandle,
         lazy: async () => {

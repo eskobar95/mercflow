@@ -3,6 +3,7 @@ const DEFAULT_TTL_MS = 60_000
 type FeedCacheEntry = {
   xml: string
   expiresAtMs: number
+  cachedAtMs: number
 }
 
 const cacheByStoreId = new Map<string, FeedCacheEntry>()
@@ -28,7 +29,23 @@ export function setCachedFeedXml(
   cacheByStoreId.set(storeId, {
     xml,
     expiresAtMs: nowMs + ttlMs,
+    cachedAtMs: nowMs,
   })
+}
+
+export function getFeedCacheUpdatedAt(
+  storeId: string,
+  nowMs: number = Date.now()
+): string | null {
+  const entry = cacheByStoreId.get(storeId)
+  if (!entry) {
+    return null
+  }
+  if (nowMs >= entry.expiresAtMs) {
+    cacheByStoreId.delete(storeId)
+    return null
+  }
+  return new Date(entry.cachedAtMs).toISOString()
 }
 
 export function invalidateFeedCache(storeId: string): void {

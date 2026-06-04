@@ -44,7 +44,16 @@ Feed field mapping (T018): `id` = variant SKU; `title` = product title; `descrip
 
 Cache: in-memory per `store_id` (60s TTL). Invalidated on `product.created` / `product.updated` / `product.deleted` subscribers in `apps/backend`.
 
-Env (see `.env.example`): `MERCFLOW_FEED_HOST_MAP`, `MERCFLOW_TENANT_STORE_IDS`.
+Env (see `.env.example`): `MERCFLOW_FEED_HOST_MAP`, `MERCFLOW_TENANT_STORE_IDS`, `MERCFLOW_FEED_PUBLIC_BASE_URL` (optional public feed base override), `MERCFLOW_DEFAULT_STORE_ID` (admin routes).
+
+## Admin API routes
+
+| Route | Methods | Notes |
+| --- | --- | --- |
+| `/admin/feed-config` | GET, PUT | Feed config + overview stats (`store_id` query, `X-Store-Id`, or `MERCFLOW_DEFAULT_STORE_ID`) |
+| `/admin/feed/validate` | GET | Validation report for published catalogue (`?locale=` optional) |
+
+PUT body (strict): `storefront_url`, `excluded_product_ids`, `excluded_category_ids`, `default_condition`.
 
 ## Local development
 
