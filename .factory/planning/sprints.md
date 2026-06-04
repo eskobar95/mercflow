@@ -2,7 +2,7 @@
 
 > One row per sprint. Status: `planned` | `active` | `done` | `blocked`
 > Branch model: `feature/S00x/T00x-slug` → PR → `development`
-> Updated: 2026-06-04
+> Updated: 2026-06-04 (synced with `origin/development` @ `a0200f7`)
 
 | ID | Milestone | Goal | Tasks | Status |
 |----|-----------|------|-------|--------|
@@ -21,6 +21,6 @@
 
 - **S002 + S005 + S008** can start simultaneously after S001 (M000) is done — no interdependencies.
 - **S006** can also start after S001 in parallel with S002/S005/S008.
-- **S003** starts after S002 (needs seo-module foundation from T004).
+- **S003** starts after S002 (needs seo-module foundation from T004) — **ready now** (S002 merged 2026-06-04).
 - **S004** starts after S003 (needs T008 tenant middleware + T004 foundation).
 - **S007** starts after S006 (needs PO table from T020, T022).

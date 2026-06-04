@@ -3,7 +3,7 @@
 > Atomic tasks for harness execution. One task = one PR to `development`.
 > Status: `todo` | `in-progress` | `blocked` | `done`
 > Mode: `AFK` | `HITL`
-> Updated: 2026-06-04
+> Updated: 2026-06-04 (synced with `origin/development` @ `a0200f7`)
 
 ---
 
@@ -15,11 +15,13 @@
 
 **Sprint:** S001
 **Milestone:** M000
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S001/T001-tenancy-backfill-store-id
+**PR:** https://github.com/eskobar95/mercflow/pull/50
+**Merge:** `3997fb5`
 **PRD journey:** —
 **ADRs:** ADR-004
 
@@ -102,11 +104,13 @@ Backfill value: `store_01KG0VBTT0714XV2CCTEBRVC47`
 
 **Sprint:** S001
 **Milestone:** M000
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T001
 **Branch:** feature/S001/T002-rls-tenant-policies
+**PR:** https://github.com/eskobar95/mercflow/pull/52
+**Merge:** `a8436ea`
 **PRD journey:** —
 **ADRs:** ADR-004, ADR-005
 
@@ -252,6 +256,7 @@ Before merging: human adds Railway static egress IPs to Neon project `allowed_ip
 **Milestone:** M001
 **Status:** done
 **PR:** https://github.com/eskobar95/mercflow/pull/55
+**Merge:** `b378e22`
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** M000 done (T003 merged)
@@ -310,6 +315,7 @@ Before merging: human adds Railway static egress IPs to Neon project `allowed_ip
 **Milestone:** M001
 **Status:** done
 **PR:** https://github.com/eskobar95/mercflow/pull/55
+**Merge:** `b378e22`
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T004
@@ -369,6 +375,7 @@ Admin can choose a slug strategy (Nordic: ø→oe, or Omit: ø→o) in Settings.
 **Milestone:** M001
 **Status:** done
 **PR:** https://github.com/eskobar95/mercflow/pull/55
+**Merge:** `b378e22`
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T004
@@ -424,6 +431,7 @@ When a product or category slug changes, a 301 redirect is automatically created
 **Milestone:** M001
 **Status:** done
 **PR:** https://github.com/eskobar95/mercflow/pull/55
+**Merge:** `b378e22`
 **Mode:** AFK
 **Parallel group:** C
 **Blocked by:** T006
