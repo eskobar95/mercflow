@@ -5,6 +5,7 @@ import {
   IconCategories,
   IconConnectors,
   IconCustomers,
+  IconFeed,
   IconGlobals,
   IconHome,
   IconOrders,
@@ -80,6 +81,11 @@ export const primarySidebarNav: SidebarNavItem[] = [
   { label: "Subscriptions", to: "/subscriptions", icon: IconSubscriptions },
 ]
 
+export const feedSidebarSection: SidebarNavSection = {
+  label: "Feed",
+  items: [{ label: "Overview", to: "/feed", end: true, icon: IconFeed }],
+}
+
 export const contentSidebarSection: SidebarNavSection = {
   label: "Content",
   items: [
@@ -110,6 +116,7 @@ export const settingsSidebarSection: SidebarNavSection = {
 export function getAllSidebarNavItems(): SidebarNavItem[] {
   return [
     ...primarySidebarNav,
+    ...feedSidebarSection.items,
     ...contentSidebarSection.items,
     ...settingsSidebarSection.items,
   ]

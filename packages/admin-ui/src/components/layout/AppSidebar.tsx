@@ -5,6 +5,7 @@ import { BrandAvatar } from "@/components/ui/BrandAvatar"
 import { IconChevronRight } from "@/components/ui/icons"
 import {
   contentSidebarSection,
+  feedSidebarSection,
   primarySidebarNav,
   settingsSidebarSection,
   type SidebarNavItem,
@@ -262,6 +263,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps): JSX.Element {
             <NavEntry key={item.to} item={item} onNavigate={onNavigate} />
           ))}
         </div>
+        <Section section={feedSidebarSection} onNavigate={onNavigate} />
         <Section section={contentSidebarSection} onNavigate={onNavigate} />
         <Section section={settingsSidebarSection} onNavigate={onNavigate} />
       </nav>

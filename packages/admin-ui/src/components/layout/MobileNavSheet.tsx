@@ -8,10 +8,12 @@ import {
   IconChevronRight,
   IconClose,
   IconContent,
+  IconFeed,
   IconSettings,
 } from "@/components/ui/icons"
 import {
   contentSidebarSection,
+  feedSidebarSection,
   primarySidebarNav,
   settingsSidebarSection,
   type SidebarNavItem,
@@ -68,6 +70,20 @@ function buildRootTiles(): TileSource[] {
 
   return [
     ...primary,
+    {
+      key: "feed-group",
+      label: "Feed",
+      icon: IconFeed,
+      drillTo: "feed",
+      subItems: feedSidebarSection.items.map(
+        (item): SidebarSubItem => ({
+          label: item.label,
+          to: item.to,
+          end: item.end,
+          icon: item.icon,
+        })
+      ),
+    },
     {
       key: "content-group",
       label: "Content",

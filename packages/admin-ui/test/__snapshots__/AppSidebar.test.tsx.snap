@@ -287,6 +287,55 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
       <p
         class="px-3 pb-2 text-2xs font-medium uppercase tracking-label text-content-onSidebarMuted"
       >
+        Feed
+      </p>
+      <div
+        class="flex flex-col gap-0.5"
+      >
+        <a
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
+          href="/feed"
+        >
+          <svg
+            aria-hidden="true"
+            class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
+            fill="none"
+            focusable="false"
+            height="18"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.75"
+            viewBox="0 0 24 24"
+            width="18"
+          >
+            <path
+              d="M4 11a8 8 0 0 1 16 0"
+            />
+            <path
+              d="M12 4v2.5"
+            />
+            <path
+              d="M8 18h8"
+            />
+            <path
+              d="M9.5 15h5"
+            />
+          </svg>
+          <span
+            class="truncate"
+          >
+            Overview
+          </span>
+        </a>
+      </div>
+    </div>
+    <div
+      class="mt-6"
+    >
+      <p
+        class="px-3 pb-2 text-2xs font-medium uppercase tracking-label text-content-onSidebarMuted"
+      >
         Content
       </p>
       <div

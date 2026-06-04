@@ -8,7 +8,9 @@
     ".": "./src/modules/feed/index.ts",
     "./mercflow-feed-google-shopping-route": "./src/integrations/mercflow-feed-google-shopping-route.ts",
     "./mercflow-feed-tenant-middleware": "./src/integrations/mercflow-feed-tenant-middleware.ts",
-    "./mercflow-feed-cache": "./src/integrations/mercflow-feed-cache.ts"
+    "./mercflow-feed-cache": "./src/integrations/mercflow-feed-cache.ts",
+    "./mercflow-admin-feed-config-api": "./src/integrations/mercflow-admin-feed-config-api.ts",
+    "./mercflow-admin-feed-validate-api": "./src/integrations/mercflow-admin-feed-validate-api.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

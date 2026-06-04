@@ -301,4 +301,16 @@ export function IconCatalogue({ size = 18, ...rest }: IconProps): JSX.Element {
   )
 }
 
+/** Google Shopping / product feed — broadcast waves. */
+export function IconFeed({ size = 18, ...rest }: IconProps): JSX.Element {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <path d="M4 11a8 8 0 0 1 16 0" />
+      <path d="M12 4v2.5" />
+      <path d="M8 18h8" />
+      <path d="M9.5 15h5" />
+    </svg>
+  )
+}
+
 export type IconComponent = (props: IconProps) => JSX.Element
