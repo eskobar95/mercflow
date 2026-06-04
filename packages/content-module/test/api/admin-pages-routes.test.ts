@@ -75,13 +75,16 @@ describe("POST /admin/pages", () => {
 describe("PATCH /admin/pages/:id", () => {
   it("updates page and returns payload at 200", async () => {
     const adminUpdatePage = vi.fn(async () => ({
-      id: "pg_1",
-      slug: "new",
-      title: "T",
-      page_type: "content" as const,
-      status: "draft" as const,
-      locale: "en",
-      block_count: 2,
+      changed: true,
+      page: {
+        id: "pg_1",
+        slug: "new",
+        title: "T",
+        page_type: "content" as const,
+        status: "draft" as const,
+        locale: "en",
+        block_count: 2,
+      },
     }))
 
     const resJson = vi.fn()

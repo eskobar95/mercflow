@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 import {
   appendSitemapDirective,
   defaultRobotsStructuredConfig,
+  normalizeRobotsStructured,
   renderRobotsTxt,
 } from "../src/modules/seo/robots-service"
 import type { MercflowRobotsConfigRecord } from "../src/modules/seo/robots-types"
@@ -51,6 +52,16 @@ describe("renderRobotsTxt", (): void => {
     )
     expect(text).toContain("Disallow: /private")
     expect(text).not.toContain("User-agent: Googlebot")
+  })
+})
+
+describe("normalizeRobotsStructured", (): void => {
+  it("falls back to defaults when rules array is missing", (): void => {
+    const structured = normalizeRobotsStructured({})
+    expect(structured.rules.length).toBeGreaterThan(0)
+    expect(renderRobotsTxt(baseConfig({ structured_rules: {} as never }), null)).toContain(
+      "User-agent:"
+    )
   })
 })
 

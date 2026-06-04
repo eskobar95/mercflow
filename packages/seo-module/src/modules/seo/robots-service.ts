@@ -66,10 +66,9 @@ export function renderRobotsTxt(
   if (freetext && freetext.length > 0) {
     body = freetext
   } else {
+    const structured = normalizeRobotsStructured(config.structured_rules)
     const rules =
-      config.structured_rules.rules.length > 0
-        ? config.structured_rules.rules
-        : DEFAULT_RULES.rules
+      structured.rules.length > 0 ? structured.rules : DEFAULT_RULES.rules
     body = renderStructuredRules(rules)
   }
   if (storefrontUrl) {
@@ -98,4 +97,39 @@ export function defaultRobotsStructuredConfig(): RobotsStructuredConfig {
       disallow: [...rule.disallow],
     })),
   }
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string")
+}
+
+/**
+ * Coerces DB/admin JSON into a safe structured config (never leaves `rules` missing).
+ */
+export function normalizeRobotsStructured(value: unknown): RobotsStructuredConfig {
+  if (value === null || value === undefined) {
+    return defaultRobotsStructuredConfig()
+  }
+  if (typeof value !== "object" || Array.isArray(value)) {
+    return defaultRobotsStructuredConfig()
+  }
+  const rawRules = (value as { rules?: unknown }).rules
+  if (!Array.isArray(rawRules)) {
+    return defaultRobotsStructuredConfig()
+  }
+  const rules: RobotsRule[] = []
+  for (const entry of rawRules) {
+    if (typeof entry !== "object" || entry === null || Array.isArray(entry)) {
+      continue
+    }
+    const row = entry as Record<string, unknown>
+    const user_agent = typeof row.user_agent === "string" ? row.user_agent : "*"
+    const allow = isStringArray(row.allow) ? row.allow : []
+    const disallow = isStringArray(row.disallow) ? row.disallow : []
+    rules.push({ user_agent, allow, disallow })
+  }
+  if (rules.length === 0) {
+    return defaultRobotsStructuredConfig()
+  }
+  return { rules }
 }

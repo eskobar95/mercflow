@@ -36,9 +36,11 @@ export const PATCH = async (req: MedusaRequest, res: MedusaResponse): Promise<vo
 
   const storeId = resolveAdminStoreId(req)
   const contentService = req.scope.resolve(CONTENT_MODULE) as ContentModuleService
-  const row = await contentService.adminUpdatePage(id, parsed.data)
-  await emitMercflowPageChanged(req.scope, storeId)
-  res.status(200).json({ page: row })
+  const { page, changed } = await contentService.adminUpdatePage(id, parsed.data)
+  if (changed) {
+    await emitMercflowPageChanged(req.scope, storeId)
+  }
+  res.status(200).json({ page })
 }
 
 export const DELETE = async (req: MedusaRequest, res: MedusaResponse): Promise<void> => {

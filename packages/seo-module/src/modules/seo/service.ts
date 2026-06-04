@@ -2,7 +2,11 @@ import type { Context } from "@medusajs/types"
 import { MedusaService } from "@medusajs/framework/utils"
 import { MedusaError } from "@medusajs/utils"
 
-import { defaultRobotsStructuredConfig, appendHistoryEntry } from "./robots-service"
+import {
+  appendHistoryEntry,
+  defaultRobotsStructuredConfig,
+  normalizeRobotsStructured,
+} from "./robots-service"
 import type {
   MercflowRobotsConfigRecord,
   RobotsChangeHistoryEntry,
@@ -66,16 +70,7 @@ function parsePageTypeSettings(value: unknown): SitemapPageTypeSettings {
 }
 
 function parseRobotsStructured(value: unknown): RobotsStructuredConfig {
-  if (value === null || value === undefined) {
-    return defaultRobotsStructuredConfig()
-  }
-  if (typeof value !== "object" || Array.isArray(value)) {
-    throw new MedusaError(
-      MedusaError.Types.INVALID_DATA,
-      "structured_rules must be an object"
-    )
-  }
-  return value as RobotsStructuredConfig
+  return normalizeRobotsStructured(value)
 }
 
 function parseChangeHistory(value: unknown): RobotsChangeHistoryEntry[] {

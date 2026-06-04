@@ -1,7 +1,5 @@
 import type { MedusaContainer } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { MedusaError } from "@medusajs/utils"
-
 import { CONTENT_MODULE } from "@mercflow/content-module"
 
 import {
@@ -263,16 +261,13 @@ export async function loadSitemapCatalog(
     graph: RemoteQueryGraph
   }
   const salesChannelIds = await resolveSalesChannelIdsForStore(query.graph, storeId)
+  const pages = await loadPublishedPages(scope, storeId)
   if (salesChannelIds.length === 0) {
-    throw new MedusaError(
-      MedusaError.Types.NOT_FOUND,
-      "No sales channels found for this store — cannot build sitemap"
-    )
+    return { products: [], categories: [], pages }
   }
-  const [products, categories, pages] = await Promise.all([
+  const [products, categories] = await Promise.all([
     loadPublishedProducts(query.graph, salesChannelIds),
     loadCategories(query.graph, salesChannelIds),
-    loadPublishedPages(scope, storeId),
   ])
   return { products, categories, pages }
 }
