@@ -62,7 +62,7 @@ Table and column names follow DML; PostgreSQL types follow Medusa’s mapping un
 | Field | Type | Notes |
 | --- | --- | --- |
 | `id` | text (PK) | |
-| `slug` | text | |
+| `slug` | text | Unique per `locale` among active (`deleted_at` null) rows |
 | `title` | text | |
 | `page_type` | `homepage` \| `landing` \| `content` | |
 | `status` | `draft` \| `published` | |
@@ -179,13 +179,16 @@ The monorepo includes `@mercflow/backend` under `apps/backend`, which registers 
 - `apps/backend/src/api/admin/articles/[id]/route.ts` re-exports `GET` / `PATCH` / `DELETE` from `@mercflow/content-module/mercflow-admin-articles-id-route`
 - `apps/backend/src/api/store/articles/route.ts` re-exports `GET` from `@mercflow/content-module/mercflow-store-articles-route`
 - `apps/backend/src/api/store/articles/[slug]/route.ts` re-exports `GET` from `@mercflow/content-module/mercflow-store-articles-slug-route`
+- `apps/backend/src/api/admin/pages/route.ts` re-exports `GET` / `POST` from `@mercflow/content-module/mercflow-admin-pages-api`
+- `apps/backend/src/api/admin/pages/[id]/route.ts` re-exports `GET` / `PATCH` / `DELETE` from `@mercflow/content-module/mercflow-admin-pages-id-api`
+- `apps/backend/src/api/store/pages/[slug]/route.ts` re-exports `GET` from `@mercflow/content-module/mercflow-store-pages-read-route`
 - `apps/backend/src/api/admin/product-categories/[id]/content/route.ts` re-exports from `@mercflow/content-module/mercflow-category-content-api`
 
 Run the server from `apps/backend` (see that package’s README). Do not duplicate handler logic in the app.
 
 ## Admin API
 
-All routes are under the **admin** prefix, require an authenticated admin session (or Medusa’s usual admin auth), and return JSON. Validation errors return **400** with `{ "message", "issues" }` (Zod). Missing product or category returns **404** via `MedusaError` / framework handling.
+All routes are under the **admin** prefix, require an authenticated admin session (or Medusa’s usual admin auth), and return JSON. Validation errors return **400** with `{ "message", "issues" }` (Zod). Missing entities return **404** via `MedusaError` / framework handling.
 
 | Method | Path | Query | Body (POST/PATCH) |
 | --- | --- | --- | --- |
@@ -203,6 +206,11 @@ All routes are under the **admin** prefix, require an authenticated admin sessio
 | `POST` | `/admin/products/:id/content` | `locale` (optional, default `en`) | `description_rich?`, `seo_title?`, `seo_description?`, `seo_og_image_id?`, `media_gallery?` (see Zod in `http-schemas.ts`) |
 | `GET` | `/admin/product-categories/:id/content` | `locale` (optional, default `en`) | — |
 | `POST` | `/admin/product-categories/:id/content` | `locale` (optional, default `en`) | same as product, plus `banner_image_id?` for categories |
+| `GET` | `/admin/pages` | `locale`, `limit`, `offset` (optional; defaults `en`, `50`, `0`) | — |
+| `POST` | `/admin/pages` | — | `title`, `slug`, `page_type` (`homepage` \| `landing` \| `content`), `status` (`draft` \| `published`), `locale` |
+| `GET` | `/admin/pages/:id` | — | — |
+| `PATCH` | `/admin/pages/:id` | — | optional `title`, `slug`, `page_type`, `status` |
+| `DELETE` | `/admin/pages/:id` | — | soft-deletes the page |
 
 > **Overload note:** `/admin/product-content/:id` maps two semantics — `GET` treats `:id` as **`product.id`**, whereas `PATCH` treats `:id` as **`product_content.id`**. The same applies to **`/admin/category-content/:id`**: **`GET`** uses **`product_category.id`**; **`PATCH`** uses **`category_content.id`**.
 
@@ -216,6 +224,8 @@ For **nested legacy edits**, keep using **`POST /admin/products/:id/content`**; 
 
 **Limits:** `seo_description` must be at most **160** characters for the value being written for the active locale (enforced in Zod and the service). `seo_title` must be at most **255** characters.
 
+**CMS pages (`/admin/pages…`):** `GET /admin/pages` returns `{ pages, count, limit, offset }` where each **`page`** includes Medusa timestamps and **`block_count`** (blocks on the highest `page_version` for that page). `POST` / `GET` / `PATCH` / `DELETE` use **`page.id`** as the path `:id`. When **`slug`** changes on `PATCH`, a **`cms_redirect`** row is written with **`from_path`** `/pages/{oldSlug}` and **`to_path`** `/pages/{newSlug}` in the **same database transaction** as the row update.
+
 ## Store API (public CMS read)
 
 | Method | Path | Query | Notes |
@@ -224,6 +234,7 @@ For **nested legacy edits**, keep using **`POST /admin/products/:id/content`**; 
 | `GET` | `/store/category-content/:handle` | `locale` (optional, default `en`) | No admin auth required. Listed categories (`is_active` and not `is_internal`) only. **`category_content.status` must be `published`**. Flat MercFlow category CMS payload (**404** otherwise). |
 | `GET` | `/store/articles` | `locale` (optional, default `en`) | Public list of **published** articles only (`{ articles: [...] }` with id, slug, title, published_at, locale). |
 | `GET` | `/store/articles/:slug` | `locale` (optional, default `en`) | Single **published** article (`{ article: { id, slug, title, body_json, locale, published_at } }`). **404** for drafts or unknown slug. |
+| `GET` | `/store/pages/:slug` | `locale` (optional, default `en`) | **Published** pages only. JSON `{ title, slug, page_type, status, blocks: [] }` (**404** for unknown slug, draft, or missing row). |
 
 ### Example `curl` (local)
 

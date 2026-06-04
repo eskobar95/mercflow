@@ -107,3 +107,27 @@ export type UpdateArticleInput = {
   status?: ContentPublishStatus
   published_at?: Date | null
 }
+
+export type CmsPageType = "homepage" | "landing" | "content"
+
+export type CmsPageRecord = {
+  id: string
+  slug: string
+  title: string
+  page_type: CmsPageType
+  status: ContentPublishStatus
+  locale: string
+  created_at?: Date
+  updated_at?: Date
+  deleted_at?: Date | null
+}
+
+export type AdminPageListRow = CmsPageRecord & { block_count: number }
+
+export type StorePublishedPagePayload = {
+  title: string
+  slug: string
+  page_type: CmsPageType
+  status: ContentPublishStatus
+  blocks: unknown[]
+}

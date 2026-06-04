@@ -1,3 +1,4 @@
+import type { JSX } from "react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
@@ -32,7 +33,7 @@ const COLUMNS: ListColumnDef<ArticleAdminRecord, ArticleCol>[] = [
     renderCell: (row) => (
       <Link
         to={`/content/articles/${encodeURIComponent(row.id)}`}
-        className="text-interactive-primary hover:text-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
+        className="text-text-link hover:underline"
       >
         {row.title}
       </Link>
@@ -43,9 +44,7 @@ const COLUMNS: ListColumnDef<ArticleAdminRecord, ArticleCol>[] = [
     header: "Status",
     sortable: true,
     getSortValue: (row) => row.status,
-    renderCell: (row) => (
-      <span className="text-sm capitalize text-content-secondary">{row.status}</span>
-    ),
+    renderCell: (row) => <span className="capitalize">{row.status}</span>,
   },
   {
     id: "published_at",
@@ -54,7 +53,7 @@ const COLUMNS: ListColumnDef<ArticleAdminRecord, ArticleCol>[] = [
     getSortValue: (row) => (row.published_at ? new Date(row.published_at).getTime() : 0),
     renderCell: (row) =>
       row.published_at ? (
-        <time dateTime={row.published_at} className="text-sm text-content-secondary">
+        <time dateTime={row.published_at}>
           {new Date(row.published_at).toLocaleString(undefined, {
             year: "numeric",
             month: "short",
@@ -64,7 +63,7 @@ const COLUMNS: ListColumnDef<ArticleAdminRecord, ArticleCol>[] = [
           })}
         </time>
       ) : (
-        <span className="text-sm text-content-tertiary">—</span>
+        <span className="text-text-secondary">—</span>
       ),
   },
   {
@@ -72,7 +71,7 @@ const COLUMNS: ListColumnDef<ArticleAdminRecord, ArticleCol>[] = [
     header: "Locale",
     sortable: true,
     getSortValue: (row) => row.locale,
-    renderCell: (row) => <span className="font-mono text-xs text-content-secondary">{row.locale}</span>,
+    renderCell: (row) => row.locale,
   },
 ]
 
@@ -162,84 +161,61 @@ export function ArticlesListPage(): JSX.Element {
   if (!hasBackendConfiguration) {
     return (
       <div className="p-6">
-        <section
-          className="rounded-lg border border-border-default bg-feedback-warning-subtle px-6 py-5 text-sm text-feedback-warning-content shadow-sm"
-          role="alert"
-        >
-          <h1 className="text-lg font-semibold text-feedback-warning-content">
-            Backend URL missing
-          </h1>
-          <p className="mt-2 leading-relaxed">
-            Configure{" "}
-            <code className="rounded-sm border border-feedback-warning-border bg-surface-raised px-1 py-0.5 text-xs">
-              VITE_MEDUSA_ADMIN_BACKEND_URL
-            </code>{" "}
-            so MercFlow can load articles from Medusa Admin.
-          </p>
-        </section>
+        <p className="text-sm text-text-secondary">
+          Backend URL missing. Configure{" "}
+          <code className="rounded bg-surface-subtle px-1">VITE_MEDUSA_ADMIN_BACKEND_URL</code>{" "}
+          so MercFlow can load articles from Medusa Admin.
+        </p>
       </div>
     )
   }
 
   return (
-    <div className="p-6">
-      <div className="overflow-hidden rounded-lg border border-border-default bg-surface-default shadow-sm">
-        <ListToolbar
-          title="Articles"
-          description="Create and publish storefront blog posts with rich text, slugs, and publish dates."
-          end={
-            <Button
-              type="button"
-              variant="primary"
-              size="sm"
-              onClick={() => {
-                navigate("/content/articles/new")
-              }}
-            >
-              New article
-            </Button>
-          }
-        />
-
-        {listError ? (
-          <div
-            className="border-b border-feedback-danger-border bg-feedback-danger-subtle px-6 py-3 text-sm text-feedback-danger-content"
-            role="alert"
+    <div className="space-y-4 p-6">
+      <ListToolbar
+        title="Articles"
+        description="Blog posts for the storefront with draft and published states."
+        end={
+          <Button
+            type="button"
+            onClick={() => {
+              navigate("/content/articles/new")
+            }}
           >
-            {listError}
-          </div>
-        ) : null}
+            New article
+          </Button>
+        }
+      />
 
-        <DataTable<ArticleAdminRecord, ArticleCol>
-          aria-label="Articles"
-          caption="MercFlow CMS articles"
-          columns={COLUMNS}
-          data={sortedRows}
-          getRowId={(row) => row.id}
-          sortState={sort}
-          onRequestSort={onRequestSort}
-          getRowActions={getRowActions}
-          isLoading={isLoading}
-          emptyState={
-            <ListEmptyState
-              title="No articles yet"
-              description="Write your first post — drafts stay private until you publish."
-              action={
-                <Button
-                  type="button"
-                  variant="primary"
-                  size="sm"
-                  onClick={() => {
-                    navigate("/content/articles/new")
-                  }}
-                >
-                  Create article
-                </Button>
-              }
-            />
-          }
-        />
-      </div>
+      {listError ? <p className="text-sm text-status-error">{listError}</p> : null}
+
+      <DataTable
+        aria-label="Articles"
+        caption="MercFlow CMS articles"
+        columns={COLUMNS}
+        data={sortedRows}
+        getRowId={(row) => row.id}
+        sortState={sort}
+        onRequestSort={onRequestSort}
+        getRowActions={getRowActions}
+        isLoading={isLoading}
+        emptyState={
+          <ListEmptyState
+            title="No articles yet"
+            description="Create your first blog post for the storefront."
+            action={
+              <Button
+                type="button"
+                onClick={() => {
+                  navigate("/content/articles/new")
+                }}
+              >
+                Create article
+              </Button>
+            }
+          />
+        }
+      />
     </div>
   )
 }

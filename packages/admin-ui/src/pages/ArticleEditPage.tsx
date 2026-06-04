@@ -1,4 +1,5 @@
 import type { JSONContent } from "@tiptap/core"
+import type { JSX } from "react"
 import { useCallback, useEffect, useId, useState } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
 
@@ -166,46 +167,24 @@ export function ArticleEditPage(): JSX.Element {
   if (!hasBackendConfiguration) {
     return (
       <div className="p-6">
-        <section
-          className="rounded-lg border border-border-default bg-feedback-warning-subtle px-6 py-5 text-sm text-feedback-warning-content shadow-sm"
-          role="alert"
-        >
-          <h1 className="text-lg font-semibold text-feedback-warning-content">
-            Backend URL missing
-          </h1>
-          <p className="mt-2 leading-relaxed">
-            Configure{" "}
-            <code className="rounded-sm border border-feedback-warning-border bg-surface-raised px-1 py-0.5 text-xs">
-              VITE_MEDUSA_ADMIN_BACKEND_URL
-            </code>{" "}
-            before editing articles.
-          </p>
-        </section>
+        <p className="text-sm text-text-secondary">
+          Backend URL missing. Configure{" "}
+          <code className="rounded bg-surface-subtle px-1">VITE_MEDUSA_ADMIN_BACKEND_URL</code>{" "}
+          before editing articles.
+        </p>
       </div>
     )
   }
 
   if (isLoading) {
-    return (
-      <div className="p-6 text-sm text-content-secondary" role="status">
-        Loading article…
-      </div>
-    )
+    return <p className="p-6 text-sm text-text-secondary">Loading article…</p>
   }
 
   if (loadError) {
     return (
-      <div className="p-6">
-        <div
-          className="rounded-lg border border-feedback-danger-border bg-feedback-danger-subtle px-4 py-3 text-sm text-feedback-danger-content"
-          role="alert"
-        >
-          {loadError}
-        </div>
-        <Link
-          to="/content/articles"
-          className="mt-4 inline-block text-sm font-medium text-interactive-primary hover:text-interactive-primary-hover"
-        >
+      <div className="space-y-4 p-6">
+        <p className="text-sm text-status-error">{loadError}</p>
+        <Link to="/content/articles" className="text-sm text-text-link">
           Back to articles
         </Link>
       </div>
@@ -213,20 +192,16 @@ export function ArticleEditPage(): JSX.Element {
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <Link
-          to="/content/articles"
-          className="text-sm font-medium text-interactive-primary hover:text-interactive-primary-hover"
-        >
+    <div className="space-y-6 p-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <Link to="/content/articles" className="text-sm text-text-link">
           ← Articles
         </Link>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-2">
           {!isNew && articleId ? (
             <Button
               type="button"
-              variant="destructive"
-              size="sm"
+              variant="secondary"
               disabled={isDeleting}
               onClick={() => {
                 void onDelete()
@@ -237,9 +212,7 @@ export function ArticleEditPage(): JSX.Element {
           ) : null}
           <Button
             type="button"
-            variant="primary"
-            size="sm"
-            disabled={isSaving || title.trim() === ""}
+            disabled={isSaving}
             onClick={() => {
               void onSave()
             }}
@@ -249,29 +222,14 @@ export function ArticleEditPage(): JSX.Element {
         </div>
       </div>
 
-      {saveError ? (
-        <div
-          className="mb-4 rounded-md border border-feedback-danger-border bg-feedback-danger-subtle px-4 py-3 text-sm text-feedback-danger-content"
-          role="alert"
-        >
-          {saveError}
-        </div>
-      ) : null}
-      {deleteError ? (
-        <div
-          className="mb-4 rounded-md border border-feedback-danger-border bg-feedback-danger-subtle px-4 py-3 text-sm text-feedback-danger-content"
-          role="alert"
-        >
-          {deleteError}
-        </div>
-      ) : null}
+      {saveError ? <p className="text-sm text-status-error">{saveError}</p> : null}
+      {deleteError ? <p className="text-sm text-status-error">{deleteError}</p> : null}
 
-      <Card className="max-w-3xl space-y-6" elevation="flat">
-        <div>
+      <Card className="space-y-6 p-6">
+        <div className="space-y-2">
           <Label htmlFor={titleFieldId}>Title</Label>
           <Input
             id={titleFieldId}
-            className="mt-1.5"
             value={title}
             onChange={(e) => {
               setTitle(e.target.value)
@@ -280,11 +238,10 @@ export function ArticleEditPage(): JSX.Element {
           />
         </div>
 
-        <div>
+        <div className="space-y-2">
           <Label htmlFor={slugFieldId}>Slug</Label>
           <Input
             id={slugFieldId}
-            className="mt-1.5 font-mono text-sm"
             value={slug}
             onChange={(e) => {
               setSlugManual(true)
@@ -292,53 +249,42 @@ export function ArticleEditPage(): JSX.Element {
             }}
             autoComplete="off"
           />
-          <p className="mt-1 text-xs text-content-tertiary">
-            Auto-generated from the title until you edit this field (Nordic transliteration matches
-            the server).
+          <p className="text-xs text-text-secondary">
+            Auto-generated from the title until you edit this field (Nordic transliteration
+            matches the server).
           </p>
         </div>
 
-        <div>
-          <span className="text-sm font-medium text-content-primary">Body</span>
-          <div className="mt-2">
-            <RichTextEditor
-              label="Article body"
-              value={body}
-              onChange={setBody}
-              disabled={isSaving}
-              variant="standalone"
+        <div className="space-y-2">
+          <Label>Body</Label>
+          <RichTextEditor value={body} onChange={setBody} />
+        </div>
+
+        <Switch
+          id={statusSwitchId}
+          checked={status === "published"}
+          onCheckedChange={(checked) => {
+            setStatus(checked ? "published" : "draft")
+          }}
+          label={status === "published" ? "Published" : "Draft"}
+        />
+
+        {status === "published" ? (
+          <div className="space-y-2">
+            <Label htmlFor={publishedFieldId}>Publish date</Label>
+            <Input
+              id={publishedFieldId}
+              type="datetime-local"
+              value={publishedLocal}
+              onChange={(e) => {
+                setPublishedLocal(e.target.value)
+              }}
             />
+            <p className="text-xs text-text-secondary">
+              Leave empty to use the current time when you save as published.
+            </p>
           </div>
-        </div>
-
-        <div className="flex flex-col gap-4 border-t border-border-subtle pt-4">
-          <Switch
-            id={statusSwitchId}
-            checked={status === "published"}
-            onCheckedChange={(checked) => {
-              setStatus(checked ? "published" : "draft")
-            }}
-            label={status === "published" ? "Published" : "Draft"}
-          />
-
-          {status === "published" ? (
-            <div>
-              <Label htmlFor={publishedFieldId}>Publish date</Label>
-              <Input
-                id={publishedFieldId}
-                type="datetime-local"
-                className="mt-1.5 max-w-xs"
-                value={publishedLocal}
-                onChange={(e) => {
-                  setPublishedLocal(e.target.value)
-                }}
-              />
-              <p className="mt-1 text-xs text-content-tertiary">
-                Leave empty to use the current time when you save as published.
-              </p>
-            </div>
-          ) : null}
-        </div>
+        ) : null}
       </Card>
     </div>
   )
