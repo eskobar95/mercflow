@@ -28,6 +28,7 @@ import type {
   UpsertCategoryContentInput,
   UpsertProductContentInput,
 } from "./types"
+import { runWithTenantScope } from "./tenant-scope"
 import { slugifyTitleToArticleSegment } from "./utils/transliterate-nordic-slug"
 
 const SEO_DESCRIPTION_MAX = 160
@@ -46,6 +47,21 @@ class ContentModuleService extends MedusaService({
   ProductAttribute,
   ProductAttrLink,
 }) {
+  /**
+   * Runs `fn` in a transaction with `app.store_id` set for PostgreSQL RLS (T002 / ADR-005).
+   */
+  async withTenant<T>(
+    storeId: string,
+    fn: (context: Context) => Promise<T>
+  ): Promise<T> {
+    const baseRepo = (
+      this as unknown as {
+        baseRepository_: Parameters<typeof runWithTenantScope>[0]
+      }
+    ).baseRepository_
+    return runWithTenantScope(baseRepo, storeId, fn)
+  }
+
   private assertSeoDescriptionLength(value: string | null | undefined): void {
     if (value != null && value.length > SEO_DESCRIPTION_MAX) {
       throw new MedusaError(
@@ -104,17 +120,30 @@ class ContentModuleService extends MedusaService({
 
   async retrieveProductContentForLocale(
     productId: string,
-    locale: string
+    locale: string,
+    options?: { storeId?: string }
   ): Promise<ResolvedProductContent | null> {
-    const rows = await this.listProductContents({
-      product_id: productId,
-      locale,
-    })
-    const row = rows[0]
-    if (!row) {
-      return null
+    const query = async (context: Context = {}): Promise<ResolvedProductContent | null> => {
+      const rows = await this.listProductContents(
+        {
+          product_id: productId,
+          locale,
+        },
+        {},
+        context
+      )
+      const row = rows[0]
+      if (!row) {
+        return null
+      }
+      return this.resolveProductRow(row as ProductContentRecord)
     }
-    return this.resolveProductRow(row as ProductContentRecord)
+
+    if (options?.storeId) {
+      return this.withTenant(options.storeId, query)
+    }
+
+    return query()
   }
 
   async upsertProductContent(
