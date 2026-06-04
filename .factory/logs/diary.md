@@ -4,6 +4,21 @@
 
 ---
 
+## 2026-06-04 — Sprint S007 merged to development
+
+**PR:** https://github.com/eskobar95/mercflow/pull/61  
+**Merge:** `0780d33` — PO receive flow + inventory dashboard (T023, T024)
+
+### Planning sync
+- `.factory/planning/sprints.md` — S007 `done`
+- `.factory/planning/tasks.md` — T023, T024 `done` + merge SHA
+
+**HITL:** `.factory/logs/hitl/S007-po-stock-boundary.md` (MercFlow receipt only; no auto Medusa stock)
+
+**Gate:** Yellow (movement history PO receipts only; see inventory-module README)
+
+---
+
 ## 2026-06-04 — `/run-sprint S007` (T023 + T024 implementation)
 
 **Branch:** `feature/S007/T023-po-receive-flow` @ worktree `../mercflow-worktrees/S007-T023`
