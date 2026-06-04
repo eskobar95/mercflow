@@ -6,6 +6,7 @@ import { IconChevronRight } from "@/components/ui/icons"
 import {
   contentSidebarSection,
   feedSidebarSection,
+  inventorySidebarSection,
   primarySidebarNav,
   settingsSidebarSection,
   type SidebarNavItem,
@@ -264,6 +265,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps): JSX.Element {
           ))}
         </div>
         <Section section={feedSidebarSection} onNavigate={onNavigate} />
+        <Section section={inventorySidebarSection} onNavigate={onNavigate} />
         <Section section={contentSidebarSection} onNavigate={onNavigate} />
         <Section section={settingsSidebarSection} onNavigate={onNavigate} />
       </nav>

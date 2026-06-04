@@ -971,11 +971,11 @@ Admin can view feed status (product count, last updated, validation errors), exc
 
 **Sprint:** S006
 **Milestone:** M004
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** M000 done (T003 merged)
-**Branch:** feature/S006/T020-inventory-module-scaffold
+**Branch:** cursor/s006-inventory-suppliers-po-e302
 **PRD journey:** J009, J010, J011
 **ADRs:** ADR-003, ADR-004, ADR-005
 
@@ -1012,11 +1012,11 @@ Admin can view feed status (product count, last updated, validation errors), exc
 
 **Sprint:** S006
 **Milestone:** M004
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T020
-**Branch:** feature/S006/T021-supplier-register
+**Branch:** cursor/s006-inventory-suppliers-po-e302
 **PRD journey:** J009
 
 ### Slice objective
@@ -1046,11 +1046,11 @@ Admin can create, edit, and delete suppliers. Supplier list available as dropdow
 
 **Sprint:** S006
 **Milestone:** M004
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T020
-**Branch:** feature/S006/T022-purchase-order-create
+**Branch:** cursor/s006-inventory-suppliers-po-e302
 **PRD journey:** J010
 
 ### Slice objective

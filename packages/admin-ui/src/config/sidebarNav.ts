@@ -7,6 +7,9 @@ import {
   IconCustomers,
   IconFeed,
   IconGlobals,
+  IconInventory,
+  IconPurchaseOrders,
+  IconSuppliers,
   IconHome,
   IconOrders,
   IconPages,
@@ -86,6 +89,19 @@ export const feedSidebarSection: SidebarNavSection = {
   items: [{ label: "Overview", to: "/feed", end: true, icon: IconFeed }],
 }
 
+export const inventorySidebarSection: SidebarNavSection = {
+  label: "Inventory",
+  items: [
+    { label: "Overview", to: "/inventory", end: true, icon: IconInventory },
+    {
+      label: "Purchase orders",
+      to: "/inventory/purchase-orders",
+      icon: IconPurchaseOrders,
+    },
+    { label: "Suppliers", to: "/inventory/suppliers", icon: IconSuppliers },
+  ],
+}
+
 export const contentSidebarSection: SidebarNavSection = {
   label: "Content",
   items: [
@@ -119,6 +135,7 @@ export function getAllSidebarNavItems(): SidebarNavItem[] {
   return [
     ...primarySidebarNav,
     ...feedSidebarSection.items,
+    ...inventorySidebarSection.items,
     ...contentSidebarSection.items,
     ...settingsSidebarSection.items,
   ]

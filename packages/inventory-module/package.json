@@ -5,7 +5,14 @@
   "description": "MercFlow Medusa v2 module: internal order notes, pick-list data, and future inventory/PO surfaces.",
   "main": "src/modules/inventory/index.ts",
   "exports": {
-    ".": "./src/modules/inventory/index.ts"
+    ".": "./src/modules/inventory/index.ts",
+    "./mercflow-admin-suppliers-api": "./src/integrations/mercflow-admin-suppliers-api.ts",
+    "./mercflow-admin-suppliers-id-api": "./src/integrations/mercflow-admin-suppliers-id-api.ts",
+    "./mercflow-admin-purchase-orders-api": "./src/integrations/mercflow-admin-purchase-orders-api.ts",
+    "./mercflow-admin-purchase-orders-status-api": "./src/integrations/mercflow-admin-purchase-orders-status-api.ts",
+    "./mercflow-admin-order-notes-api": "./src/integrations/mercflow-admin-order-notes-api.ts",
+    "./mercflow-admin-order-notes-id-api": "./src/integrations/mercflow-admin-order-notes-id-api.ts",
+    "./mercflow-admin-pick-list-api": "./src/integrations/mercflow-admin-pick-list-api.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

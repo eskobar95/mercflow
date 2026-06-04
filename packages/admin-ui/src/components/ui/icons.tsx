@@ -301,6 +301,39 @@ export function IconCatalogue({ size = 18, ...rest }: IconProps): JSX.Element {
   )
 }
 
+/** Inventory overview — stacked boxes. */
+export function IconInventory({ size = 18, ...rest }: IconProps): JSX.Element {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <path d="M4 8.5 12 4l8 4.5v7L12 20l-8-4.5v-7Z" />
+      <path d="M12 12v8" />
+      <path d="m4 8.5 8 4.5 8-4.5" />
+    </svg>
+  )
+}
+
+/** Supplier register — building. */
+export function IconSuppliers({ size = 18, ...rest }: IconProps): JSX.Element {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <path d="M5 20V6l7-3 7 3v14" />
+      <path d="M9 10h2v2H9zM13 10h2v2h-2zM9 14h2v2H9zM13 14h2v2h-2z" />
+      <path d="M5 20h14" />
+    </svg>
+  )
+}
+
+/** Purchase orders — clipboard list. */
+export function IconPurchaseOrders({ size = 18, ...rest }: IconProps): JSX.Element {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <path d="M8 4h8a2 2 0 0 1 2 2v14H6V6a2 2 0 0 1 2-2Z" />
+      <path d="M10 4v3h4V4" />
+      <path d="M9 12h6M9 16h6" />
+    </svg>
+  )
+}
+
 /** Google Shopping / product feed — broadcast waves. */
 export function IconFeed({ size = 18, ...rest }: IconProps): JSX.Element {
   return (
