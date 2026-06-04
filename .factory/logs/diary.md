@@ -4,6 +4,91 @@
 
 ---
 
+## 2026-06-04 — Development sync + factory close-out
+
+**Branch:** `development` @ `a0200f7` (matches `origin/development`)
+
+### GitHub ↔ local
+- `git fetch` + `git checkout development` + `git pull` — up to date with remote
+- Recent merges on `development`: #55 SEO (`b378e22`), #58 feed admin, #57 XML, #56 orders, #54 feed scaffold, #53 rate limit, #52 RLS, #50 tenancy backfill
+
+### PR #55 (S002) — post-merge notes
+- Merged 2026-06-04 as `b378e22` (from `cursor/s002-seo-infrastructure-0c2f`)
+- Bugbot fixes before merge: `upsertRedirect`, `product_category.created` seed, slug strategy on create
+- Rebase conflicts with feed/inventory modules resolved (additive registration)
+- CI green on final push
+
+### Factory updates (this session)
+- `tasks.md`: T001/T002 → `done` with PR #50/#52; T004–T007 merge SHA `b378e22`
+- `milestones.md`: M000/M001/M003/M005 → `in progress` with progress notes
+- `sprints.md`: S003 marked ready
+
+### Next harness action
+- `/run-sprint S003` — T008 (HITL host→store), sitemap, robots
+
+---
+
+## Sprint retro — S002 — 2026-06-04
+
+**Milestone:** M001
+**Tasks:** 4/4 done (T004–T007), 0 blocked
+
+### What went well
+- SEO module, Nordic slug settings, redirect middleware/subscribers, and admin UI merged in one vertical PR after rebase onto `development` (#55)
+- Rebase integrated feed + inventory modules without losing registrations; CI green after lockfile sync
+
+### What failed or slowed down
+- Initial branch had merge commit + conflicts with S008/feed; linear rebase in isolated worktree resolved it
+- `pnpm-lock.yaml` out of sync with `admin-ui` → `seo-module` dep blocked CI until follow-up commit
+
+### Follow-ups
+- **Next:** `/run-sprint S003` (sitemap + robots + tenant middleware T008) — unblocks feed tenant shim note from S005
+
+---
+
+## Task T004–T007 — SEO foundation — 2026-06-04
+
+**Sprint:** S002 | **Status:** done | **PR:** https://github.com/eskobar95/mercflow/pull/55 | **Merge:** `b378e22`
+
+---
+
+## Sprint retro — S005 — 2026-06-04
+
+**Milestone:** M003
+**Tasks:** 3/3 done, 0 blocked
+
+### What went well
+- Feed vertical slice merged: scaffold → XML feed → admin UI (#54, #57, #58)
+- CI green on all PRs after T017 migration export fix
+
+### What failed or slowed down
+- T019 WIP briefly on wrong branch; recovered with PR #58
+- Full tenant middleware (T008) still pending — feed uses minimal `/feed/*` Host→store_id shim
+
+### Follow-ups
+- Replace feed-only tenant shim when S003 T008 lands
+- **Next:** S003 (tenant middleware) — S002 merged 2026-06-04
+
+---
+
+## Task T019 — Feed admin UI — 2026-06-04
+
+**Sprint:** S005 | **Status:** done | **PR:** https://github.com/eskobar95/mercflow/pull/58
+
+---
+
+## Task T018 — Google Shopping XML feed — 2026-06-04
+
+**Sprint:** S005 | **Status:** done | **PR:** https://github.com/eskobar95/mercflow/pull/57
+
+---
+
+## Task T017 — feed-module scaffold — 2026-06-04
+
+**Sprint:** S005 | **Status:** done | **PR:** https://github.com/eskobar95/mercflow/pull/54
+
+---
+
 ## 2026-06-04 — /align: Batch 2 + Notion intake + Factory SSOT
 
 **Deltagere:** Nicklas Eskou + agent

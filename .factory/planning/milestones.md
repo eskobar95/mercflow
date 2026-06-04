@@ -1,7 +1,7 @@
 # Milestones — MercFlow Batch 2
 
 > Ordered deliveries. Each milestone groups one or more sprints.
-> Updated: 2026-06-04
+> Updated: 2026-06-04 (synced with `origin/development` @ `a0200f7`)
 
 ---
 
@@ -15,18 +15,20 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 
 | ID | Title | Outcome | Depends on | Status |
 |----|-------|---------|------------|--------|
-| M000 | Tenancy Foundation | SaaS isolation safe; ready for second tenant | — | planned |
-| M001 | SEO Infrastructure | Redirects, sitemap, robots, slug utility live | M000 | planned |
+| M000 | Tenancy Foundation | SaaS isolation safe; ready for second tenant | — | in progress |
+| M001 | SEO Infrastructure | Redirects, sitemap, robots, slug utility live | M000 | in progress |
 | M002 | SEO Metadata | JSON-LD, OG, canonical on all pages | M001 | planned |
-| M003 | Shopping Feed | Google/Meta/TikTok feed live and validated | M000 | planned |
+| M003 | Shopping Feed | Google/Meta/TikTok feed live and validated | M000 | in progress |
 | M004 | Inventory & Purchase Orders | Full PO lifecycle + inventory dashboard | M000 | planned |
-| M005 | Improved Order Flow | Faster order processing + pick list | M000 | planned |
+| M005 | Improved Order Flow | Faster order processing + pick list | M000 | in progress |
 
 ---
 
 ## M000 — Tenancy Foundation
 
 **Outcome:** All MercFlow-owned tables have `store_id NOT NULL` + RLS. Guapo backfilled. Rate limiting active on public routes. Safe to onboard a second tenant.
+
+**Progress (2026-06-04):** S001 sprint done on `development` — T001 (#50), T002 (#52), T003 (#53). Milestone review (`/milestone-review M000`) and Neon IP allowlist HITL still open.
 
 **Sprints in this milestone:**
 
@@ -59,6 +61,8 @@ Note: `payload.*` schema (PayloadCMS, Guapo storefront) is excluded — it is Gu
 ## M001 — SEO Infrastructure
 
 **Outcome:** Slug changes auto-create 301 redirects. Sitemap and robots.txt fully admin-controlled. Nordic characters produce clean URLs.
+
+**Progress (2026-06-04):** S002 merged on `development` via PR #55 (`b378e22`) — seo-module, slug strategy, redirect middleware/subscribers, admin UI. S003 (sitemap, robots, T008 tenant middleware) not started.
 
 **Sprints in this milestone:**
 
@@ -103,6 +107,8 @@ Note: `payload.*` schema (PayloadCMS, Guapo storefront) is excluded — it is Gu
 
 **Outcome:** Auto-maintained Google Shopping XML feed per tenant. Validated, tenant-scoped, cache-invalidated on catalogue changes.
 
+**Progress (2026-06-04):** S005 merged — PR #54 (scaffold), #57 (XML route), #58 (admin UI). Feed tenant resolution still uses `/feed/*` shim until T008 (S003).
+
 **Sprints in this milestone:**
 
 | Sprint | Goal | Tasks |
@@ -146,6 +152,8 @@ Note: `payload.*` schema (PayloadCMS, Guapo storefront) is excluded — it is Gu
 ## M005 — Improved Order Flow
 
 **Outcome:** Faster order processing: status badges, internal notes, timeline, bulk actions, printable pick list.
+
+**Progress (2026-06-04):** S008 merged via PR #56 (`fec137f`) — order list filters/bulk actions, internal notes, pick list.
 
 **Sprints in this milestone:**
 
