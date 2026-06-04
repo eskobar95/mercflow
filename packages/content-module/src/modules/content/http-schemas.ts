@@ -11,6 +11,12 @@ export const localeQuerySchema = z.object({
     .default("en"),
 })
 
+export const articleAdminListQuerySchema = z
+  .object({
+    locale: z.string().min(1).max(32).optional(),
+  })
+  .strict()
+
 export const productContentBodySchema = z
   .object({
     description_rich: z.unknown().optional(),
@@ -55,6 +61,37 @@ export const categoryContentPostBodySchema = categoryContentBodySchema
   .strict()
 
 export type CategoryContentPostBody = z.infer<typeof categoryContentPostBodySchema>
+
+const articleStatusSchema = z.enum(["draft", "published"])
+
+const publishedAtSchema = z
+  .union([z.string().datetime({ offset: true }), z.string().datetime(), z.null()])
+  .optional()
+
+export const articlePostBodySchema = z
+  .object({
+    title: z.string().min(1).max(512),
+    slug: z.string().min(1).max(512).nullable().optional(),
+    body_json: z.unknown().optional(),
+    locale: z.string().min(1).max(32).optional().default("en"),
+    status: articleStatusSchema.optional().default("draft"),
+    published_at: publishedAtSchema,
+  })
+  .strict()
+
+export const articlePatchBodySchema = z
+  .object({
+    title: z.string().min(1).max(512).optional(),
+    slug: z.string().min(1).max(512).nullable().optional(),
+    body_json: z.unknown().optional(),
+    locale: z.string().min(1).max(32).optional(),
+    status: articleStatusSchema.optional(),
+    published_at: publishedAtSchema,
+  })
+  .strict()
+
+export type ArticlePostBody = z.infer<typeof articlePostBodySchema>
+export type ArticlePatchBody = z.infer<typeof articlePatchBodySchema>
 
 const pageTypeSchema = z.enum(["homepage", "landing", "content"])
 const pageStatusSchema = z.enum(["draft", "published"])
