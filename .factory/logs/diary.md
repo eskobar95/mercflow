@@ -28,7 +28,9 @@
 - **T015:** `/store/seo/og/*` + product `SocialSharePreview`
 - **T016:** `canonical_url_override` migration + store canonical routes + product Content tab field
 
-**Gate:** Yellow — category Content tab canonical UI + canonical conflict admin warning deferred; run `pnpm migration:run` on deploy.
+**Gate:** Yellow — category Content tab canonical UI + canonical conflict admin warning deferred.
+
+**Local migration smoke:** `pnpm migration:run` on `development` @ `0570caf` — applied `Migration20260605120000AddJsonLdSettingsToSeoConfig` (seo) and `Migration20260605130000AddCanonicalUrlOverride` (content); exit 0.
 
 ---
 
