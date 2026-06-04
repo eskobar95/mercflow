@@ -3,27 +3,15 @@ import { Modules } from "@medusajs/framework/utils"
 
 import { SEO_MODULE } from "@mercflow/seo-module"
 
-const PREV_HANDLE_METADATA_KEY = "mercflow_prev_handle"
+import {
+  PREV_HANDLE_METADATA_KEY,
+  resolveDefaultStoreId,
+} from "./mercflow-seo-subscriber-utils"
 
 type CategoryLike = {
   id: string
   handle?: string | null
   metadata?: Record<string, unknown> | null
-}
-
-async function resolveDefaultStoreId(container: SubscriberArgs["container"]): Promise<string | null> {
-  const envDefault = process.env.MERCFLOW_DEFAULT_STORE_ID
-  if (typeof envDefault === "string" && envDefault.length > 0) {
-    return envDefault
-  }
-  try {
-    const storeModule = container.resolve(Modules.STORE)
-    const stores = await storeModule.listStores({}, { take: 1 })
-    const first = stores[0] as { id?: string } | undefined
-    return typeof first?.id === "string" ? first.id : null
-  } catch {
-    return null
-  }
 }
 
 export default async function mercflowCategorySlugRedirectHandler({

@@ -161,6 +161,42 @@ class SeoModuleService extends MedusaService({
     })
   }
 
+  /**
+   * Creates or updates a redirect keyed by `(from_path, store_id)`.
+   * Auto-redirect flows use this so repeat handle changes do not hit the unique constraint.
+   */
+  async upsertRedirect(
+    storeId: string,
+    input: CreateRedirectInput
+  ): Promise<MercflowRedirectRecord> {
+    const from_path = normalizeRedirectPath(input.from_path)
+    const to_path = normalizeRedirectPath(input.to_path)
+    if (from_path === to_path) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "from_path and to_path must differ"
+      )
+    }
+
+    const existing = await this.findRedirectByFromPath(storeId, from_path)
+    if (!existing) {
+      return this.createRedirect(storeId, input)
+    }
+
+    return this.withTenant(storeId, async (context) => {
+      const updated = await this.updateMercflowRedirects(
+        {
+          id: existing.id,
+          to_path,
+          type: input.type ?? existing.type,
+        },
+        context
+      )
+      const row = Array.isArray(updated) ? updated[0] : updated
+      return this.toRedirectRecord(row as Record<string, unknown>)
+    })
+  }
+
   async createRedirect(
     storeId: string,
     input: CreateRedirectInput
@@ -224,7 +260,7 @@ class SeoModuleService extends MedusaService({
     if (previousHandle === nextHandle) {
       return null
     }
-    return this.createRedirect(storeId, {
+    return this.upsertRedirect(storeId, {
       from_path: productPublicPathFromHandle(previousHandle),
       to_path: productPublicPathFromHandle(nextHandle),
       type: "auto",
@@ -239,7 +275,7 @@ class SeoModuleService extends MedusaService({
     if (previousHandle === nextHandle) {
       return null
     }
-    return this.createRedirect(storeId, {
+    return this.upsertRedirect(storeId, {
       from_path: categoryPublicPathFromHandle(previousHandle),
       to_path: categoryPublicPathFromHandle(nextHandle),
       type: "auto",

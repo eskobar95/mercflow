@@ -1,11 +1,17 @@
+import { slugifyForStrategy } from "@mercflow/seo-module/slug"
+
+import type { SlugStrategy } from "@/features/seo/types"
+
 /**
- * Produces a Medusa-compatible handle slug from a display name (lowercase,
- * hyphen-separated). Empty/whitespace names yield an empty string.
+ * Produces a MercFlow catalog handle from a display name using the active SEO slug strategy.
  */
-export function slugifyCategoryHandle(name: string): string {
-  return name
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
+export function slugifyCategoryHandle(
+  name: string,
+  strategy: SlugStrategy = "nordic"
+): string {
+  const trimmed = name.trim()
+  if (trimmed === "") {
+    return ""
+  }
+  return slugifyForStrategy(trimmed, strategy)
 }

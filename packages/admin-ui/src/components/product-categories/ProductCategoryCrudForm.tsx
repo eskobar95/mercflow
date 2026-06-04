@@ -26,6 +26,7 @@ import {
 } from "@/features/product-categories/productCategoriesAdminApi"
 import { slugifyCategoryHandle } from "@/features/product-categories/slugifyCategoryHandle"
 import type { AdminProductCategoryParsed } from "@/features/product-categories/types"
+import { useSeoSlugStrategy } from "@/hooks/useSeoSlugStrategy"
 
 export type ProductCategoryCrudFormProps = {
   mode: "create" | "edit"
@@ -63,6 +64,7 @@ export function ProductCategoryCrudForm({
   onDeleted,
 }: ProductCategoryCrudFormProps): JSX.Element {
   const navigate = useNavigate()
+  const { strategy: slugStrategy } = useSeoSlugStrategy()
   const [name, setName] = useState(initialName)
   const [handle, setHandle] = useState(initialHandle)
   const [parentSelectValue, setParentSelectValue] = useState<string>(() =>
@@ -81,13 +83,13 @@ export function ProductCategoryCrudForm({
     if (t !== "") {
       return t
     }
-    return slugifyCategoryHandle(name)
-  }, [handle, name])
+    return slugifyCategoryHandle(name, slugStrategy)
+  }, [handle, name, slugStrategy])
 
   const onNameChange = (next: string): void => {
     setName(next)
     if (!handleManuallyEdited) {
-      setHandle(slugifyCategoryHandle(next))
+      setHandle(slugifyCategoryHandle(next, slugStrategy))
     }
   }
 
@@ -228,7 +230,7 @@ export function ProductCategoryCrudForm({
               setHandle(ev.target.value)
             }}
             disabled={submitting}
-            placeholder={slugifyCategoryHandle(name) || "category-handle"}
+            placeholder={slugifyCategoryHandle(name, slugStrategy) || "category-handle"}
           />
         </FormField>
 

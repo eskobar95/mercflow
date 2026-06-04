@@ -9,14 +9,14 @@ import {
   resolveDefaultStoreId,
 } from "./mercflow-seo-subscriber-utils"
 
-type ProductLike = {
+type CategoryLike = {
   id: string
-  title?: string | null
+  name?: string | null
   handle?: string | null
   metadata?: Record<string, unknown> | null
 }
 
-export default async function mercflowProductCreatedHandleSeedHandler({
+export default async function mercflowCategoryCreatedHandleSeedHandler({
   event,
   container,
 }: SubscriberArgs<{ id: string }>): Promise<void> {
@@ -26,21 +26,21 @@ export default async function mercflowProductCreatedHandleSeedHandler({
   }
 
   const productModule = container.resolve(Modules.PRODUCT)
-  const product = (await productModule.retrieveProduct(event.data.id, {
-    select: ["id", "title", "handle", "metadata"],
-  })) as ProductLike
+  const category = (await productModule.retrieveProductCategory(event.data.id, {
+    select: ["id", "name", "handle", "metadata"],
+  })) as CategoryLike
 
   const seoService = container.resolve(SEO_MODULE) as {
     getOrCreateSeoConfig: (id: string) => Promise<{ slug_strategy: "nordic" | "omit" }>
   }
   const config = await seoService.getOrCreateSeoConfig(storeId)
 
-  let handle = product.handle?.trim() ?? ""
-  const title = product.title?.trim()
-  if (title) {
-    const desiredHandle = slugifyForStrategy(title, config.slug_strategy)
+  let handle = category.handle?.trim() ?? ""
+  const name = category.name?.trim()
+  if (name) {
+    const desiredHandle = slugifyForStrategy(name, config.slug_strategy)
     if (desiredHandle && desiredHandle !== handle) {
-      await productModule.updateProducts(product.id, { handle: desiredHandle })
+      await productModule.updateProductCategories(category.id, { handle: desiredHandle })
       handle = desiredHandle
     }
   }
@@ -49,16 +49,16 @@ export default async function mercflowProductCreatedHandleSeedHandler({
     return
   }
 
-  const metadata = product.metadata ?? {}
+  const metadata = category.metadata ?? {}
   if (metadata[PREV_HANDLE_METADATA_KEY] === handle) {
     return
   }
 
-  await productModule.updateProducts(product.id, {
+  await productModule.updateProductCategories(category.id, {
     metadata: { ...metadata, [PREV_HANDLE_METADATA_KEY]: handle },
   })
 }
 
 export const config: SubscriberConfig = {
-  event: "product.created",
+  event: "product_category.created",
 }

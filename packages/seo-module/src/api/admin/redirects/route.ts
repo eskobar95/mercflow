@@ -27,7 +27,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse): Promise<voi
     return
   }
   const seoService = req.scope.resolve(SEO_MODULE) as SeoModuleService
-  const redirect = await seoService.createRedirect(storeId, body.data)
+  const redirect = await seoService.upsertRedirect(storeId, body.data)
   const has_chain_warning = await seoService.redirectHasChainIssue(storeId, redirect)
   res.status(201).json({ redirect: { ...redirect, has_chain_warning } })
 }

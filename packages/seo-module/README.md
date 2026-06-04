@@ -8,6 +8,8 @@ MercFlow Medusa v2 module for Batch 2 SEO infrastructure: per-tenant SEO config,
 - Exports pure slug utility (`@mercflow/seo-module/slug`) for admin preview and other packages.
 - Admin routes: `GET|PUT /admin/seo-config`, `GET|POST /admin/redirects`, `DELETE /admin/redirects/:id`.
 - Redirect middleware (`mercflow-redirect-middleware`) for storefront path 301 responses.
+- Auto redirects upsert on `(from_path, store_id)` so repeat handle changes do not violate uniqueness.
+- `product.created` / `product_category.created` subscribers apply the saved slug strategy to new handles and seed `metadata.mercflow_prev_handle` for the first rename redirect.
 
 Does **not** own product/category rich text or CMS redirects in `content-module` (`cms_redirect`).
 
