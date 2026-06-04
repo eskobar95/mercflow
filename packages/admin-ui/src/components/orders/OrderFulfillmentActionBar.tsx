@@ -2,13 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 
 import { Button } from "@/components/ui/Button"
 import { DialogFooter, DialogShell } from "@/components/ui/Dialog"
-import { Label } from "@/components/ui/Label"
 import {
   fetchFirstStockLocationId,
   postCaptureAdminPayment,
   postCreateFulfillmentShipment,
   postCreateOrderFulfillment,
-  postOrderAdminNote,
 } from "@/features/orders/orderFulfillmentAdminApi"
 import { getOrderFulfillmentActionVisibility } from "@/features/orders/orderFulfillmentActionState"
 import type { OrderDetail } from "@/features/orders/orderTypes"
@@ -32,11 +30,6 @@ export function OrderFulfillmentActionBar(props: {
   const [stockLocationId, setStockLocationId] = useState<string | null>(null)
   const [stockLocationLoading, setStockLocationLoading] = useState(false)
   const [stockLocationError, setStockLocationError] = useState<string | null>(null)
-
-  const [noteDraft, setNoteDraft] = useState("")
-  const [noteSubmitting, setNoteSubmitting] = useState(false)
-  const [noteError, setNoteError] = useState<string | null>(null)
-  const [noteSuccessVisible, setNoteSuccessVisible] = useState(false)
 
   const closeDialog = useCallback((): void => {
     setConfirmKind(null)
@@ -160,23 +153,6 @@ export function OrderFulfillmentActionBar(props: {
     return { title: "", description: "" }
   }, [confirmKind])
 
-  const submitNote = useCallback(async (): Promise<void> => {
-    setNoteError(null)
-    setNoteSuccessVisible(false)
-    setNoteSubmitting(true)
-    try {
-      await postOrderAdminNote(order.id, noteDraft)
-      setNoteDraft("")
-      setNoteSuccessVisible(true)
-      onDidMutate()
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "Could not save note"
-      setNoteError(msg)
-    } finally {
-      setNoteSubmitting(false)
-    }
-  }, [noteDraft, onDidMutate, order.id])
-
   const hasAnyActionButton =
     visibility.showCapturePayment ||
     visibility.showCreateFulfillment ||
@@ -248,50 +224,6 @@ export function OrderFulfillmentActionBar(props: {
         {!hasAnyActionButton ? (
           <p className="text-sm text-content-secondary">No workflow actions apply to this status.</p>
         ) : null}
-      </div>
-
-      <div className="mt-6 border-t border-border-subtle pt-4">
-        <Label className="text-content-primary" htmlFor="order-admin-note" id="order-admin-note-label">
-          Internal note
-        </Label>
-        <p id="order-admin-note-hint" className="mt-1 text-xs text-content-tertiary">
-          Stored as a Medusa order note for your team ({order.currencyCode.toUpperCase()} order #{order.displayId}).
-        </p>
-        <textarea
-          id="order-admin-note"
-          aria-labelledby="order-admin-note-label"
-          aria-describedby="order-admin-note-hint"
-          rows={3}
-          value={noteDraft}
-          disabled={noteSubmitting}
-          onChange={(ev) => {
-            setNoteDraft(ev.target.value)
-          }}
-          className="mt-2 w-full max-w-xl rounded-md border border-border-default bg-surface-default px-3 py-2 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus disabled:opacity-60"
-        />
-        {noteError !== null ? (
-          <p className="mt-2 text-sm text-feedback-danger-content" role="alert">
-            {noteError}
-          </p>
-        ) : null}
-        {noteSuccessVisible ? (
-          <p className="mt-2 text-sm text-feedback-success-content" role="status">
-            Note saved.
-          </p>
-        ) : null}
-        <div className="mt-2">
-          <Button
-            type="button"
-            size="sm"
-            variant="secondary"
-            disabled={noteSubmitting || noteDraft.trim() === ""}
-            onClick={() => {
-              void submitNote()
-            }}
-          >
-            Add note
-          </Button>
-        </div>
       </div>
 
       <DialogShell

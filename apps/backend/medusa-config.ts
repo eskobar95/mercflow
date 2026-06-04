@@ -41,5 +41,8 @@ export default defineConfig({
     {
       resolve: "@mercflow/feed-module",
     },
+    {
+      resolve: "@mercflow/inventory-module",
+    },
   ],
 })

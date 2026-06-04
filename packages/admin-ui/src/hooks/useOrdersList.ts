@@ -7,6 +7,7 @@ import {
   type OrdersListSortColumn,
 } from "@/features/orders/orderListSortValues"
 import { orderMatchesStatusBucket } from "@/features/orders/orderStatusFilter"
+import { orderMatchesPaymentBucket, type OrderPaymentFilterBucket } from "@/features/orders/orderPaymentFilter"
 import type {
   OrderListRow,
   OrderStatusFilterBucket,
@@ -18,6 +19,7 @@ const MAX_LOAD = 800
 type UseOrdersListArgs = {
   debouncedSearch: string
   statusBucket: OrderStatusFilterBucket
+  paymentBucket: OrderPaymentFilterBucket
   dateFrom: string
   dateTo: string
   page: number
@@ -77,6 +79,7 @@ function sortRows(
 export function useOrdersList({
   debouncedSearch,
   statusBucket,
+  paymentBucket,
   dateFrom,
   dateTo,
   page,
@@ -149,9 +152,12 @@ export function useOrdersList({
 
   const processed = useMemo(() => {
     const bucketed = allRows.filter((r) => orderMatchesStatusBucket(r, statusBucket))
-    const searched = bucketed.filter((r) => rowMatchesSearch(r, debouncedSearch))
+    const paymentFiltered = bucketed.filter((r) =>
+      orderMatchesPaymentBucket(r, paymentBucket)
+    )
+    const searched = paymentFiltered.filter((r) => rowMatchesSearch(r, debouncedSearch))
     return sortRows(searched, sort)
-  }, [allRows, statusBucket, debouncedSearch, sort])
+  }, [allRows, statusBucket, paymentBucket, debouncedSearch, sort])
 
   const totalFiltered = processed.length
 
