@@ -10,6 +10,7 @@ export default defineConfig({
     projects: [
       "packages/design-tokens",
       "packages/content-module",
+      "packages/feed-module",
       "packages/subscription-module",
       "packages/connector-module",
       "apps/backend",
