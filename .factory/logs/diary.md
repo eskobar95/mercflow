@@ -4,6 +4,38 @@
 
 ---
 
+## 2026-06-04 — `/run-sprint S004` (T013–T016 implementation)
+
+**Branch:** `feature/S004/metadata-json-ld-og-canonical` @ worktree `../mercflow-worktrees/S004`
+
+### HITL — global config table (T013)
+
+- Decision log: `.factory/logs/hitl/S004-T013-global-config-table.md`
+- **Option A** — `mercflow_seo_config` (no `mercflow_global_config`); added `json_ld_settings` jsonb
+
+### Delivered
+
+- **T013:** Admin Settings → SEO → Organisation (storefront, org name/logo, social URLs); extended `PUT /admin/seo-config`
+- **T014:** JSON-LD services + store routes (`/store/seo/json-ld/*`); admin Structured data toggles
+- **T015:** OG/Twitter meta store routes; `SocialSharePreview` on product Content tab
+- **T016:** `canonical_url_override` on product/category content + store canonical routes + admin field on product Content tab
+- Migrations: `Migration20260605120000AddJsonLdSettingsToSeoConfig`, `Migration20260605130000AddCanonicalUrlOverride`
+- Tests: 9 new unit tests in `@mercflow/seo-module` (json-ld, og, canonical core)
+
+### Verification (local)
+
+- `vitest run` on new seo-module test files — green
+- Full monorepo `pnpm typecheck` — run in CI / after `pnpm install` in worktree
+
+### Gate
+
+**Yellow** — implementation complete on feature branch; PR + full CI typecheck pending. Category Content tab canonical field deferred (product tab done).
+
+### Next
+
+- Open PR → `development` after `/review-code`
+- Run `pnpm migration:run` locally on fresh DB
+- Smoke: Organisation save → `GET /store/seo/json-ld/global` with publishable key / `MERCFLOW_DEFAULT_STORE_ID`
 ## 2026-06-04 — Sprint S007 merged to development
 
 **PR:** https://github.com/eskobar95/mercflow/pull/61  
