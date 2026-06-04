@@ -1,5 +1,7 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 
+import { emitMercflowPageChanged } from "../../http/emit-mercflow-page-changed"
+import { resolveAdminStoreId } from "../../http/resolve-admin-store-id"
 import { sendZodError } from "../../http/zod-error"
 import { CONTENT_MODULE } from "../../../modules/content"
 import {
@@ -37,7 +39,9 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse): Promise<voi
     return
   }
 
+  const storeId = resolveAdminStoreId(req)
   const contentService = req.scope.resolve(CONTENT_MODULE) as ContentModuleService
   const row = await contentService.adminCreatePage(parsed.data)
+  await emitMercflowPageChanged(req.scope, storeId)
   res.status(201).json({ page: row })
 }

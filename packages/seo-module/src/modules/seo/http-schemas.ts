@@ -26,3 +26,43 @@ export const storeIdQuerySchema = z.object({
     .regex(/^store_[0-9A-Z]+$/)
     .optional(),
 })
+
+const sitemapPageTypeSettingSchema = z.object({
+  priority: z.number().min(0).max(1),
+  changefreq: z.string().min(1).max(32),
+})
+
+export const sitemapConfigBodySchema = z
+  .object({
+    page_type_settings: z
+      .object({
+        product: sitemapPageTypeSettingSchema.optional(),
+        category: sitemapPageTypeSettingSchema.optional(),
+        page: sitemapPageTypeSettingSchema.optional(),
+      })
+      .strict()
+      .optional(),
+    excluded_product_ids: z.array(z.string().min(1)).optional(),
+    excluded_category_ids: z.array(z.string().min(1)).optional(),
+    excluded_page_ids: z.array(z.string().min(1)).optional(),
+  })
+  .strict()
+
+const robotsRuleSchema = z.object({
+  user_agent: z.string().min(1).max(256),
+  allow: z.array(z.string().min(1).max(2048)),
+  disallow: z.array(z.string().min(1).max(2048)),
+})
+
+export const robotsConfigBodySchema = z
+  .object({
+    structured_rules: z
+      .object({
+        rules: z.array(robotsRuleSchema).max(50),
+      })
+      .strict()
+      .optional(),
+    freetext_override: z.string().max(65535).nullable().optional(),
+    change_summary: z.string().max(500).optional(),
+  })
+  .strict()

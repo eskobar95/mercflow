@@ -20,3 +20,12 @@ export function productPublicPathFromHandle(handle: string): string {
 export function categoryPublicPathFromHandle(handle: string): string {
   return normalizeRedirectPath(`/categories/${handle}`)
 }
+
+/** Matches `GET /store/pages/:slug` — optional `?locale=` when not the default. */
+export function pagePublicPathFromSlug(slug: string, locale: string, defaultLocale = "en"): string {
+  const path = normalizeRedirectPath(`/pages/${slug}`)
+  if (!locale || locale === defaultLocale) {
+    return path
+  }
+  return `${path}?locale=${encodeURIComponent(locale)}`
+}
