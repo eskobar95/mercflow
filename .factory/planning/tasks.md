@@ -1085,7 +1085,7 @@ Admin can create a PO (select supplier, add lines, set expected date, reference,
 
 **Sprint:** S007
 **Milestone:** M004
-**Status:** todo
+**Status:** in-progress
 **Mode:** HITL
 **Parallel group:** A
 **Blocked by:** T022
@@ -1123,7 +1123,7 @@ Before implementing: decide — does `receive` also call Medusa `createReservati
 
 **Sprint:** S007
 **Milestone:** M004
-**Status:** todo
+**Status:** in-progress
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T023
