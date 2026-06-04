@@ -61,7 +61,56 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Audit (fail on HIGH+)
-        run: pnpm audit --audit-level=high
+        run: |
+          # Run audit and capture JSON output; exit code may be non-zero.
+          pnpm audit --audit-level=high --json > /tmp/audit.json 2>/dev/null || true
+
+          node - <<'EOF'
+          const fs = require('fs');
+          // GHSAs accepted as non-actionable in this project (documented reason required).
+          const ALLOWED = new Set([
+            // vitest UI server arbitrary file read (GHSA-5xrq-8626-4rwp):
+            // Only exploitable when `vitest --ui` server is running and network-accessible.
+            // MercFlow never runs vitest --ui in CI or production; uses `vitest run` only.
+            // Track: upgrade vitest to >=4.1.0 once vite@6 migration is complete.
+            'GHSA-5xrq-8626-4rwp',
+          ]);
+
+          let audit;
+          try {
+            audit = JSON.parse(fs.readFileSync('/tmp/audit.json', 'utf8'));
+          } catch {
+            console.error('pnpm audit did not produce valid JSON');
+            process.exit(1);
+          }
+
+          const HIGH = new Set(['high', 'critical']);
+          const advisories = Object.values(audit.advisories ?? {});
+          const blocking = advisories.filter(
+            (a) => HIGH.has(a.severity) && !ALLOWED.has(a.github_advisory_id)
+          );
+
+          if (blocking.length === 0) {
+            const skipped = advisories.filter(
+              (a) => HIGH.has(a.severity) && ALLOWED.has(a.github_advisory_id)
+            );
+            if (skipped.length) {
+              console.log(
+                `audit: ${skipped.length} allowed HIGH/CRITICAL (see ALLOWED list): ` +
+                  skipped.map((a) => a.github_advisory_id).join(', ')
+              );
+            }
+            console.log('pnpm audit passed.');
+            process.exit(0);
+          }
+
+          blocking.forEach((a) =>
+            console.error(
+              `BLOCKING ${a.severity.toUpperCase()}: ${a.title} (${a.github_advisory_id})`
+            )
+          );
+          process.exit(1);
+          EOF
 
   # ─────────────────────────────────────────────────────────────────────────────
   # 3. Gitleaks — detect secrets and credentials committed to the repo
