@@ -251,6 +251,7 @@ Before merging: human adds Railway static egress IPs to Neon project `allowed_ip
 **Sprint:** S002
 **Milestone:** M001
 **Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/55
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** M000 done (T003 merged)
@@ -308,6 +309,7 @@ Before merging: human adds Railway static egress IPs to Neon project `allowed_ip
 **Sprint:** S002
 **Milestone:** M001
 **Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/55
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T004
@@ -366,6 +368,7 @@ Admin can choose a slug strategy (Nordic: ø→oe, or Omit: ø→o) in Settings.
 **Sprint:** S002
 **Milestone:** M001
 **Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/55
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T004
@@ -420,6 +423,7 @@ When a product or category slug changes, a 301 redirect is automatically created
 **Sprint:** S002
 **Milestone:** M001
 **Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/55
 **Mode:** AFK
 **Parallel group:** C
 **Blocked by:** T006
@@ -824,7 +828,8 @@ Storefront can request the canonical URL for any product or category. Auto-calcu
 
 **Sprint:** S005
 **Milestone:** M003
-**Status:** todo
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/54
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** M000 done (T003 merged)
@@ -861,7 +866,8 @@ Storefront can request the canonical URL for any product or category. Auto-calcu
 
 **Sprint:** S005
 **Milestone:** M003
-**Status:** todo
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/57
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T017
@@ -912,7 +918,8 @@ Storefront can request the canonical URL for any product or category. Auto-calcu
 
 **Sprint:** S005
 **Milestone:** M003
-**Status:** todo
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/58
 **Mode:** AFK
 **Parallel group:** C
 **Blocked by:** T018

@@ -4,6 +4,67 @@
 
 ---
 
+## Sprint retro — S002 — 2026-06-04
+
+**Milestone:** M001
+**Tasks:** 4/4 done (T004–T007), 0 blocked
+
+### What went well
+- SEO module, Nordic slug settings, redirect middleware/subscribers, and admin UI merged in one vertical PR after rebase onto `development` (#55)
+- Rebase integrated feed + inventory modules without losing registrations; CI green after lockfile sync
+
+### What failed or slowed down
+- Initial branch had merge commit + conflicts with S008/feed; linear rebase in isolated worktree resolved it
+- `pnpm-lock.yaml` out of sync with `admin-ui` → `seo-module` dep blocked CI until follow-up commit
+
+### Follow-ups
+- **Next:** `/run-sprint S003` (sitemap + robots + tenant middleware T008) — unblocks feed tenant shim note from S005
+
+---
+
+## Task T004–T007 — SEO foundation — 2026-06-04
+
+**Sprint:** S002 | **Status:** done | **PR:** https://github.com/eskobar95/mercflow/pull/55 | **Merge:** `b378e22`
+
+---
+
+## Sprint retro — S005 — 2026-06-04
+
+**Milestone:** M003
+**Tasks:** 3/3 done, 0 blocked
+
+### What went well
+- Feed vertical slice merged: scaffold → XML feed → admin UI (#54, #57, #58)
+- CI green on all PRs after T017 migration export fix
+
+### What failed or slowed down
+- T019 WIP briefly on wrong branch; recovered with PR #58
+- Full tenant middleware (T008) still pending — feed uses minimal `/feed/*` Host→store_id shim
+
+### Follow-ups
+- Replace feed-only tenant shim when S003 T008 lands
+- **Next:** S003 (tenant middleware) — S002 merged 2026-06-04
+
+---
+
+## Task T019 — Feed admin UI — 2026-06-04
+
+**Sprint:** S005 | **Status:** done | **PR:** https://github.com/eskobar95/mercflow/pull/58
+
+---
+
+## Task T018 — Google Shopping XML feed — 2026-06-04
+
+**Sprint:** S005 | **Status:** done | **PR:** https://github.com/eskobar95/mercflow/pull/57
+
+---
+
+## Task T017 — feed-module scaffold — 2026-06-04
+
+**Sprint:** S005 | **Status:** done | **PR:** https://github.com/eskobar95/mercflow/pull/54
+
+---
+
 ## 2026-06-04 — /align: Batch 2 + Notion intake + Factory SSOT
 
 **Deltagere:** Nicklas Eskou + agent
