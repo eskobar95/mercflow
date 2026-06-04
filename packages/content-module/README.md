@@ -14,7 +14,7 @@ MercFlow Medusa v2 custom module: native content fields (rich description, SEO, 
 
 Table and column names follow DML; PostgreSQL types follow Medusa’s mapping unless a task explicitly requires a database-level type (e.g. `varchar(255)` for `seo_title`).
 
-**Tenancy:** Every MercFlow content table includes `store_id` (text, NOT NULL, indexed) — Medusa store ID for the tenant. Locale/slug/scope uniqueness is scoped per `store_id` (see `Migration20260604120000AddStoreIdTenancy`). Service-layer filtering by `store_id` is enforced in later milestones (Factory T002+).
+**Tenancy:** Every MercFlow content table includes `store_id` (text, NOT NULL, indexed) — Medusa store ID for the tenant. Locale/slug/scope uniqueness is scoped per `store_id` (see `Migration20260604120000AddStoreIdTenancy`). PostgreSQL RLS with policy `tenant_isolation` is enabled on all T001 tables (`Migration20260604220000EnableRlsTenantIsolation`). Module services set `app.store_id` per transaction via `ContentModuleService.withTenant(storeId, fn)` (see `tenant-scope.ts`); pass `{ storeId }` on reads/writes that must respect RLS when the DB role is subject to policies.
 
 ### ProductContent (`product_content`)
 
