@@ -4,6 +4,33 @@
 
 ---
 
+## 2026-06-04 — /align: Batch 2 + Notion intake + Factory SSOT
+
+**Deltagere:** Nicklas Eskou + agent
+
+**Beslutninger:**
+- Notion = read-only planning intake; Factory owns execution (ADR-001)
+- Integration branch = `development`, not Factory `dev` (ADR-002)
+- Batch 2 = three modules: seo, feed, inventory (ADR-003)
+- Product PRD draft remains `.cursor/docs/PRD-batch2.md` until `/to-prd` copies to `.factory/context/PRD.md`
+
+**Opdateret:**
+- `.factory/context/CONTEXT.md` — Batch 1/2, modules, locales, public routes
+- `.factory/context/STACK.md`, `TECHSPEC.md` — created (MercFlow-specific)
+- `.factory/context/ADR/` — ADR-001, ADR-002, ADR-003
+
+**Projekttilstand:**
+- Batch 1 leveret på `development`; ingen åbne PRs
+- `.factory/planning/` mangler stadig — næste: `/to-prd` then `/to-backlog`
+
+**Åbne beslutninger:**
+- PO receipt: confirm stock mutation UX in first PO slice (PRD allows it; AGENTS requires explicit task boundary)
+- Tech-debt MER-54–57: triage into Factory backlog or defer
+
+**Næste:** `/to-prd` (Batch 2) → `/to-backlog` → `/run-sprint S001`
+
+---
+
 ## 2026-06-04 — /align session: projekt-status
 
 **Deltagere:** Nicklas Eskou + agent
