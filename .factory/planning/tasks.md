@@ -1142,11 +1142,11 @@ Admin sees a unified inventory table: stocked (Medusa), reserved (Medusa), avail
 
 **Sprint:** S008
 **Milestone:** M005
-**Status:** todo
+**Status:** in-progress
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** M000 done (T003 merged)
-**Branch:** feature/S008/T025-order-list-improvements
+**Branch:** cursor/s008-order-flow-b792
 **PRD journey:** J012
 
 ### Slice objective
@@ -1178,11 +1178,11 @@ Orders list shows status badges, customer, amount, date, fulfillment status. Fil
 
 **Sprint:** S008
 **Milestone:** M005
-**Status:** todo
+**Status:** in-progress
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** M000 done (T003 merged)
-**Branch:** feature/S008/T026-order-detail-notes-picklist
+**Branch:** cursor/s008-order-flow-b792
 **PRD journey:** J012
 
 ### Slice objective

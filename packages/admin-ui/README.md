@@ -63,13 +63,14 @@ Open the Vite dev URL printed in the terminal. The app loads the **admin shell**
 - **Legacy fixtures:** `src/data/mockProductCategories.ts` is retained only for tooling or future storybook/demo seeds — the routed hierarchy list page no longer reads it.
 - **`useMockEntityListState`** powers `/list-demo` and deliberately static demos until corresponding fetch hooks land.
 
-## Orders (read-only — Medusa Admin API)
+## Orders (Medusa Admin API + MercFlow inventory extensions)
 
-- **Routes:** `/orders` → `OrdersListPage` (via `OrdersPage` re-export in `src/pages/OrdersPage.tsx`), `/orders/:orderId` → `OrderDetailPage`. Declared in `src/router.tsx` with list and detail paths (detail registered first so params resolve correctly).
-- **HTTP:** `src/features/orders/ordersAdminApi.ts` uses `GET /admin/orders` and `GET /admin/orders/:id` with the same origin + cookie / bearer pattern as `src/medusa-admin/medusaAdminFetch.ts` (see `.env.example`: `VITE_MEDUSA_ADMIN_BACKEND_URL`, optional `VITE_MEDUSA_ADMIN_BEARER_TOKEN`).
-- **Parsing:** `orderJson.ts` maps Medusa JSON into narrow list/detail types; money is treated as **minor units** and formatted with `formatAdminCurrency` (`da-DK` locale).
-- **UI:** Feature components under `src/components/orders/` (timeline, line items, customer + shipping + payment cards). Status bucket filters (All / Pending / Processing / …) are applied **client-side** on a capped fetch window (see `useOrdersList` — up to ~800 rows) so operators get consistent grouping without extra backend work in this slice.
-- **Tests:** `test/OrdersPages.test.tsx` mocks `fetch` for list + detail render checks.
+- **Routes:** `/orders` → `OrdersListPage`, `/orders/pick-list` → `OrdersPickListPage`, `/orders/:orderId` → `OrderDetailPage`. Static `pick-list` is registered before `:orderId` in `src/router.tsx`.
+- **Medusa HTTP:** `ordersAdminApi.ts` — `GET /admin/orders`, `GET /admin/orders/:id`; fulfillment actions use Medusa payment/fulfillment routes via `orderFulfillmentAdminApi.ts`.
+- **MercFlow HTTP:** `orderNotesAdminApi.ts` — internal notes and pick list on `@mercflow/inventory-module` (`GET/POST/DELETE /admin/orders/:id/notes`, `GET /admin/orders/pick-list`). Requires `VITE_MERCFLOW_DEFAULT_STORE_ID` (see `.env.example`) or `?store_id=` on each request.
+- **List UX (S008):** Status + payment filters, search, date range, sortable columns, row selection, bulk **Mark fulfillment-ready** (creates Medusa fulfillments for paid, unfulfilled orders), link to printable pick list.
+- **Detail UX:** Page-based layout (no modal), Medusa workflow actions, status timeline, **internal notes** panel (MercFlow-only, not customer-facing).
+- **Tests:** `test/OrdersPages.test.tsx`, `orderPaymentFilter.test.ts`, `orderListBulkFulfillment.test.ts`, `@mercflow/inventory-module` pick-list unit tests.
 
 ## App shell and routing
 

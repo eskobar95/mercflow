@@ -52,6 +52,14 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "orders/pick-list",
+        handle: { title: "Pick list" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { OrdersPickListPage } = await import("@/pages/OrdersPickListPage")
+          return { Component: OrdersPickListPage }
+        },
+      },
+      {
         path: "orders/:orderId",
         handle: { title: "Order" } satisfies AppRouteHandle,
         lazy: async () => {

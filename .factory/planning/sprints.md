@@ -13,7 +13,7 @@
 | S005 | M003 | feed-module + Google Shopping XML + admin UI | T017, T018, T019 | planned |
 | S006 | M004 | inventory-module + supplier register + PO create | T020, T021, T022 | planned |
 | S007 | M004 | PO receive flow + inventory dashboard | T023, T024 | planned |
-| S008 | M005 | Improved order list + order detail + pick list | T025, T026 | planned |
+| S008 | M005 | Improved order list + order detail + pick list | T025, T026 | active |
 
 ---
 

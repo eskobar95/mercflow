@@ -8,6 +8,7 @@ import { OrderPaymentSummaryCard } from "@/components/orders/OrderPaymentSummary
 import { OrderAdminBadge } from "@/components/orders/OrderAdminBadge"
 import { OrderShippingAddressCard } from "@/components/orders/OrderShippingAddressCard"
 import { OrderFulfillmentActionBar } from "@/components/orders/OrderFulfillmentActionBar"
+import { OrderInternalNotesPanel } from "@/components/orders/OrderInternalNotesPanel"
 import { OrderStatusTimeline } from "@/components/orders/OrderStatusTimeline"
 import { useOrderDetail } from "@/hooks/useOrderDetail"
 import { formatAdminCurrency } from "@/utils/formatAdminCurrency"
@@ -122,6 +123,10 @@ export function OrderDetailPage(): JSX.Element {
       </header>
 
       <OrderFulfillmentActionBar order={order} onDidMutate={refetch} />
+
+      <div className="mb-6">
+        <OrderInternalNotesPanel orderId={order.id} />
+      </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
