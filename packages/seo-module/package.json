@@ -20,7 +20,14 @@
     "./mercflow-admin-sitemap-config-api": "./src/integrations/mercflow-admin-sitemap-config-api.ts",
     "./mercflow-admin-sitemap-preview-api": "./src/integrations/mercflow-admin-sitemap-preview-api.ts",
     "./mercflow-admin-sitemap-regenerate-api": "./src/integrations/mercflow-admin-sitemap-regenerate-api.ts",
-    "./mercflow-admin-robots-config-api": "./src/integrations/mercflow-admin-robots-config-api.ts"
+    "./mercflow-admin-robots-config-api": "./src/integrations/mercflow-admin-robots-config-api.ts",
+    "./mercflow-store-seo-json-ld-product-api": "./src/integrations/mercflow-store-seo-json-ld-product-api.ts",
+    "./mercflow-store-seo-json-ld-category-api": "./src/integrations/mercflow-store-seo-json-ld-category-api.ts",
+    "./mercflow-store-seo-json-ld-global-api": "./src/integrations/mercflow-store-seo-json-ld-global-api.ts",
+    "./mercflow-store-seo-og-product-api": "./src/integrations/mercflow-store-seo-og-product-api.ts",
+    "./mercflow-store-seo-og-category-api": "./src/integrations/mercflow-store-seo-og-category-api.ts",
+    "./mercflow-store-seo-canonical-product-api": "./src/integrations/mercflow-store-seo-canonical-product-api.ts",
+    "./mercflow-store-seo-canonical-category-api": "./src/integrations/mercflow-store-seo-canonical-category-api.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

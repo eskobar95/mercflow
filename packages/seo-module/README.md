@@ -27,6 +27,7 @@ Does **not** own product/category rich text or CMS redirects in `content-module`
 | `org_name` | text | Organization name for JSON-LD (nullable) |
 | `org_logo_url` | text | Logo URL (nullable) |
 | `org_social_urls` | jsonb | Social profile URLs (nullable) |
+| `json_ld_settings` | jsonb | Per page-type toggles: `product`, `category`, `global` (default all enabled) |
 
 ### `mercflow_redirect`
 
@@ -52,6 +53,20 @@ Does **not** own product/category rich text or CMS redirects in `content-module`
 | POST | `/admin/sitemap/regenerate` | Invalidate cache and warm sitemap |
 | GET | `/admin/robots-config` | Read robots config + preview |
 | PUT | `/admin/robots-config` | Update structured or freetext robots rules |
+
+Store SEO (tenant via `store_id` query, `X-Store-Id`, or `MERCFLOW_DEFAULT_STORE_ID`):
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/store/seo/json-ld/product/:id` | Product + Offer JSON-LD (`?locale=`) |
+| GET | `/store/seo/json-ld/category/:id` | Category `BreadcrumbList` JSON-LD |
+| GET | `/store/seo/json-ld/global` | `WebSite` + optional `Organization` |
+| GET | `/store/seo/og/product/:id` | Open Graph + Twitter Card tags |
+| GET | `/store/seo/og/category/:id` | OG tags for category pages |
+| GET | `/store/seo/canonical/product/:id` | Canonical URL (+ override / conflict hint) |
+| GET | `/store/seo/canonical/category/:id` | Canonical URL for categories |
+
+Canonical overrides are stored on `product_content` / `category_content` in `@mercflow/content-module`.
 
 ### `mercflow_sitemap_config`
 

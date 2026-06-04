@@ -2,13 +2,22 @@ import { z } from "zod"
 
 export const slugStrategySchema = z.enum(["nordic", "omit"])
 
+export const jsonLdSettingsSchema = z
+  .object({
+    product: z.boolean().optional(),
+    category: z.boolean().optional(),
+    global: z.boolean().optional(),
+  })
+  .strict()
+
 export const seoConfigBodySchema = z
   .object({
     storefront_url: z.string().url().nullable().optional(),
     slug_strategy: slugStrategySchema.optional(),
     org_name: z.string().max(255).nullable().optional(),
     org_logo_url: z.string().url().nullable().optional(),
-    org_social_urls: z.record(z.unknown()).nullable().optional(),
+    org_social_urls: z.record(z.string().min(1).max(64), z.string().url()).nullable().optional(),
+    json_ld_settings: jsonLdSettingsSchema.optional(),
   })
   .strict()
 

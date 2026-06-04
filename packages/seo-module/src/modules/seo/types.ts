@@ -1,3 +1,5 @@
+import type { JsonLdSettings } from "./json-ld-types"
+
 export type SlugStrategy = "nordic" | "omit"
 
 export type RedirectType = "auto" | "manual"
@@ -10,6 +12,7 @@ export type MercflowSeoConfigRecord = {
   org_name: string | null
   org_logo_url: string | null
   org_social_urls: Record<string, unknown> | null
+  json_ld_settings: JsonLdSettings
   created_at: Date
   updated_at: Date
   deleted_at: Date | null
@@ -32,6 +35,7 @@ export type UpsertSeoConfigInput = {
   org_name?: string | null
   org_logo_url?: string | null
   org_social_urls?: Record<string, unknown> | null
+  json_ld_settings?: JsonLdSettings
 }
 
 export type CreateRedirectInput = {
