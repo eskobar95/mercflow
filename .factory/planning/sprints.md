@@ -2,6 +2,7 @@
 
 > One row per sprint. Status: `planned` | `active` | `done` | `blocked`
 > Branch model: `feature/S00x/T00x-slug` → PR → `development`
+> Updated: 2026-06-04 (S003 done on feature branch; merged with development planning hygiene)
 > Updated: 2026-06-04 (merged `origin/development` + S006 branch)
 > Updated: 2026-06-04 (S003 in progress by operator)
 
@@ -9,7 +10,7 @@
 |----|-----------|------|-------|--------|
 | S001 | M000 | Tenancy + RLS + rate limiting (sequential, no parallelism) | T001, T002, T003 | done |
 | S002 | M001 | seo-module foundation + Nordic slug + 301 redirects | T004, T005, T006, T007 | done |
-| S003 | M001 | Sitemap + robots.txt + tenant public route middleware | T008, T009, T010, T011, T012 | active |
+| S003 | M001 | Sitemap + robots.txt + tenant public route middleware | T008, T009, T010, T011, T012 | done |
 | S004 | M002 | Global config + JSON-LD + OG + canonical | T013, T014, T015, T016 | planned |
 | S005 | M003 | feed-module + Google Shopping XML + admin UI | T017, T018, T019 | done |
 | S006 | M004 | inventory-module + supplier register + PO create | T020, T021, T022 | done |

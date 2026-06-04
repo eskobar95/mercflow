@@ -331,6 +331,9 @@ importers:
       '@mercflow/content-module':
         specifier: workspace:*
         version: link:../content-module
+      '@mercflow/seo-module':
+        specifier: workspace:*
+        version: link:../seo-module
       zod:
         specifier: ^3.25.0
         version: 3.25.76
@@ -399,6 +402,9 @@ importers:
       '@medusajs/utils':
         specifier: 2.14.1
         version: 2.14.1(@types/node@22.19.17)(express@4.22.1)
+      '@mercflow/content-module':
+        specifier: workspace:*
+        version: link:../content-module
       zod:
         specifier: ^3.25.0
         version: 3.25.76

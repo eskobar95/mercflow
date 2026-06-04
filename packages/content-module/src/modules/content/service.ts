@@ -583,7 +583,10 @@ class ContentModuleService extends MedusaService({
     return this.toAdminPageRow(row, {})
   }
 
-  async adminUpdatePage(id: string, patch: AdminPagePatchBody): Promise<AdminPageListRow> {
+  async adminUpdatePage(
+    id: string,
+    patch: AdminPagePatchBody
+  ): Promise<{ page: AdminPageListRow; changed: boolean }> {
     const existingRows = await this.listPages({ id })
     const current = existingRows[0] as CmsPageRecord | undefined
     if (!current) {
@@ -608,7 +611,8 @@ class ContentModuleService extends MedusaService({
     }
 
     if (Object.keys(payload).length === 0) {
-      return this.toAdminPageRow(current, {})
+      const page = await this.toAdminPageRow(current, {})
+      return { page, changed: false }
     }
 
     if (slugChanged) {
@@ -640,7 +644,8 @@ class ContentModuleService extends MedusaService({
 
     const updatedRows = await this.listPages({ id })
     const row = updatedRows[0] as CmsPageRecord
-    return this.toAdminPageRow(row, {})
+    const page = await this.toAdminPageRow(row, {})
+    return { page, changed: true }
   }
 
   async adminSoftDeletePage(id: string): Promise<void> {

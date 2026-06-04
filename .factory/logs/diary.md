@@ -17,7 +17,8 @@
 
 - **T023:** `POST /admin/purchase-orders/:id/receive`, `GET /admin/purchase-orders/:id`, receive admin page, list row action
 - **T024:** `GET /admin/inventory-overview`, movements + `GET/PATCH /admin/inventory-config`, inventory overview table + movement sheet
-- Tests: 14 passing in `@mercflow/inventory-module`; typecheck + lint green
+- Tests: 15 passing in `@mercflow/inventory-module`; typecheck + lint green
+- Bugbot: server-side overview sort fix (`75a0782`)
 
 ### Gate
 
@@ -25,7 +26,41 @@
 
 ### PR
 
-https://github.com/eskobar95/mercflow/pull/61 → `development`
+https://github.com/eskobar95/mercflow/pull/61 → `development` (rebased on S003 merge `c932800`)
+
+---
+
+## 2026-06-04 — Sprint S003 merged to development
+
+**PR:** https://github.com/eskobar95/mercflow/pull/60 (squash `b2e1d90`)
+
+- Merged after green CI + all Bugbot threads resolved (9/9).
+- Remote branch `cursor/s003-sitemap-robots-tenant-6449` deleted; no separate worktree on agent VM.
+- Local `development` synced: `git fetch --prune && git pull origin development` → `b2e1d90`.
+
+**Gate:** Green.
+
+---
+
+## 2026-06-04 — Sprint S003 complete (sitemap + robots + tenant middleware)
+
+**Branch:** `cursor/s003-sitemap-robots-tenant-6449` (merged — see above)
+
+### Delivered
+- **T008:** Shared `mercflowPublicTenantMiddleware` — Host → `mercflow_seo_config.storefront_url` (option A), 60s cache; wired on `/sitemap.xml`, `/robots.txt`, `/feed/*`; feed shim delegates to seo-module.
+- **T009:** `mercflow_sitemap_config`, `SitemapGeneratorService`, `GET /sitemap.xml`, 30s XML cache + catalogue invalidation subscriber.
+- **T010:** Admin sitemap config, preview, regenerate + Settings → SEO — Sitemap UI.
+- **T011:** `mercflow_robots_config`, `renderRobotsTxt`, `GET /robots.txt` with auto sitemap line.
+- **T012:** Admin robots config + Settings → SEO — Robots.txt UI with structured/freetext + history.
+
+### Verification
+- `pnpm --filter @mercflow/seo-module typecheck && test` — green
+- `pnpm --filter @mercflow/feed-module typecheck && test` — green
+- `pnpm --filter @mercflow/admin-ui typecheck` — green
+
+**Gate:** Green (scoped package checks).
+
+**Next:** `/run-sprint S004` (global config + JSON-LD + OG + canonical).
 
 ---
 
@@ -49,7 +84,7 @@ https://github.com/eskobar95/mercflow/pull/61 → `development`
 
 ### Next
 - Human: complete Neon allowlist HITL → M000 Green
-- Harness: finish S003 (T008–T012)
+- Harness: finish S003 (T008–T012) — completed in PR #60
 
 ---
 
