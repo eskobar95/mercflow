@@ -103,6 +103,41 @@ export type CreatePurchaseOrderInput = {
   lines: PurchaseOrderLineInput[]
 }
 
+export type MercflowPurchaseOrderReceiptRecord = {
+  id: string
+  store_id: string
+  line_id: string
+  received_qty: number
+  received_at: string | Date
+  notes: string | null
+}
+
+export type ReceivePurchaseOrderLineInput = {
+  line_id: string
+  received_qty: number
+  notes?: string | null
+}
+
+export type ReceivePurchaseOrderInput = {
+  lines: ReceivePurchaseOrderLineInput[]
+}
+
+export type PurchaseOrderLineSummary = MercflowPurchaseOrderLineRecord & {
+  received_total: number
+  discrepancy: number
+}
+
+export type PurchaseOrderDetail = {
+  purchase_order: MercflowPurchaseOrderRecord
+  lines: PurchaseOrderLineSummary[]
+  stock_applied: false
+}
+
+export type UpsertInventoryConfigInput = {
+  low_stock_threshold?: number
+  email_alerts_enabled?: boolean
+}
+
 export type MercflowInventoryConfigRecord = {
   id: string
   store_id: string

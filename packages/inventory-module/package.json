@@ -10,6 +10,11 @@
     "./mercflow-admin-suppliers-id-api": "./src/integrations/mercflow-admin-suppliers-id-api.ts",
     "./mercflow-admin-purchase-orders-api": "./src/integrations/mercflow-admin-purchase-orders-api.ts",
     "./mercflow-admin-purchase-orders-status-api": "./src/integrations/mercflow-admin-purchase-orders-status-api.ts",
+    "./mercflow-admin-purchase-orders-id-api": "./src/integrations/mercflow-admin-purchase-orders-id-api.ts",
+    "./mercflow-admin-purchase-orders-receive-api": "./src/integrations/mercflow-admin-purchase-orders-receive-api.ts",
+    "./mercflow-admin-inventory-overview-api": "./src/integrations/mercflow-admin-inventory-overview-api.ts",
+    "./mercflow-admin-inventory-overview-movements-api": "./src/integrations/mercflow-admin-inventory-overview-movements-api.ts",
+    "./mercflow-admin-inventory-config-api": "./src/integrations/mercflow-admin-inventory-config-api.ts",
     "./mercflow-admin-order-notes-api": "./src/integrations/mercflow-admin-order-notes-api.ts",
     "./mercflow-admin-order-notes-id-api": "./src/integrations/mercflow-admin-order-notes-id-api.ts",
     "./mercflow-admin-pick-list-api": "./src/integrations/mercflow-admin-pick-list-api.ts"
