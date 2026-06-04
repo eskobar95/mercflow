@@ -57,7 +57,11 @@ export function PurchaseOrderCreatePage(): JSX.Element {
   const onSubmit = useCallback(
     async (event: FormEvent): Promise<void> => {
       event.preventDefault()
-      if (!hasBackend || supplierId === "") {
+      if (!hasBackend) {
+        setError("Backend URL is not configured")
+        return
+      }
+      if (supplierId === "") {
         setError("Select a supplier")
         return
       }
@@ -115,7 +119,13 @@ export function PurchaseOrderCreatePage(): JSX.Element {
         title="New purchase order"
         description="Creates a draft PO. Mark it ordered from the list when sent to the supplier."
       />
-      {loadingSuppliers ? (
+      {!hasBackend ? (
+        <p className="mt-6 text-sm text-text-secondary">
+          Configure{" "}
+          <code className="rounded bg-surface-subtle px-1">VITE_MEDUSA_ADMIN_BACKEND_URL</code>{" "}
+          to create purchase orders.
+        </p>
+      ) : loadingSuppliers ? (
         <p className="mt-6 text-sm text-content-secondary">Loading suppliers…</p>
       ) : suppliers.length === 0 ? (
         <p className="mt-6 text-sm text-content-secondary">

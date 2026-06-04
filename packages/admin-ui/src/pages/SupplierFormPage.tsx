@@ -13,6 +13,16 @@ import {
 } from "@/features/inventory/suppliersAdminApi"
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
+function MissingBackendConfigMessage(): JSX.Element {
+  return (
+    <p className="mt-6 text-sm text-text-secondary">
+      Configure{" "}
+      <code className="rounded bg-surface-subtle px-1">VITE_MEDUSA_ADMIN_BACKEND_URL</code>{" "}
+      to load and save suppliers.
+    </p>
+  )
+}
+
 export function SupplierFormPage(): JSX.Element {
   const { supplierId } = useParams<{ supplierId: string }>()
   const navigate = useNavigate()
@@ -24,12 +34,15 @@ export function SupplierFormPage(): JSX.Element {
   const [email, setEmail] = useState("")
   const [country, setCountry] = useState("")
   const [currency, setCurrency] = useState("")
-  const [loading, setLoading] = useState(!isCreate)
+  const [loading, setLoading] = useState(!isCreate && hasBackend)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (isCreate || !hasBackend || !supplierId) {
+      if (!isCreate) {
+        setLoading(false)
+      }
       return
     }
     void (async (): Promise<void> => {
@@ -59,6 +72,7 @@ export function SupplierFormPage(): JSX.Element {
     async (event: FormEvent): Promise<void> => {
       event.preventDefault()
       if (!hasBackend) {
+        setError("Backend URL is not configured")
         return
       }
       setSaving(true)
@@ -103,7 +117,9 @@ export function SupplierFormPage(): JSX.Element {
         title={isCreate ? "New supplier" : "Edit supplier"}
         description="Contact details used on purchase orders."
       />
-      {loading ? (
+      {!hasBackend ? (
+        <MissingBackendConfigMessage />
+      ) : loading ? (
         <p className="mt-6 text-sm text-content-secondary">Loading…</p>
       ) : (
         <form onSubmit={(e) => void onSubmit(e)} className="mx-auto mt-6 max-w-lg space-y-4">
@@ -150,7 +166,7 @@ export function SupplierFormPage(): JSX.Element {
             </p>
           ) : null}
           <div className="flex gap-3 pt-2">
-            <Button type="submit" disabled={saving}>
+            <Button type="submit" disabled={saving || !hasBackend}>
               {saving ? "Saving…" : "Save"}
             </Button>
             <Link
