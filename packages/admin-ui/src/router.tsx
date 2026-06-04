@@ -186,6 +186,54 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "inventory/purchase-orders/new",
+        handle: { title: "New purchase order" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { PurchaseOrderCreatePage } = await import("@/pages/PurchaseOrderCreatePage")
+          return { Component: PurchaseOrderCreatePage }
+        },
+      },
+      {
+        path: "inventory/purchase-orders",
+        handle: { title: "Purchase orders" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { PurchaseOrdersListPage } = await import("@/pages/PurchaseOrdersListPage")
+          return { Component: PurchaseOrdersListPage }
+        },
+      },
+      {
+        path: "inventory/suppliers/new",
+        handle: { title: "New supplier" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { SupplierFormPage } = await import("@/pages/SupplierFormPage")
+          return { Component: SupplierFormPage }
+        },
+      },
+      {
+        path: "inventory/suppliers/:supplierId",
+        handle: { title: "Edit supplier" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { SupplierFormPage } = await import("@/pages/SupplierFormPage")
+          return { Component: SupplierFormPage }
+        },
+      },
+      {
+        path: "inventory/suppliers",
+        handle: { title: "Suppliers" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { SuppliersListPage } = await import("@/pages/SuppliersListPage")
+          return { Component: SuppliersListPage }
+        },
+      },
+      {
+        path: "inventory",
+        handle: { title: "Inventory" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { InventoryOverviewPage } = await import("@/pages/InventoryOverviewPage")
+          return { Component: InventoryOverviewPage }
+        },
+      },
+      {
         path: "feed",
         handle: { title: "Feed" } satisfies AppRouteHandle,
         lazy: async () => {

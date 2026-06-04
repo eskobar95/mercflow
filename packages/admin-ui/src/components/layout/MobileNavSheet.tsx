@@ -9,11 +9,13 @@ import {
   IconClose,
   IconContent,
   IconFeed,
+  IconInventory,
   IconSettings,
 } from "@/components/ui/icons"
 import {
   contentSidebarSection,
   feedSidebarSection,
+  inventorySidebarSection,
   primarySidebarNav,
   settingsSidebarSection,
   type SidebarNavItem,
@@ -76,6 +78,20 @@ function buildRootTiles(): TileSource[] {
       icon: IconFeed,
       drillTo: "feed",
       subItems: feedSidebarSection.items.map(
+        (item): SidebarSubItem => ({
+          label: item.label,
+          to: item.to,
+          end: item.end,
+          icon: item.icon,
+        })
+      ),
+    },
+    {
+      key: "inventory-group",
+      label: "Inventory",
+      icon: IconInventory,
+      drillTo: "inventory",
+      subItems: inventorySidebarSection.items.map(
         (item): SidebarSubItem => ({
           label: item.label,
           to: item.to,
