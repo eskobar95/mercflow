@@ -563,6 +563,70 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
         </a>
         <a
           class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
+          href="/settings/seo/sitemap"
+        >
+          <svg
+            aria-hidden="true"
+            class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
+            fill="none"
+            focusable="false"
+            height="18"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.75"
+            viewBox="0 0 24 24"
+            width="18"
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="2.5"
+            />
+            <path
+              d="M19.5 12a7.6 7.6 0 0 0-.1-1.3l1.7-1.3-1.5-2.6-2 .8a7.5 7.5 0 0 0-2.2-1.3l-.3-2.1h-3l-.3 2.1a7.5 7.5 0 0 0-2.2 1.3l-2-.8L5.9 9.4l1.7 1.3a7.6 7.6 0 0 0 0 2.6L5.9 14.6l1.5 2.6 2-.8a7.5 7.5 0 0 0 2.2 1.3l.3 2.1h3l.3-2.1a7.5 7.5 0 0 0 2.2-1.3l2 .8 1.5-2.6-1.7-1.3a7.6 7.6 0 0 0 .1-1.3z"
+            />
+          </svg>
+          <span
+            class="truncate"
+          >
+            SEO — Sitemap
+          </span>
+        </a>
+        <a
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
+          href="/settings/seo/robots"
+        >
+          <svg
+            aria-hidden="true"
+            class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
+            fill="none"
+            focusable="false"
+            height="18"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.75"
+            viewBox="0 0 24 24"
+            width="18"
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="2.5"
+            />
+            <path
+              d="M19.5 12a7.6 7.6 0 0 0-.1-1.3l1.7-1.3-1.5-2.6-2 .8a7.5 7.5 0 0 0-2.2-1.3l-.3-2.1h-3l-.3 2.1a7.5 7.5 0 0 0-2.2 1.3l-2-.8L5.9 9.4l1.7 1.3a7.6 7.6 0 0 0 0 2.6L5.9 14.6l1.5 2.6 2-.8a7.5 7.5 0 0 0 2.2 1.3l.3 2.1h3l.3-2.1a7.5 7.5 0 0 0 2.2-1.3l2 .8 1.5-2.6-1.7-1.3a7.6 7.6 0 0 0 .1-1.3z"
+            />
+          </svg>
+          <span
+            class="truncate"
+          >
+            SEO — Robots.txt
+          </span>
+        </a>
+        <a
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
           href="/settings/connectors"
         >
           <svg
