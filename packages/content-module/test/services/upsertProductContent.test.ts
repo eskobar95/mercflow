@@ -20,6 +20,7 @@ describe("ContentModuleService.upsertProductContent", () => {
           seo_title: "T",
           seo_description: null,
           og_image_url: null,
+          canonical_url_override: null,
           status: "published",
         } satisfies ProductContentRecord,
       ])
@@ -54,6 +55,7 @@ describe("ContentModuleService.upsertProductContent", () => {
       seo_title: "Old",
       seo_description: null,
       og_image_url: null,
+      canonical_url_override: null,
       status: "published",
     }
 

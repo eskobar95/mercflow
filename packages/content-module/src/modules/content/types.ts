@@ -8,6 +8,7 @@ export type ProductContentRecord = {
   seo_title: string | null
   seo_description: string | null
   og_image_url: string | null
+  canonical_url_override: string | null
   status: ContentPublishStatus
   version: number
   created_at?: Date
@@ -24,6 +25,7 @@ export type CategoryContentRecord = {
   seo_description: string | null
   og_image_url: string | null
   banner_image_url: string | null
+  canonical_url_override: string | null
   status: ContentPublishStatus
   version: number
   created_at?: Date
@@ -44,6 +46,7 @@ export type ResolvedProductContent = {
   seo_og_image_id: string | null
   /** Deprecated in storage; kept in API as `null` until a gallery model exists. */
   media_gallery: string[] | null
+  canonical_url_override: string | null
 }
 
 export type ResolvedCategoryContent = {
@@ -59,6 +62,7 @@ export type ResolvedCategoryContent = {
   seo_og_image_id: string | null
   /** Legacy API field — mirrors `banner_image_url` when present. */
   banner_image_id: string | null
+  canonical_url_override: string | null
 }
 
 export type UpsertProductContentInput = {
@@ -67,6 +71,7 @@ export type UpsertProductContentInput = {
   seo_description?: string | null
   seo_og_image_id?: string | null
   media_gallery?: string[] | null
+  canonical_url_override?: string | null
 }
 
 export type UpsertCategoryContentInput = {
@@ -75,6 +80,7 @@ export type UpsertCategoryContentInput = {
   seo_description?: string | null
   seo_og_image_id?: string | null
   banner_image_id?: string | null
+  canonical_url_override?: string | null
 }
 
 export type ArticleRecord = {

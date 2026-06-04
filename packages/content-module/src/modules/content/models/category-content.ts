@@ -11,6 +11,7 @@ export const CategoryContent = model
     seo_description: model.text().nullable(),
     og_image_url: model.text().nullable(),
     banner_image_url: model.text().nullable(),
+    canonical_url_override: model.text().nullable(),
     status: model.enum(["draft", "published"]).default("draft"),
     version: model.number().default(1),
   })

@@ -5,7 +5,19 @@ import {
   resolveMedusaAdminBackendUrl,
 } from "@/medusa-admin/medusaAdminFetch"
 
-import type { SeoConfigDto, SlugStrategy } from "./types"
+import type { JsonLdSettingsDto, SeoConfigDto, SlugStrategy } from "./types"
+
+function parseJsonLdSettings(raw: unknown): JsonLdSettingsDto {
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+    return { product: true, category: true, global: true }
+  }
+  const row = raw as Record<string, unknown>
+  return {
+    product: row.product === false ? false : true,
+    category: row.category === false ? false : true,
+    global: row.global === false ? false : true,
+  }
+}
 
 function parseSeoConfigPayload(json: unknown): SeoConfigDto | null {
   if (typeof json !== "object" || json === null || !("seo_config" in json)) {
@@ -44,6 +56,7 @@ function parseSeoConfigPayload(json: unknown): SeoConfigDto | null {
       (typeof row.org_social_urls === "object" && !Array.isArray(row.org_social_urls))
         ? (row.org_social_urls as Record<string, unknown> | null)
         : null,
+    json_ld_settings: parseJsonLdSettings(row.json_ld_settings),
   }
 }
 
@@ -73,9 +86,16 @@ export async function getAdminSeoConfig(): Promise<SeoConfigDto> {
   return parsed
 }
 
-export async function putAdminSeoConfig(payload: {
-  slug_strategy: SlugStrategy
-}): Promise<SeoConfigDto> {
+export type PutAdminSeoConfigPayload = {
+  slug_strategy?: SlugStrategy
+  storefront_url?: string | null
+  org_name?: string | null
+  org_logo_url?: string | null
+  org_social_urls?: Record<string, unknown> | null
+  json_ld_settings?: JsonLdSettingsDto
+}
+
+export async function putAdminSeoConfig(payload: PutAdminSeoConfigPayload): Promise<SeoConfigDto> {
   const base = resolveMedusaAdminBackendUrl()
   if (base === null) {
     throw new Error(

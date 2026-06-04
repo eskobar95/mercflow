@@ -54,6 +54,7 @@ export function parseProductContentReadPayload(
     seo_title: parseNullableString(value["seo_title"]),
     seo_description: parseNullableString(value["seo_description"]),
     og_image_url: parseNullableString(value["og_image_url"]),
+    canonical_url_override: parseNullableString(value["canonical_url_override"]),
     status,
   }
 }

@@ -686,8 +686,10 @@ Admin can manage robots.txt rules via a structured UI (allow/block per path and 
 
 **Sprint:** S004
 **Milestone:** M002
-**Status:** todo
+**Status:** in-progress
 **Mode:** HITL
+**Branch:** `feature/S004/metadata-json-ld-og-canonical`
+**HITL log:** `.factory/logs/hitl/S004-T013-global-config-table.md` (option A — `mercflow_seo_config`)
 **Parallel group:** A
 **Blocked by:** T004
 **Branch:** feature/S004/T013-global-tenant-config
@@ -729,7 +731,7 @@ Before implementing: confirm `mercflow_seo_config` carries these fields (already
 
 **Sprint:** S004
 **Milestone:** M002
-**Status:** todo
+**Status:** in-progress
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T013
@@ -767,7 +769,7 @@ Storefront can request JSON-LD blocks from the MercFlow API. Product pages get `
 
 **Sprint:** S004
 **Milestone:** M002
-**Status:** todo
+**Status:** in-progress
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T013
@@ -803,7 +805,7 @@ Storefront can request OG and Twitter Card meta values from MercFlow API. All va
 
 **Sprint:** S004
 **Milestone:** M002
-**Status:** todo
+**Status:** in-progress
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T013

@@ -20,6 +20,7 @@ import type {
   SitemapPageTypeSettings,
   UpsertSitemapConfigInput,
 } from "./sitemap-types"
+import { parseJsonLdSettings, jsonLdSettingsToStorage } from "./json-ld-settings"
 import type { UpsertSeoConfigInput } from "./types"
 import { MercflowRedirect } from "./models/mercflow-redirect"
 import { MercflowSeoConfig } from "./models/mercflow-seo-config"
@@ -134,6 +135,7 @@ class SeoModuleService extends MedusaService({
         row.org_social_urls === null || row.org_social_urls === undefined
           ? null
           : (row.org_social_urls as Record<string, unknown>),
+      json_ld_settings: parseJsonLdSettings(row.json_ld_settings),
       created_at: row.created_at as Date,
       updated_at: row.updated_at as Date,
       deleted_at: (row.deleted_at as Date | null) ?? null,
@@ -204,6 +206,9 @@ class SeoModuleService extends MedusaService({
             : {}),
           ...(input.org_social_urls !== undefined
             ? { org_social_urls: input.org_social_urls }
+            : {}),
+          ...(input.json_ld_settings !== undefined
+            ? { json_ld_settings: jsonLdSettingsToStorage(input.json_ld_settings) }
             : {}),
         },
         context

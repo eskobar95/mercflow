@@ -9,6 +9,7 @@ export const MercflowSeoConfig = model
     org_name: model.text().nullable(),
     org_logo_url: model.text().nullable(),
     org_social_urls: model.json().nullable(),
+    json_ld_settings: model.json().nullable(),
   })
   .indexes([
     {

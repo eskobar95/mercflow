@@ -14,6 +14,7 @@ import { EMPTY_TIPTAP_DOC, tiptapDocFromUnknown } from "@/lib/tiptap"
 import { isProductContentDirty } from "./productContentDirty"
 import { ProductDescriptionEditor } from "./ProductDescriptionEditor"
 import { SEOPreview } from "./SEOPreview"
+import { SocialSharePreview } from "./SocialSharePreview"
 
 const SEO_DESCRIPTION_MAX = 160
 const SEO_TITLE_MAX = 255
@@ -52,6 +53,7 @@ export function ProductContentTab({
   const [seoTitle, setSeoTitle] = useState("")
   const [seoDescription, setSeoDescription] = useState("")
   const [ogUrl, setOgUrl] = useState("")
+  const [canonicalUrl, setCanonicalUrl] = useState("")
   const [validationError, setValidationError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -62,7 +64,7 @@ export function ProductContentTab({
     setSeoTitle(content.seo_title ?? "")
     setSeoDescription(content.seo_description ?? "")
     setOgUrl(content.og_image_url ?? "")
-    setValidationError(null)
+    setCanonicalUrl(content.canonical_url_override ?? "")
   }, [loading, content])
 
   const isDirty = useMemo(
@@ -73,8 +75,9 @@ export function ProductContentTab({
         seoTitle,
         seoDescription,
         ogImageUrl: ogUrl,
+        canonicalUrlOverride: canonicalUrl,
       }),
-    [content, descriptionJson, seoTitle, seoDescription, ogUrl]
+    [content, descriptionJson, seoTitle, seoDescription, ogUrl, canonicalUrl]
   )
 
   const bannerError = validationError ?? loadError ?? saveError
@@ -89,6 +92,7 @@ export function ProductContentTab({
       seo_title: null,
       seo_description: null,
       seo_og_image_id: null,
+      canonical_url_override: null,
       media_gallery: null,
     })
   }, [clearError, save])
@@ -115,10 +119,12 @@ export function ProductContentTab({
       seo_title: seoTitle.trim() === "" ? null : seoTitle.trim(),
       seo_description: seoDescription.trim() === "" ? null : seoDescription.trim(),
       seo_og_image_id: ogUrl.trim() === "" ? null : ogUrl.trim(),
+      canonical_url_override: canonicalUrl.trim() === "" ? null : canonicalUrl.trim(),
       media_gallery: null,
     })
   }, [
     clearError,
+    canonicalUrl,
     descriptionJson,
     ogUrl,
     save,
@@ -365,11 +371,41 @@ export function ProductContentTab({
                   stored on the OG URL column.
                 </p>
               </div>
+              <div>
+                <label
+                  htmlFor={`${formId}-canonical`}
+                  className="block text-sm font-medium text-content-primary"
+                >
+                  Canonical URL override
+                </label>
+                <input
+                  id={`${formId}-canonical`}
+                  type="url"
+                  placeholder="Leave empty for auto-calculated canonical"
+                  value={canonicalUrl}
+                  onChange={(e) => {
+                    setCanonicalUrl(e.target.value)
+                  }}
+                  disabled={disabled}
+                  autoComplete="off"
+                  className="mt-1 w-full rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus disabled:opacity-50"
+                />
+                <p className="mt-0.5 text-xs text-content-tertiary">
+                  When set, storefront canonical APIs return this URL. A host mismatch vs the auto URL
+                  surfaces a warning in the store response.
+                </p>
+              </div>
             </div>
-            <div>
+            <div className="space-y-4">
               <SEOPreview
                 title={seoPreviewTitle}
                 description={seoDescription}
+                fallbackTitle={productTitleFallback}
+              />
+              <SocialSharePreview
+                title={seoPreviewTitle}
+                description={seoDescription}
+                imageUrl={ogUrl.trim() !== "" ? ogUrl.trim() : null}
                 fallbackTitle={productTitleFallback}
               />
             </div>
