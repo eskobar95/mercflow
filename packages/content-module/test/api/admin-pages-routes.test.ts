@@ -92,10 +92,14 @@ describe("PATCH /admin/pages/:id", () => {
     const req = {
       params: { id: "pg_1" },
       body: { slug: "new" },
+      query: { store_id: "store_test" },
       scope: {
         resolve: vi.fn((key: string) => {
           if (key === CONTENT_MODULE) {
             return { adminUpdatePage } satisfies Pick<ContentModuleService, "adminUpdatePage">
+          }
+          if (key === "event_bus") {
+            return { emit: vi.fn(async () => undefined) }
           }
           throw new Error(`unexpected resolve key "${key}"`)
         }),
@@ -139,10 +143,14 @@ describe("DELETE /admin/pages/:id", () => {
 
     const req = {
       params: { id: "pg_1" },
+      query: { store_id: "store_test" },
       scope: {
         resolve: vi.fn((key: string) => {
           if (key === CONTENT_MODULE) {
             return { adminSoftDeletePage } satisfies Pick<ContentModuleService, "adminSoftDeletePage">
+          }
+          if (key === "event_bus") {
+            return { emit: vi.fn(async () => undefined) }
           }
           throw new Error(`unexpected resolve key "${key}"`)
         }),

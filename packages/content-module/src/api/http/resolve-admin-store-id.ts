@@ -8,7 +8,7 @@ const STORE_ID_HEADER = "x-store-id"
  * Order: query `store_id` → `X-Store-Id` header → `MERCFLOW_DEFAULT_STORE_ID` env.
  */
 export function resolveAdminStoreId(req: MedusaRequest): string {
-  const query = req.query as { store_id?: string }
+  const query = (req.query ?? {}) as { store_id?: string }
   if (typeof query.store_id === "string" && query.store_id.length > 0) {
     return query.store_id
   }
