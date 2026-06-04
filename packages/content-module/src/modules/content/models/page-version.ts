@@ -2,6 +2,7 @@ import { model } from "@medusajs/framework/utils"
 
 export const PageVersion = model.define("page_version", {
   id: model.id().primaryKey(),
+  store_id: model.text().index("IDX_page_version_store_id"),
   page_id: model.text().index("IDX_page_version_page_id"),
   version: model.number(),
   status: model.enum(["draft", "published"]).default("draft"),

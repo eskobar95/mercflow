@@ -28,6 +28,26 @@ describe("content module CMS schema", (): void => {
     expect(exported.length).toBe(TABLES.length)
   })
 
+  it("includes store_id on every content DML model", (): void => {
+    const modelDir = join(__dirname, "../src/modules/content/models")
+    const files = [
+      "product-content.ts",
+      "category-content.ts",
+      "article.ts",
+      "page.ts",
+      "page-version.ts",
+      "page-block.ts",
+      "cms-global.ts",
+      "cms-redirect.ts",
+      "media-asset.ts",
+      "product-attribute.ts",
+      "product-attr-link.ts",
+    ]
+    for (const file of files) {
+      expect(readFileSync(join(modelDir, file), "utf8")).toContain("store_id:")
+    }
+  })
+
   it("creates every table in the single foundation migration", (): void => {
     const path = join(
       __dirname,

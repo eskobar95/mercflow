@@ -7,6 +7,7 @@ import { model } from "@medusajs/framework/utils"
  */
 export const PageBlock = model.define("page_block", {
   id: model.id().primaryKey(),
+  store_id: model.text().index("IDX_page_block_store_id"),
   page_version_id: model
     .text()
     .index("IDX_page_block_page_version_id"),

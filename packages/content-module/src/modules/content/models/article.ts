@@ -3,6 +3,7 @@ import { model } from "@medusajs/framework/utils"
 export const Article = model
   .define("article", {
     id: model.id().primaryKey(),
+    store_id: model.text().index("IDX_article_store_id"),
     slug: model.text(),
     title: model.text(),
     body_json: model.json().nullable(),
@@ -12,8 +13,8 @@ export const Article = model
   })
   .indexes([
     {
-      name: "IDX_article_slug_locale_unique",
-      on: ["slug", "locale"],
+      name: "IDX_article_slug_locale_store_unique",
+      on: ["slug", "locale", "store_id"],
       unique: true,
     },
   ])
