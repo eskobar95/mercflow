@@ -1,8 +1,22 @@
-import type { SubscriberConfig } from "@medusajs/framework"
+import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
 
-import { invalidateAllSitemapCaches } from "@mercflow/seo-module/mercflow-sitemap-cache"
+import {
+  invalidateAllSitemapCaches,
+  invalidateSitemapCache,
+} from "@mercflow/seo-module/mercflow-sitemap-cache"
 
-async function mercflowSitemapCacheInvalidationHandler(): Promise<void> {
+type SitemapInvalidationPayload = {
+  store_id?: string
+}
+
+async function mercflowSitemapCacheInvalidationHandler(
+  args: SubscriberArgs<SitemapInvalidationPayload>
+): Promise<void> {
+  const storeId = args.event.data?.store_id
+  if (typeof storeId === "string" && storeId.length > 0) {
+    invalidateSitemapCache(storeId)
+    return
+  }
   invalidateAllSitemapCaches()
 }
 
@@ -16,5 +30,6 @@ export const config: SubscriberConfig = {
     "product_category.created",
     "product_category.updated",
     "product_category.deleted",
+    "mercflow.page.changed",
   ],
 }

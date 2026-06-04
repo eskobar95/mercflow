@@ -99,6 +99,9 @@ function parseCategoryRow(row: unknown): SitemapCatalogCategory | null {
   }
   const id = typeof row.id === "string" ? row.id : null
   const handle = typeof row.handle === "string" ? row.handle.trim() : ""
+  if (row.is_active === false) {
+    return null
+  }
   if (!id || !handle) {
     return null
   }
@@ -160,7 +163,7 @@ export async function loadCategories(
   while (true) {
     const page = await graph({
       entity: "product_category",
-      fields: ["id", "handle", "updated_at"],
+      fields: ["id", "handle", "updated_at", "is_active"],
       pagination: { take: CATALOG_PAGE_SIZE, skip },
     })
     const rows = Array.isArray(page.data) ? page.data : []

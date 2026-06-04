@@ -129,7 +129,7 @@ export async function resolveStoreIdFromHost(
     }
   }
 
-  setCachedStoreIdForHost(normalizedHost, null)
+  // Do not negative-cache misses — storefront_url / host map may be fixed without waiting for TTL.
   return null
 }
 

@@ -4,6 +4,7 @@ import { sendZodError } from "../../http/zod-error"
 import { resolveAdminStoreId } from "../../http/resolve-admin-store-id"
 import { SEO_MODULE } from "../../../modules/seo"
 import { seoConfigBodySchema } from "../../../modules/seo/http-schemas"
+import { clearAllTenantResolverCaches } from "../../../modules/seo/tenant-resolver-cache"
 import type SeoModuleService from "../../../modules/seo/service"
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void> => {
@@ -22,5 +23,8 @@ export const PUT = async (req: MedusaRequest, res: MedusaResponse): Promise<void
   }
   const seoService = req.scope.resolve(SEO_MODULE) as SeoModuleService
   const config = await seoService.upsertSeoConfig(storeId, body.data)
+  if (body.data.storefront_url !== undefined) {
+    clearAllTenantResolverCaches()
+  }
   res.status(200).json({ seo_config: config })
 }

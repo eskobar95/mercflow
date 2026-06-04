@@ -34,6 +34,10 @@ export function setCachedStoreIdForHost(
   })
 }
 
-export function clearTenantResolverCacheForTests(): void {
+export function clearAllTenantResolverCaches(): void {
   cacheByHost.clear()
+}
+
+export function clearTenantResolverCacheForTests(): void {
+  clearAllTenantResolverCaches()
 }

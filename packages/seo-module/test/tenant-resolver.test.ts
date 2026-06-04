@@ -64,7 +64,24 @@ describe("resolveStoreIdFromHost (seo-module)", (): void => {
     expect(storeId).toBeNull()
   })
 
-  it("caches resolution for 60s", async (): Promise<void> => {
+  it("does not cache failed host lookups", async (): Promise<void> => {
+    delete process.env.MERCFLOW_HOST_MAP
+    process.env.MERCFLOW_TENANT_STORE_IDS = STORE_A
+    const getStorefrontUrl = vi.fn().mockResolvedValue("https://other.example")
+    await resolveStoreIdFromHost({
+      hostHeader: "miss.example",
+      storeIdHeader: undefined,
+      lookup: { getStorefrontUrl },
+    })
+    await resolveStoreIdFromHost({
+      hostHeader: "miss.example",
+      storeIdHeader: undefined,
+      lookup: { getStorefrontUrl },
+    })
+    expect(getStorefrontUrl).toHaveBeenCalledTimes(2)
+  })
+
+  it("caches successful resolution for 60s", async (): Promise<void> => {
     process.env.MERCFLOW_HOST_MAP = JSON.stringify({ "cached.example": STORE_A })
     const getStorefrontUrl = vi.fn()
     await resolveStoreIdFromHost({
