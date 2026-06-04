@@ -17,9 +17,24 @@ export type InventoryMovementRow = {
   label: string
 }
 
+export const INVENTORY_OVERVIEW_SORT_COLUMNS = [
+  "title",
+  "stocked",
+  "reserved",
+  "available",
+  "incoming",
+] as const
+
+export type InventoryOverviewSortColumn =
+  (typeof INVENTORY_OVERVIEW_SORT_COLUMNS)[number]
+
+export type InventoryOverviewSortDirection = "asc" | "desc"
+
 export type InventoryOverviewQuery = {
   page: number
   limit: number
   search: string
   filter: "all" | "low_stock"
+  sort_by: InventoryOverviewSortColumn
+  sort_dir: InventoryOverviewSortDirection
 }

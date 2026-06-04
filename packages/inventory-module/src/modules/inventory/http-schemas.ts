@@ -1,5 +1,6 @@
 import { z } from "zod"
 
+import { INVENTORY_OVERVIEW_SORT_COLUMNS } from "./inventory-overview-types"
 import { PURCHASE_ORDER_STATUSES } from "./types"
 
 export const orderNotePostBodySchema = z.object({
@@ -71,6 +72,8 @@ export const inventoryOverviewQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(25),
   search: z.string().max(255).optional(),
   filter: z.enum(["all", "low_stock"]).default("all"),
+  sort_by: z.enum(INVENTORY_OVERVIEW_SORT_COLUMNS).default("available"),
+  sort_dir: z.enum(["asc", "desc"]).default("asc"),
   store_id: z.string().optional(),
 })
 

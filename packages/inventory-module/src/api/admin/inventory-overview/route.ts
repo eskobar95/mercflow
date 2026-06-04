@@ -72,6 +72,8 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
   const paged = filterAndPaginateOverviewRows(built, {
     search,
     filter: parsed.data.filter,
+    sort_by: parsed.data.sort_by,
+    sort_dir: parsed.data.sort_dir,
     page: parsed.data.page,
     limit: parsed.data.limit,
   })
@@ -82,6 +84,8 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
     count: paged.count,
     page: parsed.data.page,
     limit: parsed.data.limit,
+    sort_by: parsed.data.sort_by,
+    sort_dir: parsed.data.sort_dir,
     rows: paged.rows,
   })
 }

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 import {
   buildOverviewRowsFromVariants,
   filterAndPaginateOverviewRows,
+  sortOverviewRows,
 } from "./inventory-overview-load"
 
 describe("inventory-overview-load", (): void => {
@@ -54,11 +55,50 @@ describe("inventory-overview-load", (): void => {
     const result = filterAndPaginateOverviewRows(rows, {
       search: "",
       filter: "low_stock",
+      sort_by: "available",
+      sort_dir: "asc",
       page: 1,
       limit: 10,
     })
 
     expect(result.count).toBe(1)
     expect(result.rows[0]?.variant_id).toBe("a")
+  })
+
+  it("sortOverviewRows orders full filtered set before pagination", (): void => {
+    const rows = [
+      {
+        variant_id: "low",
+        sku: null,
+        title: "Low",
+        stocked: 1,
+        reserved: 0,
+        available: 1,
+        incoming: 0,
+        is_low_stock: true,
+      },
+      {
+        variant_id: "high",
+        sku: null,
+        title: "High",
+        stocked: 50,
+        reserved: 0,
+        available: 50,
+        incoming: 0,
+        is_low_stock: false,
+      },
+    ]
+
+    const paged = filterAndPaginateOverviewRows(rows, {
+      search: "",
+      filter: "all",
+      sort_by: "available",
+      sort_dir: "desc",
+      page: 1,
+      limit: 1,
+    })
+
+    expect(paged.rows[0]?.variant_id).toBe("high")
+    expect(sortOverviewRows(rows, "available", "desc")[0]?.variant_id).toBe("high")
   })
 })

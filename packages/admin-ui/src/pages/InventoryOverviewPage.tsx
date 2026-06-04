@@ -7,7 +7,6 @@ import { DataTable } from "@/components/ui/list/DataTable"
 import { ListEmptyState } from "@/components/ui/list/ListEmptyState"
 import { ListToolbar } from "@/components/ui/list/ListToolbar"
 import type { ListColumnDef, ListSortState } from "@/components/ui/list/types"
-import { compareSortValues } from "@/components/ui/list/types"
 import { Sheet } from "@/components/ui/Sheet"
 import { Input } from "@/components/ui/Input"
 import {
@@ -16,6 +15,8 @@ import {
   patchInventoryConfigAdmin,
   type InventoryMovementDto,
   type InventoryOverviewRowDto,
+  type InventoryOverviewSortColumn,
+  type InventoryOverviewSortDirection,
 } from "@/features/inventory/inventoryOverviewAdminApi"
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
@@ -50,11 +51,18 @@ export function InventoryOverviewPage(): JSX.Element {
     setIsLoading(true)
     setListError(null)
     try {
+      const sortBy: InventoryOverviewSortColumn =
+        sort.column ?? "available"
+      const sortDir: InventoryOverviewSortDirection =
+        sort.direction === "desc" ? "desc" : "asc"
+
       const result = await listInventoryOverviewAdmin({
         page,
         limit: 25,
         search,
         filter,
+        sortBy,
+        sortDir,
       })
       setRows(result.rows)
       setCount(result.count)
@@ -65,7 +73,7 @@ export function InventoryOverviewPage(): JSX.Element {
     } finally {
       setIsLoading(false)
     }
-  }, [filter, hasBackend, page, search])
+  }, [filter, hasBackend, page, search, sort.column, sort.direction])
 
   useEffect(() => {
     void load()
@@ -120,25 +128,6 @@ export function InventoryOverviewPage(): JSX.Element {
     ],
     []
   )
-
-  const sortedRows = useMemo(() => {
-    if (!sort.column || sort.direction === "none") {
-      return rows
-    }
-    const def = columns.find((c) => c.id === sort.column)
-    if (!def?.getSortValue) {
-      return rows
-    }
-    const dir = sort.direction === "asc" ? 1 : -1
-    return [...rows].sort((a, b) => {
-      const av = def.getSortValue?.(a)
-      const bv = def.getSortValue?.(b)
-      if (av === undefined || bv === undefined) {
-        return 0
-      }
-      return compareSortValues(av as string | number, bv as string | number) * dir
-    })
-  }, [columns, rows, sort])
 
   const openMovements = useCallback(
     (row: InventoryOverviewRowDto): void => {
@@ -268,10 +257,11 @@ export function InventoryOverviewPage(): JSX.Element {
         aria-label="Inventory overview"
         caption="Variant stock and incoming purchase orders"
         columns={columns}
-        data={sortedRows}
+        data={rows}
         getRowId={(row) => row.variant_id}
         sortState={sort}
         onRequestSort={(columnId) => {
+          setPage(1)
           setSort((s) => {
             if (s.column !== columnId) {
               return { column: columnId, direction: "asc" }
@@ -280,7 +270,7 @@ export function InventoryOverviewPage(): JSX.Element {
               return { column: columnId, direction: "desc" }
             }
             if (s.direction === "desc") {
-              return { column: null, direction: "none" }
+              return { column: "available", direction: "asc" }
             }
             return { column: columnId, direction: "asc" }
           })

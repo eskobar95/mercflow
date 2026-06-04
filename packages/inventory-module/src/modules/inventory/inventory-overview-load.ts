@@ -1,5 +1,50 @@
-import type { InventoryOverviewRow } from "./inventory-overview-types"
+import type {
+  InventoryOverviewRow,
+  InventoryOverviewSortColumn,
+  InventoryOverviewSortDirection,
+} from "./inventory-overview-types"
 import { computeAvailable, isLowStock } from "./inventory-overview-math"
+
+function compareOverviewSortValues(
+  a: string | number,
+  b: string | number
+): number {
+  if (typeof a === "number" && typeof b === "number") {
+    return a - b
+  }
+  return String(a).localeCompare(String(b), undefined, { sensitivity: "base" })
+}
+
+function sortValueForColumn(
+  row: InventoryOverviewRow,
+  column: InventoryOverviewSortColumn
+): string | number {
+  switch (column) {
+    case "title":
+      return row.title
+    case "stocked":
+      return row.stocked
+    case "reserved":
+      return row.reserved
+    case "available":
+      return row.available
+    case "incoming":
+      return row.incoming
+  }
+}
+
+export function sortOverviewRows(
+  rows: InventoryOverviewRow[],
+  sortBy: InventoryOverviewSortColumn,
+  sortDir: InventoryOverviewSortDirection
+): InventoryOverviewRow[] {
+  const dir = sortDir === "asc" ? 1 : -1
+  return [...rows].sort((a, b) => {
+    const av = sortValueForColumn(a, sortBy)
+    const bv = sortValueForColumn(b, sortBy)
+    return compareOverviewSortValues(av, bv) * dir
+  })
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
@@ -115,6 +160,8 @@ export function filterAndPaginateOverviewRows(
   params: {
     search: string
     filter: "all" | "low_stock"
+    sort_by: InventoryOverviewSortColumn
+    sort_dir: InventoryOverviewSortDirection
     page: number
     limit: number
   }
@@ -131,10 +178,11 @@ export function filterAndPaginateOverviewRows(
     filtered = filtered.filter((row) => row.is_low_stock)
   }
 
-  const count = filtered.length
+  const sorted = sortOverviewRows(filtered, params.sort_by, params.sort_dir)
+  const count = sorted.length
   const offset = (params.page - 1) * params.limit
   return {
-    rows: filtered.slice(offset, offset + params.limit),
+    rows: sorted.slice(offset, offset + params.limit),
     count,
   }
 }

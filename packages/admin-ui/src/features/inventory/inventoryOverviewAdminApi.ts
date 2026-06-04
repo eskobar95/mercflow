@@ -48,11 +48,22 @@ function buildUrl(path: string): string {
   return appendMercflowStoreQuery(`${base}${path}`, storeId)
 }
 
+export type InventoryOverviewSortColumn =
+  | "title"
+  | "stocked"
+  | "reserved"
+  | "available"
+  | "incoming"
+
+export type InventoryOverviewSortDirection = "asc" | "desc"
+
 export async function listInventoryOverviewAdmin(params: {
   page: number
   limit: number
   search: string
   filter: "all" | "low_stock"
+  sortBy: InventoryOverviewSortColumn
+  sortDir: InventoryOverviewSortDirection
 }): Promise<{
   rows: InventoryOverviewRowDto[]
   count: number
@@ -62,6 +73,8 @@ export async function listInventoryOverviewAdmin(params: {
     page: String(params.page),
     limit: String(params.limit),
     filter: params.filter,
+    sort_by: params.sortBy,
+    sort_dir: params.sortDir,
   })
   if (params.search.trim() !== "") {
     query.set("search", params.search.trim())
