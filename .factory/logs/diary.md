@@ -4,9 +4,37 @@
 
 ---
 
+## 2026-06-04 — Sprint S004 merged to development
+
+**PR:** https://github.com/eskobar95/mercflow/pull/62  
+**Merge:** `e9f0c6f` — global config + JSON-LD + OG + canonical (T013–T016)
+
+### Planning sync
+- `.factory/planning/sprints.md` — S004 `done`
+- `.factory/planning/tasks.md` — T013–T016 `done` + merge SHA
+- `.factory/planning/milestones.md` — M002 progress (S004 on `development`)
+
+**HITL:** `.factory/logs/hitl/S004-T013-global-config-table.md` (Option A — `mercflow_seo_config`)
+
+### Merge + cleanup
+- Squash-merged after green CI; Bugbot 1/1 resolved (`useSeoStructuredDataSettings` save payload).
+- Remote branch `feature/S004/metadata-json-ld-og-canonical` deleted.
+- Sync: `git fetch origin --prune && git pull origin development` on `development` @ `e9f0c6f`.
+- Worktree removed: `../mercflow-worktrees/S004`.
+
+### Delivered (summary)
+- **T013:** Settings → SEO → Organisation; `json_ld_settings` migration
+- **T014:** `/store/seo/json-ld/*` + Structured data toggles; publishable-key tenant binding
+- **T015:** `/store/seo/og/*` + product `SocialSharePreview`
+- **T016:** `canonical_url_override` migration + store canonical routes + product Content tab field
+
+**Gate:** Yellow — category Content tab canonical UI + canonical conflict admin warning deferred; run `pnpm migration:run` on deploy.
+
+---
+
 ## 2026-06-04 — `/run-sprint S004` (T013–T016 implementation)
 
-**Branch:** `feature/S004/metadata-json-ld-og-canonical` @ worktree `../mercflow-worktrees/S004`
+**Branch:** `feature/S004/metadata-json-ld-og-canonical` @ worktree `../mercflow-worktrees/S004` (removed after merge)
 
 ### HITL — global config table (T013)
 
@@ -20,22 +48,19 @@
 - **T015:** OG/Twitter meta store routes; `SocialSharePreview` on product Content tab
 - **T016:** `canonical_url_override` on product/category content + store canonical routes + admin field on product Content tab
 - Migrations: `Migration20260605120000AddJsonLdSettingsToSeoConfig`, `Migration20260605130000AddCanonicalUrlOverride`
-- Tests: 9 new unit tests in `@mercflow/seo-module` (json-ld, og, canonical core)
+- Tests: seo-module 44 tests (incl. tenant binding + store route contract)
 
-### Verification (local)
+### Verification
 
-- `vitest run` on new seo-module test files — green
-- Full monorepo `pnpm typecheck` — run in CI / after `pnpm install` in worktree
+- CI green on PR #62 (lint/test/typecheck/build, Playwright, backend migrations, React Doctor)
+- Code review APPROVED; Bugbot fix in `64c227f`
 
-### Gate
+### Gate (pre-merge)
 
-**Yellow** — implementation complete on feature branch; PR + full CI typecheck pending. Category Content tab canonical field deferred (product tab done).
+**Yellow** — category Content tab canonical field deferred (product tab done).
 
-### Next
+---
 
-- Open PR → `development` after `/review-code`
-- Run `pnpm migration:run` locally on fresh DB
-- Smoke: Organisation save → `GET /store/seo/json-ld/global` with publishable key / `MERCFLOW_DEFAULT_STORE_ID`
 ## 2026-06-04 — Sprint S007 merged to development
 
 **PR:** https://github.com/eskobar95/mercflow/pull/61  

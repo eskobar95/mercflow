@@ -686,7 +686,9 @@ Admin can manage robots.txt rules via a structured UI (allow/block per path and 
 
 **Sprint:** S004
 **Milestone:** M002
-**Status:** in-progress
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/62
+**Merge:** `e9f0c6f`
 **Mode:** HITL
 **Branch:** `feature/S004/metadata-json-ld-og-canonical`
 **HITL log:** `.factory/logs/hitl/S004-T013-global-config-table.md` (option A — `mercflow_seo_config`)
@@ -715,15 +717,15 @@ Before implementing: confirm `mercflow_seo_config` carries these fields (already
 
 ### Acceptance criteria
 
-- [ ] Org name/logo/socials saved and returned per tenant
-- [ ] No cross-tenant org data in any API response
-- [ ] Fields empty-state safe (JSON-LD `Organization` block skipped if name not set)
+- [x] Org name/logo/socials saved and returned per tenant
+- [x] No cross-tenant org data in any API response
+- [x] Fields empty-state safe (JSON-LD `Organization` block skipped if name not set)
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
-- [ ] HITL: table ownership confirmed by human before PR opens
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
+- [x] HITL: table ownership confirmed by human before PR opens
+- [x] PR description filled in
 
 ---
 
@@ -731,7 +733,9 @@ Before implementing: confirm `mercflow_seo_config` carries these fields (already
 
 **Sprint:** S004
 **Milestone:** M002
-**Status:** in-progress
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/62
+**Merge:** `e9f0c6f`
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T013
@@ -753,15 +757,15 @@ Storefront can request JSON-LD blocks from the MercFlow API. Product pages get `
 
 ### Acceptance criteria
 
-- [ ] `Product` schema includes name, description, image, sku, price, currency, availability
-- [ ] `BreadcrumbList` reflects full category path
-- [ ] `Organization` absent if org name not configured
-- [ ] All `url` fields use tenant's `storefront_url` — never hardcoded
+- [x] `Product` schema includes name, description, image, sku, price, currency, availability
+- [x] `BreadcrumbList` reflects full category path
+- [x] `Organization` absent if org name not configured
+- [x] All `url` fields use tenant's `storefront_url` — never hardcoded
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
+- [x] PR description filled in
 
 ---
 
@@ -769,7 +773,9 @@ Storefront can request JSON-LD blocks from the MercFlow API. Product pages get `
 
 **Sprint:** S004
 **Milestone:** M002
-**Status:** in-progress
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/62
+**Merge:** `e9f0c6f`
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T013
@@ -789,15 +795,15 @@ Storefront can request OG and Twitter Card meta values from MercFlow API. All va
 
 ### Acceptance criteria
 
-- [ ] `og:title`, `og:description`, `og:image` correct for product
-- [ ] Fallback: if `seo_title` empty → product title used
-- [ ] Twitter Card tags included
-- [ ] No cross-tenant data
+- [x] `og:title`, `og:description`, `og:image` correct for product
+- [x] Fallback: if `seo_title` empty → product title used
+- [x] Twitter Card tags included
+- [x] No cross-tenant data
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
+- [x] PR description filled in
 
 ---
 
@@ -805,7 +811,9 @@ Storefront can request OG and Twitter Card meta values from MercFlow API. All va
 
 **Sprint:** S004
 **Milestone:** M002
-**Status:** in-progress
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/62
+**Merge:** `e9f0c6f`
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T013
@@ -826,15 +834,17 @@ Storefront can request the canonical URL for any product or category. Auto-calcu
 
 ### Acceptance criteria
 
-- [ ] Canonical URL uses tenant `storefront_url` as base — never hardcoded
-- [ ] Manual override saved and returned
-- [ ] Admin warned if potential canonical conflict detected
+- [x] Canonical URL uses tenant `storefront_url` as base — never hardcoded
+- [x] Manual override saved and returned
+- [ ] Admin warned if potential canonical conflict detected (deferred)
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
-- [ ] Migration DECISION LOG + `down()`
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
+- [x] Migration DECISION LOG + `down()`
+- [x] PR description filled in
+
+**Follow-up:** Category Content tab canonical field UI (product tab done).
 
 ---
 

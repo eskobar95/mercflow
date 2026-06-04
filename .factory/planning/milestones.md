@@ -64,7 +64,7 @@ Note: `payload.*` schema (PayloadCMS, Guapo storefront) is excluded — it is Gu
 
 **Outcome:** Slug changes auto-create 301 redirects. Sitemap and robots.txt fully admin-controlled. Nordic characters produce clean URLs.
 
-**Progress (2026-06-04):** S002 merged PR #55 (`b378e22`). **S003 merged PR #60 (`b2e1d90`)** — sitemap, robots, T008 Host→store middleware, admin SEO settings, cache invalidation. Closeout: [S003-closeout](../logs/sprints/S003-closeout-2026-06-04.md). S004 (metadata) unblocked.
+**Progress (2026-06-04):** S002 merged PR #55 (`b378e22`). **S003 merged PR #60 (`b2e1d90`)** — sitemap, robots, T008 Host→store middleware, admin SEO settings, cache invalidation. Closeout: [S003-closeout](../logs/sprints/S003-closeout-2026-06-04.md).
 
 **Sprints in this milestone:**
 
@@ -88,6 +88,8 @@ Note: `payload.*` schema (PayloadCMS, Guapo storefront) is excluded — it is Gu
 
 **Outcome:** Structured data (JSON-LD), Open Graph, and canonical tags generated automatically on all product and category pages.
 
+**Progress (2026-06-04):** **S004 merged PR #62 (`e9f0c6f`)** — org/JSON-LD settings, store `/store/seo/*` APIs, publishable-key tenant binding, canonical override on content. Yellow: category canonical admin UI + conflict warning deferred.
+
 **Sprints in this milestone:**
 
 | Sprint | Goal | Tasks |
@@ -97,10 +99,10 @@ Note: `payload.*` schema (PayloadCMS, Guapo storefront) is excluded — it is Gu
 **Dependencies:** M001 (seo-module foundation, tenant resolution)
 
 **Definition of done:**
-- [ ] JSON-LD `Product` + `BreadcrumbList` + `Organization` + `WebSite` blocks generated per tenant
-- [ ] OG tags populated from SEO fields with fallbacks
-- [ ] Canonical auto-set; manual override works
-- [ ] No cross-tenant org data in any response
+- [x] JSON-LD `Product` + `BreadcrumbList` + `Organization` + `WebSite` blocks generated per tenant
+- [x] OG tags populated from SEO fields with fallbacks
+- [x] Canonical auto-set; manual override works (product admin UI; category UI deferred)
+- [x] No cross-tenant org data in any response (store routes bind publishable key / host)
 - [ ] `/milestone-review M002` green
 
 ---
