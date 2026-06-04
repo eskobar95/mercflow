@@ -11,6 +11,7 @@ export default defineConfig({
       "packages/design-tokens",
       "packages/content-module",
       "packages/feed-module",
+      "packages/inventory-module",
       "packages/subscription-module",
       "packages/connector-module",
       "apps/backend",
