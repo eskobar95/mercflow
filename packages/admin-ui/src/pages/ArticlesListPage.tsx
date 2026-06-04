@@ -174,7 +174,8 @@ export function ArticlesListPage(): JSX.Element {
     <div className="space-y-4 p-6">
       <ListToolbar
         title="Articles"
-        primaryAction={
+        description="Blog posts for the storefront with draft and published states."
+        end={
           <Button
             type="button"
             onClick={() => {
