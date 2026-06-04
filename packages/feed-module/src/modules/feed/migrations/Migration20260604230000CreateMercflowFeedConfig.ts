@@ -10,7 +10,7 @@ import { Migration } from "@medusajs/framework/mikro-orm/migrations"
  * Reversible: Yes — down() drops RLS policy and table
  * Fields derived from: .factory/planning/tasks.md T017, PRD-batch2 §3.8
  */
-export const MERCFLOW_FEED_CONFIG_TABLE = "mercflow_feed_config" as const
+const MERCFLOW_FEED_CONFIG_TABLE = "mercflow_feed_config"
 
 export class Migration20260604230000CreateMercflowFeedConfig extends Migration {
   override async up(): Promise<void> {

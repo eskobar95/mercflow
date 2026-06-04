@@ -4,11 +4,8 @@ import { fileURLToPath } from "node:url"
 
 import { describe, expect, it } from "vitest"
 
-import {
-  MERCFLOW_FEED_CONFIG_TABLE,
-} from "../src/modules/feed/migrations/Migration20260604230000CreateMercflowFeedConfig"
-
 const migrationDir = dirname(fileURLToPath(import.meta.url))
+const MERCFLOW_FEED_CONFIG_TABLE = "mercflow_feed_config"
 
 describe("T017 mercflow_feed_config migration", (): void => {
   it("creates tenant-scoped feed config table with RLS", (): void => {
