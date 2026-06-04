@@ -6,11 +6,21 @@
 
 ## 2026-06-04 — Sprint S003 merged to development
 
-**PR:** https://github.com/eskobar95/mercflow/pull/60 (squash `b2e1d90`)
+**PR:** https://github.com/eskobar95/mercflow/pull/60 (squash `b2e1d90`, factory diary `c932800`)
 
-- Merged after green CI + all Bugbot threads resolved (9/9).
-- Remote branch `cursor/s003-sitemap-robots-tenant-6449` deleted; no separate worktree on agent VM.
-- Local `development` synced: `git fetch --prune && git pull origin development` → `b2e1d90`.
+**Full closeout:** `.factory/logs/sprints/S003-closeout-2026-06-04.md`  
+**HITL T008:** `.factory/logs/hitl/S003-T008-host-mapping.md` (option A — `storefront_url` hostname)
+
+### Merge + cleanup
+- Squash-merged to `development` after green CI; Bugbot 9/9 resolved with fix replies.
+- Remote branch `cursor/s003-sitemap-robots-tenant-6449` deleted (`gh pr merge --delete-branch`).
+- Sync: `git fetch origin --prune && git pull origin development` on `development`.
+- Worktree: none on cloud VM; remove `../mercflow-worktrees/{task-id}` locally if used.
+
+### Planning sync
+- `.factory/planning/sprints.md` — S003 `done`, merge note
+- `.factory/planning/milestones.md` — M001 progress updated (S002 + S003 on `development`)
+- `.factory/planning/tasks.md` — T008–T012 execution log + acceptance checked
 
 **Gate:** Green.
 

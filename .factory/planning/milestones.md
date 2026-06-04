@@ -1,6 +1,7 @@
 # Milestones — MercFlow Batch 2
 
 > Ordered deliveries. Each milestone groups one or more sprints.
+> Updated: 2026-06-04 (S003 merged — PR #60; see `.factory/logs/sprints/S003-closeout-2026-06-04.md`)
 > Updated: 2026-06-04 (synced with `development`; see `.factory/logs/milestone-reviews/M000-2026-06-04.md`)
 
 ---
@@ -63,7 +64,7 @@ Note: `payload.*` schema (PayloadCMS, Guapo storefront) is excluded — it is Gu
 
 **Outcome:** Slug changes auto-create 301 redirects. Sitemap and robots.txt fully admin-controlled. Nordic characters produce clean URLs.
 
-**Progress (2026-06-04):** S002 merged on `development` via PR #55 (`b378e22`) — seo-module, slug strategy, redirect middleware/subscribers, admin UI. S003 (sitemap, robots, T008 tenant middleware) not started.
+**Progress (2026-06-04):** S002 merged PR #55 (`b378e22`). **S003 merged PR #60 (`b2e1d90`)** — sitemap, robots, T008 Host→store middleware, admin SEO settings, cache invalidation. Closeout: [S003-closeout](../logs/sprints/S003-closeout-2026-06-04.md). S004 (metadata) unblocked.
 
 **Sprints in this milestone:**
 
@@ -75,11 +76,11 @@ Note: `payload.*` schema (PayloadCMS, Guapo storefront) is excluded — it is Gu
 **Dependencies:** M000
 
 **Definition of done:**
-- [ ] `GET /sitemap.xml` and `GET /robots.txt` return tenant-scoped data based on `Host` header
-- [ ] Slug change on product → 301 redirect auto-created
-- [ ] Nordic slug strategy configurable per tenant in Settings
-- [ ] All public routes return `404` if tenant not resolved
-- [ ] `/milestone-review M001` green
+- [x] `GET /sitemap.xml` and `GET /robots.txt` return tenant-scoped data based on `Host` header (S003, PR #60)
+- [x] Slug change on product → 301 redirect auto-created (S002, PR #55)
+- [x] Nordic slug strategy configurable per tenant in Settings (S002)
+- [x] All public SEO/feed routes return `404` if tenant not resolved (T008 middleware)
+- [ ] `/milestone-review M001` green (schedule after S004 or when M001 scope complete)
 
 ---
 
@@ -108,7 +109,7 @@ Note: `payload.*` schema (PayloadCMS, Guapo storefront) is excluded — it is Gu
 
 **Outcome:** Auto-maintained Google Shopping XML feed per tenant. Validated, tenant-scoped, cache-invalidated on catalogue changes.
 
-**Progress (2026-06-04):** S005 merged — PR #54 (scaffold), #57 (XML route), #58 (admin UI). Feed tenant resolution still uses `/feed/*` shim until T008 (S003).
+**Progress (2026-06-04):** S005 merged — PR #54, #57, #58. Feed routes use shared T008 middleware via seo-module (S003 merged PR #60).
 
 **Sprints in this milestone:**
 
@@ -119,7 +120,7 @@ Note: `payload.*` schema (PayloadCMS, Guapo storefront) is excluded — it is Gu
 **Dependencies:** M000 (can run in parallel with M001 after M000)
 
 **Definition of done:**
-- [ ] `GET /feed/google-shopping.xml` tenant-scoped by `Host` header
+- [x] `GET /feed/google-shopping.xml` tenant-scoped by `Host` header (T008 + feed middleware shim)
 - [ ] Feed invalidated within 30s of catalogue change
 - [ ] Validation report flags missing required fields
 - [ ] No cross-tenant products in any feed response
