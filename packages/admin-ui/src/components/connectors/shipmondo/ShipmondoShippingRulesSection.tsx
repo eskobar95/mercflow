@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 import { Button } from "@/components/ui/Button"
@@ -66,36 +66,52 @@ export function ShipmondoShippingRulesSection({
   const queryClient = useQueryClient()
 
   const [markupMinorDraft, setMarkupMinorDraft] = useState<number>(shippingRules.markupAmountMinor)
+  const [markupSourceMinor, setMarkupSourceMinor] = useState(shippingRules.markupAmountMinor)
+
+  if (shippingRules.markupAmountMinor !== markupSourceMinor) {
+    setMarkupSourceMinor(shippingRules.markupAmountMinor)
+    setMarkupMinorDraft(shippingRules.markupAmountMinor)
+  }
+
   const [freeShippingDraftText, setFreeShippingDraftText] = useState<string>(
     shippingRules.freeShippingThresholdMinor === 0
       ? ""
       : String(shippingRules.freeShippingThresholdMinor / 100)
   )
+  const [freeShippingSourceMinor, setFreeShippingSourceMinor] = useState(
+    shippingRules.freeShippingThresholdMinor
+  )
 
-  const [catalogRows, setCatalogRows] = useState<ShipmondoCarrierProductDto[]>([])
-  const [enabledByProductCode, setEnabledByProductCode] = useState<Record<string, boolean>>({})
-
-  const [catalogError, setCatalogError] = useState<string | null>(null)
-  const [saveError, setSaveError] = useState<string | null>(null)
-  const [freeShippingParseError, setFreeShippingParseError] = useState<string | null>(null)
-
-  useEffect(() => {
-    setMarkupMinorDraft(shippingRules.markupAmountMinor)
+  if (shippingRules.freeShippingThresholdMinor !== freeShippingSourceMinor) {
+    setFreeShippingSourceMinor(shippingRules.freeShippingThresholdMinor)
     setFreeShippingDraftText(
       shippingRules.freeShippingThresholdMinor === 0
         ? ""
         : String(shippingRules.freeShippingThresholdMinor / 100)
     )
-  }, [shippingRules.freeShippingThresholdMinor, shippingRules.markupAmountMinor])
+  }
 
-  useEffect(() => {
-    if (catalogRows.length === 0) {
-      setEnabledByProductCode({})
-      return
-    }
+  const [catalogRows, setCatalogRows] = useState<ShipmondoCarrierProductDto[]>([])
+  const [enabledByProductCode, setEnabledByProductCode] = useState<Record<string, boolean>>({})
+  const [enabledSyncSignature, setEnabledSyncSignature] = useState("")
 
-    setEnabledByProductCode(buildEnabledSelections(catalogRows, shippingRules.enabledCarrierCodes))
-  }, [catalogRows, shippingRules.enabledCarrierCodes])
+  const enabledSyncSignatureNext =
+    catalogRows.length === 0
+      ? ""
+      : `${catalogRows.map((row) => row.productCode).join("\u0001")}\u0002${shippingRules.enabledCarrierCodes.join("\u0001")}`
+
+  if (enabledSyncSignatureNext !== enabledSyncSignature) {
+    setEnabledSyncSignature(enabledSyncSignatureNext)
+    setEnabledByProductCode(
+      catalogRows.length === 0
+        ? {}
+        : buildEnabledSelections(catalogRows, shippingRules.enabledCarrierCodes)
+    )
+  }
+
+  const [catalogError, setCatalogError] = useState<string | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [freeShippingParseError, setFreeShippingParseError] = useState<string | null>(null)
 
   const carriersMutation = useMutation({
     mutationFn: async (): Promise<ShipmondoCarrierProductDto[]> =>
