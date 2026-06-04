@@ -1090,6 +1090,7 @@ Admin can create a PO (select supplier, add lines, set expected date, reference,
 **Parallel group:** A
 **Blocked by:** T022
 **Branch:** feature/S007/T023-po-receive-flow
+**PR:** https://github.com/eskobar95/mercflow/pull/61
 **PRD journey:** J010
 **ADRs:** ADR-004
 
@@ -1127,7 +1128,8 @@ Before implementing: decide — does `receive` also call Medusa `createReservati
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T023
-**Branch:** feature/S007/T024-inventory-dashboard
+**Branch:** feature/S007/T023-po-receive-flow
+**PR:** https://github.com/eskobar95/mercflow/pull/61
 **PRD journey:** J011
 
 ### Slice objective

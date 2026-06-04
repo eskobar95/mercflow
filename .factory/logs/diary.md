@@ -23,6 +23,10 @@
 
 **Yellow** — movement history lists PO receipts only; Medusa sale/manual_adjustment events deferred (documented in README).
 
+### PR
+
+https://github.com/eskobar95/mercflow/pull/61 → `development`
+
 ---
 
 ## 2026-06-04 — M000 milestone review + planning hygiene (S003 active)
