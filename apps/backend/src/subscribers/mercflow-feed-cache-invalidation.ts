@@ -1,10 +1,8 @@
-import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import type { SubscriberConfig } from "@medusajs/framework"
 
 import { invalidateAllFeedCaches } from "@mercflow/feed-module/mercflow-feed-cache"
 
-async function mercflowFeedCacheInvalidationHandler(
-  _args: SubscriberArgs<Record<string, unknown>>
-): Promise<void> {
+async function mercflowFeedCacheInvalidationHandler(): Promise<void> {
   invalidateAllFeedCaches()
 }
 
