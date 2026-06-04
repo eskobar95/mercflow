@@ -1,10 +1,10 @@
-# Semgrep rulesets for Conduro CI (local + conduro.yml).
-# Semgrep GitHub App removed — SAST runs in Conduro CI only.
+# Semgrep rulesets for local SAST scans (optional; not wired in GitHub Actions).
+# Semgrep GitHub App removed — run manually when needed.
 # Secrets: covered by Gitleaks in security.yml (p/secrets omitted here).
 
 rules: []
 
-# Active rulesets (mirrored in conduro.yml):
+# Active rulesets:
 #   p/typescript    — TypeScript anti-patterns
 #   p/nodejs        — Node.js security (injection, traversal, etc.)
 #   p/owasp-top-ten — OWASP Top 10
