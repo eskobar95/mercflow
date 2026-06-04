@@ -5,7 +5,7 @@ import {
   resolveMedusaAdminBackendUrl,
 } from "@/medusa-admin/medusaAdminFetch"
 
-export type StripeVatMode = "inclusive" | "exclusive"
+type StripeVatMode = "inclusive" | "exclusive"
 
 export type StripeConnectorDetailDto = {
   configured: boolean

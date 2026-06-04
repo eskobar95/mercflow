@@ -76,3 +76,58 @@ export type UpsertCategoryContentInput = {
   seo_og_image_id?: string | null
   banner_image_id?: string | null
 }
+
+export type ArticleRecord = {
+  id: string
+  slug: string
+  title: string
+  body_json: Record<string, unknown> | null
+  locale: string
+  status: ContentPublishStatus
+  published_at: Date | null
+  created_at?: Date
+  updated_at?: Date
+  deleted_at?: Date | null
+}
+
+export type CreateArticleInput = {
+  title: string
+  slug?: string | null
+  body_json?: unknown
+  locale?: string
+  status?: ContentPublishStatus
+  published_at?: Date | null
+}
+
+export type UpdateArticleInput = {
+  title?: string
+  slug?: string | null
+  body_json?: unknown
+  locale?: string
+  status?: ContentPublishStatus
+  published_at?: Date | null
+}
+
+export type CmsPageType = "homepage" | "landing" | "content"
+
+export type CmsPageRecord = {
+  id: string
+  slug: string
+  title: string
+  page_type: CmsPageType
+  status: ContentPublishStatus
+  locale: string
+  created_at?: Date
+  updated_at?: Date
+  deleted_at?: Date | null
+}
+
+export type AdminPageListRow = CmsPageRecord & { block_count: number }
+
+export type StorePublishedPagePayload = {
+  title: string
+  slug: string
+  page_type: CmsPageType
+  status: ContentPublishStatus
+  blocks: unknown[]
+}

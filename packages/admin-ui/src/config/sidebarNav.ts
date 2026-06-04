@@ -11,6 +11,7 @@ import {
   IconPages,
   IconProducts,
   IconSettings,
+  IconSubscriptions,
   IconTeam,
   IconWorkspace,
   type IconComponent,
@@ -76,6 +77,7 @@ export const primarySidebarNav: SidebarNavItem[] = [
     ],
   },
   { label: "Customers", to: "/customers", icon: IconCustomers },
+  { label: "Subscriptions", to: "/subscriptions", icon: IconSubscriptions },
 ]
 
 export const contentSidebarSection: SidebarNavSection = {

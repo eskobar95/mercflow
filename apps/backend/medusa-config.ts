@@ -35,5 +35,8 @@ export default defineConfig({
         ],
       },
     },
+    {
+      resolve: "@mercflow/subscription-module",
+    },
   ],
 })

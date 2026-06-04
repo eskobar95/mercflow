@@ -152,7 +152,7 @@ export async function getCustomer(
   return customer
 }
 
-export type FetchOrdersArgs = {
+type FetchOrdersArgs = {
   readonly customerId: string
   readonly limit: number
   readonly offset: number

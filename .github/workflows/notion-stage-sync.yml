@@ -304,12 +304,10 @@ jobs:
               continue
             fi
 
-            # Truncate Bugbot body to avoid overly large dispatch payloads
-            BUGBOT_BODY=$(echo "$BUGBOT_REVIEW" | jq -r '.body // ""' | head -c 2000)
+            echo "PR #$PR_NUMBER — BUGBOT_FIX_ALL confirmed. Setting Stage → Fix..."
 
-            echo "PR #$PR_NUMBER — BUGBOT_FIX_ALL confirmed. Setting Stage → Fix and dispatching..."
-
-            # Set Stage → Fix in Notion
+            # Set Stage → Fix in Notion. The Notion webhook automation will detect this
+            # change and dispatch the implementation agent — no direct dispatch needed here.
             curl -sf -X PATCH "https://api.notion.com/v1/pages/$PAGE_ID" \
               -H "Authorization: Bearer $NOTION_API_KEY" \
               -H "Notion-Version: 2022-06-28" \
@@ -321,39 +319,9 @@ jobs:
               -H "Authorization: Bearer $NOTION_API_KEY" \
               -H "Notion-Version: 2022-06-28" \
               -H "Content-Type: application/json" \
-              -d "{\"parent\":{\"page_id\":\"$PAGE_ID\"},\"rich_text\":[{\"text\":{\"content\":\"Agent: notion-stage-sync (cron fallback)\nBugbot stuck fallback triggered\n\nPR #${PR_NUMBER} was stuck at Stage=Bugbot — the pull_request_review event likely did not fire. Found cursor[bot] review with BUGBOT_FIX_ALL.\n\nStage set to Fix. Implementation Agent dispatched.\"}}]}" > /dev/null || true
+              -d "{\"parent\":{\"page_id\":\"$PAGE_ID\"},\"rich_text\":[{\"text\":{\"content\":\"Agent: notion-stage-sync (cron fallback)\nBugbot stuck fallback triggered\n\nPR #${PR_NUMBER} was stuck at Stage=Bugbot — the pull_request_review event likely did not fire. Found cursor[bot] review with BUGBOT_FIX_ALL.\n\nStage set to Fix. Notion webhook automation will dispatch the Implementation Agent.\"}}]}" > /dev/null || true
 
-            # Resolve the feature branch name for the dispatch payload
-            FEATURE_BRANCH=$(gh pr view "$PR_NUMBER" \
-              --repo eskobar95/mercflow \
-              --json headRefName \
-              -q .headRefName 2>/dev/null || echo "")
-
-            # Build dispatch payload using jq to safely handle special characters
-            DISPATCH_PAYLOAD=$(jq -n \
-              --arg pageUrl "$NOTION_URL" \
-              --arg featureBranch "$FEATURE_BRANCH" \
-              --arg prNumber "$PR_NUMBER" \
-              --arg reviewContext "$BUGBOT_BODY" \
-              '{
-                event_type: "implementation",
-                client_payload: {
-                  pageUrl: $pageUrl,
-                  featureBranch: $featureBranch,
-                  prNumber: $prNumber,
-                  skipBugbot: "false",
-                  reviewContext: $reviewContext
-                }
-              }')
-
-            curl -sf -X POST \
-              "https://api.github.com/repos/eskobar95/mercflow-os/dispatches" \
-              -H "Authorization: Bearer $GH_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              -d "$DISPATCH_PAYLOAD" > /dev/null || true
-
-            echo "PR #$PR_NUMBER — DONE: Stage → Fix + implementation dispatched (branch='$FEATURE_BRANCH')"
+            echo "PR #$PR_NUMBER — DONE: Stage → Fix (Notion webhook handles dispatch)"
           done
 
           echo "=== Bugbot stuck fallback complete ==="

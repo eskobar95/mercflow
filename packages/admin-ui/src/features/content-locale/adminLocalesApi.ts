@@ -10,7 +10,7 @@ import type { AdminLocale } from "./types"
 
 const ADMIN_LOCALES_LIST_PATH = "/admin/locales"
 
-export type ListAdminLocalesOptions = {
+type ListAdminLocalesOptions = {
   /** Max locales to fetch; default 100 */
   limit?: number
 }

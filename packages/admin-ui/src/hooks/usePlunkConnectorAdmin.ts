@@ -9,7 +9,7 @@ import {
   postPlunkConnectorTest,
 } from "@/features/connectors/plunkConnectorAdminApi"
 
-export type UsePlunkConnectorAdminState =
+type UsePlunkConnectorAdminState =
   | { phase: "loading" }
   | { phase: "error"; message: string }
   | { phase: "ready"; dto: PlunkConnectorAdminDto }

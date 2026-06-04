@@ -52,6 +52,14 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "orders/:orderId",
+        handle: { title: "Order" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { OrderDetailPage } = await import("@/pages/OrderDetailPage")
+          return { Component: OrderDetailPage }
+        },
+      },
+      {
         path: "orders",
         handle: { title: "Orders" } satisfies AppRouteHandle,
         lazy: async () => {
@@ -73,6 +81,14 @@ export const router = createBrowserRouter([
         lazy: async () => {
           const { CustomersListPage } = await import("@/pages/CustomersListPage")
           return { Component: CustomersListPage }
+        },
+      },
+      {
+        path: "subscriptions",
+        handle: { title: "Subscriptions" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { SubscriptionsListPage } = await import("@/pages/SubscriptionsListPage")
+          return { Component: SubscriptionsListPage }
         },
       },
       {
@@ -106,19 +122,51 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "content/articles/new",
+        handle: { title: "New article" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { ArticleEditPage } = await import("@/pages/ArticleEditPage")
+          return { Component: ArticleEditPage }
+        },
+      },
+      {
+        path: "content/articles/:articleId",
+        handle: { title: "Article" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { ArticleEditPage } = await import("@/pages/ArticleEditPage")
+          return { Component: ArticleEditPage }
+        },
+      },
+      {
         path: "content/articles",
         handle: { title: "Articles" } satisfies AppRouteHandle,
         lazy: async () => {
-          const { ContentArticlesPage } = await import("@/pages/ContentArticlesPage")
-          return { Component: ContentArticlesPage }
+          const { ArticlesListPage } = await import("@/pages/ArticlesListPage")
+          return { Component: ArticlesListPage }
+        },
+      },
+      {
+        path: "content/pages/new",
+        handle: { title: "New page" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { PageEditPage } = await import("@/pages/PageEditPage")
+          return { Component: PageEditPage }
+        },
+      },
+      {
+        path: "content/pages/:pageId",
+        handle: { title: "Edit page" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { PageEditPage } = await import("@/pages/PageEditPage")
+          return { Component: PageEditPage }
         },
       },
       {
         path: "content/pages",
         handle: { title: "Pages" } satisfies AppRouteHandle,
         lazy: async () => {
-          const { ContentPagesPage } = await import("@/pages/ContentPagesPage")
-          return { Component: ContentPagesPage }
+          const { PagesListPage } = await import("@/pages/PagesListPage")
+          return { Component: PagesListPage }
         },
       },
       {

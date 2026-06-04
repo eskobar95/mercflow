@@ -2,13 +2,16 @@ import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { ProductContentTab } from "@/components/product-content/ProductContentTab"
-import type { UseAdminLocalesResult } from "@/features/content-locale/useAdminLocales"
+
+type UseAdminLocalesReturn = ReturnType<
+  typeof import("@/features/content-locale/useAdminLocales").useAdminLocales
+>
 
 const mockUseProductContentState = vi.fn()
 const mockUseAdminLocales = vi.hoisted(() => vi.fn())
 
 vi.mock("@/features/content-locale", () => ({
-  useAdminLocales: (): UseAdminLocalesResult => mockUseAdminLocales() as UseAdminLocalesResult,
+  useAdminLocales: (): UseAdminLocalesReturn => mockUseAdminLocales() as UseAdminLocalesReturn,
 }))
 
 vi.mock("@/features/product-content", async (original) => {

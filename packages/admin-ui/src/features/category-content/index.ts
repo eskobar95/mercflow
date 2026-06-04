@@ -9,8 +9,4 @@ export {
   resolveMedusaAdminBackendUrl,
   saveCategoryContent,
 } from "./categoryContentApi"
-export type {
-  UseCategoryContentStateOptions,
-  UseCategoryContentStateResult,
-} from "./useCategoryContentState"
 export { useCategoryContentState } from "./useCategoryContentState"

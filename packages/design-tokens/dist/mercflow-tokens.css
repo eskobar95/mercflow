@@ -69,6 +69,10 @@
   --mf-color-feedback-info-subtle: #e6f0ff;
   --mf-color-feedback-info-content: #133e7c;
   --mf-color-feedback-info-border: #8fb5ea;
+  --mf-color-feedback-pending: #EA580C;
+  --mf-color-feedback-pending-subtle: rgba(234, 88, 12, 0.12);
+  --mf-color-feedback-pending-content: #9A3412;
+  --mf-color-feedback-pending-border: rgba(234, 88, 12, 0.30);
   --mf-color-connectorStatus-active-bg: #e3f4ea;
   --mf-color-connectorStatus-active-border: #94d0b1;
   --mf-color-connectorStatus-active-text: #0f5132;

@@ -16,7 +16,7 @@ import {
   summarizeLifetimeDisplayText,
 } from "../customersPaidSpend"
 
-export type CustomersSpendCellState =
+type CustomersSpendCellState =
   | { readonly status: "loading" }
   | { readonly status: "error"; readonly message: string }
   | { readonly status: "ready"; readonly summary: CustomerPaidSpendSummary }
