@@ -476,11 +476,12 @@ Admin can view all redirects for their tenant, create manual redirects, delete s
 
 **Sprint:** S003
 **Milestone:** M001
-**Status:** todo
+**Status:** done
 **Mode:** HITL
 **Parallel group:** A
 **Blocked by:** T004
 **Branch:** feature/S003/T008-tenant-resolution-middleware
+**Decision:** Host mapping option (A) — `mercflow_seo_config.storefront_url` hostname index + 60s resolver cache.
 **PRD journey:** —
 **ADRs:** ADR-004
 
@@ -523,7 +524,7 @@ Before implementing: human approves the host-mapping strategy (A, B, or C above)
 
 **Sprint:** S003
 **Milestone:** M001
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T008
@@ -565,7 +566,7 @@ Before implementing: human approves the host-mapping strategy (A, B, or C above)
 
 **Sprint:** S003
 **Milestone:** M001
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** C
 **Blocked by:** T009
@@ -602,7 +603,7 @@ Admin can configure sitemap priority/changefreq per page type, exclude specific 
 
 **Sprint:** S003
 **Milestone:** M001
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T008
@@ -640,7 +641,7 @@ Admin can configure sitemap priority/changefreq per page type, exclude specific 
 
 **Sprint:** S003
 **Milestone:** M001
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** C
 **Blocked by:** T011

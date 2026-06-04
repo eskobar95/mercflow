@@ -10,6 +10,41 @@ export type SeoConfigDto = {
   org_social_urls: Record<string, unknown> | null
 }
 
+export type SitemapPageType = "product" | "category" | "page"
+
+export type SitemapPageTypeSetting = {
+  priority: number
+  changefreq: string
+}
+
+export type SitemapConfigDto = {
+  id: string
+  store_id: string
+  page_type_settings: Partial<Record<SitemapPageType, SitemapPageTypeSetting>>
+  excluded_product_ids: string[]
+  excluded_category_ids: string[]
+  excluded_page_ids: string[]
+}
+
+export type RobotsRuleDto = {
+  user_agent: string
+  allow: string[]
+  disallow: string[]
+}
+
+export type RobotsChangeEntryDto = {
+  changed_at: string
+  summary: string
+}
+
+export type RobotsConfigDto = {
+  id: string
+  store_id: string
+  structured_rules: { rules: RobotsRuleDto[] }
+  freetext_override: string | null
+  change_history: RobotsChangeEntryDto[]
+}
+
 export type RedirectDto = {
   id: string
   store_id: string

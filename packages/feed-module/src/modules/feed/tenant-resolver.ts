@@ -1,122 +1,33 @@
-import { MedusaError } from "@medusajs/utils"
+import {
+  resolveStoreIdFromHost as resolveFromSeo,
+  type StorefrontUrlLookup,
+} from "@mercflow/seo-module/mercflow-tenant-resolver"
 
-import type FeedConfigService from "./service"
-import { assertMedusaStoreId } from "./tenant-scope"
-import { hostsMatchStorefront, normalizeHostname } from "./utils/hostname"
-
-function parseHostMapEnv(): Record<string, string> {
-  const raw = process.env.MERCFLOW_FEED_HOST_MAP?.trim()
-  if (!raw) {
-    return {}
-  }
-  try {
-    const parsed: unknown = JSON.parse(raw)
-    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-      return {}
-    }
-    const out: Record<string, string> = {}
-    for (const [host, storeId] of Object.entries(parsed)) {
-      const normalizedHost = normalizeHostname(host)
-      if (!normalizedHost || typeof storeId !== "string") {
-        continue
-      }
-      try {
-        assertMedusaStoreId(storeId)
-        out[normalizedHost] = storeId
-      } catch {
-        // skip invalid store ids in env map
-      }
-    }
-    return out
-  } catch {
-    return {}
-  }
-}
-
-function parseStoreIdCandidates(): string[] {
-  const raw = process.env.MERCFLOW_TENANT_STORE_IDS?.trim()
-  if (!raw) {
-    return []
-  }
-  const ids: string[] = []
-  for (const part of raw.split(",")) {
-    const trimmed = part.trim()
-    if (trimmed.length === 0) {
-      continue
-    }
-    try {
-      assertMedusaStoreId(trimmed)
-      ids.push(trimmed)
-    } catch {
-      // skip invalid entries
-    }
-  }
-  return ids
-}
+import type FeedConfigService from "./service" // used only as deprecated param type
 
 export type ResolveStoreIdFromHostInput = {
   hostHeader: string | undefined
   storeIdHeader: string | undefined
+  /** @deprecated Ignored — Host→store uses mercflow_seo_config (T008). */
   feedConfigService: FeedConfigService
+  lookup?: StorefrontUrlLookup
 }
 
 /**
- * Resolves tenant `store_id` from Host → `mercflow_feed_config.storefront_url` (T008-style, feed-only).
- * Fail closed: returns null when no mapping matches.
+ * Resolves tenant from Host via seo-module (mercflow_seo_config.storefront_url).
+ * Pass `lookup` in tests; production routes use mercflowPublicTenantMiddleware.
  */
-function isXStoreIdHeaderAllowed(): boolean {
-  if (process.env.MERCFLOW_FEED_ALLOW_X_STORE_ID === "true") {
-    return true
-  }
-  const env = process.env.NODE_ENV?.trim().toLowerCase()
-  return env === "development" || env === "test"
-}
-
 export async function resolveStoreIdFromHost(
   input: ResolveStoreIdFromHostInput
 ): Promise<string | null> {
-  const storeIdHeader = input.storeIdHeader?.trim()
-  if (storeIdHeader && isXStoreIdHeaderAllowed()) {
-    try {
-      assertMedusaStoreId(storeIdHeader)
-      return storeIdHeader
-    } catch {
-      return null
-    }
-  }
-
-  const host = input.hostHeader?.trim()
-  if (!host) {
+  if (!input.lookup) {
     return null
   }
-  const normalizedHost = normalizeHostname(host)
-  if (!normalizedHost) {
-    return null
-  }
-
-  const hostMap = parseHostMapEnv()
-  const mapped = hostMap[normalizedHost]
-  if (mapped) {
-    return mapped
-  }
-
-  const candidates = parseStoreIdCandidates()
-  for (const storeId of candidates) {
-    const config = await input.feedConfigService.get(storeId)
-    if (!config?.storefront_url) {
-      continue
-    }
-    if (hostsMatchStorefront(config.storefront_url, normalizedHost)) {
-      return storeId
-    }
-  }
-
-  return null
+  return resolveFromSeo({
+    hostHeader: input.hostHeader,
+    storeIdHeader: input.storeIdHeader,
+    lookup: input.lookup,
+  })
 }
 
-export function assertResolvedStoreId(storeId: string | null): string {
-  if (!storeId) {
-    throw new MedusaError(MedusaError.Types.NOT_FOUND, "No tenant found for this host")
-  }
-  return storeId
-}
+export { assertResolvedStoreId } from "@mercflow/seo-module/mercflow-tenant-resolver"

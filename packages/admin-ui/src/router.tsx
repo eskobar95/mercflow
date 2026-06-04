@@ -218,6 +218,22 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "settings/seo/sitemap",
+        handle: { title: "SEO — Sitemap" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { SitemapSettingsPage } = await import("@/pages/SitemapSettingsPage")
+          return { Component: SitemapSettingsPage }
+        },
+      },
+      {
+        path: "settings/seo/robots",
+        handle: { title: "SEO — Robots.txt" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { RobotsSettingsPage } = await import("@/pages/RobotsSettingsPage")
+          return { Component: RobotsSettingsPage }
+        },
+      },
+      {
         path: "settings/connectors/gtm",
         handle: { title: "Google Tag Manager" } satisfies AppRouteHandle,
         lazy: async () => {

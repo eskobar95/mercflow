@@ -1,5 +1,5 @@
 import { defineMiddlewares } from "@medusajs/framework/http"
-import { mercflowFeedTenantMiddleware } from "@mercflow/feed-module/mercflow-feed-tenant-middleware"
+import { mercflowPublicTenantMiddleware } from "@mercflow/seo-module/mercflow-public-tenant-middleware"
 import { mercflowRedirectMiddleware } from "@mercflow/seo-module/mercflow-redirect-middleware"
 
 import { loadRateLimitConfig } from "../lib/rate-limit/config"
@@ -38,17 +38,17 @@ export default defineMiddlewares({
     {
       matcher: "/sitemap.xml",
       method: ["GET"],
-      middlewares: [publicRateLimitMiddleware],
+      middlewares: [mercflowPublicTenantMiddleware, publicRateLimitMiddleware],
     },
     {
       matcher: "/robots.txt",
       method: ["GET"],
-      middlewares: [publicRateLimitMiddleware],
+      middlewares: [mercflowPublicTenantMiddleware, publicRateLimitMiddleware],
     },
     {
       matcher: "/feed*",
       method: ["GET"],
-      middlewares: [mercflowFeedTenantMiddleware, publicRateLimitMiddleware],
+      middlewares: [mercflowPublicTenantMiddleware, publicRateLimitMiddleware],
     },
     {
       matcher: "/store*",
