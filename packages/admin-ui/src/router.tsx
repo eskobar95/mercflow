@@ -84,6 +84,14 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "subscriptions",
+        handle: { title: "Subscriptions" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { SubscriptionsListPage } = await import("@/pages/SubscriptionsListPage")
+          return { Component: SubscriptionsListPage }
+        },
+      },
+      {
         path: "product-categories/new",
         handle: { title: "New category" } satisfies AppRouteHandle,
         lazy: async () => {

@@ -109,6 +109,12 @@ export declare const tokens: {
                 readonly content: "#133e7c";
                 readonly border: "#8fb5ea";
             };
+            readonly pending: {
+                readonly default: "#EA580C";
+                readonly subtle: "rgba(234, 88, 12, 0.12)";
+                readonly content: "#9A3412";
+                readonly border: "rgba(234, 88, 12, 0.30)";
+            };
         };
         readonly connectorStatus: {
             readonly active: {

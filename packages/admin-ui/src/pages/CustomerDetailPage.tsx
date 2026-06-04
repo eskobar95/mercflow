@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom"
 
+import { CustomerSubscriptionsSection } from "@/components/customers/CustomerSubscriptionsSection"
 import { CustomerLifetimeValueHighlight } from "@/components/customers/CustomerLifetimeValueHighlight"
 import { CustomerOrdersTable } from "@/components/customers/CustomerOrdersTable"
 import { CustomerProfileCard } from "@/components/customers/CustomerProfileCard"
@@ -101,6 +102,8 @@ export function CustomerDetailPage(): JSX.Element {
           storeCurrencyCode={lifetimeValueDisplayCurrency}
         />
       </div>
+
+      <CustomerSubscriptionsSection customerId={customer.id} />
 
       <section aria-labelledby="customer-orders-heading" className="space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-3">

@@ -11,7 +11,7 @@
     "migration:revert": "pnpm --filter @mercflow/backend exec -- medusa db:rollback --modules content",
     "lint": "eslint .",
     "test": "NODE_OPTIONS='--max-old-space-size=6144' vitest run",
-    "typecheck": "pnpm --filter @mercflow/design-tokens typecheck && pnpm --filter @mercflow/admin-ui typecheck && pnpm --filter @mercflow/content-module typecheck && pnpm --filter @mercflow/connector-module typecheck && pnpm --filter @mercflow/backend typecheck",
+    "typecheck": "pnpm --filter @mercflow/design-tokens typecheck && pnpm --filter @mercflow/admin-ui typecheck && pnpm --filter @mercflow/content-module typecheck && pnpm --filter @mercflow/subscription-module typecheck && pnpm --filter @mercflow/connector-module typecheck && pnpm --filter @mercflow/backend typecheck",
     "ci": "pnpm install --frozen-lockfile && pnpm lint && pnpm test && pnpm typecheck && pnpm build"
   },
   "pnpm": {

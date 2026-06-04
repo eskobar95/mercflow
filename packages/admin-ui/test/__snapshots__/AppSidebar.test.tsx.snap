@@ -244,6 +244,42 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
           Customers
         </span>
       </a>
+      <a
+        class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
+        href="/subscriptions"
+      >
+        <svg
+          aria-hidden="true"
+          class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
+          fill="none"
+          focusable="false"
+          height="18"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="1.75"
+          viewBox="0 0 24 24"
+          width="18"
+        >
+          <path
+            d="M7 8h7a5 5 0 1 1-4.5 9"
+          />
+          <path
+            d="M7 8V5.5m0 2.5-2.75-3"
+          />
+          <path
+            d="M17 16h-7a5 5 0 1 1 4.5-9"
+          />
+          <path
+            d="M17 16v2.5m0-2.5 2.75 3"
+          />
+        </svg>
+        <span
+          class="truncate"
+        >
+          Subscriptions
+        </span>
+      </a>
     </div>
     <div
       class="mt-6"

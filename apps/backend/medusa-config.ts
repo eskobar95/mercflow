@@ -20,5 +20,8 @@ export default defineConfig({
     {
       resolve: "@mercflow/connector-module",
     },
+    {
+      resolve: "@mercflow/subscription-module",
+    },
   ],
 })

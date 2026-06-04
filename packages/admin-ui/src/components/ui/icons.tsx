@@ -62,6 +62,18 @@ export function IconOrders({ size = 18, ...rest }: IconProps): JSX.Element {
   )
 }
 
+/** Repeat / subscription cycles — radial arrows. */
+export function IconSubscriptions({ size = 18, ...rest }: IconProps): JSX.Element {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <path d="M7 8h7a5 5 0 1 1-4.5 9" />
+      <path d="M7 8V5.5m0 2.5-2.75-3" />
+      <path d="M17 16h-7a5 5 0 1 1 4.5-9" />
+      <path d="M17 16v2.5m0-2.5 2.75 3" />
+    </svg>
+  )
+}
+
 export function IconCustomers({ size = 18, ...rest }: IconProps): JSX.Element {
   return (
     <svg {...baseProps(size, rest)}>
