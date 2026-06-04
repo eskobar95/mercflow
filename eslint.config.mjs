@@ -21,6 +21,8 @@ export default tseslint.config(
       "packages/content-module/**/migrations/**",
       "packages/connector-module/**/migrations/**",
       "packages/feed-module/**/migrations/**",
+      "packages/inventory-module/**/migrations/**",
+      "packages/seo-module/**/migrations/**",
       // Medusa build output (generated; not hand-authored TS)
       "**/.medusa/**",
       // Not part of the default TS project; Vitest config is tooling-only
@@ -39,6 +41,8 @@ export default tseslint.config(
       "packages/content-module/**/migrations/**",
       "packages/connector-module/**/migrations/**",
       "packages/feed-module/**/migrations/**",
+      "packages/inventory-module/**/migrations/**",
+      "packages/seo-module/**/migrations/**",
       // Linted in `mercflow/design-tokens-test` without the TS project service
       "packages/design-tokens/test/**",
     ],

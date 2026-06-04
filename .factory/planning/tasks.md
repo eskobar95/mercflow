@@ -250,7 +250,7 @@ Before merging: human adds Railway static egress IPs to Neon project `allowed_ip
 
 **Sprint:** S002
 **Milestone:** M001
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** M000 done (T003 merged)
@@ -307,7 +307,7 @@ Before merging: human adds Railway static egress IPs to Neon project `allowed_ip
 
 **Sprint:** S002
 **Milestone:** M001
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T004
@@ -365,7 +365,7 @@ Admin can choose a slug strategy (Nordic: ø→oe, or Omit: ø→o) in Settings.
 
 **Sprint:** S002
 **Milestone:** M001
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T004
@@ -419,7 +419,7 @@ When a product or category slug changes, a 301 redirect is automatically created
 
 **Sprint:** S002
 **Milestone:** M001
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** C
 **Blocked by:** T006

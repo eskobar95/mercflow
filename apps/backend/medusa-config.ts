@@ -44,5 +44,8 @@ export default defineConfig({
     {
       resolve: "@mercflow/inventory-module",
     },
+    {
+      resolve: "@mercflow/seo-module",
+    },
   ],
 })

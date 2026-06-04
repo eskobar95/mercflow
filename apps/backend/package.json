@@ -23,8 +23,9 @@
     "@mercflow/connector-module": "workspace:*",
     "@mercflow/content-module": "workspace:*",
     "@mercflow/feed-module": "workspace:*",
-    "@mercflow/subscription-module": "workspace:*",
     "@mercflow/inventory-module": "workspace:*",
+    "@mercflow/seo-module": "workspace:*",
+    "@mercflow/subscription-module": "workspace:*",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },

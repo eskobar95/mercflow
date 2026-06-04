@@ -7,6 +7,11 @@ describe("slugifyCategoryHandle", (): void => {
     expect(slugifyCategoryHandle("Outdoor Jackets")).toBe("outdoor-jackets")
   })
 
+  it("applies Nordic transliteration when strategy is nordic", (): void => {
+    expect(slugifyCategoryHandle("Rødgrød", "nordic")).toBe("roedgroed")
+    expect(slugifyCategoryHandle("Rødgrød", "omit")).toBe("rodgrod")
+  })
+
   it("trims and strips leading or trailing hyphens", (): void => {
     expect(slugifyCategoryHandle("  --Sale Items--  ")).toBe("sale-items")
   })
