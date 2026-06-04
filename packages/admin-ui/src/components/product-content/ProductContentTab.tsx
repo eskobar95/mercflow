@@ -65,7 +65,6 @@ export function ProductContentTab({
     setSeoDescription(content.seo_description ?? "")
     setOgUrl(content.og_image_url ?? "")
     setCanonicalUrl(content.canonical_url_override ?? "")
-    setValidationError(null)
   }, [loading, content])
 
   const isDirty = useMemo(
