@@ -63,12 +63,28 @@ describe("resolveStoreIdFromHost", (): void => {
     expect(storeId).toBeNull()
   })
 
-  it("accepts X-Store-Id for local testing", async (): Promise<void> => {
+  it("accepts X-Store-Id only in development/test", async (): Promise<void> => {
+    const originalEnv = process.env.NODE_ENV
+    process.env.NODE_ENV = "development"
     const storeId = await resolveStoreIdFromHost({
       hostHeader: undefined,
       storeIdHeader: STORE_A,
       feedConfigService: { get: vi.fn() } as unknown as FeedConfigService,
     })
     expect(storeId).toBe(STORE_A)
+    process.env.NODE_ENV = originalEnv
+  })
+
+  it("ignores X-Store-Id in production", async (): Promise<void> => {
+    const originalEnv = process.env.NODE_ENV
+    process.env.NODE_ENV = "production"
+    delete process.env.MERCFLOW_FEED_ALLOW_X_STORE_ID
+    const storeId = await resolveStoreIdFromHost({
+      hostHeader: undefined,
+      storeIdHeader: STORE_A,
+      feedConfigService: { get: vi.fn().mockResolvedValue(null) } as unknown as FeedConfigService,
+    })
+    expect(storeId).toBeNull()
+    process.env.NODE_ENV = originalEnv
   })
 })

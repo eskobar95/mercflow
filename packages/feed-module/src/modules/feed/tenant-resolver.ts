@@ -64,11 +64,19 @@ export type ResolveStoreIdFromHostInput = {
  * Resolves tenant `store_id` from Host → `mercflow_feed_config.storefront_url` (T008-style, feed-only).
  * Fail closed: returns null when no mapping matches.
  */
+function isXStoreIdHeaderAllowed(): boolean {
+  if (process.env.MERCFLOW_FEED_ALLOW_X_STORE_ID === "true") {
+    return true
+  }
+  const env = process.env.NODE_ENV?.trim().toLowerCase()
+  return env === "development" || env === "test"
+}
+
 export async function resolveStoreIdFromHost(
   input: ResolveStoreIdFromHostInput
 ): Promise<string | null> {
   const storeIdHeader = input.storeIdHeader?.trim()
-  if (storeIdHeader) {
+  if (storeIdHeader && isXStoreIdHeaderAllowed()) {
     try {
       assertMedusaStoreId(storeIdHeader)
       return storeIdHeader

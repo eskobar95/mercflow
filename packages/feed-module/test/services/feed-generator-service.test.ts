@@ -59,6 +59,25 @@ describe("FeedGeneratorService", (): void => {
     expect(xml).toContain("<g:price>19.99 DKK</g:price>")
   })
 
+  it("omits products in excluded categories", async (): Promise<void> => {
+    const feedConfigService = {
+      get: vi.fn().mockResolvedValue(
+        baseConfig({ excluded_category_ids: ["cat_1"] })
+      ),
+    }
+    const generator = new FeedGeneratorService({
+      feedConfigService: feedConfigService as never,
+      loadCatalog: async () => [
+        sampleProduct({ category_ids: ["cat_1"] }),
+      ],
+      loadContentForProduct: async () => ({ seo_description: null, image_url: null }),
+      loadBrandName: async () => null,
+    })
+
+    const xml = await generator.generate(STORE_A)
+    expect(xml).not.toContain("SKU-A")
+  })
+
   it("omits excluded products", async (): Promise<void> => {
     const feedConfigService = {
       get: vi.fn().mockResolvedValue(

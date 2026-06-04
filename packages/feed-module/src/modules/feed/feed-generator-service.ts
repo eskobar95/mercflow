@@ -187,9 +187,40 @@ function parseCatalogRow(row: unknown): FeedCatalogProduct | null {
   }
 }
 
+export async function resolveSalesChannelIdsForStore(
+  graph: RemoteQueryGraph,
+  storeId: string
+): Promise<string[]> {
+  const page = await graph({
+    entity: "sales_channel",
+    fields: ["id"],
+    filters: {
+      store: {
+        id: storeId,
+      },
+    },
+  })
+  const rows = Array.isArray(page.data) ? page.data : []
+  const ids: string[] = []
+  for (const row of rows) {
+    if (isRecord(row) && typeof row.id === "string" && row.id.length > 0) {
+      ids.push(row.id)
+    }
+  }
+  return ids
+}
+
 export async function loadCatalogFromQuery(
-  graph: RemoteQueryGraph
+  graph: RemoteQueryGraph,
+  salesChannelIds: string[]
 ): Promise<FeedCatalogProduct[]> {
+  if (salesChannelIds.length === 0) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      "No sales channels found for this store — cannot build feed catalogue"
+    )
+  }
+
   const products: FeedCatalogProduct[] = []
   let skip = 0
 
@@ -211,6 +242,11 @@ export async function loadCatalogFromQuery(
         "variants.prices.amount",
         "variants.prices.currency_code",
       ],
+      filters: {
+        sales_channels: {
+          id: salesChannelIds,
+        },
+      },
       pagination: { take: CATALOG_PAGE_SIZE, skip },
     })
 
@@ -318,7 +354,10 @@ export function createFeedGeneratorFromScope(
 
   return new FeedGeneratorService({
     feedConfigService,
-    loadCatalog: async () => loadCatalogFromQuery(query.graph),
+    loadCatalog: async (storeId: string) => {
+      const salesChannelIds = await resolveSalesChannelIdsForStore(query.graph, storeId)
+      return loadCatalogFromQuery(query.graph, salesChannelIds)
+    },
     loadContentForProduct: contentLoader,
     loadBrandName: brandLoader,
   })

@@ -37,7 +37,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
     const generator: FeedGeneratorService = createFeedGeneratorFromScope(
       req.scope,
       feedConfigService,
-      (_sid, productId, loc) => loadProductContentForFeed(req.scope, productId, loc),
+      (sid, productId, loc) => loadProductContentForFeed(req.scope, sid, productId, loc),
       (sid, productId) => loadBrandNameForProduct(feedConfigService, sid, productId)
     )
     xml = await generator.generate(storeId, locale)
