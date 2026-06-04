@@ -36,17 +36,7 @@ export function useSeoStructuredDataSettings(): UseSeoStructuredDataSettingsRetu
   }, [reload])
 
   const save = useCallback(async (settings: JsonLdSettingsDto): Promise<boolean> => {
-    let rollback: JsonLdSettingsDto = {
-      product: true,
-      category: true,
-      global: true,
-    }
-    setState((prev) => {
-      if (prev.phase === "ready" || prev.phase === "save_error" || prev.phase === "saving") {
-        rollback = prev.json_ld_settings
-      }
-      return { phase: "saving", json_ld_settings: rollback }
-    })
+    setState({ phase: "saving", json_ld_settings: settings })
 
     try {
       const data = await putAdminSeoConfig({ json_ld_settings: settings })
@@ -55,7 +45,7 @@ export function useSeoStructuredDataSettings(): UseSeoStructuredDataSettingsRetu
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Unexpected error while saving."
-      setState({ phase: "save_error", json_ld_settings: rollback, message })
+      setState({ phase: "save_error", json_ld_settings: settings, message })
       return false
     }
   }, [])
