@@ -21,6 +21,21 @@ export default defineConfig({
       resolve: "@mercflow/connector-module",
     },
     {
+      resolve: "@medusajs/medusa/fulfillment",
+      options: {
+        providers: [
+          {
+            resolve: "@medusajs/medusa/fulfillment-manual",
+            id: "manual",
+          },
+          {
+            resolve: "@mercflow/connector-module/mercflow-shipmondo-fulfillment-provider",
+            id: "mercflow-shipmondo",
+          },
+        ],
+      },
+    },
+    {
       resolve: "@mercflow/subscription-module",
     },
   ],

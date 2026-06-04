@@ -14,7 +14,30 @@ export type ConnectorConfigRecord = {
   webhook_secret_last4: string | null
   connection_status: string | null
   last_test_message: string | null
+  /** Non-sensitive connector-authored rules blob (shipping rules when `type === shipmondo`). */
+  rules_json: unknown | null
 }
+
+/** Admin + storefront-compatible presentation (camelCase) for Shipmondo shipping commerce rules. */
+export type ShipmondoShippingRulesAdminDto = {
+  markupAmountMinor: number
+  freeShippingThresholdMinor: number
+  enabledCarrierCodes: string[]
+}
+
+/** One Shipmondo carrier product surfaced in MercFlow admin (fetch-carriers UX). */
+export type ShipmondoCarrierProductAdminDto = {
+  productCode: string
+  carrierCode: string | null
+  name: string
+  /** Billable Shipmondo retail baseline in smallest currency units (øre/cents before MercFlow markup). */
+  basePriceMinor: number
+}
+
+/** Lightweight read-model for storefronts / checkout calculators. */
+export type StoreShipmondoRulesDto = {
+  active: boolean
+} & ShipmondoShippingRulesAdminDto
 
 export type StripeVatMode = "inclusive" | "exclusive"
 
@@ -92,6 +115,7 @@ export type ShipmondoAdminGetDto = {
   lastTestedAt: string | null
   credentials: ShipmondoCredentialFlags
   recentLogs: ShipmondoAdminLogDto[]
+  shippingRules: ShipmondoShippingRulesAdminDto
 }
 
 export type ShipmondoConnectionTestDto = {

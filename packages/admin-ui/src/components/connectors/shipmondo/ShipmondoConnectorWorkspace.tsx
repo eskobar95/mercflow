@@ -7,6 +7,8 @@ import { Card } from "@/components/ui/Card"
 import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
 import { Switch } from "@/components/ui/Switch"
+import { ShipmondoShippingRulesSection } from "@/components/connectors/shipmondo/ShipmondoShippingRulesSection"
+import type { ShipmondoAdminLogDto } from "@/features/connectors/shipmondoTypes"
 import { useShipmondoConnectorSettings } from "@/hooks/useShipmondoConnectorSettings"
 
 const lastTestedAtFormatter = new Intl.DateTimeFormat(undefined, {
@@ -338,17 +340,21 @@ export function ShipmondoConnectorWorkspace(): JSX.Element {
             </div>
           </Card>
 
+          <ShipmondoShippingRulesSection
+            configured={configured}
+            shippingRules={snapshot.shippingRules}
+          />
+
           {testBanner ? (
-            <div
-              role="status"
+            <output
               className={
                 testBanner.tone === "success"
-                  ? "rounded-md border border-feedback-success-subtle bg-feedback-success-subtle/40 px-4 py-3 text-sm text-feedback-success-content"
-                  : "rounded-md border border-feedback-danger-subtle bg-feedback-danger-subtle/40 px-4 py-3 text-sm text-feedback-danger-content"
+                  ? "block rounded-md border border-feedback-success-subtle bg-feedback-success-subtle/40 px-4 py-3 text-sm text-feedback-success-content"
+                  : "block rounded-md border border-feedback-danger-subtle bg-feedback-danger-subtle/40 px-4 py-3 text-sm text-feedback-danger-content"
               }
             >
               {testBanner.message}
-            </div>
+            </output>
           ) : null}
 
           <Card elevation="flat" compact>
@@ -365,7 +371,7 @@ export function ShipmondoConnectorWorkspace(): JSX.Element {
               <p className="mt-4 text-sm text-content-secondary">No probes recorded yet.</p>
             ) : (
               <ul className="mt-4 space-y-3">
-                {snapshot.recentLogs.map((log) => (
+                {snapshot.recentLogs.map((log: ShipmondoAdminLogDto) => (
                   <li
                     key={log.id}
                     className="flex flex-col gap-2 rounded-sm border border-border-subtle bg-surface-subtle p-3 md:flex-row md:items-center md:justify-between"

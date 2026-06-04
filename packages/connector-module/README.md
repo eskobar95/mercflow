@@ -7,7 +7,7 @@ MercFlow Medusa v2 module that persists **per-store connector credentials** (`co
 - DML models and migrations for `connector_config` + `connector_log`.
 - AES-256-GCM encryption for stored credentials (`MERCFLOW_CONNECTOR_ENCRYPTION_KEY`), `mf1:`-prefixed ciphertext.
 - Module service helpers for summarising connector availability, activation, last connection tests, **Shipmondo** persistence and connectivity probes, **Stripe-specific** behaviours (credential save, Stripe API test, catalogue sync to Stripe Prices, payment-intent summaries, storefront VAT hint), **Plunk-specific** credential storage and connectivity probes, and **GTM-specific** container ID persistence for storefront injection.
-- Admin and store HTTP handlers (`/admin/connectors`, `/admin/connectors/shipmondo/*`, `/admin/connectors/stripe/*`, `/admin/connectors/plunk/*`, `/admin/connectors/gtm`, `/store/connectors/shipmondo/active`, `/store/connectors/stripe/vat`, `/store/connectors/gtm`), re-exported from `apps/backend` for Medusa route discovery.
+- Admin and store HTTP handlers (`/admin/connectors`, `/admin/connectors/shipmondo/*`, `/admin/connectors/stripe/*`, `/admin/connectors/plunk/*`, `/admin/connectors/gtm`, `/store/connectors/shipmondo/active`, `/store/connectors/shipmondo/rules`, `/store/connectors/stripe/vat`, `/store/connectors/gtm`), re-exported from `apps/backend` for Medusa route discovery.
 
 ## Field definitions (`connector_config`)
 
@@ -24,6 +24,7 @@ MercFlow Medusa v2 module that persists **per-store connector credentials** (`co
 | `webhook_secret_last4`     | text        | Nullable — last four chars of webhook secret preview |
 | `connection_status`        | text        | Nullable — `ok` / `error` after the last outbound probe |
 | `last_test_message`        | text        | Nullable — human-readable (non-sensitive) probe summary |
+| `rules_json`               | jsonb       | Nullable — integration-specific **non-secret** settings. Shipmondo persists `{ "markup_amount_minor": number, "free_shipping_threshold_minor": number, "enabled_carrier_codes": string[] }` where `enabled_carrier_codes` stores Shipmondo `product_code` values that remain selectable at checkout. |
 
 ## Field definitions (`connector_log`)
 
@@ -52,15 +53,24 @@ MercFlow Medusa v2 module that persists **per-store connector credentials** (`co
 
 | Method | Path                                | Purpose |
 |--------|-------------------------------------|---------|
-| `GET`  | `/admin/connectors/shipmondo`       | Returns `{ data: ShipmondoAdminGetDto }` (camelCase, **never exposes plaintext secrets). |
+| `GET`  | `/admin/connectors/shipmondo`       | Returns `{ data: ShipmondoAdminGetDto }` (camelCase, **never exposes plaintext secrets), including `shippingRules` read from `rules_json`. |
 | `PATCH`| `/admin/connectors/shipmondo`       | Zod-validated credential + `active` updates; AES encrypts payloads at rest. |
 | `POST` | `/admin/connectors/shipmondo/test` | Calls Shipmondo's public shipments endpoint via Basic auth → `{ success, message?, error? }`. |
+| `GET`  | `/admin/connectors/shipmondo/carriers` | Proxies `GET https://app.shipmondo.com/api/public/v3/products` (default `country_code=DK`, override via `country_code` query) → `{ data: [{ productCode, carrierCode?, name, basePriceMinor }] }`. |
+| `PATCH`| `/admin/connectors/shipmondo/rules` | Persists non-secret `{ markupAmountMinor, freeShippingThresholdMinor, enabledCarrierCodes[] }` into `rules_json` (stored keys remain snake_case in the DB payload). |
 
 ### Shipmondo storefront gate
 
 | Method | Path                                 | Purpose |
 |--------|--------------------------------------|---------|
 | `GET`  | `/store/connectors/shipmondo/active` | `{ data: { active } }` — Shipmondo is only advertised when ciphertext exists **and** the operator toggle stays on. |
+| `GET`  | `/store/connectors/shipmondo/rules` | `{ data: { active, markupAmountMinor, freeShippingThresholdMinor, enabledCarrierCodes } }` — public read model so storefront checkout calculators can honour connector pricing without ENV secrets. Duplicate `active` guard mirrors the activation endpoint for defensive consumers. |
+
+> **Checkout integration:** register `@mercflow/connector-module/mercflow-shipmondo-fulfillment-provider` under the Fulfillment module `providers` option (see `apps/backend/medusa-config.ts`). Create **calculated** shipping options whose `data` includes:
+> - `mercflow_shipmondo_product_code` — Shipmondo `product_code` from the carrier catalogue
+> - `mercflow_shipmondo_base_price_minor` — baseline retail price in minor units (e.g. DKK øre) taken from the catalogue `basePriceMinor`
+>
+> At quote time Medusa runs `calculateShippingOptionsPricesWorkflow`, which invokes the MercFlow Shipmondo fulfillment provider so checkout honours `rules_json` markup, free-shipping threshold, and enabled product codes. Composer integrations can still import `@mercflow/connector-module/mercflow-shipmondo-checkout-pricing` for the same pure calculator (`calculateShipmondoCheckoutShippingMinor`).
 
 > **Operational note:** External apps that previously depended on raw `SHIPMONDO_API_*` secrets should migrate to these APIs so deployments no longer mandate environment variables once credentials are persisted.
 

@@ -12,6 +12,11 @@ export const shipmondoPatchBodySchema = z
 
 export type ShipmondoPatchBody = z.infer<typeof shipmondoPatchBodySchema>
 
+export {
+  shipmondoPatchShippingRulesBodySchema,
+  type ShipmondoPatchShippingRulesBody,
+} from "./shipmondo-shipping-rules"
+
 export const patchPlunkConnectorSchema = z
   .object({
     api_key: z.string().min(1).optional(),
