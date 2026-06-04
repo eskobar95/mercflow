@@ -39,6 +39,7 @@ export type SitemapCatalogCategory = {
 export type SitemapCatalogPage = {
   id: string
   slug: string
+  locale: string
   updated_at: string | null
 }
 
@@ -99,7 +100,7 @@ function parseCategoryRow(row: unknown): SitemapCatalogCategory | null {
   }
   const id = typeof row.id === "string" ? row.id : null
   const handle = typeof row.handle === "string" ? row.handle.trim() : ""
-  if (row.is_active === false) {
+  if (row.is_active === false || row.is_internal === true) {
     return null
   }
   if (!id || !handle) {
@@ -163,7 +164,12 @@ export async function loadCategories(
   while (true) {
     const page = await graph({
       entity: "product_category",
-      fields: ["id", "handle", "updated_at", "is_active"],
+      fields: ["id", "handle", "updated_at", "is_active", "is_internal"],
+      filters: {
+        products: {
+          sales_channels: { id: salesChannelIds },
+        },
+      },
       pagination: { take: CATALOG_PAGE_SIZE, skip },
     })
     const rows = Array.isArray(page.data) ? page.data : []
@@ -197,13 +203,12 @@ type ContentPageReader = {
 
 export async function loadPublishedPages(
   scope: MedusaContainer,
-  storeId: string,
-  locale: string = DEFAULT_LOCALE
+  storeId: string
 ): Promise<SitemapCatalogPage[]> {
   const contentService = scope.resolve(CONTENT_MODULE) as ContentPageReader
   return contentService.withTenant(storeId, async () => {
     const rows = await contentService.listPages(
-      { status: "published", locale },
+      { status: "published" },
       { order: { updated_at: "DESC" } }
     )
     const pages: SitemapCatalogPage[] = []
@@ -213,6 +218,10 @@ export async function loadPublishedPages(
       }
       const id = typeof row.id === "string" ? row.id : null
       const slug = typeof row.slug === "string" ? row.slug.trim() : ""
+      const locale =
+        typeof row.locale === "string" && row.locale.trim().length > 0
+          ? row.locale.trim()
+          : DEFAULT_LOCALE
       if (!id || !slug) {
         continue
       }
@@ -222,7 +231,7 @@ export async function loadPublishedPages(
           : typeof row.updated_at === "string"
             ? row.updated_at
             : null
-      pages.push({ id, slug, updated_at })
+      pages.push({ id, slug, locale, updated_at })
     }
     return pages
   })

@@ -6,6 +6,7 @@ import {
   loadSitemapCatalog,
   productPath,
 } from "./catalog-loader"
+import { pagePublicPathFromSlug } from "./utils/paths"
 import { buildSitemapXml } from "./sitemap-xml"
 import type SeoModuleService from "./service"
 import type {
@@ -102,7 +103,10 @@ export class SitemapGeneratorService {
       }
       const typeSetting = settingForType(settings, "page")
       entries.push({
-        loc: buildAbsoluteLoc(storefrontUrl, `/pages/${page.slug}`),
+        loc: buildAbsoluteLoc(
+          storefrontUrl,
+          pagePublicPathFromSlug(page.slug, page.locale)
+        ),
         lastmod: page.updated_at ?? undefined,
         changefreq: typeSetting.changefreq,
         priority: typeSetting.priority,
