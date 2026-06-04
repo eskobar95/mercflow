@@ -4,9 +4,21 @@
 
 ---
 
+## 2026-06-04 — Sprint S003 merged to development
+
+**PR:** https://github.com/eskobar95/mercflow/pull/60 (squash `b2e1d90`)
+
+- Merged after green CI + all Bugbot threads resolved (9/9).
+- Remote branch `cursor/s003-sitemap-robots-tenant-6449` deleted; no separate worktree on agent VM.
+- Local `development` synced: `git fetch --prune && git pull origin development` → `b2e1d90`.
+
+**Gate:** Green.
+
+---
+
 ## 2026-06-04 — Sprint S003 complete (sitemap + robots + tenant middleware)
 
-**Branch:** `cursor/s003-sitemap-robots-tenant-6449`
+**Branch:** `cursor/s003-sitemap-robots-tenant-6449` (merged — see above)
 
 ### Delivered
 - **T008:** Shared `mercflowPublicTenantMiddleware` — Host → `mercflow_seo_config.storefront_url` (option A), 60s cache; wired on `/sitemap.xml`, `/robots.txt`, `/feed/*`; feed shim delegates to seo-module.
