@@ -31,8 +31,10 @@ jobs:
         with:
           fail-on-severity: high
           comment-summary-in-pr: always
-          # Allow known false positives here if needed:
-          # allow-ghsas: GHSA-xxxx-xxxx-xxxx
+          # GHSA-5xrq-8626-4rwp: vitest UI server file read.
+          # Only exploitable via `vitest --ui`; we use `vitest run` only.
+          # Remove when vite@6 + vitest@4 migration is complete.
+          allow-ghsas: GHSA-5xrq-8626-4rwp
 
   # ─────────────────────────────────────────────────────────────────────────────
   # 2. pnpm audit — blocks on HIGH/CRITICAL CVEs in lockfile
