@@ -143,11 +143,9 @@ export function PurchaseOrdersListPage(): JSX.Element {
 
   const getRowActions = useCallback(
     (row: PurchaseOrderDto): RowActionItem[] => {
-      if (row.status !== "draft") {
-        return []
-      }
-      return [
-        {
+      const actions: RowActionItem[] = []
+      if (row.status === "draft") {
+        actions.push({
           id: "mark-ordered",
           label: "Mark as ordered",
           onSelect: () => {
@@ -160,10 +158,20 @@ export function PurchaseOrdersListPage(): JSX.Element {
               }
             })()
           },
-        },
-      ]
+        })
+      }
+      if (row.status === "ordered" || row.status === "partially_received") {
+        actions.push({
+          id: "receive",
+          label: "Receive goods",
+          onSelect: () => {
+            navigate(`/inventory/purchase-orders/${encodeURIComponent(row.id)}/receive`)
+          },
+        })
+      }
+      return actions
     },
-    [load]
+    [load, navigate]
   )
 
   if (!hasBackend) {
@@ -181,7 +189,7 @@ export function PurchaseOrdersListPage(): JSX.Element {
     <div className="space-y-4 p-6">
       <ListToolbar
         title="Purchase orders"
-        description="Draft and ordered POs. Receipt recording ships in a later sprint."
+        description="Create POs, mark as ordered, and record receipts when goods arrive."
         end={
           <Button type="button" onClick={() => navigate("/inventory/purchase-orders/new")}>
             New purchase order
