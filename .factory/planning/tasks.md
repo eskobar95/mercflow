@@ -1179,11 +1179,12 @@ Orders list shows status badges, customer, amount, date, fulfillment status. Fil
 
 **Sprint:** S008
 **Milestone:** M005
-**Status:** in-progress
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** M000 done (T003 merged)
 **Branch:** cursor/s008-order-flow-b792
+**PR:** https://github.com/eskobar95/mercflow/pull/56
 **PRD journey:** J012
 
 ### Slice objective
