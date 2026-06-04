@@ -6,7 +6,7 @@ MercFlow Medusa v2 module for shopping feed configuration and XML generation (Go
 
 - Own `mercflow_feed_config` per tenant (`store_id`): storefront base URL, excluded products/categories, default item condition.
 - Expose `FeedConfigService.get(storeId)` and `FeedConfigService.update(storeId, config)` for admin and feed generation slices.
-- Serve public feed routes (for example `GET /feed/google-shopping.xml`) in later tasks — not in the T017 scaffold.
+- Serve `GET /feed/google-shopping.xml` (Google Shopping RSS/XML, tenant-scoped by Host, cached with catalogue invalidation).
 
 ## Does not belong here
 
@@ -33,6 +33,18 @@ MercFlow Medusa v2 module for shopping feed configuration and XML generation (Go
 ## Module key
 
 Registered as `mercflow_feed` in `apps/backend/medusa-config.ts`.
+
+## Public feed route
+
+| Route | Content-Type | Tenancy |
+| --- | --- | --- |
+| `GET /feed/google-shopping.xml` | `application/xml` | `Host` → `store_id` via `mercflow_feed_config.storefront_url` (see `tenant-resolver.ts`). Optional `X-Store-Id` for local testing. Fail closed → `404`. |
+
+Feed field mapping (T018): `id` = variant SKU; `title` = product title; `description` = `seo_description` → product description; `link` = `storefront_url` + handle; `image_link` = content gallery / OG / thumbnail; `price` = variant price + currency; `availability` from inventory; `brand` from `brand` tables when present.
+
+Cache: in-memory per `store_id` (60s TTL). Invalidated on `product.created` / `product.updated` / `product.deleted` subscribers in `apps/backend`.
+
+Env (see `.env.example`): `MERCFLOW_FEED_HOST_MAP`, `MERCFLOW_TENANT_STORE_IDS`.
 
 ## Local development
 
