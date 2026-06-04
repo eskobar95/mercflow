@@ -14,11 +14,14 @@ MercFlow Medusa v2 custom module: native content fields (rich description, SEO, 
 
 Table and column names follow DML; PostgreSQL types follow Medusa’s mapping unless a task explicitly requires a database-level type (e.g. `varchar(255)` for `seo_title`).
 
+**Tenancy:** Every MercFlow content table includes `store_id` (text, NOT NULL, indexed) — Medusa store ID for the tenant. Locale/slug/scope uniqueness is scoped per `store_id` (see `Migration20260604120000AddStoreIdTenancy`). Service-layer filtering by `store_id` is enforced in later milestones (Factory T002+).
+
 ### ProductContent (`product_content`)
 
 | Field | Type | Notes |
 | --- | --- | --- |
 | `id` | text (PK) | Medusa `model.id().primaryKey()` |
+| `store_id` | text | Tenant discriminator; indexed |
 | `product_id` | text | Reference to `product.id`; indexed |
 | `locale` | text | BCP-47 locale code (same as Medusa admin) |
 | `body_json` | jsonb, nullable | TipTap JSON for this locale |
@@ -27,13 +30,14 @@ Table and column names follow DML; PostgreSQL types follow Medusa’s mapping un
 | `og_image_url` | text, nullable | OG/social image URL for this row |
 | `status` | `draft` \| `published` | |
 | `version` | integer, default `1` | |
-| | | Unique `(product_id, locale)` |
+| | | Unique `(product_id, locale, store_id)` |
 
 ### CategoryContent (`category_content`)
 
 | Field | Type | Notes |
 | --- | --- | --- |
 | `id` | text (PK) | |
+| `store_id` | text | Tenant discriminator; indexed |
 | `category_id` | text | Reference to `product_category.id`; indexed |
 | `locale` | text | |
 | `body_json` | jsonb, nullable | TipTap JSON |
@@ -43,14 +47,15 @@ Table and column names follow DML; PostgreSQL types follow Medusa’s mapping un
 | `banner_image_url` | text, nullable | Hero/banner image URL |
 | `status` | `draft` \| `published` | |
 | `version` | integer, default `1` | |
-| | | Unique `(category_id, locale)` |
+| | | Unique `(category_id, locale, store_id)` |
 
 ### Article (`article`)
 
 | Field | Type | Notes |
 | --- | --- | --- |
 | `id` | text (PK) | |
-| `slug` | text | Unique per `locale` |
+| `store_id` | text | Tenant discriminator; indexed |
+| `slug` | text | Unique per `(locale, store_id)` |
 | `title` | text | |
 | `body_json` | jsonb, nullable | |
 | `locale` | text | |
@@ -62,7 +67,8 @@ Table and column names follow DML; PostgreSQL types follow Medusa’s mapping un
 | Field | Type | Notes |
 | --- | --- | --- |
 | `id` | text (PK) | |
-| `slug` | text | Unique per `locale` among active (`deleted_at` null) rows |
+| `store_id` | text | Tenant discriminator; indexed |
+| `slug` | text | Unique per `(locale, store_id)` among rows with `deleted_at` null (partial index in migration) |
 | `title` | text | |
 | `page_type` | `homepage` \| `landing` \| `content` | |
 | `status` | `draft` \| `published` | |
@@ -73,6 +79,7 @@ Table and column names follow DML; PostgreSQL types follow Medusa’s mapping un
 | Field | Type | Notes |
 | --- | --- | --- |
 | `id` | text (PK) | |
+| `store_id` | text | Tenant discriminator; indexed |
 | `page_id` | text | FK → `page.id` |
 | `version` | integer | |
 | `status` | `draft` \| `published` | |
@@ -83,6 +90,7 @@ Table and column names follow DML; PostgreSQL types follow Medusa’s mapping un
 | Field | Type | Notes |
 | --- | --- | --- |
 | `id` | text (PK) | |
+| `store_id` | text | Tenant discriminator; indexed |
 | `page_version_id` | text | FK → `page_version.id` |
 | `sort_order` | integer | |
 | `block_type` | text | |
@@ -93,7 +101,8 @@ Table and column names follow DML; PostgreSQL types follow Medusa’s mapping un
 | Field | Type | Notes |
 | --- | --- | --- |
 | `id` | text (PK) | |
-| `scope` | text | Unique scope key (e.g. `default`) |
+| `store_id` | text | Tenant discriminator; indexed |
+| `scope` | text | Unique per `(scope, store_id)` |
 | `data_json` | jsonb, nullable | |
 
 ### CmsRedirect (`cms_redirect`)
@@ -101,7 +110,8 @@ Table and column names follow DML; PostgreSQL types follow Medusa’s mapping un
 | Field | Type | Notes |
 | --- | --- | --- |
 | `id` | text (PK) | |
-| `from_path` | text | Indexed source path |
+| `store_id` | text | Tenant discriminator; indexed |
+| `from_path` | text | Unique per `(from_path, store_id)` |
 | `to_path` | text | Destination path |
 
 ### MediaAsset (`media_asset`)
@@ -109,6 +119,7 @@ Table and column names follow DML; PostgreSQL types follow Medusa’s mapping un
 | Field | Type | Notes |
 | --- | --- | --- |
 | `id` | text (PK) | |
+| `store_id` | text | Tenant discriminator; indexed |
 | `url` | text | |
 | `alt` | text, nullable | |
 | `mime_type` | text, nullable | |
@@ -120,7 +131,8 @@ Table and column names follow DML; PostgreSQL types follow Medusa’s mapping un
 | Field | Type | Notes |
 | --- | --- | --- |
 | `id` | text (PK) | |
-| `handle` | text | Unique handle |
+| `store_id` | text | Tenant discriminator; indexed |
+| `handle` | text | Unique per `(handle, store_id)` |
 | `label` | text | |
 | `value_type` | `text` \| `number` \| `boolean` | |
 
@@ -129,15 +141,16 @@ Table and column names follow DML; PostgreSQL types follow Medusa’s mapping un
 | Field | Type | Notes |
 | --- | --- | --- |
 | `id` | text (PK) | |
+| `store_id` | text | Tenant discriminator; indexed |
 | `product_id` | text | |
 | `attribute_id` | text | FK → `product_attribute.id` |
 | `value_text` | text, nullable | |
-| | | Unique `(product_id, attribute_id)` |
+| | | Unique `(product_id, attribute_id, store_id)` |
 
 ## Localization
 
 - Admin product/category content routes use `?locale=<code>`; default is `en` when omitted.
-- **Storage:** one row per `(entity_id, locale)` with `body_json` holding TipTap JSON for that locale (no JSON locale map in a single column).
+- **Storage:** one row per `(entity_id, locale, store_id)` with `body_json` holding TipTap JSON for that locale (no JSON locale map in a single column).
 - **Legacy API mapping:** `description_rich` in HTTP bodies maps to `body_json`. `seo_og_image_id` maps to `og_image_url`; `banner_image_id` maps to `banner_image_url`. `media_gallery` is accepted but not stored until a gallery model exists (`null` on read).
 
 ## Layout

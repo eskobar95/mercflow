@@ -3,6 +3,7 @@ import { model } from "@medusajs/framework/utils"
 export const CategoryContent = model
   .define("category_content", {
     id: model.id().primaryKey(),
+    store_id: model.text().index("IDX_category_content_store_id"),
     category_id: model.text().index("IDX_category_content_category_id"),
     locale: model.text(),
     body_json: model.json().nullable(),
@@ -15,8 +16,8 @@ export const CategoryContent = model
   })
   .indexes([
     {
-      name: "IDX_category_content_category_locale_unique",
-      on: ["category_id", "locale"],
+      name: "IDX_category_content_category_locale_store_unique",
+      on: ["category_id", "locale", "store_id"],
       unique: true,
     },
   ])
