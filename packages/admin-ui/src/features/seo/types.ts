@@ -1,5 +1,11 @@
 export type SlugStrategy = "nordic" | "omit"
 
+export type JsonLdSettingsDto = {
+  product: boolean
+  category: boolean
+  global: boolean
+}
+
 export type SeoConfigDto = {
   id: string
   store_id: string
@@ -8,6 +14,7 @@ export type SeoConfigDto = {
   org_name: string | null
   org_logo_url: string | null
   org_social_urls: Record<string, unknown> | null
+  json_ld_settings: JsonLdSettingsDto
 }
 
 export type SitemapPageType = "product" | "category" | "page"

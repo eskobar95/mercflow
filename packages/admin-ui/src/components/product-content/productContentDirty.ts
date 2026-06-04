@@ -13,6 +13,7 @@ export type ProductContentFormSnapshot = {
   seoTitle: string
   seoDescription: string
   ogImageUrl: string
+  canonicalUrlOverride: string
 }
 
 export function isProductContentDirty(
@@ -41,6 +42,11 @@ export function isProductContentDirty(
 
   const baseOg = content.og_image_url ?? ""
   if (baseOg !== form.ogImageUrl) {
+    return true
+  }
+
+  const baseCanonical = content.canonical_url_override ?? ""
+  if (baseCanonical !== form.canonicalUrlOverride) {
     return true
   }
 

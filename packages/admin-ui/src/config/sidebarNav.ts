@@ -121,6 +121,8 @@ export const settingsSidebarSection: SidebarNavSection = {
   label: "Settings",
   items: [
     { label: "General", to: "/settings", end: true, icon: IconSettings },
+    { label: "SEO — Organisation", to: "/settings/seo/organisation", icon: IconSettings },
+    { label: "SEO — Structured data", to: "/settings/seo/structured-data", icon: IconSettings },
     { label: "SEO — Slugs", to: "/settings/seo/slug", icon: IconSettings },
     { label: "SEO — Redirects", to: "/settings/seo/redirects", icon: IconSettings },
     { label: "SEO — Sitemap", to: "/settings/seo/sitemap", icon: IconSettings },

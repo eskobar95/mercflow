@@ -10,6 +10,7 @@ export type ProductContentReadPayload = {
   seo_title: string | null
   seo_description: string | null
   og_image_url: string | null
+  canonical_url_override: string | null
   status: string
 }
 
@@ -37,4 +38,5 @@ export type SaveProductContentBody = {
   seo_description?: string | null
   seo_og_image_id?: string | null
   media_gallery?: string[] | null
+  canonical_url_override?: string | null
 }

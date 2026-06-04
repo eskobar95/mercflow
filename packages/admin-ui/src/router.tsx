@@ -260,6 +260,26 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "settings/seo/organisation",
+        handle: { title: "SEO — Organisation" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { SeoOrganizationSettingsPage } = await import(
+            "@/pages/SeoOrganizationSettingsPage"
+          )
+          return { Component: SeoOrganizationSettingsPage }
+        },
+      },
+      {
+        path: "settings/seo/structured-data",
+        handle: { title: "SEO — Structured data" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { SeoStructuredDataSettingsPage } = await import(
+            "@/pages/SeoStructuredDataSettingsPage"
+          )
+          return { Component: SeoStructuredDataSettingsPage }
+        },
+      },
+      {
         path: "settings/seo/slug",
         handle: { title: "SEO — Slugs" } satisfies AppRouteHandle,
         lazy: async () => {

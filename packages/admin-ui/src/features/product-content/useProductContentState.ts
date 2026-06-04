@@ -27,6 +27,10 @@ function mergeOptimisticServerPayload(
       body.seo_description !== undefined ? body.seo_description : snapshot.seo_description,
     og_image_url:
       body.seo_og_image_id !== undefined ? body.seo_og_image_id : snapshot.og_image_url,
+    canonical_url_override:
+      body.canonical_url_override !== undefined
+        ? body.canonical_url_override
+        : snapshot.canonical_url_override,
     version: snapshot.version + 1,
   }
 }
