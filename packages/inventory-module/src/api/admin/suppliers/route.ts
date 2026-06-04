@@ -3,10 +3,7 @@ import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { supplierToAdminJson } from "../../http/supplier-json"
 import { sendZodError } from "../../http/zod-error"
 import { INVENTORY_MODULE } from "../../../modules/inventory"
-import {
-  supplierPatchBodySchema,
-  supplierPostBodySchema,
-} from "../../../modules/inventory/http-schemas"
+import { supplierPostBodySchema } from "../../../modules/inventory/http-schemas"
 import { resolveMercflowStoreId } from "../../../modules/inventory/resolve-store-id"
 import type InventoryModuleService from "../../../modules/inventory/service"
 
