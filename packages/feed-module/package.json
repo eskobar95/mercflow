@@ -5,7 +5,10 @@
   "description": "MercFlow Medusa v2 module: shopping feed configuration and generation (Batch 2).",
   "main": "src/modules/feed/index.ts",
   "exports": {
-    ".": "./src/modules/feed/index.ts"
+    ".": "./src/modules/feed/index.ts",
+    "./mercflow-feed-google-shopping-route": "./src/integrations/mercflow-feed-google-shopping-route.ts",
+    "./mercflow-feed-tenant-middleware": "./src/integrations/mercflow-feed-tenant-middleware.ts",
+    "./mercflow-feed-cache": "./src/integrations/mercflow-feed-cache.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -18,7 +21,9 @@
     "@medusajs/framework": "2.14.1",
     "@medusajs/medusa": "2.14.1",
     "@medusajs/types": "2.14.1",
-    "@medusajs/utils": "2.14.1"
+    "@medusajs/utils": "2.14.1",
+    "@mercflow/content-module": "workspace:*",
+    "zod": "^3.25.0"
   },
   "devDependencies": {
     "@medusajs/cli": "2.14.1",

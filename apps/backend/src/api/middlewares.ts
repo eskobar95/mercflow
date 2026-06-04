@@ -1,4 +1,5 @@
 import { defineMiddlewares } from "@medusajs/framework/http"
+import { mercflowFeedTenantMiddleware } from "@mercflow/feed-module/mercflow-feed-tenant-middleware"
 
 import { loadRateLimitConfig } from "../lib/rate-limit/config"
 import { InMemoryTtlRateLimitStore } from "../lib/rate-limit/in-memory-ttl-counter"
@@ -41,7 +42,7 @@ export default defineMiddlewares({
     {
       matcher: "/feed*",
       method: ["GET"],
-      middlewares: [publicRateLimitMiddleware],
+      middlewares: [mercflowFeedTenantMiddleware, publicRateLimitMiddleware],
     },
     {
       matcher: "/store*",
