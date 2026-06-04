@@ -178,11 +178,12 @@ All 17 tables from T001 where MercFlow owns the service layer. Guapo-custom tabl
 
 **Sprint:** S001
 **Milestone:** M000
-**Status:** todo
+**Status:** done
 **Mode:** HITL
 **Parallel group:** C
 **Blocked by:** T002
 **Branch:** feature/S001/T003-rate-limiting
+**PR:** #53
 **PRD journey:** —
 **ADRs:** ADR-005
 
@@ -211,8 +212,8 @@ Public routes (`/sitemap.xml`, `/robots.txt`, `/feed/*`) return `429` after 60 r
 
 ### Acceptance criteria
 
-- [ ] `429 Too Many Requests` with `Retry-After: 60` header returned after threshold
-- [ ] Limits configurable via env vars (`RATE_LIMIT_PUBLIC`, `RATE_LIMIT_STORE`)
+- [x] `429 Too Many Requests` with `Retry-After: 60` header returned after threshold
+- [x] Limits configurable via env vars (`RATE_LIMIT_PUBLIC_RPM`, `RATE_LIMIT_STORE_RPM`)
 - [ ] Human confirms Neon `block_public_connections` discussion (note in PR if private link not yet available)
 
 ### HITL checkpoint
@@ -232,11 +233,11 @@ Before merging: human adds Railway static egress IPs to Neon project `allowed_ip
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes
-- [ ] `pnpm lint` passes
-- [ ] Tests written and passing
-- [ ] No secrets or debug artifacts
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes
+- [x] `pnpm lint` passes
+- [x] Tests written and passing
+- [x] No secrets or debug artifacts
+- [x] PR description filled in
 - [ ] HITL: Railway IPs added to Neon allowlist (human step, documented in PR)
 
 ---

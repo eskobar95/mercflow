@@ -30,7 +30,11 @@ From the **repository root** after `pnpm install`:
 | `STORE_CORS` | Optional; default `http://localhost:3000` in `medusa-config.ts` |
 | `ADMIN_CORS` | Optional; default `http://localhost:7001` |
 | `AUTH_CORS` | Optional; default `http://localhost:7001` |
-| `MERCFLOW_CONNECTOR_ENCRYPTION_KEY` | **64 hex chars (32 bytes)** — required so `@mercflow/connector-module` can encrypt connector credentials at rest (backend will fail at runtime when the module is used if unset). Generate with e.g. `openssl rand -hex 32`. | Never commit `.env` or production secrets.
+| `MERCFLOW_CONNECTOR_ENCRYPTION_KEY` | **64 hex chars (32 bytes)** — required so `@mercflow/connector-module` can encrypt connector credentials at rest (backend will fail at runtime when the module is used if unset). Generate with e.g. `openssl rand -hex 32`. |
+| `RATE_LIMIT_PUBLIC_RPM` | Optional; default `60`. Per-IP limit for `GET /sitemap.xml`, `/robots.txt`, `/feed/*`. |
+| `RATE_LIMIT_STORE_RPM` | Optional; default `300`. Per-`x-publishable-api-key` limit for `GET /store/*`. |
+
+Never commit `.env` or production secrets.
 
 ## Registered modules
 
