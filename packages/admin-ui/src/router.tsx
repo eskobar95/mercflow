@@ -194,6 +194,22 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "settings/seo/slug",
+        handle: { title: "SEO — Slugs" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { SeoSlugSettingsPage } = await import("@/pages/SeoSlugSettingsPage")
+          return { Component: SeoSlugSettingsPage }
+        },
+      },
+      {
+        path: "settings/seo/redirects",
+        handle: { title: "SEO — Redirects" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { RedirectsListPage } = await import("@/pages/RedirectsListPage")
+          return { Component: RedirectsListPage }
+        },
+      },
+      {
         path: "settings/connectors/gtm",
         handle: { title: "Google Tag Manager" } satisfies AppRouteHandle,
         lazy: async () => {

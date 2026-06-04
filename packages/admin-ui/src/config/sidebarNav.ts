@@ -99,6 +99,8 @@ export const settingsSidebarSection: SidebarNavSection = {
   label: "Settings",
   items: [
     { label: "General", to: "/settings", end: true, icon: IconSettings },
+    { label: "SEO — Slugs", to: "/settings/seo/slug", icon: IconSettings },
+    { label: "SEO — Redirects", to: "/settings/seo/redirects", icon: IconSettings },
     { label: "Connectors", to: "/settings/connectors", icon: IconConnectors },
     { label: "Workspace", to: "/settings/workspace", icon: IconWorkspace },
     { label: "Team", to: "/settings/team", icon: IconTeam },
