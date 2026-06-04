@@ -78,6 +78,9 @@ importers:
       '@mercflow/inventory-module':
         specifier: workspace:*
         version: link:../../packages/inventory-module
+      '@mercflow/seo-module':
+        specifier: workspace:*
+        version: link:../../packages/seo-module
       '@mercflow/subscription-module':
         specifier: workspace:*
         version: link:../../packages/subscription-module
@@ -112,6 +115,9 @@ importers:
       '@mercflow/design-tokens':
         specifier: workspace:*
         version: link:../design-tokens
+      '@mercflow/seo-module':
+        specifier: workspace:*
+        version: link:../seo-module
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.15
         version: 1.1.15(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
