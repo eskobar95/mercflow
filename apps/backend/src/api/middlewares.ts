@@ -1,5 +1,6 @@
 import { defineMiddlewares } from "@medusajs/framework/http"
 import { mercflowFeedTenantMiddleware } from "@mercflow/feed-module/mercflow-feed-tenant-middleware"
+import { mercflowRedirectMiddleware } from "@mercflow/seo-module/mercflow-redirect-middleware"
 
 import { loadRateLimitConfig } from "../lib/rate-limit/config"
 import { InMemoryTtlRateLimitStore } from "../lib/rate-limit/in-memory-ttl-counter"
@@ -29,6 +30,11 @@ const storeRateLimitMiddleware = createRateLimitMiddleware({
 
 export default defineMiddlewares({
   routes: [
+    {
+      matcher: "/*",
+      method: ["GET", "HEAD"],
+      middlewares: [mercflowRedirectMiddleware],
+    },
     {
       matcher: "/sitemap.xml",
       method: ["GET"],
