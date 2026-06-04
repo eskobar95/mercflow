@@ -5,16 +5,22 @@ name: Notion Stage Sync
 # Replaces the never-deployed github-events Notion Worker.
 #
 # Handles:
-#   1. check_run failure on code-quality checks → Stage: Fix
-#   2. check_run failure on security scans      → Stage: Fix
-#   3. Bugbot review with findings             → Stage: Fix
-#   4. Bugbot review with no findings          → Stage: Ready for Merge
+#   1. workflow_run failure on CI / Security   → Stage: Fix
+#      NOTE: check_run events from GitHub Actions cannot trigger other GitHub
+#      Actions workflows (GitHub anti-loop guard). workflow_run is the correct
+#      trigger for responding to GitHub Actions CI failures.
+#   2. Bugbot review with findings             → Stage: Fix
+#   3. Bugbot review with no findings          → Stage: Ready for Merge
+#   4. schedule (cron)                         → fallback scan for stuck PRs
 
 on:
-  check_run:
+  workflow_run:
+    workflows: ["CI", "Security"]
     types: [completed]
   pull_request_review:
     types: [submitted]
+  schedule:
+    - cron: '*/15 * * * *'
 
 permissions:
   contents: read
@@ -27,29 +33,31 @@ permissions:
 
 jobs:
 
-  # ── 1. CI code-quality failure → Stage: Fix ────────────────────────────────
-  ci-quality-fix:
-    name: Stage → Fix on code-quality failure
+  # ── 1. CI failure → Stage: Fix ─────────────────────────────────────────────
+  # Triggers when the "CI" or "Security" GitHub Actions workflow completes with
+  # failure. We use workflow_run (not check_run) because GitHub Actions blocks
+  # check_run events created by GitHub Actions itself — they never fire here.
+  ci-failure-fix:
+    name: Stage → Fix on CI/Security failure
     runs-on: ubuntu-latest
     if: >
-      github.event_name == 'check_run' &&
-      github.event.check_run.conclusion == 'failure' &&
-      (
-        github.event.check_run.name == 'React Doctor (admin-ui)' ||
-        github.event.check_run.name == 'Lint, test, typecheck, build'
-      )
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.event == 'pull_request'
     steps:
       - name: Set Stage → Fix
         env:
           NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CHECK_NAME: ${{ github.event.check_run.name }}
+          WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
           set -euo pipefail
 
-          PR_NUMBER=$(echo '${{ toJson(github.event.check_run.pull_requests) }}' \
+          PR_NUMBER=$(echo '${{ toJson(github.event.workflow_run.pull_requests) }}' \
             | jq -r '.[0].number // empty')
-          [ -z "$PR_NUMBER" ] && echo "No PR — skipping." && exit 0
+          [ -z "$PR_NUMBER" ] && echo "No PR in workflow_run event — skipping." && exit 0
 
           PR_BODY=$(gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" --json body -q .body)
           NOTION_URL=$(echo "$PR_BODY" | grep -oP 'https://www\.notion\.so/[a-zA-Z0-9/_-]+' | head -1 || true)
@@ -57,6 +65,22 @@ jobs:
 
           HEX=$(echo "$NOTION_URL" | grep -oP '[0-9a-f]{32}' | tail -1)
           PAGE_ID="${HEX:0:8}-${HEX:8:4}-${HEX:12:4}-${HEX:16:4}-${HEX:20}"
+
+          # Fetch failing job names from the workflow run for context
+          FAILING_JOBS=$(gh api \
+            "repos/${{ github.repository }}/actions/runs/${RUN_ID}/jobs" \
+            --jq '[.jobs[] | select(.conclusion == "failure") | .name] | join(", ")' \
+            2>/dev/null || echo "unknown")
+
+          # Check current Notion Stage — skip if already in Fix/Implementing to avoid duplicates
+          CURRENT_STAGE=$(curl -sf "https://api.notion.com/v1/pages/$PAGE_ID" \
+            -H "Authorization: Bearer $NOTION_API_KEY" \
+            -H "Notion-Version: 2022-06-28" \
+            | jq -r '.properties.Stage.select.name // ""' 2>/dev/null || echo "")
+          if [[ "$CURRENT_STAGE" == "Fix" || "$CURRENT_STAGE" == "Implementing" ]]; then
+            echo "Stage already '$CURRENT_STAGE' — skipping duplicate trigger."
+            exit 0
+          fi
 
           curl -sf -X PATCH "https://api.notion.com/v1/pages/$PAGE_ID" \
             -H "Authorization: Bearer $NOTION_API_KEY" \
@@ -68,58 +92,9 @@ jobs:
             -H "Authorization: Bearer $NOTION_API_KEY" \
             -H "Notion-Version: 2022-06-28" \
             -H "Content-Type: application/json" \
-            -d "{\"parent\":{\"page_id\":\"$PAGE_ID\"},\"rich_text\":[{\"text\":{\"content\":\"Agent: notion-stage-sync\nCI code-quality failure → Stage Fix\n\nFailing check on PR #${PR_NUMBER}: ${CHECK_NAME}\n\nImplementation Agent dispatched. Fix only this check — no scope changes.\"}}]}"
+            -d "{\"parent\":{\"page_id\":\"$PAGE_ID\"},\"rich_text\":[{\"text\":{\"content\":\"Agent: notion-stage-sync\n${WORKFLOW_NAME} workflow failure → Stage Fix\n\nPR #${PR_NUMBER} — failing jobs: ${FAILING_JOBS}\nRun: ${RUN_URL}\n\nImplementation Agent dispatched. Fix only the failing checks — no scope changes.\"}}]}"
 
-          echo "Stage → Fix for $NOTION_URL"
-
-  # ── 2. Security scan failure → Stage: Fix ──────────────────────────────────
-  ci-security-fix:
-    name: Stage → Fix on security scan failure
-    runs-on: ubuntu-latest
-    # Covers Gitleaks (false positives → allowlist) and pnpm audit (CVE in lockfile).
-    # GitGuardian and semgrep post external checks — excluded here (they don't fire
-    # as check_run events from this repo's workflows).
-    if: >
-      github.event_name == 'check_run' &&
-      github.event.check_run.conclusion == 'failure' &&
-      (
-        github.event.check_run.name == 'Secret scan (Gitleaks)' ||
-        github.event.check_run.name == 'pnpm audit (CVE lockfile)'
-      )
-    steps:
-      - name: Set Stage → Fix
-        env:
-          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CHECK_NAME: ${{ github.event.check_run.name }}
-          CHECK_URL: ${{ github.event.check_run.html_url }}
-        run: |
-          set -euo pipefail
-
-          PR_NUMBER=$(echo '${{ toJson(github.event.check_run.pull_requests) }}' \
-            | jq -r '.[0].number // empty')
-          [ -z "$PR_NUMBER" ] && echo "No PR — skipping." && exit 0
-
-          PR_BODY=$(gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" --json body -q .body)
-          NOTION_URL=$(echo "$PR_BODY" | grep -oP 'https://www\.notion\.so/[a-zA-Z0-9/_-]+' | head -1 || true)
-          [ -z "$NOTION_URL" ] && echo "No Notion URL in PR body — skipping." && exit 0
-
-          HEX=$(echo "$NOTION_URL" | grep -oP '[0-9a-f]{32}' | tail -1)
-          PAGE_ID="${HEX:0:8}-${HEX:8:4}-${HEX:12:4}-${HEX:16:4}-${HEX:20}"
-
-          curl -sf -X PATCH "https://api.notion.com/v1/pages/$PAGE_ID" \
-            -H "Authorization: Bearer $NOTION_API_KEY" \
-            -H "Notion-Version: 2022-06-28" \
-            -H "Content-Type: application/json" \
-            -d '{"properties": {"Stage": {"select": {"name": "Fix"}}}}'
-
-          curl -sf -X POST "https://api.notion.com/v1/comments" \
-            -H "Authorization: Bearer $NOTION_API_KEY" \
-            -H "Notion-Version: 2022-06-28" \
-            -H "Content-Type: application/json" \
-            -d "{\"parent\":{\"page_id\":\"$PAGE_ID\"},\"rich_text\":[{\"text\":{\"content\":\"Agent: notion-stage-sync\nSecurity scan failure → Stage Fix\n\nFailing check on PR #${PR_NUMBER}: ${CHECK_NAME}\nDetails: ${CHECK_URL}\n\nFor Gitleaks: check if this is a false positive. If so, add an allowlist entry in .gitleaks.toml. Do NOT suppress the check itself.\nFor pnpm audit: update the vulnerable package or add a resolution override.\n\nImplementation Agent dispatched.\"}}]}"
-
-          echo "Stage → Fix (security) for $NOTION_URL"
+          echo "Stage → Fix for PR #$PR_NUMBER ($NOTION_URL) — ${WORKFLOW_NAME} failed: $FAILING_JOBS"
 
   # ── 2. Bugbot findings → Stage: Fix ────────────────────────────────────────
   bugbot-fix:
@@ -176,7 +151,35 @@ jobs:
       contains(github.event.review.body, 'BUGBOT_REVIEW') &&
       !contains(github.event.review.body, 'BUGBOT_FIX_ALL')
     steps:
+      - name: Guard — CI must be green before Ready for Merge
+        id: ci-guard
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+
+          # Fetch all checks for this PR. Exclude internal notion-stage-sync checks.
+          INTERNAL="Stage → Fix on CI/Security failure|Stage → Fix on Bugbot findings|Stage → Ready for Merge on Bugbot approval|Notion Stage Sync"
+
+          CHECKS=$(gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" \
+            --json statusCheckRollup -q '.statusCheckRollup // []')
+
+          FAILURES=$(echo "$CHECKS" | jq -r \
+            '.[] | select(.conclusion == "FAILURE") | select(.name | test("'"$INTERNAL"'") | not) | .name')
+
+          if [ -n "$FAILURES" ]; then
+            echo "CI is NOT green — skipping Ready for Merge. Failing checks:"
+            echo "$FAILURES"
+            echo "ci_ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "CI is green — proceeding to Ready for Merge."
+            echo "ci_ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Set Stage → Ready for Merge
+        id: set-stage
+        if: steps.ci-guard.outputs.ci_ok == 'true'
         env:
           NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -201,6 +204,124 @@ jobs:
             -H "Authorization: Bearer $NOTION_API_KEY" \
             -H "Notion-Version: 2022-06-28" \
             -H "Content-Type: application/json" \
-            -d "{\"parent\":{\"page_id\":\"$PAGE_ID\"},\"rich_text\":[{\"text\":{\"content\":\"Agent: notion-stage-sync\nBugbot: no findings → Stage Ready for Merge\n\nPR #${PR_NUMBER} passed Bugbot review. Tech Lead Merge Agent dispatched.\"}}]}"
+            -d "{\"parent\":{\"page_id\":\"$PAGE_ID\"},\"rich_text\":[{\"text\":{\"content\":\"Agent: notion-stage-sync\nBugbot: no findings → Stage Ready for Merge\n\nPR #${PR_NUMBER} passed Bugbot review. CI confirmed green. Tech Lead Merge Agent dispatched.\"}}]}"
 
+          echo "notion_url=$NOTION_URL" >> "$GITHUB_OUTPUT"
           echo "Stage → Ready for Merge for $NOTION_URL"
+
+      - name: Dispatch merge agent
+        if: steps.set-stage.outputs.notion_url != ''
+        env:
+          GH_TOKEN: ${{ secrets.SYNC_GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          NOTION_URL: ${{ steps.set-stage.outputs.notion_url }}
+        run: |
+          set -euo pipefail
+
+          FEATURE_BRANCH=$(gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" --json headRefName -q .headRefName)
+
+          curl -sf -X POST \
+            "https://api.github.com/repos/eskobar95/mercflow-os/dispatches" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            -d "{\"event_type\":\"pr-ready-to-merge\",\"client_payload\":{\"pageUrl\":\"$NOTION_URL\",\"featureBranch\":\"$FEATURE_BRANCH\",\"prNumber\":\"$PR_NUMBER\"}}"
+
+          echo "Dispatched pr-ready-to-merge for PR #$PR_NUMBER branch=$FEATURE_BRANCH"
+
+  # ── Cron fallback: catch PRs stuck in Bugbot stage ──────────────────────────
+  # The pull_request_review event is unreliable — we've seen Bugbot reviews that
+  # never triggered the webhook. This job runs every 15 min and picks up any PR
+  # that remains at Stage=Bugbot despite having a cursor[bot] review with
+  # BUGBOT_FIX_ALL. It sets Stage→Fix and dispatches the implementation event
+  # directly, bypassing the Notion automation entirely.
+  bugbot-stuck-fallback:
+    name: Bugbot stuck fallback (cron)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - name: Scan open PRs for stuck Bugbot stage
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          GH_TOKEN: ${{ secrets.SYNC_GITHUB_TOKEN }}
+        run: |
+          echo "=== Bugbot stuck fallback — $(date -u) ==="
+
+          OPEN_PRS=$(gh pr list \
+            --repo eskobar95/mercflow \
+            --state open \
+            --json number,body \
+            --limit 50 2>/dev/null || echo "[]")
+
+          PR_COUNT=$(echo "$OPEN_PRS" | jq 'length')
+          echo "Open PRs found: $PR_COUNT"
+
+          echo "$OPEN_PRS" | jq -c '.[]' | while IFS= read -r PR; do
+            PR_NUMBER=$(echo "$PR" | jq -r '.number')
+            PR_BODY=$(echo "$PR" | jq -r '.body // ""')
+
+            # Extract Notion URL from PR body
+            NOTION_URL=$(echo "$PR_BODY" \
+              | grep -oP 'https://www\.notion\.so/[a-zA-Z0-9/_-]+' \
+              | head -1 || true)
+            if [ -z "$NOTION_URL" ]; then
+              echo "PR #$PR_NUMBER — no Notion URL, skipping"
+              continue
+            fi
+
+            # Extract 32-char hex page ID and format as UUID
+            HEX=$(echo "$NOTION_URL" | grep -oP '[0-9a-f]{32}' | tail -1 || true)
+            if [ -z "$HEX" ]; then
+              echo "PR #$PR_NUMBER — cannot extract page ID from $NOTION_URL, skipping"
+              continue
+            fi
+            PAGE_ID="${HEX:0:8}-${HEX:8:4}-${HEX:12:4}-${HEX:16:4}-${HEX:20}"
+
+            # Fetch current Notion Stage for this task
+            PAGE=$(curl -sf "https://api.notion.com/v1/pages/$PAGE_ID" \
+              -H "Authorization: Bearer $NOTION_API_KEY" \
+              -H "Notion-Version: 2022-06-28" 2>/dev/null || echo "{}")
+            STAGE=$(echo "$PAGE" | jq -r '.properties.Stage.select.name // ""')
+
+            echo "PR #$PR_NUMBER — Notion Stage='$STAGE' ($NOTION_URL)"
+
+            if [ "$STAGE" != "Bugbot" ]; then
+              continue
+            fi
+
+            echo "PR #$PR_NUMBER — Stage=Bugbot, checking for stuck cursor[bot] review..."
+
+            # Fetch PR reviews and look for cursor[bot] with BUGBOT_FIX_ALL marker
+            REVIEWS_JSON=$(gh api \
+              "repos/eskobar95/mercflow/pulls/${PR_NUMBER}/reviews" \
+              2>/dev/null || echo "[]")
+
+            BUGBOT_REVIEW=$(echo "$REVIEWS_JSON" | jq -r \
+              '[.[] | select(.user.login == "cursor[bot]") | select((.body // "") | contains("BUGBOT_FIX_ALL"))][0] // "null"')
+
+            if [ "$BUGBOT_REVIEW" = "null" ]; then
+              echo "PR #$PR_NUMBER — no cursor[bot] review with BUGBOT_FIX_ALL, skipping"
+              continue
+            fi
+
+            echo "PR #$PR_NUMBER — BUGBOT_FIX_ALL confirmed. Setting Stage → Fix..."
+
+            # Set Stage → Fix in Notion. The Notion webhook automation will detect this
+            # change and dispatch the implementation agent — no direct dispatch needed here.
+            curl -sf -X PATCH "https://api.notion.com/v1/pages/$PAGE_ID" \
+              -H "Authorization: Bearer $NOTION_API_KEY" \
+              -H "Notion-Version: 2022-06-28" \
+              -H "Content-Type: application/json" \
+              -d '{"properties":{"Stage":{"select":{"name":"Fix"}}}}' > /dev/null || true
+
+            # Post audit comment to Notion task
+            curl -sf -X POST "https://api.notion.com/v1/comments" \
+              -H "Authorization: Bearer $NOTION_API_KEY" \
+              -H "Notion-Version: 2022-06-28" \
+              -H "Content-Type: application/json" \
+              -d "{\"parent\":{\"page_id\":\"$PAGE_ID\"},\"rich_text\":[{\"text\":{\"content\":\"Agent: notion-stage-sync (cron fallback)\nBugbot stuck fallback triggered\n\nPR #${PR_NUMBER} was stuck at Stage=Bugbot — the pull_request_review event likely did not fire. Found cursor[bot] review with BUGBOT_FIX_ALL.\n\nStage set to Fix. Notion webhook automation will dispatch the Implementation Agent.\"}}]}" > /dev/null || true
+
+            echo "PR #$PR_NUMBER — DONE: Stage → Fix (Notion webhook handles dispatch)"
+          done
+
+          echo "=== Bugbot stuck fallback complete ==="

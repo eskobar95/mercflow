@@ -3,8 +3,6 @@ import { FilterChip } from "./FilterChip"
 import { FilterMenuPopover } from "./FilterMenuPopover"
 import { SearchToggle } from "./SearchToggle"
 
-export type { ActiveFilter, FilterCategory, FilterOperator, FilterCategoryType } from "./types"
-export { FilterResultsSummary } from "./FilterResultsSummary"
 
 // ── ProductListFilterBar ──────────────────────────────────────────────────────
 

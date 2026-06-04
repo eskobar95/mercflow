@@ -1,12 +1,13 @@
 # @mercflow/connector-module
 
-MercFlow Medusa v2 module that persists **per-store connector credentials** (`connector_config`) and exposes admin HTTP routes for connector overview and configuration follow-ups.
+MercFlow Medusa v2 module that persists **per-store connector credentials** (`connector_config`), audit rows (`connector_log`), and exposes admin/store HTTP handlers for configuring integrations such as Shipmondo and Stripe.
 
 ## Responsibility
 
 - DML models and migrations for `connector_config` + `connector_log`.
-- Module service helpers for summarising connector availability, activation, last connection tests, and **Stripe-specific** behaviours (credential save, Stripe API test, catalogue sync to Stripe Prices, payment-intent summaries, storefront VAT hint).
-- Admin and store HTTP handlers (`/admin/connectors`, `/admin/connectors/stripe/*`, `/store/connectors/stripe/vat`), re-exported from `apps/backend` for Medusa route discovery.
+- AES-256-GCM encryption for stored credentials (`MERCFLOW_CONNECTOR_ENCRYPTION_KEY`), `mf1:`-prefixed ciphertext.
+- Module service helpers for summarising connector availability, activation, last connection tests, **Shipmondo** persistence and connectivity probes, **Stripe-specific** behaviours (credential save, Stripe API test, catalogue sync to Stripe Prices, payment-intent summaries, storefront VAT hint), **Plunk-specific** credential storage and connectivity probes, and **GTM-specific** container ID persistence for storefront injection.
+- Admin and store HTTP handlers (`/admin/connectors`, `/admin/connectors/shipmondo/*`, `/admin/connectors/stripe/*`, `/admin/connectors/plunk/*`, `/admin/connectors/gtm`, `/store/connectors/shipmondo/active`, `/store/connectors/stripe/vat`, `/store/connectors/gtm`), re-exported from `apps/backend` for Medusa route discovery.
 
 ## Field definitions (`connector_config`)
 
@@ -14,30 +15,54 @@ MercFlow Medusa v2 module that persists **per-store connector credentials** (`co
 |----------------------------|-------------|-------|
 | `id`                       | text (pk)   | Medusa `model.id()` |
 | `type`                     | text        | Stable slug: `shipmondo`, `stripe`, `plunk`, `gtm` |
-| `credentials_encrypted`    | text        | AES-GCM payload at rest (never returned decrypted from overview routes except server-side Stripe calls) |
-| `active`                   | boolean     | Whether the integration is switched on |
-| `last_tested_at`           | timestamptz | Nullable — last successful connectivity check |
+| `credentials_encrypted`    | text        | `mf1:`-prefixed AES-GCM payload at rest (e.g. `{ "container_id": "GTM-…" }` for `gtm`); never returned decrypted from admin overview routes except server-side connector calls |
+| `active`                   | boolean     | Whether the integration is switched on — storefront Shipmondo gate reads this together with configured credentials |
+| `last_tested_at`           | timestamptz | Nullable — timestamp of last connectivity probe run |
 | `vat_mode`                 | text        | Stripe storefront hint: `inclusive` \| `exclusive` — exposed at `GET /store/connectors/stripe/vat` |
 | `secret_key_last4`         | text        | Nullable — last four chars of Stripe secret key for masked admin previews only |
 | `publishable_key_last4`    | text        | Nullable — last four chars of publishable key preview |
-| `webhook_secret_last4`    | text        | Nullable — last four chars of webhook secret preview |
+| `webhook_secret_last4`     | text        | Nullable — last four chars of webhook secret preview |
+| `connection_status`        | text        | Nullable — `ok` / `error` after the last outbound probe |
+| `last_test_message`        | text        | Nullable — human-readable (non-sensitive) probe summary |
 
 ## Field definitions (`connector_log`)
 
-| Column         | Type      | Notes                                      |
-|----------------|-----------|--------------------------------------------|
-| `id`           | text (pk) | Medusa `model.id()`                        |
-| `connector_id` | text    | FK ➜ `connector_config.id`                 |
-| `event`        | text      | Machine-readable event key                 |
-| `payload_json` | jsonb     | Optional structured context                |
+| Column         | Type      | Notes                                                                 |
+|----------------|-----------|-----------------------------------------------------------------------|
+| `id`           | text (pk) | Medusa `model.id()`                                                   |
+| `connector_id` | text    | Matches `connector_config.id`                                         |
+| `event`        | text      | Machine-readable keys such as `connection_test_pass` or `stripe.sync_products.complete` |
+| `payload_json` | jsonb     | Safe metadata (`summary`, optional `http_status`, `success`)       |
 
-## API
+## Runtime helpers
+
+- `@mercflow/connector-module/resolve-stripe-secret-key` — `mercflowResolveStripeSecretKey(scope)` returns the Stripe secret key from encrypted config when configured, falling back to `STRIPE_API_KEY` / `STRIPE_SECRET_KEY`.
+- `@mercflow/connector-module/mercflow-plunk-runtime-credentials` — `resolvePlunkSecretApiKeyWithFallback(container)` returns `sk_*` from encrypted config when configured, falling back to `PLUNK_SECRET_KEY` for deployments that still rely on env injection.
+- `@mercflow/connector-module/mercflow-shipmondo-runtime-credentials` — `resolveShipmondoCredentialsWithFallback(container)` returns `{ api_user, api_key, shipping_module_key? }` from encrypted `connector_config` when persisted, falling back to `SHIPMONDO_API_USER` / `SHIPMONDO_API_KEY` when the connector row is absent or not yet migrated.
+
+## HTTP API
 
 ### Connector overview
 
-| Method | Path                   | Purpose |
-|--------|------------------------|---------|
-| `GET`  | `/admin/connectors`    | List all known connector types with `{ type, active, lastTestedAt, configured }` |
+| Method | Path                               | Purpose |
+|--------|------------------------------------|---------|
+| `GET`  | `/admin/connectors`                | Overview: `{ connectors: [{ type, active, configured, lastTestedAt, connectionHealth }] }` |
+
+### Shipmondo admin surface
+
+| Method | Path                                | Purpose |
+|--------|-------------------------------------|---------|
+| `GET`  | `/admin/connectors/shipmondo`       | Returns `{ data: ShipmondoAdminGetDto }` (camelCase, **never exposes plaintext secrets). |
+| `PATCH`| `/admin/connectors/shipmondo`       | Zod-validated credential + `active` updates; AES encrypts payloads at rest. |
+| `POST` | `/admin/connectors/shipmondo/test` | Calls Shipmondo's public shipments endpoint via Basic auth → `{ success, message?, error? }`. |
+
+### Shipmondo storefront gate
+
+| Method | Path                                 | Purpose |
+|--------|--------------------------------------|---------|
+| `GET`  | `/store/connectors/shipmondo/active` | `{ data: { active } }` — Shipmondo is only advertised when ciphertext exists **and** the operator toggle stays on. |
+
+> **Operational note:** External apps that previously depended on raw `SHIPMONDO_API_*` secrets should migrate to these APIs so deployments no longer mandate environment variables once credentials are persisted.
 
 ### Stripe (`type = stripe`)
 
@@ -56,6 +81,22 @@ Storefront VAT hint (unauthenticated catalog/checkout integrations may read this
 | Method | Path                                  | Purpose |
 |--------|---------------------------------------|---------|
 | `GET`  | `/store/connectors/stripe/vat`        | `{ data: { vat_mode } }` where `vat_mode` is `inclusive` or `exclusive` |
+
+### Plunk (`type = plunk`)
+
+| Method | Path                               | Purpose |
+|--------|------------------------------------|---------|
+| `GET`  | `/admin/connectors/plunk`         | Masked credential summary + probe metadata |
+| `PATCH`| `/admin/connectors/plunk`         | Upsert encrypted Plunk credential JSON |
+| `POST` | `/admin/connectors/plunk/test`    | Connectivity probe (`/v1/track` by default or `/v1/send` when `test_email` is provided) |
+
+### GTM (`type = gtm`)
+
+| Method | Path                      | Purpose |
+|--------|---------------------------|---------|
+| `GET`  | `/admin/connectors/gtm`   | `{ container_id: string \| null }` for the storefront GTM container identifier |
+| `PATCH`| `/admin/connectors/gtm`   | Persists `{ container_id }` (`GTM-` + alphanumeric; case-insensitive input, stored uppercase) encrypted like other connectors |
+| `GET`  | `/store/connectors/gtm`   | Public read of `{ container_id }` for storefront injection (`AUTHENTICATE=false` route flag) |
 
 ### Runtime Stripe secret resolution (payment providers)
 
@@ -77,15 +118,18 @@ Medusa discovers HTTP routes under `apps/backend/src/api/`. Thin re-exports from
 
 ## Migration workflow
 
-See `migration(content-module)...` norms in workspace docs. Connector migrations live under `src/modules/connector/migrations/` and ship with descriptive decision logs.
+See workspace migration conventions. Connector migrations ship under `src/modules/connector/migrations/` **with descriptive decision-log headers**.
 
-## How to test in isolation
+## Local testing
 
 ```bash
+pnpm install
 pnpm --filter @mercflow/connector-module typecheck
 pnpm --filter @mercflow/connector-module test
 ```
 
-## Does not belong here
+Ensure `MERCFLOW_CONNECTOR_ENCRYPTION_KEY` (64 hex chars) is present wherever the module runs locally — see `apps/backend/.env.example`.
 
-Storefront checkout plugins, webhook receivers for arbitrary third parties, Guapo operational config, or Medusa core modifications.
+## Scope boundaries
+
+This package does **not** own storefront themes, unrelated carrier pricing rules, or Medusa core modifications.

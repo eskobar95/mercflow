@@ -14,24 +14,28 @@ describe("GET /admin/connectors route", (): void => {
         active: false,
         lastTestedAt: null,
         configured: false,
+        connectionHealth: null,
       },
       {
         type: "stripe",
         active: true,
         lastTestedAt: "2026-05-01T10:00:00.000Z",
         configured: true,
+        connectionHealth: "ok",
       },
       {
         type: "plunk",
         active: false,
         lastTestedAt: null,
         configured: false,
+        connectionHealth: null,
       },
       {
         type: "gtm",
         active: false,
         lastTestedAt: null,
         configured: false,
+        connectionHealth: null,
       },
     ]
 

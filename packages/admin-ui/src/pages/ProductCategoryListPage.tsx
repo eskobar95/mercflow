@@ -104,7 +104,7 @@ export function ProductCategoryListPage(): JSX.Element {
       <div className="p-10">
         <ListEmptyState
           title="No product categories yet"
-          description="Create categories in Medusa Admin, then refresh this page to see them grouped as a hierarchy."
+          description="Use New category to create one here, or refresh after changes elsewhere."
           action={
             <button
               type="button"

@@ -21,7 +21,7 @@ import { createMercflowMedusaSdk } from "@/medusa-admin/createMercflowMedusaSdk"
 
 export type UnifiedCatalogProductFormErrors = Record<string, string>
 
-export type UnifiedCatalogPriceParse =
+type UnifiedCatalogPriceParse =
   | { ok: true; minorUnits: number }
   | { ok: false; message: string }
 
@@ -39,7 +39,7 @@ export function parseDkkMajorToMinorUnits(rawInput: string): UnifiedCatalogPrice
   return { ok: true, minorUnits: Math.round(major * 100) }
 }
 
-export type UnifiedCatalogStockParse =
+type UnifiedCatalogStockParse =
   | { ok: true; quantity: number }
   | { ok: false; message: string }
 

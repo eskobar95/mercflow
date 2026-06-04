@@ -52,6 +52,14 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "orders/:orderId",
+        handle: { title: "Order" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { OrderDetailPage } = await import("@/pages/OrderDetailPage")
+          return { Component: OrderDetailPage }
+        },
+      },
+      {
         path: "orders",
         handle: { title: "Orders" } satisfies AppRouteHandle,
         lazy: async () => {
@@ -114,11 +122,27 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "content/articles/new",
+        handle: { title: "New article" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { ArticleEditPage } = await import("@/pages/ArticleEditPage")
+          return { Component: ArticleEditPage }
+        },
+      },
+      {
+        path: "content/articles/:articleId",
+        handle: { title: "Article" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { ArticleEditPage } = await import("@/pages/ArticleEditPage")
+          return { Component: ArticleEditPage }
+        },
+      },
+      {
         path: "content/articles",
         handle: { title: "Articles" } satisfies AppRouteHandle,
         lazy: async () => {
-          const { ContentArticlesPage } = await import("@/pages/ContentArticlesPage")
-          return { Component: ContentArticlesPage }
+          const { ArticlesListPage } = await import("@/pages/ArticlesListPage")
+          return { Component: ArticlesListPage }
         },
       },
       {
@@ -146,6 +170,16 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "settings/connectors/gtm",
+        handle: { title: "Google Tag Manager" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { GtmConnectorSettingsPage } = await import(
+            "@/pages/GtmConnectorSettingsPage"
+          )
+          return { Component: GtmConnectorSettingsPage }
+        },
+      },
+      {
         path: "settings/connectors",
         handle: { title: "Connectors" } satisfies AppRouteHandle,
         lazy: async () => {
@@ -159,6 +193,24 @@ export const router = createBrowserRouter([
         lazy: async () => {
           const { StripeConnectorSettingsPage } = await import("@/pages/StripeConnectorSettingsPage")
           return { Component: StripeConnectorSettingsPage }
+        },
+      },
+      {
+        path: "settings/connectors/plunk",
+        handle: { title: "Plunk email" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { PlunkConnectorPage } = await import("@/pages/PlunkConnectorPage")
+          return { Component: PlunkConnectorPage }
+        },
+      },
+      {
+        path: "settings/connectors/shipmondo",
+        handle: { title: "Shipmondo" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { ShipmondoConnectorSettingsPage } = await import(
+            "@/pages/ShipmondoConnectorSettingsPage"
+          )
+          return { Component: ShipmondoConnectorSettingsPage }
         },
       },
       {

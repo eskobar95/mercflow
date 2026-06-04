@@ -13,13 +13,17 @@ import { ProductAttrLink } from "./models/product-attr-link"
 import { ProductAttribute } from "./models/product-attribute"
 import { ProductContent } from "./models/product-content"
 import type {
+  ArticleRecord,
   CategoryContentRecord,
+  CreateArticleInput,
   ProductContentRecord,
   ResolvedCategoryContent,
   ResolvedProductContent,
+  UpdateArticleInput,
   UpsertCategoryContentInput,
   UpsertProductContentInput,
 } from "./types"
+import { slugifyTitleToArticleSegment } from "./utils/transliterate-nordic-slug"
 
 const SEO_DESCRIPTION_MAX = 160
 const SEO_TITLE_MAX = 255
@@ -81,6 +85,16 @@ class ContentModuleService extends MedusaService({
     locale: string
   ): Promise<ResolvedProductContent | null> {
     return this.retrieveProductContentForLocale(productId, locale)
+  }
+
+  /**
+   * Reads category CMS fields for `category_content` keyed by category id + locale (MER-27).
+   */
+  async findByCategoryId(
+    categoryId: string,
+    locale: string
+  ): Promise<ResolvedCategoryContent | null> {
+    return this.retrieveCategoryContentForLocale(categoryId, locale)
   }
 
   async retrieveProductContentForLocale(
@@ -247,19 +261,209 @@ class ContentModuleService extends MedusaService({
     return this.resolveCategoryRow(row)
   }
 
-  private resolveCategoryRow(
-    row: CategoryContentRecord
-  ): ResolvedCategoryContent {
+  private resolveCategoryRow(row: CategoryContentRecord): ResolvedCategoryContent {
     return {
       id: row.id,
       category_id: row.category_id,
       locale: row.locale,
+      version: row.version,
+      cms_status: row.status,
       description_rich: row.body_json,
       seo_title: row.seo_title,
       seo_description: row.seo_description,
       seo_og_image_id: row.og_image_url,
       banner_image_id: row.banner_image_url,
     }
+  }
+
+  private toArticleRecord(row: unknown): ArticleRecord {
+    const r = row as ArticleRecord
+    return {
+      id: r.id,
+      slug: r.slug,
+      title: r.title,
+      body_json: r.body_json,
+      locale: r.locale,
+      status: r.status,
+      published_at: r.published_at ?? null,
+      created_at: r.created_at,
+      updated_at: r.updated_at,
+      deleted_at: r.deleted_at,
+    }
+  }
+
+  private async allocateUniqueArticleSlug(
+    baseSlug: string,
+    locale: string,
+    excludeArticleId?: string
+  ): Promise<string> {
+    for (let n = 1; n < 5000; n += 1) {
+      const candidate = n === 1 ? baseSlug : `${baseSlug}-${n}`
+      const rows = await this.listArticles({ slug: candidate, locale })
+      const taken = rows.some((row) => (row as ArticleRecord).id !== excludeArticleId)
+      if (!taken) {
+        return candidate
+      }
+    }
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      "Unable to allocate a unique article slug"
+    )
+  }
+
+  async createArticle(input: CreateArticleInput): Promise<ArticleRecord> {
+    const locale = input.locale ?? "en"
+    const title = input.title.trim()
+    if (!title) {
+      throw new MedusaError(MedusaError.Types.INVALID_DATA, "Article title is required")
+    }
+    const status = input.status ?? "draft"
+    const bodyJson = this.normalizeBodyJson(input.body_json ?? null)
+
+    const baseSlug =
+      input.slug != null && input.slug.trim().length > 0
+        ? slugifyTitleToArticleSegment(input.slug)
+        : slugifyTitleToArticleSegment(title)
+    const slug = await this.allocateUniqueArticleSlug(baseSlug, locale)
+
+    let publishedAt: Date | null = null
+    if (input.published_at !== undefined && input.published_at !== null) {
+      publishedAt = input.published_at
+    } else if (status === "published") {
+      publishedAt = new Date()
+    }
+
+    const created = await this.createArticles({
+      title,
+      slug,
+      body_json: bodyJson,
+      locale,
+      status,
+      published_at: publishedAt,
+    })
+    const row = Array.isArray(created) ? created[0] : created
+    return this.toArticleRecord(row)
+  }
+
+  async updateArticle(articleId: string, input: UpdateArticleInput): Promise<ArticleRecord> {
+    const existingRows = await this.listArticles({ id: articleId })
+    const existing = existingRows[0] as ArticleRecord | undefined
+    if (!existing) {
+      throw new MedusaError(MedusaError.Types.NOT_FOUND, `Article "${articleId}" not found`)
+    }
+
+    const nextLocale = input.locale ?? existing.locale
+    let nextTitle = existing.title
+    if (input.title !== undefined) {
+      const trimmed = input.title.trim()
+      if (!trimmed) {
+        throw new MedusaError(MedusaError.Types.INVALID_DATA, "Article title cannot be empty")
+      }
+      nextTitle = trimmed
+    }
+
+    let nextSlug = existing.slug
+    if (input.slug !== undefined && input.slug !== null && input.slug.trim().length > 0) {
+      nextSlug = slugifyTitleToArticleSegment(input.slug)
+    } else if (input.title !== undefined) {
+      nextSlug = slugifyTitleToArticleSegment(nextTitle)
+    }
+    if (nextSlug !== existing.slug || nextLocale !== existing.locale) {
+      nextSlug = await this.allocateUniqueArticleSlug(nextSlug, nextLocale, existing.id)
+    }
+
+    let nextBody = existing.body_json
+    if (input.body_json !== undefined) {
+      nextBody = this.normalizeBodyJson(input.body_json)
+    }
+
+    let nextStatus = existing.status
+    if (input.status !== undefined) {
+      nextStatus = input.status
+    }
+
+    let nextPublishedAt =
+      input.published_at !== undefined ? input.published_at : existing.published_at
+
+    if (input.status === "draft") {
+      nextPublishedAt = null
+    } else if (input.status === "published" && nextPublishedAt === null) {
+      nextPublishedAt = new Date()
+    } else if (
+      input.status === undefined &&
+      nextStatus === "published" &&
+      nextPublishedAt === null
+    ) {
+      nextPublishedAt = new Date()
+    }
+
+    const updated = await this.updateArticles({
+      id: existing.id,
+      title: nextTitle,
+      slug: nextSlug,
+      body_json: nextBody,
+      locale: nextLocale,
+      status: nextStatus,
+      published_at: nextPublishedAt,
+    })
+    const row = Array.isArray(updated) ? updated[0] : updated
+    return this.toArticleRecord(row)
+  }
+
+  async publishArticle(articleId: string, publishedAt?: Date | null): Promise<ArticleRecord> {
+    const existingRows = await this.listArticles({ id: articleId })
+    const existing = existingRows[0] as ArticleRecord | undefined
+    if (!existing) {
+      throw new MedusaError(MedusaError.Types.NOT_FOUND, `Article "${articleId}" not found`)
+    }
+    const at = publishedAt === undefined ? new Date() : publishedAt
+    const updated = await this.updateArticles({
+      id: existing.id,
+      status: "published",
+      published_at: at,
+    })
+    const row = Array.isArray(updated) ? updated[0] : updated
+    return this.toArticleRecord(row)
+  }
+
+  async deleteArticle(articleId: string): Promise<void> {
+    const existingRows = await this.listArticles({ id: articleId })
+    const existing = existingRows[0] as ArticleRecord | undefined
+    if (!existing) {
+      throw new MedusaError(MedusaError.Types.NOT_FOUND, `Article "${articleId}" not found`)
+    }
+    await this.softDeleteArticles(existing.id)
+  }
+
+  async listArticlesForAdmin(locale?: string): Promise<ArticleRecord[]> {
+    const filters = locale ? { locale } : {}
+    const rows = await this.listArticles(filters, {
+      order: { created_at: "DESC" },
+    })
+    return rows.map((row) => this.toArticleRecord(row))
+  }
+
+  async retrieveArticleById(articleId: string): Promise<ArticleRecord | null> {
+    const rows = await this.listArticles({ id: articleId })
+    const row = rows[0] as ArticleRecord | undefined
+    return row ? this.toArticleRecord(row) : null
+  }
+
+  async findPublishedArticleBySlug(
+    slug: string,
+    locale: string
+  ): Promise<ArticleRecord | null> {
+    const rows = await this.listArticles({ slug, locale, status: "published" })
+    const row = rows[0] as ArticleRecord | undefined
+    return row ? this.toArticleRecord(row) : null
+  }
+
+  async listPublishedArticles(locale: string): Promise<ArticleRecord[]> {
+    const rows = await this.listArticles(
+      { locale, status: "published" },
+      { order: { published_at: "DESC" } }
+    )
+    return rows.map((row) => this.toArticleRecord(row))
   }
 }
 

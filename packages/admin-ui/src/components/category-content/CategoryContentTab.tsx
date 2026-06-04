@@ -1,30 +1,36 @@
 import type { JSONContent } from "@tiptap/core"
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useId, useMemo, useState } from "react"
 
-import { ContentLocaleSwitcher } from "@/components/content-locale/ContentLocaleSwitcher"
-import { ContentLocaleUnsavedDialog } from "@/components/content-locale/ContentLocaleUnsavedDialog"
-import { ProductDescriptionEditor } from "@/components/product-content/ProductDescriptionEditor"
-import { SEOPreview } from "@/components/product-content/SEOPreview"
-import { EMPTY_TIPTAP_DOC, tiptapDocFromUnknown } from "@/lib/tiptap"
+import { Badge } from "@/components/ui/Badge"
 import { Card } from "@/components/ui/Card"
-import { Button } from "@/components/ui/Button"
-import { sectionDescClass, sectionTitleClass } from "@/components/ui/formStyles"
-import { FormField } from "@/components/ui/FormField"
-import { Input } from "@/components/ui/Input"
-import { Textarea } from "@/components/ui/Textarea"
+import { useAdminLocales } from "@/features/content-locale"
 import {
   DEFAULT_CATEGORY_CONTENT_LOCALE,
   useCategoryContentState,
 } from "@/features/category-content"
-import { useAdminLocales, useContentLocale } from "@/features/content-locale"
+import { preferCategoryContentLocale } from "@/features/category-content/preferCategoryContentLocale"
+import { EMPTY_TIPTAP_DOC, tiptapDocFromUnknown } from "@/lib/tiptap"
+
+import { ProductDescriptionEditor } from "../product-content/ProductDescriptionEditor"
+import { SEOPreview } from "../product-content/SEOPreview"
 
 import { isCategoryContentDirty } from "./categoryContentDirty"
 
 const SEO_DESCRIPTION_MAX = 160
+const SEO_TITLE_MAX = 255
+
+function localeBadgeLabel(locale: string): string {
+  const norm = locale.trim()
+  if (norm.length === 0) {
+    return "—"
+  }
+  const sub = norm.split("-")[0]
+  return sub?.toUpperCase() ?? norm.toUpperCase()
+}
 
 export type CategoryContentTabProps = {
   categoryId: string
-  /** Used in SEO preview when meta title is empty */
+  /** Used when meta title is empty in previews */
   categoryTitleFallback: string
 }
 
@@ -33,109 +39,77 @@ export function CategoryContentTab({
   categoryTitleFallback,
 }: CategoryContentTabProps): JSX.Element {
   const formId = useId()
-  const [unsavedDialogOpen, setUnsavedDialogOpen] = useState(false)
-  const pendingLocaleRef = useRef<string | null>(null)
-  const localeBeforeSwitchRef = useRef<string | null>(null)
-
   const { locales, loading: localesLoading, error: localesError } = useAdminLocales()
-  const { activeLocaleCode, setActiveLocaleCode } = useContentLocale({
-    locales,
-    preferredCode: locales[0]?.code ?? DEFAULT_CATEGORY_CONTENT_LOCALE,
-  })
+  const readLocale = preferCategoryContentLocale(locales, DEFAULT_CATEGORY_CONTENT_LOCALE)
 
-  const completeLocaleSwitch = useCallback(
-    (next: string): void => {
-      if (next === activeLocaleCode) {
-        return
-      }
-      localeBeforeSwitchRef.current = activeLocaleCode
-      setActiveLocaleCode(next)
-    },
-    [activeLocaleCode, setActiveLocaleCode]
-  )
-
-  const {
-    content,
-    loading,
-    saving,
-    loadError,
-    saveError,
-    save,
-    load,
-    clearError,
-  } = useCategoryContentState({
-    categoryId,
-    locale: activeLocaleCode,
-  })
+  const { content, loading, saving, loadError, saveError, save, load, clearError } =
+    useCategoryContentState({
+      categoryId,
+      locale: readLocale,
+      loadOnMount: true,
+    })
 
   const [descriptionJson, setDescriptionJson] = useState<JSONContent>(EMPTY_TIPTAP_DOC)
   const [seoTitle, setSeoTitle] = useState("")
   const [seoDescription, setSeoDescription] = useState("")
-  const [ogImageId, setOgImageId] = useState("")
-  const [bannerImageId, setBannerImageId] = useState("")
+  const [ogUrl, setOgUrl] = useState("")
+  const [bannerUrl, setBannerUrl] = useState("")
   const [validationError, setValidationError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (loading) {
+    if (loading || content === null) {
       return
     }
-    setDescriptionJson(tiptapDocFromUnknown(content?.description_rich))
-    setSeoTitle(content?.seo_title ?? "")
-    setSeoDescription(content?.seo_description ?? "")
-    setOgImageId(content?.seo_og_image_id ?? "")
-    setBannerImageId(content?.banner_image_id ?? "")
+    setDescriptionJson(tiptapDocFromUnknown(content.body_json))
+    setSeoTitle(content.seo_title ?? "")
+    setSeoDescription(content.seo_description ?? "")
+    setOgUrl(content.og_image_url ?? "")
+    setBannerUrl(content.banner_image_url ?? "")
     setValidationError(null)
   }, [loading, content])
 
-  useEffect(() => {
-    if (loading || localesLoading) {
-      return
-    }
-    if (loadError !== null && localeBeforeSwitchRef.current !== null) {
-      const revertTo = localeBeforeSwitchRef.current
-      localeBeforeSwitchRef.current = null
-      if (activeLocaleCode !== revertTo) {
-        setActiveLocaleCode(revertTo)
-      }
-    }
-  }, [loading, localesLoading, loadError, activeLocaleCode, setActiveLocaleCode])
-
   const isDirty = useMemo(
     () =>
+      content !== null &&
       isCategoryContentDirty(content, {
         descriptionJson,
         seoTitle,
         seoDescription,
-        ogImageId,
-        bannerImageId,
+        ogImageUrl: ogUrl,
+        bannerImageUrl: bannerUrl,
       }),
-    [content, descriptionJson, seoTitle, seoDescription, ogImageId, bannerImageId]
+    [content, descriptionJson, seoTitle, seoDescription, ogUrl, bannerUrl]
   )
 
-  const clearPendingLocale = useCallback((): void => {
-    pendingLocaleRef.current = null
-  }, [])
+  const bannerError = validationError ?? loadError ?? saveError
+  const seoTitleTooLong = seoTitle.length > SEO_TITLE_MAX
+  const seoDescriptionTooLong = seoDescription.length > SEO_DESCRIPTION_MAX
+  const disabled = loading || saving
 
-  const requestLocaleChange = useCallback(
-    (next: string): void => {
-      if (next === activeLocaleCode) {
-        return
-      }
-      if (!isDirty) {
-        completeLocaleSwitch(next)
-        return
-      }
-      pendingLocaleRef.current = next
-      setUnsavedDialogOpen(true)
-    },
-    [activeLocaleCode, isDirty, completeLocaleSwitch]
-  )
+  const onAddContent = useCallback(async (): Promise<void> => {
+    clearError()
+    void save({
+      description_rich: EMPTY_TIPTAP_DOC,
+      seo_title: null,
+      seo_description: null,
+      seo_og_image_id: null,
+      banner_image_id: null,
+    })
+  }, [clearError, save])
+
+  const onDiscard = useCallback(async () => {
+    setValidationError(null)
+    clearError()
+    await load()
+  }, [clearError, load])
 
   const runSave = useCallback(async (): Promise<boolean> => {
     clearError()
-    if (seoDescription.length > SEO_DESCRIPTION_MAX) {
+    if (seoTitleTooLong || seoDescriptionTooLong) {
       setValidationError(
-        `SEO description must be at most ${SEO_DESCRIPTION_MAX} characters (currently ${seoDescription.length}).`
+        seoTitleTooLong
+          ? `Meta title must be at most ${SEO_TITLE_MAX} characters (currently ${seoTitle.length}).`
+          : `SEO description must be at most ${SEO_DESCRIPTION_MAX} characters (currently ${seoDescription.length}).`
       )
       return false
     }
@@ -144,143 +118,184 @@ export function CategoryContentTab({
       description_rich: descriptionJson,
       seo_title: seoTitle.trim() === "" ? null : seoTitle.trim(),
       seo_description: seoDescription.trim() === "" ? null : seoDescription.trim(),
-      seo_og_image_id: ogImageId.trim() === "" ? null : ogImageId.trim(),
-      banner_image_id: bannerImageId.trim() === "" ? null : bannerImageId.trim(),
+      seo_og_image_id: ogUrl.trim() === "" ? null : ogUrl.trim(),
+      banner_image_id: bannerUrl.trim() === "" ? null : bannerUrl.trim(),
     })
   }, [
+    bannerUrl,
     clearError,
-    save,
     descriptionJson,
-    seoTitle,
+    ogUrl,
+    save,
     seoDescription,
-    ogImageId,
-    bannerImageId,
+    seoDescriptionTooLong,
+    seoTitle,
+    seoTitleTooLong,
   ])
 
-  const onSave = useCallback(async () => {
-    void runSave()
-  }, [runSave])
-
-  const onDiscard = useCallback(async () => {
-    setValidationError(null)
+  const onRetryLoad = useCallback(async () => {
     clearError()
     await load()
   }, [clearError, load])
 
-  const onDialogSave = useCallback(async () => {
-    const ok = await runSave()
-    if (!ok) {
-      return
-    }
-    const target = pendingLocaleRef.current
-    pendingLocaleRef.current = null
-    setUnsavedDialogOpen(false)
-    if (target !== null) {
-      completeLocaleSwitch(target)
-    }
-  }, [runSave, completeLocaleSwitch])
+  if (localesLoading) {
+    return (
+      <div className="space-y-4" aria-busy="true">
+        <p className="text-sm text-content-secondary">Loading store locales…</p>
+      </div>
+    )
+  }
 
-  const onDialogDiscard = useCallback(async () => {
-    clearError()
-    const ok = await load()
-    if (!ok) {
-      return
-    }
-    const target = pendingLocaleRef.current
-    pendingLocaleRef.current = null
-    setUnsavedDialogOpen(false)
-    if (target !== null) {
-      completeLocaleSwitch(target)
-    }
-  }, [clearError, load, completeLocaleSwitch])
+  if (localesError !== null) {
+    return (
+      <div
+        role="alert"
+        className="rounded-md border border-border-strong bg-surface-subtle px-3 py-2 text-sm text-content-danger"
+      >
+        Could not load locales from Medusa ({localesError}). Fix your session or connection, then
+        refresh.
+      </div>
+    )
+  }
 
-  const disabled = loading || saving
-  const localeSwitcherDisabled = disabled || localesLoading || locales.length === 0
-  const seoTooLong = seoDescription.length > SEO_DESCRIPTION_MAX
-  const bannerError = validationError ?? loadError ?? saveError
+  if (loading) {
+    return (
+      <div className="space-y-4" aria-busy="true">
+        <p className="text-sm text-content-secondary">Loading CMS content…</p>
+      </div>
+    )
+  }
 
-  const hasAnyImageId = ogImageId.trim() !== "" || bannerImageId.trim() !== ""
+  if (bannerError !== null && content === null) {
+    return (
+      <div className="space-y-4">
+        <div
+          role="alert"
+          className="rounded-md border border-border-strong bg-surface-subtle px-3 py-2 text-sm text-content-danger"
+        >
+          {bannerError}
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            void onRetryLoad()
+          }}
+          className="rounded-md bg-interactive-primary px-4 py-2 text-sm font-medium text-content-inverse hover:bg-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
+        >
+          Retry
+        </button>
+      </div>
+    )
+  }
+
+  if (content === null) {
+    return (
+      <Card className="space-y-3">
+        <p className="text-sm text-content-secondary">No content yet.</p>
+        <p className="text-xs text-content-tertiary">
+          Create initial placeholders for TipTap rich text plus SEO metadata for locale{" "}
+          <code className="text-xs">{readLocale}</code>. Saving uses{" "}
+          <span className="font-mono text-xs">POST /admin/category-content</span>.
+        </p>
+        <div>
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => {
+              void onAddContent()
+            }}
+            className="rounded-md bg-interactive-primary px-4 py-2 text-sm font-medium text-content-inverse hover:bg-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus disabled:opacity-50"
+          >
+            {saving ? "Saving…" : "Add content"}
+          </button>
+        </div>
+      </Card>
+    )
+  }
+
+  const seoPreviewTitle =
+    seoTitle.trim() !== ""
+      ? seoTitle
+      : categoryTitleFallback.trim() !== ""
+        ? categoryTitleFallback
+        : ""
 
   return (
     <div className="space-y-6">
-      <ContentLocaleUnsavedDialog
-        open={unsavedDialogOpen}
-        onOpenChange={setUnsavedDialogOpen}
-        actionDisabled={loading || saving}
-        onSave={() => {
-          void onDialogSave()
-        }}
-        onDiscard={() => {
-          void onDialogDiscard()
-        }}
-        onClose={clearPendingLocale}
-      />
-
       <div aria-live="polite" className="sr-only">
         {saving ? "Saving category content." : ""}
       </div>
 
-      {bannerError ? (
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm font-medium text-content-primary">Locale</span>
+        <Badge variant="neutral" aria-label={`CMS content locale ${content.locale}`}>
+          {localeBadgeLabel(content.locale)}
+        </Badge>
+        <span className="text-xs text-content-tertiary">
+          Store languages come from{" "}
+          <code className="text-xs rounded bg-surface-subtle px-1">GET /admin/locales</code> —
+          Danish is preferred when available; switching per locale arrives in Sprint 4.
+        </span>
+        <span
+          className="ml-auto text-xs tabular-nums text-content-tertiary"
+          aria-label={`Content save version ${content.version}`}
+        >
+          Version <strong className="font-medium">{content.version}</strong>
+          {disabled ? "" : ". Each save increments the counter."}
+        </span>
+      </div>
+
+      {bannerError !== null ? (
         <div
           role="alert"
-          className="rounded-md border border-border-strong bg-surface-subtle px-3 py-2 text-sm text-content-primary"
+          className="rounded-md border border-border-strong bg-surface-subtle px-3 py-2 text-sm text-content-danger"
         >
           {bannerError}
         </div>
       ) : null}
 
-      {localesError ? (
-        <div
-          role="alert"
-          className="rounded-md border border-border-strong bg-surface-subtle px-3 py-2 text-sm text-content-danger"
-        >
-          Could not load the language list from Medusa. Check your connection and admin session,
-          then refresh. ({localesError})
-        </div>
-      ) : null}
-
       <form
         id={formId}
-        onSubmit={(e) => {
-          e.preventDefault()
-          void onSave()
-        }}
         className="space-y-6"
+        onSubmit={(e): void => {
+          e.preventDefault()
+          void runSave()
+        }}
       >
-        <ContentLocaleSwitcher
-          locales={locales}
-          value={activeLocaleCode}
-          onChange={requestLocaleChange}
-          disabled={localeSwitcherDisabled}
-          localesLoading={localesLoading}
-          resolvedContentLocale={content?.locale ?? null}
-        />
-
-        <Card elevation="flat">
-          <h2 className={sectionTitleClass}>Description</h2>
-          <p className={sectionDescClass}>
-            Rich text is stored as TipTap JSON (not HTML).
-          </p>
-          <div className="-mx-6 -mb-6 mt-5 border-t border-border-subtle">
-            <ProductDescriptionEditor
-              value={descriptionJson}
-              onChange={setDescriptionJson}
-              disabled={disabled}
-              variant="embedded"
-            />
+        <Card className="space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold text-content-primary">Rich text description</h2>
+            <p className="mt-1 text-sm text-content-secondary">
+              Stored as TipTap JSON (<span className="font-mono text-xs">body_json</span> on reads).
+              Further saves use{" "}
+              <span className="font-mono text-xs">PATCH /admin/category-content/</span>
+              {content.id}.
+            </p>
           </div>
+          <ProductDescriptionEditor
+            value={descriptionJson}
+            onChange={setDescriptionJson}
+            variant="embedded"
+            disabled={disabled}
+          />
         </Card>
 
-        <Card elevation="flat">
-          <h2 className={sectionTitleClass}>SEO</h2>
-          <p className={sectionDescClass}>
-            Meta title and description for this locale. Description is limited to{" "}
-            {SEO_DESCRIPTION_MAX} characters in the API.
+        <Card className="space-y-4">
+          <h2 className="text-lg font-semibold text-content-primary">SEO</h2>
+          <p className="mt-1 text-sm text-content-secondary">
+            Meta limits follow MercFlow CMS rules (title {SEO_TITLE_MAX} chars, snippet{" "}
+            {SEO_DESCRIPTION_MAX}).
           </p>
-          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-2">
             <div className="space-y-4">
-              <FormField label="Meta title" htmlFor={`${formId}-seo-title`}>
-                <Input
+              <div>
+                <label
+                  htmlFor={`${formId}-seo-title`}
+                  className="block text-sm font-medium text-content-primary"
+                >
+                  Meta title
+                </label>
+                <input
                   id={`${formId}-seo-title`}
                   type="text"
                   value={seoTitle}
@@ -289,46 +304,57 @@ export function CategoryContentTab({
                   }}
                   disabled={disabled}
                   autoComplete="off"
+                  aria-invalid={seoTitleTooLong}
+                  aria-describedby={`${formId}-seo-title-counter`}
+                  className="mt-1 w-full rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus disabled:opacity-50"
                 />
-              </FormField>
-              <FormField
-                label="Meta description"
-                htmlFor={`${formId}-seo-desc`}
-                hint={`${seoDescription.length} / ${SEO_DESCRIPTION_MAX} characters${seoTooLong ? " — shorten before saving." : ""}`}
-                error={
-                  seoTooLong
-                    ? `Must be at most ${SEO_DESCRIPTION_MAX} characters.`
-                    : undefined
-                }
-              >
-                <Textarea
+                <p
+                  id={`${formId}-seo-title-counter`}
+                  className={`mt-1 text-xs ${seoTitleTooLong ? "font-medium text-content-danger" : "text-content-tertiary"}`}
+                >
+                  {seoTitle.length} / {SEO_TITLE_MAX} characters
+                  {seoTitleTooLong ? " — shorten before saving." : ""}
+                </p>
+              </div>
+              <div>
+                <label
+                  htmlFor={`${formId}-seo-desc`}
+                  className="block text-sm font-medium text-content-primary"
+                >
+                  Meta description
+                </label>
+                <textarea
                   id={`${formId}-seo-desc`}
                   value={seoDescription}
-                  onChange={(e) => {
+                  onChange={(e): void => {
                     const v = e.target.value
                     setSeoDescription(v)
-                    if (v.length <= SEO_DESCRIPTION_MAX) {
-                      setValidationError(null)
-                    }
                   }}
-                  onBlur={() => {
+                  onBlur={(): void => {
                     if (seoDescription.length > SEO_DESCRIPTION_MAX) {
                       setValidationError(
-                        `SEO description must be at most ${SEO_DESCRIPTION_MAX} characters (currently ${seoDescription.length}).`,
+                        `SEO description must be at most ${SEO_DESCRIPTION_MAX} characters (currently ${seoDescription.length}).`
                       )
                     }
                   }}
                   disabled={disabled}
                   rows={4}
-                  error={seoTooLong}
-                  aria-invalid={seoTooLong}
+                  aria-invalid={seoDescriptionTooLong}
                   aria-describedby={`${formId}-seo-desc-counter`}
+                  className="mt-1 w-full rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus disabled:opacity-50"
                 />
-              </FormField>
+                <p
+                  id={`${formId}-seo-desc-counter`}
+                  className={`mt-1 text-xs ${seoDescriptionTooLong ? "font-medium text-content-danger" : "text-content-tertiary"}`}
+                >
+                  {seoDescription.length} / {SEO_DESCRIPTION_MAX} characters
+                  {seoDescriptionTooLong ? " — shorten before saving." : ""}
+                </p>
+              </div>
             </div>
             <div>
               <SEOPreview
-                title={seoTitle}
+                title={seoPreviewTitle}
                 description={seoDescription}
                 fallbackTitle={categoryTitleFallback}
               />
@@ -336,68 +362,80 @@ export function CategoryContentTab({
           </div>
         </Card>
 
-        <Card elevation="flat">
-          <h2 className={sectionTitleClass}>Images</h2>
-          <p className={sectionDescClass}>
-            Optional Medusa file / media IDs for Open Graph and category banner. No upload widget
-            in this shell — use IDs from your dev database.
+        <Card className="space-y-4">
+          <h2 className="text-lg font-semibold text-content-primary">Images</h2>
+          <p className="mt-1 text-sm text-content-secondary">
+            Open Graph and banner values are persisted on the MercFlow CMS row (IDs or URLs, depending
+            on your environment).
           </p>
-          {!hasAnyImageId ? (
-            <p className="mt-3 text-sm text-content-tertiary" role="status">
-              No image IDs set yet. Add an OG or banner id below.
-            </p>
-          ) : null}
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <FormField
-              label="Open Graph image ID"
-              htmlFor={`${formId}-og-image`}
-              hint="Optional file / media id for social previews."
-            >
-              <Input
-                id={`${formId}-og-image`}
+          <div className="space-y-4">
+            <div>
+              <label
+                htmlFor={`${formId}-og-url`}
+                className="block text-sm font-medium text-content-primary"
+              >
+                Open Graph media reference
+              </label>
+              <input
+                id={`${formId}-og-url`}
                 type="text"
-                value={ogImageId}
+                value={ogUrl}
                 onChange={(e) => {
-                  setOgImageId(e.target.value)
+                  setOgUrl(e.target.value)
                 }}
                 disabled={disabled}
                 autoComplete="off"
-                placeholder="Optional"
+                placeholder="Media id or URL"
+                className="mt-1 w-full rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus disabled:opacity-50"
               />
-            </FormField>
-            <FormField label="Banner image ID" htmlFor={`${formId}-banner-image`}>
-              <Input
-                id={`${formId}-banner-image`}
+              <p className="mt-0.5 text-xs text-content-tertiary">
+                Sent as <span className="font-mono">seo_og_image_id</span> on save.
+              </p>
+            </div>
+            <div>
+              <label
+                htmlFor={`${formId}-banner-url`}
+                className="block text-sm font-medium text-content-primary"
+              >
+                Banner media reference
+              </label>
+              <input
+                id={`${formId}-banner-url`}
                 type="text"
-                value={bannerImageId}
+                value={bannerUrl}
                 onChange={(e) => {
-                  setBannerImageId(e.target.value)
+                  setBannerUrl(e.target.value)
                 }}
                 disabled={disabled}
                 autoComplete="off"
-                placeholder="Optional"
+                placeholder="Media id or URL"
+                className="mt-1 w-full rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus disabled:opacity-50"
               />
-            </FormField>
+              <p className="mt-0.5 text-xs text-content-tertiary">
+                Sent as <span className="font-mono">banner_image_id</span> on save.
+              </p>
+            </div>
           </div>
         </Card>
 
         <div className="flex flex-wrap items-center gap-3">
-          <Button type="submit" variant="primary" disabled={disabled || seoTooLong}>
+          <button
+            type="submit"
+            disabled={disabled || seoTitleTooLong || seoDescriptionTooLong}
+            className="rounded-md bg-interactive-primary px-4 py-2 text-sm font-medium text-content-inverse hover:bg-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus disabled:opacity-50"
+          >
             {saving ? "Saving…" : "Save content"}
-          </Button>
-          <Button
+          </button>
+          <button
             type="button"
-            variant="secondary"
-            disabled={disabled}
+            disabled={disabled || !isDirty}
             onClick={() => {
               void onDiscard()
             }}
+            className="rounded-md border border-border-default bg-surface-default px-4 py-2 text-sm font-medium text-content-primary shadow-sm hover:bg-surface-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus disabled:opacity-50"
           >
             Discard changes
-          </Button>
-          {loading ? (
-            <span className="text-sm text-content-secondary">Loading content…</span>
-          ) : null}
+          </button>
         </div>
       </form>
     </div>

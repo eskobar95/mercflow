@@ -7,12 +7,21 @@
   "exports": {
     ".": "./src/modules/connector/index.ts",
     "./mercflow-connectors-admin-api": "./src/integrations/mercflow-connectors-admin-api.ts",
+    "./mercflow-shipmondo-admin-api": "./src/integrations/mercflow-shipmondo-admin-api.ts",
+    "./mercflow-shipmondo-test-admin-api": "./src/integrations/mercflow-shipmondo-test-admin-api.ts",
+    "./mercflow-shipmondo-store-api": "./src/integrations/mercflow-shipmondo-store-api.ts",
+    "./mercflow-shipmondo-runtime-credentials": "./src/integrations/resolve-shipmondo-credentials.ts",
     "./mercflow-stripe-admin-detail-route": "./src/integrations/mercflow-stripe-admin-detail-route.ts",
     "./mercflow-stripe-admin-test-route": "./src/integrations/mercflow-stripe-admin-test-route.ts",
     "./mercflow-stripe-admin-sync-products-route": "./src/integrations/mercflow-stripe-admin-sync-products-route.ts",
     "./mercflow-stripe-admin-payments-route": "./src/integrations/mercflow-stripe-admin-payments-route.ts",
     "./mercflow-store-stripe-vat-route": "./src/integrations/mercflow-store-stripe-vat-route.ts",
-    "./resolve-stripe-secret-key": "./src/integrations/resolve-stripe-secret-key.ts"
+    "./resolve-stripe-secret-key": "./src/integrations/resolve-stripe-secret-key.ts",
+    "./mercflow-connector-plunk-admin-api": "./src/integrations/mercflow-connector-plunk-admin-api.ts",
+    "./mercflow-connector-plunk-test-admin-api": "./src/integrations/mercflow-connector-plunk-test-admin-api.ts",
+    "./mercflow-plunk-runtime-credentials": "./src/integrations/resolve-plunk-secret-api-key.ts",
+    "./mercflow-connectors-gtm-admin-api": "./src/integrations/mercflow-connectors-gtm-admin-api.ts",
+    "./mercflow-connectors-gtm-store-api": "./src/integrations/mercflow-connectors-gtm-store-api.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

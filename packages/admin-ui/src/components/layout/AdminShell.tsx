@@ -52,10 +52,12 @@ export function AdminShell(): JSX.Element {
     setMoreSheetOpen((open) => !open)
   }, [])
 
+  const dismissMoreSheetNavigationToken = location.key
+
   // Always dismiss the sheet on route change.
   useEffect(() => {
     setMoreSheetOpen(false)
-  }, [location.pathname])
+  }, [dismissMoreSheetNavigationToken])
 
   // Lock background scroll while the sheet is open — common drawer hygiene.
   useEffect(() => {

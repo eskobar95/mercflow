@@ -1,7 +1,9 @@
 import { render, screen } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
-import { EMPTY_TIPTAP_DOC, RichTextEditor } from "@/components/ui/RichTextEditor"
+import { EMPTY_TIPTAP_DOC } from "@/lib/tiptap"
+
+import { RichTextEditor } from "@/components/ui/RichTextEditor"
 
 describe("RichTextEditor", (): void => {
   it("exposes Heading 2 and Heading 3 controls in full toolbar mode", async (): Promise<void> => {
