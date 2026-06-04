@@ -2,7 +2,7 @@
 
 > One row per sprint. Status: `planned` | `active` | `done` | `blocked`
 > Branch model: `feature/S00x/T00x-slug` → PR → `development`
-> Updated: 2026-06-04 (synced with `origin/development` @ `a0200f7`)
+> Updated: 2026-06-04 (S003 done on feature branch; merged with development planning hygiene)
 
 | ID | Milestone | Goal | Tasks | Status |
 |----|-----------|------|-------|--------|

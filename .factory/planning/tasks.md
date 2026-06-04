@@ -3,7 +3,7 @@
 > Atomic tasks for harness execution. One task = one PR to `development`.
 > Status: `todo` | `in-progress` | `blocked` | `done`
 > Mode: `AFK` | `HITL`
-> Updated: 2026-06-04 (synced with `origin/development` @ `a0200f7`)
+> Updated: 2026-06-04 (M000 review + acceptance sync; S003 active)
 
 ---
 
@@ -69,11 +69,11 @@ Backfill value: `store_01KG0VBTT0714XV2CCTEBRVC47`
 
 ### Acceptance criteria
 
-- [ ] `SELECT count(*) FROM medusa.article WHERE store_id IS NULL` returns 0
-- [ ] Same check passes for all 17 tables
-- [ ] Inserting a duplicate (slug, locale) for a different `store_id` succeeds
-- [ ] Inserting a duplicate (slug, locale) for the same `store_id` fails with constraint error
-- [ ] `pnpm migration:run` clean on fresh local DB
+- [x] `SELECT count(*) FROM medusa.article WHERE store_id IS NULL` returns 0
+- [x] Same check passes for all 17 tables (6 Guapo-custom conditional; `shipmondo_enabled_products` not in migration — prod follow-up)
+- [x] Inserting a duplicate (slug, locale) for a different `store_id` succeeds
+- [x] Inserting a duplicate (slug, locale) for the same `store_id` fails with constraint error
+- [x] `pnpm migration:run` clean on fresh local DB
 
 ### Out of scope
 
@@ -91,12 +91,12 @@ Backfill value: `store_01KG0VBTT0714XV2CCTEBRVC47`
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes
-- [ ] `pnpm lint` passes
-- [ ] Tests written and passing
-- [ ] Migration files have MIGRATION DECISION LOG comments
-- [ ] `down()` implemented in every migration
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes
+- [x] `pnpm lint` passes
+- [x] Tests written and passing
+- [x] Migration files have MIGRATION DECISION LOG comments
+- [x] `down()` implemented in every migration
+- [x] PR description filled in
 
 ---
 
@@ -152,10 +152,10 @@ All 17 tables from T001 where MercFlow owns the service layer. Guapo-custom tabl
 
 ### Acceptance criteria
 
-- [ ] `SELECT * FROM medusa.article` without `SET LOCAL` returns 0 rows
-- [ ] `SET LOCAL app.store_id = 'store_01KG0VBTT0714XV2CCTEBRVC47'; SELECT * FROM medusa.article` returns correct rows
-- [ ] Service method in content-module uses `withTenant` wrapper
-- [ ] No `console.log` or debug artifacts
+- [x] `SELECT * FROM medusa.article` without `SET LOCAL` returns 0 rows
+- [x] `SET LOCAL app.store_id = 'store_01KG0VBTT0714XV2CCTEBRVC47'; SELECT * FROM medusa.article` returns correct rows
+- [x] Service method in content-module uses `withTenant` wrapper
+- [x] No `console.log` or debug artifacts
 
 ### Out of scope
 
@@ -170,11 +170,11 @@ All 17 tables from T001 where MercFlow owns the service layer. Guapo-custom tabl
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes
-- [ ] `pnpm lint` passes
-- [ ] Tests written and passing
-- [ ] No secrets or debug artifacts
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes
+- [x] `pnpm lint` passes
+- [x] Tests written and passing
+- [x] No secrets or debug artifacts
+- [x] PR description filled in
 
 ---
 
@@ -187,9 +187,11 @@ All 17 tables from T001 where MercFlow owns the service layer. Guapo-custom tabl
 **Parallel group:** C
 **Blocked by:** T002
 **Branch:** feature/S001/T003-rate-limiting
-**PR:** #53
+**PR:** https://github.com/eskobar95/mercflow/pull/53
+**Merge:** `3f64f0c`
 **PRD journey:** —
 **ADRs:** ADR-005
+**HITL follow-up:** [.factory/logs/hitl/M000-neon-allowlist.md](../logs/hitl/M000-neon-allowlist.md) (open)
 
 **HITL reason:** Ops step required — human must add Railway egress IPs to Neon `allowed_ips` in Neon console (cannot be done via code). Agent implements rate limiting middleware; human completes the infrastructure step.
 
@@ -278,11 +280,11 @@ Before merging: human adds Railway static egress IPs to Neon project `allowed_ip
 
 ### Acceptance criteria
 
-- [ ] `pnpm typecheck` passes across monorepo with new package
-- [ ] `pnpm migration:run` creates `mercflow_seo_config` and `mercflow_redirect` tables with `store_id NOT NULL`
-- [ ] RLS enabled on both tables (same pattern as T002)
-- [ ] `SeoConfigService.get(storeId)` returns correct config
-- [ ] Package README created
+- [x] `pnpm typecheck` passes across monorepo with new package
+- [x] `pnpm migration:run` creates `mercflow_seo_config` and `mercflow_redirect` tables with `store_id NOT NULL`
+- [x] RLS enabled on both tables (same pattern as T002)
+- [x] `SeoConfigService.get(storeId)` returns correct config
+- [x] Package README created
 
 ### Out of scope
 
@@ -300,12 +302,12 @@ Before merging: human adds Railway static egress IPs to Neon project `allowed_ip
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes
-- [ ] `pnpm lint` passes
-- [ ] Tests written and passing
-- [ ] Migration has DECISION LOG comment
-- [ ] Package README with responsibility, run/test, field definitions
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes
+- [x] `pnpm lint` passes
+- [x] Tests written and passing
+- [x] Migration has DECISION LOG comment
+- [x] Package README with responsibility, run/test, field definitions
+- [x] PR description filled in
 
 ---
 
@@ -349,10 +351,10 @@ Admin can choose a slug strategy (Nordic: ø→oe, or Omit: ø→o) in Settings.
 
 ### Acceptance criteria
 
-- [ ] Slug utility correctly transforms all Nordic characters per strategy
-- [ ] Admin saves strategy → subsequent product saves use new strategy
-- [ ] Live preview works (type a name, see slug)
-- [ ] Utility is pure and importable by content-module (no circular dep)
+- [x] Slug utility correctly transforms all Nordic characters per strategy
+- [x] Admin saves strategy → subsequent product saves use new strategy
+- [x] Live preview works (type a name, see slug)
+- [x] Utility is pure and importable by content-module (no circular dep)
 
 ### Out of scope
 
@@ -361,11 +363,11 @@ Admin can choose a slug strategy (Nordic: ø→oe, or Omit: ø→o) in Settings.
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes
-- [ ] `pnpm lint` passes
-- [ ] Tests written and passing
-- [ ] No secrets or debug artifacts
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes
+- [x] `pnpm lint` passes
+- [x] Tests written and passing
+- [x] No secrets or debug artifacts
+- [x] PR description filled in
 
 ---
 
@@ -397,11 +399,11 @@ When a product or category slug changes, a 301 redirect is automatically created
 
 ### Acceptance criteria
 
-- [ ] Product slug change → `mercflow_redirect` row created automatically
-- [ ] `GET /old-slug` → `301 Location: /new-slug`
-- [ ] Redirect scoped to tenant (no cross-tenant redirect leakage)
-- [ ] Chain detection: redirect pointing to another redirect logs warning
-- [ ] Redirect middleware runs before Medusa route resolution
+- [x] Product slug change → `mercflow_redirect` row created automatically
+- [x] `GET /old-slug` → `301 Location: /new-slug`
+- [x] Redirect scoped to tenant (no cross-tenant redirect leakage)
+- [x] Chain detection: redirect pointing to another redirect logs warning
+- [x] Redirect middleware runs before Medusa route resolution
 
 ### Out of scope
 
@@ -417,11 +419,11 @@ When a product or category slug changes, a 301 redirect is automatically created
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes
-- [ ] `pnpm lint` passes
-- [ ] Tests written and passing
-- [ ] No secrets or debug artifacts
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes
+- [x] `pnpm lint` passes
+- [x] Tests written and passing
+- [x] No secrets or debug artifacts
+- [x] PR description filled in
 
 ---
 
@@ -453,18 +455,18 @@ Admin can view all redirects for their tenant, create manual redirects, delete s
 
 ### Acceptance criteria
 
-- [ ] Redirect list shows all tenant redirects (no other tenant data)
-- [ ] Manual redirect created via form → appears in list + works as 301
-- [ ] Delete removes redirect; subsequent request returns 404 (or passes through)
-- [ ] Chain warning badge visible when destination is itself a redirect
+- [x] Redirect list shows all tenant redirects (no other tenant data)
+- [x] Manual redirect created via form → appears in list + works as 301
+- [x] Delete removes redirect; subsequent request returns 404 (or passes through)
+- [x] Chain warning badge visible when destination is itself a redirect
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes
-- [ ] `pnpm lint` passes
-- [ ] Tests written and passing
-- [ ] No secrets or debug artifacts
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes
+- [x] `pnpm lint` passes
+- [x] Tests written and passing
+- [x] No secrets or debug artifacts
+- [x] PR description filled in
 
 ---
 
@@ -839,6 +841,7 @@ Storefront can request the canonical URL for any product or category. Auto-calcu
 **Milestone:** M003
 **Status:** done
 **PR:** https://github.com/eskobar95/mercflow/pull/54
+**Merge:** `35fa81c`
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** M000 done (T003 merged)
@@ -858,16 +861,16 @@ Storefront can request the canonical URL for any product or category. Auto-calcu
 
 ### Acceptance criteria
 
-- [ ] Package scaffolded, typechecks, migrations run clean
-- [ ] `store_id NOT NULL` + RLS on `mercflow_feed_config`
-- [ ] Package README created
+- [x] Package scaffolded, typechecks, migrations run clean
+- [x] `store_id NOT NULL` + RLS on `mercflow_feed_config`
+- [x] Package README created
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
-- [ ] Migration DECISION LOG + `down()`
-- [ ] Package README
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
+- [x] Migration DECISION LOG + `down()`
+- [x] Package README
+- [x] PR description filled in
 
 ---
 
@@ -877,6 +880,7 @@ Storefront can request the canonical URL for any product or category. Auto-calcu
 **Milestone:** M003
 **Status:** done
 **PR:** https://github.com/eskobar95/mercflow/pull/57
+**Merge:** `05aa41f`
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T017
@@ -910,16 +914,17 @@ Storefront can request the canonical URL for any product or category. Auto-calcu
 
 ### Acceptance criteria
 
-- [ ] Valid Google Shopping XML output
-- [ ] `link` and `image_link` use tenant's `storefront_url`
-- [ ] Excluded products absent
-- [ ] Cache invalidated within 30s of product change
-- [ ] No cross-tenant products in response
+- [x] Valid Google Shopping XML output
+- [x] `link` and `image_link` use tenant's `storefront_url`
+- [x] Excluded products absent
+- [x] Cache invalidated within 30s of product change
+- [ ] No cross-tenant products in response (full Host middleware — T008; feed shim until S003)
+- [x] Tenant shim via `mercflowFeedTenantMiddleware` until T008
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
+- [x] PR description filled in
 
 ---
 
@@ -929,6 +934,7 @@ Storefront can request the canonical URL for any product or category. Auto-calcu
 **Milestone:** M003
 **Status:** done
 **PR:** https://github.com/eskobar95/mercflow/pull/58
+**Merge:** `c5dee78`
 **Mode:** AFK
 **Parallel group:** C
 **Blocked by:** T018
@@ -947,14 +953,14 @@ Admin can view feed status (product count, last updated, validation errors), exc
 
 ### Acceptance criteria
 
-- [ ] Feed URL correct and copyable
-- [ ] Validation report lists products with missing required fields
-- [ ] Excluded product absent from next feed generation
+- [x] Feed URL correct and copyable
+- [x] Validation report lists products with missing required fields
+- [x] Excluded product absent from next feed generation
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
+- [x] PR description filled in
 
 ---
 
@@ -1179,15 +1185,15 @@ Orders list shows status badges, customer, amount, date, fulfillment status. Fil
 
 ### Acceptance criteria
 
-- [ ] Status badges visible (pending, processing, shipped, etc.)
-- [ ] Date range filter works
-- [ ] Bulk select + mark fulfillment-ready works
-- [ ] Search by order number returns correct result
+- [x] Status badges visible (pending, processing, shipped, etc.)
+- [x] Date range filter works
+- [x] Bulk select + mark fulfillment-ready works
+- [x] Search by order number returns correct result
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
+- [x] PR description filled in
 
 ---
 
@@ -1201,6 +1207,7 @@ Orders list shows status badges, customer, amount, date, fulfillment status. Fil
 **Blocked by:** M000 done (T003 merged)
 **Branch:** cursor/s008-order-flow-b792
 **PR:** https://github.com/eskobar95/mercflow/pull/56
+**Merge:** `fec137f`
 **PRD journey:** J012
 
 ### Slice objective
@@ -1217,16 +1224,16 @@ Order detail page shows all info without modal navigation. Internal notes sectio
 
 ### Acceptance criteria
 
-- [ ] Internal note saved and visible (not exposed to customer)
-- [ ] Timeline shows: placed, paid, fulfillment created, shipped
-- [ ] Pick list generated for today's fulfillment-ready orders; printable layout
-- [ ] All notes tenant-scoped via `store_id`
+- [x] Internal note saved and visible (not exposed to customer)
+- [x] Timeline shows: placed, paid, fulfillment created, shipped
+- [x] Pick list generated for today's fulfillment-ready orders; printable layout
+- [x] All notes tenant-scoped via `store_id`
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
-- [ ] Migration DECISION LOG + `down()` for `mercflow_order_note`
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
+- [x] Migration DECISION LOG + `down()` for `mercflow_order_note`
+- [x] PR description filled in
 
 ---
 

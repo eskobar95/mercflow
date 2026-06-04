@@ -1,7 +1,7 @@
 # Milestones — MercFlow Batch 2
 
 > Ordered deliveries. Each milestone groups one or more sprints.
-> Updated: 2026-06-04 (synced with `origin/development` @ `a0200f7`)
+> Updated: 2026-06-04 (synced with `development`; see `.factory/logs/milestone-reviews/M000-2026-06-04.md`)
 
 ---
 
@@ -15,7 +15,7 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 
 | ID | Title | Outcome | Depends on | Status |
 |----|-------|---------|------------|--------|
-| M000 | Tenancy Foundation | SaaS isolation safe; ready for second tenant | — | in progress |
+| M000 | Tenancy Foundation | SaaS isolation safe; ready for second tenant | — | reviewed (yellow) |
 | M001 | SEO Infrastructure | Redirects, sitemap, robots, slug utility live | M000 | in progress |
 | M002 | SEO Metadata | JSON-LD, OG, canonical on all pages | M001 | planned |
 | M003 | Shopping Feed | Google/Meta/TikTok feed live and validated | M000 | in progress |
@@ -28,7 +28,7 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 
 **Outcome:** All MercFlow-owned tables have `store_id NOT NULL` + RLS. Guapo backfilled. Rate limiting active on public routes. Safe to onboard a second tenant.
 
-**Progress (2026-06-04):** S001 sprint done on `development` — T001 (#50), T002 (#52), T003 (#53). Milestone review (`/milestone-review M000`) and Neon IP allowlist HITL still open.
+**Progress (2026-06-04):** S001 done — T001 (#50), T002 (#52), T003 (#53). `/milestone-review M000` recorded (yellow): [review log](../logs/milestone-reviews/M000-2026-06-04.md). **Open:** Neon IP allowlist HITL — [checklist](../logs/hitl/M000-neon-allowlist.md). `shipmondo_enabled_products` backfill deferred (table optional / prod-only; not in T001 migration).
 
 **Sprints in this milestone:**
 
@@ -49,12 +49,13 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 Note: `payload.*` schema (PayloadCMS, Guapo storefront) is excluded — it is Guapo-specific, single-tenant by nature, not managed by MercFlow.
 
 **Definition of done:**
-- [ ] All 17+ tables have `store_id NOT NULL` + composite index
-- [ ] All 4 broken unique indexes rebuilt with `store_id`
-- [ ] RLS enabled + `tenant_isolation` policy on all MercFlow tables
-- [ ] Rate limiting returns `429` after threshold on public + store routes
-- [ ] `pnpm migration:run` clean on local
-- [ ] `/milestone-review M000` green
+- [x] All 17+ tables have `store_id NOT NULL` + composite index (11 MercFlow + 6 Guapo-custom in migration; `shipmondo_enabled_products` follow-up if present in prod)
+- [x] All 4 broken unique indexes rebuilt with `store_id`
+- [x] RLS enabled + `tenant_isolation` policy on all MercFlow tables
+- [x] Rate limiting returns `429` after threshold on public + store routes
+- [x] `pnpm migration:run` clean on local (inferred; PR #50/#52 merged, tenancy tests green)
+- [x] `/milestone-review M000` recorded — **yellow** until Neon HITL closed
+- [ ] Neon IP allowlist (T003 HITL) — human; see [hitl/M000-neon-allowlist.md](../logs/hitl/M000-neon-allowlist.md)
 
 ---
 

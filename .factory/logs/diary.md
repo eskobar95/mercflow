@@ -26,6 +26,30 @@
 
 ---
 
+## 2026-06-04 — M000 milestone review + planning hygiene (S003 active)
+
+**Branch:** `development`
+
+### Step 2 — `/milestone-review M000`
+- Review log: `.factory/logs/milestone-reviews/M000-2026-06-04.md`
+- Gate: **Yellow** — code/tests pass; Neon IP allowlist HITL open
+- Verification: `pnpm --filter @mercflow/backend test` (7), `pnpm --filter @mercflow/content-module test` (52)
+- HITL checklist: `.factory/logs/hitl/M000-neon-allowlist.md`
+
+### Step 3 — Planning hygiene
+- `milestones.md`: M000 → `reviewed (yellow)`; DoD checkboxes synced
+- `tasks.md`: acceptance/DoD `[x]` on T001–T007, T017–T019, T025–T026; T008 → `in-progress`
+- `sprints.md`: S003 → `active`
+
+### Operator
+- S003 started by Nicklas (T008 host→store mapping)
+
+### Next
+- Human: complete Neon allowlist HITL → M000 Green
+- Harness: finish S003 (T008–T012) — completed in PR #60
+
+---
+
 ## 2026-06-04 — Development sync + factory close-out
 
 **Branch:** `development` @ `a0200f7` (matches `origin/development`)
