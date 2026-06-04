@@ -1,0 +1,40 @@
+{
+  "name": "@mercflow/seo-module",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "description": "MercFlow Medusa v2 module: SEO config, 301 redirects, Nordic slug utility, and public SEO routes (Batch 2).",
+  "main": "src/modules/seo/index.ts",
+  "exports": {
+    ".": "./src/modules/seo/index.ts",
+    "./slug": "./src/modules/seo/utils/slug.ts",
+    "./mercflow-admin-seo-config-api": "./src/integrations/mercflow-admin-seo-config-api.ts",
+    "./mercflow-admin-redirects-api": "./src/integrations/mercflow-admin-redirects-api.ts",
+    "./mercflow-admin-redirects-id-api": "./src/integrations/mercflow-admin-redirects-id-api.ts",
+    "./mercflow-redirect-middleware": "./src/integrations/mercflow-redirect-middleware.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "db:generate": "medusa db:generate mercflow_seo",
+    "db:migrate": "medusa db:migrate",
+    "db:rollback": "medusa db:rollback --modules mercflow_seo"
+  },
+  "dependencies": {
+    "@medusajs/framework": "2.14.1",
+    "@medusajs/medusa": "2.14.1",
+    "@medusajs/types": "2.14.1",
+    "@medusajs/utils": "2.14.1",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@medusajs/cli": "2.14.1",
+    "@types/node": "^22.10.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
