@@ -5,7 +5,7 @@ MercFlow Medusa v2 module for operational inventory extensions: internal order n
 ## Responsibility
 
 - Persist MercFlow-owned operational data (`mercflow_order_note`, `mercflow_supplier`, `mercflow_purchase_order`, lines, receipts, `mercflow_inventory_config`).
-- Expose admin routes for order notes, pick lists, supplier CRUD, and purchase order create/list/status.
+- Expose admin routes for order notes, pick lists, supplier CRUD, purchase order create/list/status/receive.
 - Enforce `store_id` tenancy and PostgreSQL RLS on MercFlow tables (ADR-004, ADR-005).
 
 Does **not** own Medusa core order, payment, fulfillment, or stock levels. Does **not** mutate Medusa stock unless a future task explicitly designs that behavior (receipt flow in S007).
@@ -108,6 +108,15 @@ pnpm migration:run
 | GET | `/admin/purchase-orders` | List POs with lines |
 | POST | `/admin/purchase-orders` | Create draft PO with lines |
 | PATCH | `/admin/purchase-orders/:id/status` | Status transition (e.g. draft → ordered) |
+| GET | `/admin/purchase-orders/:id` | PO detail with line receipt totals and `stock_applied` (always `false` until a future stock-apply task) |
+| POST | `/admin/purchase-orders/:id/receive` | Record receipt quantities per line; updates PO to `partially_received` or `received` |
+| GET | `/admin/inventory-overview` | Variant stock overview (`stocked`, `reserved`, `available`, `incoming`) with search/filter/pagination |
+| GET | `/admin/inventory-overview/:variantId/movements` | Movement history (PO receipts; Medusa sale/manual events deferred) |
+| GET/PATCH | `/admin/inventory-config` | Read/update low-stock threshold per store |
+
+**Receipt boundary (S007):** Receive creates `mercflow_purchase_order_receipt` rows only. It does **not** mutate Medusa inventory levels. The API and admin UI expose `stock_applied: false` so operators know stock is unchanged.
+
+**Available (S007):** `available = stocked - reserved` is computed on each overview request (never cached). `incoming` sums open PO lines (`ordered` / `partially_received`) minus recorded receipts per variant.
 
 All admin routes require `?store_id=` or `MERCFLOW_DEFAULT_STORE_ID` (see `resolveMercflowStoreId`).
 
@@ -132,4 +141,4 @@ Committed migration files are immutable; add a new migration for later schema ch
 
 - SEO, feeds, CMS content (other MercFlow modules).
 - Shipping label generation or carrier APIs.
-- Automatic Medusa stock changes on purchase order receipt (S007 task defines boundary).
+- Automatic Medusa stock changes on purchase order receipt (deferred; use explicit future stock-apply flow if needed).

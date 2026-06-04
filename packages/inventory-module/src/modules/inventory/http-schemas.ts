@@ -1,5 +1,6 @@
 import { z } from "zod"
 
+import { INVENTORY_OVERVIEW_SORT_COLUMNS } from "./inventory-overview-types"
 import { PURCHASE_ORDER_STATUSES } from "./types"
 
 export const orderNotePostBodySchema = z.object({
@@ -51,5 +52,34 @@ export const purchaseOrderPostBodySchema = z
 export const purchaseOrderStatusPatchBodySchema = z
   .object({
     status: z.enum(PURCHASE_ORDER_STATUSES),
+  })
+  .strict()
+
+export const purchaseOrderReceiveLineSchema = z.object({
+  line_id: z.string().min(1),
+  received_qty: z.number().int().positive(),
+  notes: z.string().max(4000).nullable().optional(),
+})
+
+export const purchaseOrderReceiveBodySchema = z
+  .object({
+    lines: z.array(purchaseOrderReceiveLineSchema).min(1),
+  })
+  .strict()
+
+export const inventoryOverviewQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(25),
+  search: z.string().max(255).optional(),
+  filter: z.enum(["all", "low_stock"]).default("all"),
+  sort_by: z.enum(INVENTORY_OVERVIEW_SORT_COLUMNS).default("available"),
+  sort_dir: z.enum(["asc", "desc"]).default("asc"),
+  store_id: z.string().optional(),
+})
+
+export const inventoryConfigPatchBodySchema = z
+  .object({
+    low_stock_threshold: z.number().int().min(0).optional(),
+    email_alerts_enabled: z.boolean().optional(),
   })
   .strict()

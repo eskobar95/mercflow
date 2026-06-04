@@ -27,6 +27,20 @@ export type PurchaseOrderLineDto = {
   unit_cost: number
   created_at: string
   updated_at: string
+  received_total?: number
+  discrepancy?: number
+}
+
+export type PurchaseOrderDetailDto = {
+  purchase_order: PurchaseOrderDto
+  lines: PurchaseOrderLineDto[]
+  stock_applied: boolean
+}
+
+export type ReceivePurchaseOrderLineInput = {
+  line_id: string
+  received_qty: number
+  notes?: string | null
 }
 
 export type PurchaseOrderDto = {

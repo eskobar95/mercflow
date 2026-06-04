@@ -4,6 +4,32 @@
 
 ---
 
+## 2026-06-04 — `/run-sprint S007` (T023 + T024 implementation)
+
+**Branch:** `feature/S007/T023-po-receive-flow` @ worktree `../mercflow-worktrees/S007-T023`
+
+### HITL — PO receipt vs Medusa stock (T023)
+
+- Decision log: `.factory/logs/hitl/S007-po-stock-boundary.md`
+- **MercFlow receipt only** — no automatic Medusa stock mutation; UI/API expose `stock_applied: false`
+
+### Delivered
+
+- **T023:** `POST /admin/purchase-orders/:id/receive`, `GET /admin/purchase-orders/:id`, receive admin page, list row action
+- **T024:** `GET /admin/inventory-overview`, movements + `GET/PATCH /admin/inventory-config`, inventory overview table + movement sheet
+- Tests: 15 passing in `@mercflow/inventory-module`; typecheck + lint green
+- Bugbot: server-side overview sort fix (`75a0782`)
+
+### Gate
+
+**Yellow** — movement history lists PO receipts only; Medusa sale/manual_adjustment events deferred (documented in README).
+
+### PR
+
+https://github.com/eskobar95/mercflow/pull/61 → `development` (rebased on S003 merge `c932800`)
+
+---
+
 ## 2026-06-04 — Sprint S003 merged to development
 
 **PR:** https://github.com/eskobar95/mercflow/pull/60 (squash `b2e1d90`, factory diary `c932800`)

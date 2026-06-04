@@ -1,6 +1,8 @@
 import type {
   MercflowPurchaseOrderLineRecord,
+  MercflowPurchaseOrderReceiptRecord,
   MercflowPurchaseOrderRecord,
+  PurchaseOrderLineSummary,
 } from "../../modules/inventory/types"
 
 export function purchaseOrderToAdminJson(
@@ -42,5 +44,42 @@ export function purchaseOrderLineToAdminJson(
       row.created_at instanceof Date ? row.created_at.toISOString() : row.created_at,
     updated_at:
       row.updated_at instanceof Date ? row.updated_at.toISOString() : row.updated_at,
+  }
+}
+
+export function purchaseOrderLineSummaryToAdminJson(
+  row: PurchaseOrderLineSummary
+): Record<string, unknown> {
+  return {
+    ...purchaseOrderLineToAdminJson(row),
+    received_total: row.received_total,
+    discrepancy: row.discrepancy,
+  }
+}
+
+export function purchaseOrderReceiptToAdminJson(
+  row: MercflowPurchaseOrderReceiptRecord
+): Record<string, unknown> {
+  const receivedAt =
+    row.received_at instanceof Date ? row.received_at.toISOString() : row.received_at
+  return {
+    id: row.id,
+    store_id: row.store_id,
+    line_id: row.line_id,
+    received_qty: row.received_qty,
+    received_at: receivedAt,
+    notes: row.notes,
+  }
+}
+
+export function purchaseOrderDetailToAdminJson(detail: {
+  purchase_order: MercflowPurchaseOrderRecord
+  lines: PurchaseOrderLineSummary[]
+  stock_applied: false
+}): Record<string, unknown> {
+  return {
+    purchase_order: purchaseOrderToAdminJson(detail.purchase_order),
+    lines: detail.lines.map((line) => purchaseOrderLineSummaryToAdminJson(line)),
+    stock_applied: detail.stock_applied,
   }
 }
