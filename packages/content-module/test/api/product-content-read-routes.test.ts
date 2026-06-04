@@ -44,6 +44,7 @@ describe("GET /admin/product-content/:id (product lookup)", () => {
       seo_description: null,
       seo_og_image_id: "f1",
       media_gallery: null,
+      canonical_url_override: null,
     }))
 
     const resJson = vi.fn()
@@ -101,6 +102,7 @@ describe("GET /store/product-content/:handle", () => {
       seo_description: "desc",
       seo_og_image_id: "f1",
       media_gallery: null,
+      canonical_url_override: null,
     }))
 
     const resJson = vi.fn()

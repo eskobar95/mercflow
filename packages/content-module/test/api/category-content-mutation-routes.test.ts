@@ -42,6 +42,7 @@ describe("POST /admin/category-content", () => {
       seo_description: "Hi",
       seo_og_image_id: "https://example.com/og.png",
       banner_image_id: "https://example.com/b.png",
+      canonical_url_override: null,
     }))
 
     const retrieveFile = vi.fn()
@@ -130,6 +131,7 @@ describe("PATCH /admin/category-content/:id (cms row id)", () => {
       seo_description: null,
       seo_og_image_id: null,
       banner_image_id: null,
+      canonical_url_override: null,
     }))
 
     const retrieveFile = vi.fn()

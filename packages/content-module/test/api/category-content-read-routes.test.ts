@@ -48,6 +48,7 @@ describe("GET /admin/category-content/:id (category lookup)", () => {
       seo_description: null,
       seo_og_image_id: "f1",
       banner_image_id: null,
+      canonical_url_override: null,
     }))
 
     const resJson = vi.fn()
@@ -108,6 +109,7 @@ describe("GET /store/category-content/:handle", () => {
       seo_description: "desc",
       seo_og_image_id: "f1",
       banner_image_id: null,
+      canonical_url_override: null,
     }))
 
     const resJson = vi.fn()
@@ -167,6 +169,7 @@ describe("GET /store/category-content/:handle", () => {
       seo_description: null,
       seo_og_image_id: null,
       banner_image_id: null,
+      canonical_url_override: null,
     }))
 
     await expect(async () =>

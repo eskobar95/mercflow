@@ -174,6 +174,9 @@ class ContentModuleService extends MedusaService({
     if (data.seo_og_image_id !== undefined) {
       payload.og_image_url = data.seo_og_image_id
     }
+    if (data.canonical_url_override !== undefined) {
+      payload.canonical_url_override = data.canonical_url_override
+    }
 
     let row: ProductContentRecord
     if (!existing) {
@@ -184,6 +187,7 @@ class ContentModuleService extends MedusaService({
         seo_title: payload.seo_title ?? null,
         seo_description: payload.seo_description ?? null,
         og_image_url: payload.og_image_url ?? null,
+        canonical_url_override: payload.canonical_url_override ?? null,
         version: 1,
       })
       row = Array.isArray(created)
@@ -218,6 +222,7 @@ class ContentModuleService extends MedusaService({
       seo_description: row.seo_description,
       seo_og_image_id: row.og_image_url,
       media_gallery: null,
+      canonical_url_override: row.canonical_url_override ?? null,
     }
   }
 
@@ -267,6 +272,9 @@ class ContentModuleService extends MedusaService({
     if (data.banner_image_id !== undefined) {
       payload.banner_image_url = data.banner_image_id
     }
+    if (data.canonical_url_override !== undefined) {
+      payload.canonical_url_override = data.canonical_url_override
+    }
 
     let row: CategoryContentRecord
     if (!existing) {
@@ -278,6 +286,7 @@ class ContentModuleService extends MedusaService({
         seo_description: payload.seo_description ?? null,
         og_image_url: payload.og_image_url ?? null,
         banner_image_url: payload.banner_image_url ?? null,
+        canonical_url_override: payload.canonical_url_override ?? null,
       })
       row = Array.isArray(created)
         ? (created[0] as CategoryContentRecord)
@@ -307,6 +316,7 @@ class ContentModuleService extends MedusaService({
       seo_description: row.seo_description,
       seo_og_image_id: row.og_image_url,
       banner_image_id: row.banner_image_url,
+      canonical_url_override: row.canonical_url_override ?? null,
     }
   }
 

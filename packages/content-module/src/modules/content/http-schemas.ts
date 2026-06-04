@@ -24,6 +24,7 @@ export const productContentBodySchema = z
     seo_description: z.string().max(SEO_DESCRIPTION_MAX).nullable().optional(),
     seo_og_image_id: z.string().nullable().optional(),
     media_gallery: z.array(z.string()).nullable().optional(),
+    canonical_url_override: z.string().url().nullable().optional(),
   })
   .strict()
 
@@ -36,6 +37,7 @@ export const adminProductContentPostBodySchema = z
     seo_description: z.string().max(SEO_DESCRIPTION_MAX).nullable().optional(),
     seo_og_image_id: z.string().nullable().optional(),
     media_gallery: z.array(z.string()).nullable().optional(),
+    canonical_url_override: z.string().url().nullable().optional(),
   })
   .strict()
 
@@ -46,6 +48,7 @@ export const categoryContentBodySchema = z
     seo_description: z.string().max(SEO_DESCRIPTION_MAX).nullable().optional(),
     seo_og_image_id: z.string().nullable().optional(),
     banner_image_id: z.string().nullable().optional(),
+    canonical_url_override: z.string().url().nullable().optional(),
   })
   .strict()
 

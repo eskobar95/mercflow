@@ -13,6 +13,7 @@ export type ProductContentReadPayload = {
   seo_title: string | null
   seo_description: string | null
   og_image_url: string | null
+  canonical_url_override: string | null
   status: string
 }
 
@@ -56,6 +57,7 @@ export async function mapResolvedToReadPayload(
     seo_title: resolved.seo_title,
     seo_description: resolved.seo_description,
     og_image_url,
+    canonical_url_override: resolved.canonical_url_override,
     status: productStatus,
   }
 }

@@ -17,6 +17,7 @@ function buildResolved(overrides: Partial<ResolvedProductContent> = {}): Resolve
     seo_description: "Desc",
     seo_og_image_id: "file_1",
     media_gallery: null,
+    canonical_url_override: null,
     ...overrides,
   }
 }
