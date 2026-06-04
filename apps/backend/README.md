@@ -65,6 +65,10 @@ With the server running, an authenticated admin request (session cookie, API key
 
 should return JSON `{ "content": ... }` (or `content: null` if no row). Replace `product_id` with a real id from your database.
 
+Public **published** articles (when at least one row exists):
+
+`GET http://localhost:9000/store/articles?locale=en`
+
 ## What belongs here
 
 - Medusa configuration, module registration, and app-level `src/api` wiring only.

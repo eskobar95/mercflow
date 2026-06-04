@@ -175,9 +175,14 @@ The monorepo includes `@mercflow/backend` under `apps/backend`, which registers 
 - `apps/backend/src/api/admin/category-content/route.ts` re-exports `POST` from `@mercflow/content-module/mercflow-admin-category-content-post-route`
 - `apps/backend/src/api/admin/category-content/[id]/route.ts` re-exports `GET` / `PATCH` from `@mercflow/content-module/mercflow-admin-category-content-read-route`
 - `apps/backend/src/api/store/category-content/[handle]/route.ts` re-exports `GET` from `@mercflow/content-module/mercflow-store-category-content-read-route`
+- `apps/backend/src/api/admin/articles/route.ts` re-exports `GET` / `POST` from `@mercflow/content-module/mercflow-admin-articles-route`
+- `apps/backend/src/api/admin/articles/[id]/route.ts` re-exports `GET` / `PATCH` / `DELETE` from `@mercflow/content-module/mercflow-admin-articles-id-route`
+- `apps/backend/src/api/store/articles/route.ts` re-exports `GET` from `@mercflow/content-module/mercflow-store-articles-route`
+- `apps/backend/src/api/store/articles/[slug]/route.ts` re-exports `GET` from `@mercflow/content-module/mercflow-store-articles-slug-route`
 - `apps/backend/src/api/admin/pages/route.ts` re-exports `GET` / `POST` from `@mercflow/content-module/mercflow-admin-pages-api`
 - `apps/backend/src/api/admin/pages/[id]/route.ts` re-exports `GET` / `PATCH` / `DELETE` from `@mercflow/content-module/mercflow-admin-pages-id-api`
 - `apps/backend/src/api/store/pages/[slug]/route.ts` re-exports `GET` from `@mercflow/content-module/mercflow-store-pages-read-route`
+- `apps/backend/src/api/admin/product-categories/[id]/content/route.ts` re-exports from `@mercflow/content-module/mercflow-category-content-api`
 
 Run the server from `apps/backend` (see that package’s README). Do not duplicate handler logic in the app.
 
@@ -193,6 +198,11 @@ All routes are under the **admin** prefix, require an authenticated admin sessio
 | `GET` | `/admin/category-content/:id` | `locale` (optional, default `en`) | — |
 | `POST` | `/admin/category-content` | `locale` | `category_id`, plus optional CMS fields (`description_rich`, `seo_*`, `banner_image_id?`) via strict Zod |
 | `PATCH` | `/admin/category-content/:id` | — | Same optional fields — **`PATCH` `:id` is `category_content.id`**, unlike `GET` which expects **`product_category.id`**. |
+| `GET` | `/admin/articles` | `locale` (optional filter) | — |
+| `POST` | `/admin/articles` | — | `title` (required), optional `slug`, `body_json`, `locale` (default `en`), `status`, `published_at` (ISO datetime or null) — strict Zod |
+| `GET` | `/admin/articles/:id` | — | — |
+| `PATCH` | `/admin/articles/:id` | — | Partial article fields (same keys as `POST` body except all optional) |
+| `DELETE` | `/admin/articles/:id` | — | Soft-deletes the article row |
 | `POST` | `/admin/products/:id/content` | `locale` (optional, default `en`) | `description_rich?`, `seo_title?`, `seo_description?`, `seo_og_image_id?`, `media_gallery?` (see Zod in `http-schemas.ts`) |
 | `GET` | `/admin/product-categories/:id/content` | `locale` (optional, default `en`) | — |
 | `POST` | `/admin/product-categories/:id/content` | `locale` (optional, default `en`) | same as product, plus `banner_image_id?` for categories |
@@ -222,6 +232,8 @@ For **nested legacy edits**, keep using **`POST /admin/products/:id/content`**; 
 | --- | --- | --- | --- |
 | `GET` | `/store/product-content/:handle` | `locale` (optional, default `en`) | No admin auth required. **Published** products only. Same JSON shape as the MercFlow CMS admin read/mutation payloads above (**404** if handle unknown, unpublished, or no CMS row). |
 | `GET` | `/store/category-content/:handle` | `locale` (optional, default `en`) | No admin auth required. Listed categories (`is_active` and not `is_internal`) only. **`category_content.status` must be `published`**. Flat MercFlow category CMS payload (**404** otherwise). |
+| `GET` | `/store/articles` | `locale` (optional, default `en`) | Public list of **published** articles only (`{ articles: [...] }` with id, slug, title, published_at, locale). |
+| `GET` | `/store/articles/:slug` | `locale` (optional, default `en`) | Single **published** article (`{ article: { id, slug, title, body_json, locale, published_at } }`). **404** for drafts or unknown slug. |
 | `GET` | `/store/pages/:slug` | `locale` (optional, default `en`) | **Published** pages only. JSON `{ title, slug, page_type, status, blocks: [] }` (**404** for unknown slug, draft, or missing row). |
 
 ### Example `curl` (local)

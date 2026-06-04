@@ -64,11 +64,17 @@ jobs:
 
       - name: Audit (fail on HIGH+)
         run: |
+          # Run audit and capture JSON output; exit code may be non-zero.
           pnpm audit --audit-level=high --json > /tmp/audit.json 2>/dev/null || true
 
           node - <<'EOF'
           const fs = require('fs');
+          // GHSAs accepted as non-actionable in this project (documented reason required).
           const ALLOWED = new Set([
+            // vitest UI server arbitrary file read (GHSA-5xrq-8626-4rwp):
+            // Only exploitable when `vitest --ui` server is running and network-accessible.
+            // MercFlow never runs vitest --ui in CI or production; uses `vitest run` only.
+            // Track: upgrade vitest to >=4.1.0 once vite@6 migration is complete.
             'GHSA-5xrq-8626-4rwp',
           ]);
 
@@ -92,7 +98,7 @@ jobs:
             );
             if (skipped.length) {
               console.log(
-                `audit: ${skipped.length} allowed HIGH/CRITICAL: ` +
+                `audit: ${skipped.length} allowed HIGH/CRITICAL (see ALLOWED list): ` +
                   skipped.map((a) => a.github_advisory_id).join(', ')
               );
             }
