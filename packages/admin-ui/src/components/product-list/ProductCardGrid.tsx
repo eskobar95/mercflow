@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 
 import { Checkbox } from "@/components/ui/Checkbox"
@@ -16,7 +17,7 @@ type ProductCardGridProps = {
  * Mobile card view — replaces DataTable on small screens.
  * One card per product: thumbnail + key fields scannable vertically.
  */
-export function ProductCardGrid({ rows, selection }: ProductCardGridProps): JSX.Element {
+export function ProductCardGrid({ rows, selection }: ProductCardGridProps): ReactNode {
   if (rows.length === 0) {
     return (
       <p className="px-4 py-10 text-center text-sm text-content-tertiary">

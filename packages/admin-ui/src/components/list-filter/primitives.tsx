@@ -20,7 +20,7 @@ const toneDotClass: Record<FilterValueTone, string> = {
   accent: "bg-accent",
 }
 
-export function StatusDot({ tone }: { tone: FilterValueTone }): JSX.Element {
+export function StatusDot({ tone }: { tone: FilterValueTone }): ReactNode {
   return (
     <span
       aria-hidden
@@ -41,7 +41,7 @@ export function CheckRow({
   tone?: FilterValueTone
   active: boolean
   onClick: () => void
-}): JSX.Element {
+}): ReactNode {
   return (
     <button
       type="button"
@@ -83,7 +83,7 @@ export function OperatorDropdown({
   operator: FilterOperator
   operators: FilterOperator[]
   onSelect: (op: FilterOperator) => void
-}): JSX.Element {
+}): ReactNode {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -131,7 +131,7 @@ export function ValuePickerPopover({
   selectedIds: string[]
   onToggle: (valueId: string) => void
   children: ReactNode
-}): JSX.Element {
+}): ReactNode {
   return (
     <Popover>
       <PopoverTrigger asChild>{children}</PopoverTrigger>

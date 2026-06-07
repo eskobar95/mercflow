@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react"
+import { useCallback, useState, type ReactNode } from "react"
 
 import {
   PRODUCT_BULK_STATUS_OPTIONS,
@@ -20,7 +20,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu"
 import { IconChevronDown } from "@/components/ui/icons"
-import { BulkActionBar, bulkActionButtonClass } from "@/components/ui/list/BulkActionBar"
+import { BulkActionBar } from "@/components/ui/list/BulkActionBar"
+import { bulkActionButtonClass } from "@/components/ui/list/bulkActionBarStyles"
 import { useToast } from "@/components/ui/Toast"
 
 import type { ProductStatusValue } from "@/hooks/products/useProductsCatalogList"
@@ -55,7 +56,7 @@ type ProductCatalogBulkActionsProps = {
 export function ProductCatalogBulkActions({
   selectedCount,
   onClearSelection,
-}: ProductCatalogBulkActionsProps): JSX.Element {
+}: ProductCatalogBulkActionsProps): ReactNode {
   const { toast } = useToast()
   const [deleteOpen, setDeleteOpen] = useState(false)
 

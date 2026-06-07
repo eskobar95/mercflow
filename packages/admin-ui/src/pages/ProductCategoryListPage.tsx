@@ -1,4 +1,4 @@
-import type { JSX } from "react"
+import type { ReactNode } from "react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
@@ -23,9 +23,52 @@ import { transitionShadowEnter } from "@/lib/motionClasses"
 
 const EMPTY_FILTER_CATEGORIES: never[] = []
 
-export function ProductCategoryListPage(): JSX.Element {
+type ProductCategoriesHook = ReturnType<typeof useAdminProductCategories>
+type ProductCategoryBlockingState = Extract<
+  ProductCategoriesHook["state"],
+  { status: "config_error" } | { status: "error" }
+>
+
+function ProductCategoryBlockingNotice({
+  state,
+  reload,
+}: {
+  state: ProductCategoryBlockingState
+  reload: ProductCategoriesHook["reload"]
+}): ReactNode {
+  return (
+    <div className="p-6">
+      <div
+        role="alert"
+        className="rounded-md border border-border-default bg-surface-raised p-4 text-sm text-content-secondary"
+      >
+        <p className="font-medium text-content-primary">
+          {state.status === "config_error"
+            ? "Admin backend not configured"
+            : "Unable to load categories"}
+        </p>
+        <p className="mt-2">{state.message}</p>
+        <button
+          type="button"
+          className="mt-3 rounded-md bg-interactive-primary px-3 py-1.5 text-sm font-medium text-content-inverse transition hover:bg-interactive-primary-hover"
+          onClick={() => {
+            void reload()
+          }}
+        >
+          Retry
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function ProductCategoryListPageContent({
+  categories,
+}: {
+  categories: ProductCategoriesHook
+}): ReactNode {
   const navigate = useNavigate()
-  const { state, reload, filteredRows, totalRowCount, setSearch } = useAdminProductCategories()
+  const { state, reload, filteredRows, totalRowCount, setSearch } = categories
 
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
@@ -58,10 +101,9 @@ export function ProductCategoryListPage(): JSX.Element {
     [navigate],
   )
 
-  const blockingNotice = state.status === "config_error" || state.status === "error"
-  const showSkeleton = !blockingNotice && (state.status === "idle" || state.status === "loading")
+  const showSkeleton = state.status === "idle" || state.status === "loading"
   const showCatalogEmptyNotice =
-    !blockingNotice && state.status === "success" && totalRowCount === 0 && !showSkeleton
+    state.status === "success" && totalRowCount === 0 && !showSkeleton
 
   const listControls = useMemo(
     () => (
@@ -94,7 +136,7 @@ export function ProductCategoryListPage(): JSX.Element {
           {state.status === "loading" || state.status === "idle" ? "…" : filteredRows.length}
         </span>
       ),
-      toolbar: blockingNotice ? null : listControls,
+      toolbar: listControls,
       actions: (
         <>
           <Link
@@ -115,37 +157,42 @@ export function ProductCategoryListPage(): JSX.Element {
         </>
       ),
     }),
-    [blockingNotice, filteredRows.length, listControls, navigate, state.status],
+    [filteredRows.length, listControls, navigate, state.status],
   )
 
   usePageChrome(pageChrome)
 
-  if (blockingNotice) {
-    return (
-      <div className="p-6">
-        <div
-          role="alert"
-          className="rounded-md border border-border-default bg-surface-raised p-4 text-sm text-content-secondary"
-        >
-          <p className="font-medium text-content-primary">
-            {state.status === "config_error"
-              ? "Admin backend not configured"
-              : "Unable to load categories"}
-          </p>
-          <p className="mt-2">{state.message}</p>
-          <button
-            type="button"
-            className="mt-3 rounded-md bg-interactive-primary px-3 py-1.5 text-sm font-medium text-content-inverse transition hover:bg-interactive-primary-hover"
-            onClick={() => {
-              void reload()
-            }}
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    )
-  }
+  const filterBar = useMemo(
+    () => (
+      <ListFilterBar
+        filterCategories={EMPTY_FILTER_CATEGORIES}
+        hasChips={filters.hasChips}
+        searchDraft={filters.searchDraft}
+        activeFilters={filters.activeFilters}
+        onClearSearch={() => {
+          filters.setSearchDraft("")
+          resetPage()
+        }}
+        onOperatorChange={(categoryId, operator) =>
+          filters.updateFilter(categoryId, { operator })
+        }
+        onValueToggle={filters.toggleFilterValue}
+        onRemoveFilter={filters.removeFilter}
+        onClearAll={filters.clearAllFilters}
+      />
+    ),
+    [
+      filters.activeFilters,
+      filters.clearAllFilters,
+      filters.hasChips,
+      filters.removeFilter,
+      filters.searchDraft,
+      filters.setSearchDraft,
+      filters.toggleFilterValue,
+      filters.updateFilter,
+      resetPage,
+    ],
+  )
 
   const filterEmptyOverlay =
     state.status === "success" && totalRowCount > 0 && filteredRows.length === 0 ? (
@@ -189,24 +236,7 @@ export function ProductCategoryListPage(): JSX.Element {
   return (
     <ListPageShell
       listControls={listControls}
-      filterBar={
-        <ListFilterBar
-          filterCategories={EMPTY_FILTER_CATEGORIES}
-          hasChips={filters.hasChips}
-          searchDraft={filters.searchDraft}
-          activeFilters={filters.activeFilters}
-          onClearSearch={() => {
-            filters.setSearchDraft("")
-            resetPage()
-          }}
-          onOperatorChange={(categoryId, operator) =>
-            filters.updateFilter(categoryId, { operator })
-          }
-          onValueToggle={filters.toggleFilterValue}
-          onRemoveFilter={filters.removeFilter}
-          onClearAll={filters.clearAllFilters}
-        />
-      }
+      filterBar={filterBar}
       footerScrollKey={`${pagedRows.length}:${state.status}`}
       pagination={(footerFloating) =>
         state.status === "success" && filteredRows.length > 0 ? (
@@ -242,4 +272,14 @@ export function ProductCategoryListPage(): JSX.Element {
       ) : null}
     </ListPageShell>
   )
+}
+
+export function ProductCategoryListPage(): ReactNode {
+  const categories = useAdminProductCategories()
+
+  if (categories.state.status === "config_error" || categories.state.status === "error") {
+    return <ProductCategoryBlockingNotice state={categories.state} reload={categories.reload} />
+  }
+
+  return <ProductCategoryListPageContent categories={categories} />
 }

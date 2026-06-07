@@ -1,3 +1,5 @@
+import type { ReactNode } from "react"
+
 type ListDateRangeControlProps = {
   dateFrom: string
   dateTo: string
@@ -15,7 +17,7 @@ export function ListDateRangeControl({
   onDateToChange,
   fromLabel = "From",
   toLabel = "To",
-}: ListDateRangeControlProps): JSX.Element {
+}: ListDateRangeControlProps): ReactNode {
   return (
     <>
       <label className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border-default bg-surface-appCard px-2 text-xs text-content-secondary">

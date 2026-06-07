@@ -33,7 +33,7 @@ export function ListPageShell({
   pagination,
   bulkActions,
   footerScrollKey,
-}: ListPageShellProps): JSX.Element {
+}: ListPageShellProps): ReactNode {
   const { floating: footerFloating } = useScrollAwareFooter(
     MAIN_CONTENT_SCROLL_ID,
     footerScrollKey,

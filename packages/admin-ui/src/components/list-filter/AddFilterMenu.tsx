@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useRef, useState, type ReactNode } from "react"
 
 import { CheckRow } from "@/components/list-filter/primitives"
 import type { ActiveFilter, FilterCategory, FilterOperator } from "@/components/list-filter/types"
@@ -28,10 +28,11 @@ export function AddFilterMenu({
   onUpdate,
   onSearchSubmit,
   filterAriaLabel = "Filter list",
-}: AddFilterMenuProps): JSX.Element {
+}: AddFilterMenuProps): ReactNode {
   const [open, setOpen] = useState(false)
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null)
   const [query, setQuery] = useState("")
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
   const normalizedQuery = query.trim().toLowerCase()
   const visibleCategories =
@@ -85,6 +86,9 @@ export function AddFilterMenu({
       onOpenChange={(next) => {
         if (next) {
           setOpen(true)
+          requestAnimationFrame(() => {
+            searchInputRef.current?.focus()
+          })
         } else {
           resetAndClose()
         }
@@ -118,7 +122,7 @@ export function AddFilterMenu({
         <div className="flex h-8 items-center gap-2 border-b border-border-subtle px-2">
           <IconSearch size={14} className="shrink-0 text-content-tertiary" />
           <input
-            autoFocus
+            ref={searchInputRef}
             type="text"
             value={query}
             onChange={(event) => setQuery(event.target.value)}

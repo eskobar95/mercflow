@@ -1,3 +1,5 @@
+import type { ReactNode } from "react"
+
 import { IconChevronDown } from "@/components/ui/icons"
 
 import { useAdminSession } from "@/hooks/useAdminSession"
@@ -9,7 +11,7 @@ import { ENTER_EASE } from "@/constants/motion"
  * workspace identity lives in the header; the signed-in admin lives here.
  * Identity comes from {@link useAdminSession} — never hardcoded in layout.
  */
-export function UserAccountButton(): JSX.Element {
+export function UserAccountButton(): ReactNode {
   const { session } = useAdminSession()
 
   return (

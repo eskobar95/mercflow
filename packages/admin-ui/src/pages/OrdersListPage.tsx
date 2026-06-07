@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useMemo, useState, type ReactNode } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
 import { AddFilterMenu } from "@/components/list-filter/AddFilterMenu"
@@ -37,7 +37,7 @@ import { useOrdersList } from "@/hooks/useOrdersList"
 import { cn } from "@/lib/cn"
 import { transitionShadowEnter } from "@/lib/motionClasses"
 
-export function OrdersListPage(): JSX.Element {
+export function OrdersListPage(): ReactNode {
   const navigate = useNavigate()
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
@@ -73,10 +73,15 @@ export function OrdersListPage(): JSX.Element {
   })
 
   const rowIds = useMemo(() => rows.map((row) => row.id), [rows])
-  const bulkEligibleRowIds = useMemo(
-    () => rows.filter(orderListRowEligibleForBulkFulfillment).map((row) => row.id),
-    [rows],
-  )
+  const bulkEligibleRowIds = useMemo(() => {
+    const ids: string[] = []
+    for (const row of rows) {
+      if (orderListRowEligibleForBulkFulfillment(row)) {
+        ids.push(row.id)
+      }
+    }
+    return ids
+  }, [rows])
 
   const { selectedIds, selection, clearSelection } = useListRowSelection(
     rowIds,
@@ -242,6 +247,42 @@ export function OrdersListPage(): JSX.Element {
 
   usePageChrome(pageChrome)
 
+  const filterBar = useMemo(
+    () => (
+      <ListFilterBar
+        filterCategories={ORDER_FILTER_CATEGORIES}
+        hasChips={filters.hasChips}
+        searchDraft={filters.searchDraft}
+        activeFilters={filters.activeFilters}
+        onClearSearch={() => {
+          filters.setSearchDraft("")
+          resetPage()
+        }}
+        onOperatorChange={(categoryId, operator) =>
+          filters.updateFilter(categoryId, { operator })
+        }
+        onValueToggle={filters.toggleFilterValue}
+        onRemoveFilter={filters.removeFilter}
+        onClearAll={() => {
+          filters.clearAllFilters()
+          setDateFrom("")
+          setDateTo("")
+        }}
+      />
+    ),
+    [
+      filters.activeFilters,
+      filters.clearAllFilters,
+      filters.hasChips,
+      filters.removeFilter,
+      filters.searchDraft,
+      filters.setSearchDraft,
+      filters.toggleFilterValue,
+      filters.updateFilter,
+      resetPage,
+    ],
+  )
+
   const emptyState = (
     <ListEmptyState
       bare
@@ -266,28 +307,7 @@ export function OrdersListPage(): JSX.Element {
   return (
     <ListPageShell
       listControls={listControls}
-      filterBar={
-        <ListFilterBar
-          filterCategories={ORDER_FILTER_CATEGORIES}
-          hasChips={filters.hasChips}
-          searchDraft={filters.searchDraft}
-          activeFilters={filters.activeFilters}
-          onClearSearch={() => {
-            filters.setSearchDraft("")
-            resetPage()
-          }}
-          onOperatorChange={(categoryId, operator) =>
-            filters.updateFilter(categoryId, { operator })
-          }
-          onValueToggle={filters.toggleFilterValue}
-          onRemoveFilter={filters.removeFilter}
-          onClearAll={() => {
-            filters.clearAllFilters()
-            setDateFrom("")
-            setDateTo("")
-          }}
-        />
-      }
+      filterBar={filterBar}
       footerScrollKey={`${rows.length}:${isLoading}:${errorMessage ?? ""}`}
       pagination={(footerFloating) => (
         <ListPagination

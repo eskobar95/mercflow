@@ -1,4 +1,4 @@
-import type { SVGProps } from "react"
+import type { ReactNode, SVGProps } from "react"
 
 /**
  * Monoline icon system for MercFlow admin chrome.
@@ -167,7 +167,7 @@ export function IconSearch({ size = 18, ...rest }: IconProps): JSX.Element {
 }
 
 /** Funnel — list filter control. */
-export function IconFilter({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconFilter({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <path d="M4 6h16l-6.3 7.4v4.3l-3.4 1.8v-6.1z" />
@@ -176,7 +176,7 @@ export function IconFilter({ size = 18, ...rest }: IconProps): JSX.Element {
 }
 
 /** Plus — create / add affordances. */
-export function IconPlus({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconPlus({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <path d="M12 5v14" />

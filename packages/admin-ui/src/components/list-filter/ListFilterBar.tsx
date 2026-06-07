@@ -1,3 +1,5 @@
+import type { ReactNode } from "react"
+
 import { FilterChip } from "@/components/list-filter/FilterChip"
 import type { ActiveFilter, FilterCategory } from "@/components/list-filter/types"
 import { IconClose } from "@/components/ui/icons"
@@ -31,7 +33,7 @@ export function ListFilterBar({
   onValueToggle,
   onRemoveFilter,
   onClearAll,
-}: ListFilterBarProps): JSX.Element {
+}: ListFilterBarProps): ReactNode {
   return (
     <div
       className={cn(

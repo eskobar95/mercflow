@@ -1,3 +1,5 @@
+import type { ReactNode } from "react"
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +25,7 @@ type ListSortControlProps<TCol extends string> = {
   onChange: (column: TCol, direction: SortDirection) => void
 }
 
-function SortGlyph({ direction }: { direction: SortDirection }): JSX.Element {
+function SortGlyph({ direction }: { direction: SortDirection }): ReactNode {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className="shrink-0">
       <path d="M3.5 4.5h7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
@@ -40,19 +42,19 @@ function SortGlyph({ direction }: { direction: SortDirection }): JSX.Element {
   )
 }
 
+const SORT_DIRECTION_ITEMS: { id: SortDirection; label: string }[] = [
+  { id: "asc", label: "Ascending" },
+  { id: "desc", label: "Descending" },
+]
+
 /** Compact sort dropdown for list page TopBar toolbars. */
 export function ListSortControl<TCol extends string>({
   options,
   column,
   direction,
   onChange,
-}: ListSortControlProps<TCol>): JSX.Element {
+}: ListSortControlProps<TCol>): ReactNode {
   const activeLabel = options.find((option) => option.id === column)?.label ?? "Sort"
-
-  const directionItems: { id: SortDirection; label: string }[] = [
-    { id: "asc", label: "Ascending" },
-    { id: "desc", label: "Descending" },
-  ]
 
   return (
     <DropdownMenu>
@@ -96,7 +98,7 @@ export function ListSortControl<TCol extends string>({
 
         <DropdownMenuSeparator />
 
-        {directionItems.map((item) => (
+        {SORT_DIRECTION_ITEMS.map((item) => (
           <DropdownMenuItem
             key={item.id}
             className={cn(

@@ -1,3 +1,5 @@
+import type { ReactNode } from "react"
+
 import { IconClose } from "@/components/ui/icons"
 import { cn } from "@/lib/cn"
 
@@ -18,7 +20,7 @@ export function FilterChip({
   onOperatorChange,
   onValueToggle,
   onRemove,
-}: FilterChipProps): JSX.Element {
+}: FilterChipProps): ReactNode {
   const selectedValues = filter.valueIds
     .map((id) => category.values.find((v) => v.id === id))
     .filter((v): v is NonNullable<typeof v> => Boolean(v))

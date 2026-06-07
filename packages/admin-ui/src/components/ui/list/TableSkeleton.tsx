@@ -1,3 +1,5 @@
+import type { ReactNode } from "react"
+
 import { cn } from "@/lib/cn"
 
 import {
@@ -26,7 +28,7 @@ function Silhouette({
 }: {
   variant: ListSkeletonVariant
   rowIndex: number
-}): JSX.Element {
+}): ReactNode {
   switch (variant) {
     case "thumbnail":
       return <div className="h-10 w-10 rounded-md bg-surface-subtle" />
@@ -59,14 +61,14 @@ export function TableSkeleton({
   rowCount,
   showSelectColumn,
   showActionsColumn,
-}: TableSkeletonProps): JSX.Element {
+}: TableSkeletonProps): ReactNode {
   return (
-    <tbody className="animate-pulse" role="rowgroup" aria-hidden="true">
+    <tbody className="animate-pulse" aria-hidden="true">
       {Array.from({ length: rowCount }).map((_, rowIndex) => (
         <tr key={rowIndex} className="border-b border-border-subtle last:border-0">
           {showSelectColumn ? (
             <td className={cn(listUtilityColClass, "px-4 py-3 align-middle")}>
-              <div className="h-4 w-4 rounded bg-surface-subtle" />
+              <div className="h-4 w-4 rounded bg-surface-subtle" aria-hidden="true" />
             </td>
           ) : null}
           {columns.map((col) => {
@@ -91,7 +93,7 @@ export function TableSkeleton({
           })}
           {showActionsColumn ? (
             <td className={cn(listUtilityColClass, "px-4 py-3 align-middle")}>
-              <div className="ml-auto h-4 w-4 rounded bg-surface-subtle" />
+              <div className="ml-auto h-4 w-4 rounded bg-surface-subtle" aria-hidden="true" />
             </td>
           ) : null}
         </tr>

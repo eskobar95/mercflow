@@ -1,4 +1,7 @@
-import { BulkActionBar, bulkActionButtonClass } from "@/components/ui/list/BulkActionBar"
+import type { ReactNode } from "react"
+
+import { BulkActionBar } from "@/components/ui/list/BulkActionBar"
+import { bulkActionButtonClass } from "@/components/ui/list/bulkActionBarStyles"
 
 type OrdersListBulkActionsProps = {
   selectedCount: number
@@ -14,7 +17,7 @@ export function OrdersListBulkActions({
   bulkMessage,
   onClearSelection,
   onMarkFulfillmentReady,
-}: OrdersListBulkActionsProps): JSX.Element | null {
+}: OrdersListBulkActionsProps): ReactNode | null {
   if (selectedCount === 0) {
     return null
   }

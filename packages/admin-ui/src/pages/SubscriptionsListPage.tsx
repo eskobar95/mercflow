@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useMemo, useState, type ReactNode } from "react"
 
 import { AddFilterMenu } from "@/components/list-filter/AddFilterMenu"
 import { ListFilterBar } from "@/components/list-filter/ListFilterBar"
@@ -29,9 +29,20 @@ import { transitionShadowEnter } from "@/lib/motionClasses"
 
 const LIST_PAGE_SIZE = 20
 
-export function SubscriptionsListPage(): JSX.Element {
-  const backendConfigured = resolveMedusaAdminBackendUrl() !== null
-  const { data, loading, errorMessage, refresh } = useAdminSubscriptions(backendConfigured)
+function SubscriptionsBackendMissingNotice(): ReactNode {
+  return (
+    <div className="border-b border-border-subtle px-6 py-6 text-sm text-content-secondary">
+      Configure{" "}
+      <code className="rounded-sm bg-surface-subtle px-1 py-0.5 font-mono text-xs">
+        VITE_MEDUSA_ADMIN_BACKEND_URL
+      </code>{" "}
+      so this view can call the Medusa admin subscription APIs.
+    </div>
+  )
+}
+
+function SubscriptionsListPageContent(): ReactNode {
+  const { data, loading, errorMessage, refresh } = useAdminSubscriptions(true)
 
   const [page, setPage] = useState(1)
   const [sort, setSort] = useState<ListSortState<SubscriptionListSortColumn>>({
@@ -73,7 +84,7 @@ export function SubscriptionsListPage(): JSX.Element {
       return filteredRows
     }
     const direction = sort.direction === "asc" ? 1 : -1
-    return [...filteredRows].sort((left, right) => {
+    return filteredRows.slice().sort((left, right) => {
       const leftValue = column.getSortValue?.(left)
       const rightValue = column.getSortValue?.(right)
       if (leftValue === undefined || rightValue === undefined) {
@@ -152,8 +163,8 @@ export function SubscriptionsListPage(): JSX.Element {
           {loading ? "…" : filteredRows.length}
         </span>
       ),
-      toolbar: backendConfigured && errorMessage === null ? listControls : null,
-      actions: backendConfigured ? (
+      toolbar: errorMessage === null ? listControls : null,
+      actions: (
         <button
           type="button"
           className="inline-flex h-8 items-center rounded-md border border-border-default bg-surface-appCard px-3 text-xs font-medium text-content-secondary transition-colors hover:border-border-strong hover:text-content-primary disabled:opacity-50"
@@ -164,46 +175,49 @@ export function SubscriptionsListPage(): JSX.Element {
         >
           Refresh
         </button>
-      ) : null,
+      ),
     }),
-    [backendConfigured, errorMessage, filteredRows.length, listControls, loading, refresh],
+    [errorMessage, filteredRows.length, listControls, loading, refresh],
   )
 
   usePageChrome(pageChrome)
 
-  if (!backendConfigured) {
-    return (
-      <div className="border-b border-border-subtle px-6 py-6 text-sm text-content-secondary">
-        Configure{" "}
-        <code className="rounded-sm bg-surface-subtle px-1 py-0.5 font-mono text-xs">
-          VITE_MEDUSA_ADMIN_BACKEND_URL
-        </code>{" "}
-        so this view can call the Medusa admin subscription APIs.
-      </div>
-    )
-  }
+  const filterBar = useMemo(
+    () => (
+      <ListFilterBar
+        filterCategories={SUBSCRIPTION_FILTER_CATEGORIES}
+        hasChips={filters.hasChips}
+        searchDraft={filters.searchDraft}
+        activeFilters={filters.activeFilters}
+        onClearSearch={() => {
+          filters.setSearchDraft("")
+          resetPage()
+        }}
+        onOperatorChange={(categoryId, operator) =>
+          filters.updateFilter(categoryId, { operator })
+        }
+        onValueToggle={filters.toggleFilterValue}
+        onRemoveFilter={filters.removeFilter}
+        onClearAll={filters.clearAllFilters}
+      />
+    ),
+    [
+      filters.activeFilters,
+      filters.clearAllFilters,
+      filters.hasChips,
+      filters.removeFilter,
+      filters.searchDraft,
+      filters.setSearchDraft,
+      filters.toggleFilterValue,
+      filters.updateFilter,
+      resetPage,
+    ],
+  )
 
   return (
     <ListPageShell
       listControls={listControls}
-      filterBar={
-        <ListFilterBar
-          filterCategories={SUBSCRIPTION_FILTER_CATEGORIES}
-          hasChips={filters.hasChips}
-          searchDraft={filters.searchDraft}
-          activeFilters={filters.activeFilters}
-          onClearSearch={() => {
-            filters.setSearchDraft("")
-            resetPage()
-          }}
-          onOperatorChange={(categoryId, operator) =>
-            filters.updateFilter(categoryId, { operator })
-          }
-          onValueToggle={filters.toggleFilterValue}
-          onRemoveFilter={filters.removeFilter}
-          onClearAll={filters.clearAllFilters}
-        />
-      }
+      filterBar={filterBar}
       footerScrollKey={`${pagedRows.length}:${loading}:${errorMessage ?? ""}`}
       pagination={(footerFloating) => (
         <ListPagination
@@ -248,4 +262,12 @@ export function SubscriptionsListPage(): JSX.Element {
       />
     </ListPageShell>
   )
+}
+
+export function SubscriptionsListPage(): ReactNode {
+  if (resolveMedusaAdminBackendUrl() === null) {
+    return <SubscriptionsBackendMissingNotice />
+  }
+
+  return <SubscriptionsListPageContent />
 }

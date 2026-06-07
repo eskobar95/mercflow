@@ -4,19 +4,6 @@ import { createPortal } from "react-dom"
 import { IconClose } from "@/components/ui/icons"
 import { cn } from "@/lib/cn"
 
-/**
- * Shared style for action controls placed inside the (dark) bulk bar — quiet on
- * the ink surface, tinting on hover, with press feedback. Use for buttons and
- * dropdown/dialog triggers passed as `children`.
- */
-export const bulkActionButtonClass = cn(
-  "inline-flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-content-inverse/85",
-  "transition-[background-color,color,transform] duration-fast ease-enter",
-  "hover:bg-content-inverse/15 hover:text-content-inverse active:scale-[0.96]",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-content-inverse/40",
-  "motion-reduce:transition-none motion-reduce:active:scale-100",
-)
-
 type BulkActionBarProps = {
   /** Number of selected rows. The bar shows while this is > 0. */
   count: number
@@ -47,7 +34,7 @@ export function BulkActionBar({
   noun = "item",
   onClear,
   children,
-}: BulkActionBarProps): JSX.Element | null {
+}: BulkActionBarProps): ReactNode | null {
   const visible = count > 0
 
   if (typeof document === "undefined") return null
@@ -58,8 +45,7 @@ export function BulkActionBar({
       className="pointer-events-none fixed inset-x-0 bottom-6 z-dropdown flex justify-center px-4"
       aria-hidden={!visible}
     >
-      <div
-        role="status"
+      <output
         aria-live="polite"
         className={cn(
           "flex items-center gap-1.5 rounded-xl bg-content-primary py-1.5 pl-3 pr-1.5 text-content-inverse shadow-lg",
@@ -101,7 +87,7 @@ export function BulkActionBar({
         >
           <IconClose size={15} />
         </button>
-      </div>
+      </output>
     </div>,
     document.body,
   )

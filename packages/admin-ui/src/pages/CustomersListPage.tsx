@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react"
+import { useCallback, useEffect, useMemo, type ReactNode } from "react"
 import { useNavigate } from "react-router-dom"
 
 import { AddFilterMenu } from "@/components/list-filter/AddFilterMenu"
@@ -29,11 +29,38 @@ import { transitionShadowEnter } from "@/lib/motionClasses"
 
 const EMPTY_FILTER_CATEGORIES: never[] = []
 
-export function CustomersListPage(): JSX.Element {
+type CustomersDirectory = ReturnType<typeof useCustomersDirectory>
+
+function CustomersBackendMissingAlert(): ReactNode {
+  return (
+    <div className="p-6">
+      <section
+        className="rounded-lg border border-border-default bg-feedback-warning-subtle px-6 py-5 text-sm text-feedback-warning-content shadow-sm"
+        role="alert"
+      >
+        <h1 className="text-lg font-semibold text-feedback-warning-content">
+          Backend URL missing
+        </h1>
+        <p className="mt-2 leading-relaxed">
+          Configure{" "}
+          <code className="rounded-sm border border-feedback-warning-border bg-surface-raised px-1 py-0.5 text-xs">
+            VITE_MEDUSA_ADMIN_BACKEND_URL
+          </code>{" "}
+          and, if needed,{" "}
+          <code className="rounded-sm border border-feedback-warning-border bg-surface-raised px-1 py-0.5 text-xs">
+            VITE_MEDUSA_ADMIN_BEARER_TOKEN
+          </code>{" "}
+          inside your Vite env so this workspace can authenticate against Medusa Admin.
+        </p>
+      </section>
+    </div>
+  )
+}
+
+function CustomersListPageContent({ directory }: { directory: CustomersDirectory }): ReactNode {
   const navigate = useNavigate()
 
   const {
-    hasBackendConfiguration,
     setSearchInput,
     sortedRows,
     isListLoading,
@@ -46,7 +73,7 @@ export function CustomersListPage(): JSX.Element {
     sort,
     requestSort,
     applySort,
-  } = useCustomersDirectory()
+  } = directory
 
   const resetPage = useCallback((): void => {
     setCurrentPage(1)
@@ -126,53 +153,42 @@ export function CustomersListPage(): JSX.Element {
 
   usePageChrome(pageChrome)
 
-  if (!hasBackendConfiguration) {
-    return (
-      <div className="p-6">
-        <section
-          className="rounded-lg border border-border-default bg-feedback-warning-subtle px-6 py-5 text-sm text-feedback-warning-content shadow-sm"
-          role="alert"
-        >
-          <h1 className="text-lg font-semibold text-feedback-warning-content">
-            Backend URL missing
-          </h1>
-          <p className="mt-2 leading-relaxed">
-            Configure{" "}
-            <code className="rounded-sm border border-feedback-warning-border bg-surface-raised px-1 py-0.5 text-xs">
-              VITE_MEDUSA_ADMIN_BACKEND_URL
-            </code>{" "}
-            and, if needed,{" "}
-            <code className="rounded-sm border border-feedback-warning-border bg-surface-raised px-1 py-0.5 text-xs">
-              VITE_MEDUSA_ADMIN_BEARER_TOKEN
-            </code>{" "}
-            inside your Vite env so this workspace can authenticate against Medusa Admin.
-          </p>
-        </section>
-      </div>
-    )
-  }
+  const filterBar = useMemo(
+    () => (
+      <ListFilterBar
+        filterCategories={EMPTY_FILTER_CATEGORIES}
+        hasChips={filters.hasChips}
+        searchDraft={filters.searchDraft}
+        activeFilters={filters.activeFilters}
+        onClearSearch={() => {
+          filters.setSearchDraft("")
+          resetPage()
+        }}
+        onOperatorChange={(categoryId, operator) =>
+          filters.updateFilter(categoryId, { operator })
+        }
+        onValueToggle={filters.toggleFilterValue}
+        onRemoveFilter={filters.removeFilter}
+        onClearAll={filters.clearAllFilters}
+      />
+    ),
+    [
+      filters.activeFilters,
+      filters.clearAllFilters,
+      filters.hasChips,
+      filters.removeFilter,
+      filters.searchDraft,
+      filters.setSearchDraft,
+      filters.toggleFilterValue,
+      filters.updateFilter,
+      resetPage,
+    ],
+  )
 
   return (
     <ListPageShell
       listControls={listControls}
-      filterBar={
-        <ListFilterBar
-          filterCategories={EMPTY_FILTER_CATEGORIES}
-          hasChips={filters.hasChips}
-          searchDraft={filters.searchDraft}
-          activeFilters={filters.activeFilters}
-          onClearSearch={() => {
-            filters.setSearchDraft("")
-            resetPage()
-          }}
-          onOperatorChange={(categoryId, operator) =>
-            filters.updateFilter(categoryId, { operator })
-          }
-          onValueToggle={filters.toggleFilterValue}
-          onRemoveFilter={filters.removeFilter}
-          onClearAll={filters.clearAllFilters}
-        />
-      }
+      filterBar={filterBar}
       footerScrollKey={`${sortedRows.length}:${isListLoading}:${listError ?? ""}`}
       pagination={(footerFloating) => (
         <ListPagination
@@ -232,4 +248,14 @@ export function CustomersListPage(): JSX.Element {
       />
     </ListPageShell>
   )
+}
+
+export function CustomersListPage(): ReactNode {
+  const directory = useCustomersDirectory()
+
+  if (!directory.hasBackendConfiguration) {
+    return <CustomersBackendMissingAlert />
+  }
+
+  return <CustomersListPageContent directory={directory} />
 }

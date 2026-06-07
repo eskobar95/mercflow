@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useMemo, useState, type ReactNode } from "react"
 import { useNavigate } from "react-router-dom"
 
 import { AddFilterMenu } from "@/components/list-filter/AddFilterMenu"
@@ -36,8 +36,9 @@ import { cn } from "@/lib/cn"
 import { transitionShadowEnter } from "@/lib/motionClasses"
 
 const LIST_PAGE_SIZE = 20
+const EMPTY_PRODUCT_ROWS: ProductListRow[] = []
 
-export function ProductListPage(): JSX.Element {
+export function ProductListPage(): ReactNode {
   const navigate = useNavigate()
   const { toast } = useToast()
 
@@ -69,8 +70,9 @@ export function ProductListPage(): JSX.Element {
     sortDirection: sortState.direction,
   })
 
-  const rows = listQuery.data?.rows ?? []
-  const rowIds = useMemo(() => rows.map((row) => row.id), [rows])
+  const catalogRows = listQuery.data?.rows
+  const rows = catalogRows ?? EMPTY_PRODUCT_ROWS
+  const rowIds = useMemo(() => rows.map((row) => row.id), [catalogRows])
   const isBusy = listQuery.isLoading || listQuery.isFetching
 
   const { selectedCount, selection, clearSelection } = useListRowSelection(rowIds, [
@@ -78,6 +80,7 @@ export function ProductListPage(): JSX.Element {
     filters.debouncedSearch,
     filters.statuses,
     sortState,
+    catalogRows,
   ])
 
   const onRequestSort = useCallback((columnId: ProductColumnId): void => {
@@ -133,7 +136,7 @@ export function ProductListPage(): JSX.Element {
 
   const totalCount = listQuery.data?.totalCount ?? 0
 
-  const emptyBanner = (): JSX.Element => {
+  const emptyBanner = (): ReactNode => {
     if (listQuery.error instanceof Error) {
       return (
         <ListEmptyState title="Could not load catalogue" description={listQuery.error.message} />
@@ -241,27 +244,42 @@ export function ProductListPage(): JSX.Element {
 
   usePageChrome(pageChrome)
 
+  const filterBar = useMemo(
+    () => (
+      <ListFilterBar
+        filterCategories={PRODUCT_FILTER_CATEGORIES}
+        hasChips={filters.hasChips}
+        searchDraft={filters.searchDraft}
+        activeFilters={filters.activeFilters}
+        onClearSearch={() => {
+          filters.setSearchDraft("")
+          resetPage()
+        }}
+        onOperatorChange={(categoryId, operator) =>
+          filters.updateFilter(categoryId, { operator })
+        }
+        onValueToggle={filters.toggleFilterValue}
+        onRemoveFilter={filters.removeFilter}
+        onClearAll={filters.clearAllFilters}
+      />
+    ),
+    [
+      filters.activeFilters,
+      filters.clearAllFilters,
+      filters.hasChips,
+      filters.removeFilter,
+      filters.searchDraft,
+      filters.setSearchDraft,
+      filters.toggleFilterValue,
+      filters.updateFilter,
+      resetPage,
+    ],
+  )
+
   return (
     <ListPageShell
       listControls={listControls}
-      filterBar={
-        <ListFilterBar
-          filterCategories={PRODUCT_FILTER_CATEGORIES}
-          hasChips={filters.hasChips}
-          searchDraft={filters.searchDraft}
-          activeFilters={filters.activeFilters}
-          onClearSearch={() => {
-            filters.setSearchDraft("")
-            resetPage()
-          }}
-          onOperatorChange={(categoryId, operator) =>
-            filters.updateFilter(categoryId, { operator })
-          }
-          onValueToggle={filters.toggleFilterValue}
-          onRemoveFilter={filters.removeFilter}
-          onClearAll={filters.clearAllFilters}
-        />
-      }
+      filterBar={filterBar}
       footerScrollKey={`${rows.length}:${isBusy}`}
       pagination={(footerFloating) => (
         <ListPagination
