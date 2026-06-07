@@ -25,7 +25,7 @@ export function ProductThumbnail({
   if (typeof imageUrl === "string" && imageUrl.trim() !== "") {
     return (
       <span
-        className="inline-block shrink-0 overflow-hidden rounded-sm border border-border-default bg-surface-subtle"
+        className="inline-block shrink-0 overflow-hidden rounded-md bg-surface-subtle ring-1 ring-inset ring-border-default"
         style={{ width: size, height: size, minWidth: size }}
       >
         <img
@@ -52,11 +52,11 @@ export function ProductThumbnail({
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        borderRadius: 4,
+        borderRadius: 6,
         fontSize: size * 0.38,
         fontWeight: 600,
         letterSpacing: "-0.01em",
-        border: "1px solid rgba(0,0,0,0.06)",
+        boxShadow: "inset 0 0 0 1px rgba(15, 17, 20, 0.06)",
       }}
     >
       {initial}
