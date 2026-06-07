@@ -105,6 +105,39 @@ Vite output is written to `dist/` in this package (gitignored). `@mercflow/desig
 - **Unit / component tests (Vitest):** from the monorepo root, `pnpm test` runs the workspace Vitest projects. This package configures `vitest.config.ts` with **`@vitejs/plugin-react`**, the `@/` alias, **`jsdom`**, and **`vitest-setup.ts`** (**`@testing-library/jest-dom`** matchers + **`@testing-library/react` `cleanup()`** after each case).
 - **Playwright smoke (E2E):** `pnpm --filter @mercflow/admin-ui test:e2e` (starts Vite via Playwright; CI starts Vite in the workflow instead — see `docs/CI.md`)
 
+## React Doctor (local)
+
+[React Doctor](https://github.com/millionjs/react-doctor) scans this package for React performance, a11y, security, and dead-code issues. CI runs the **diff** scan on PRs (`.github/workflows/security.yml`); run the same checks locally before pushing.
+
+From the monorepo root:
+
+```sh
+# Full scan (entire src/ — use when chasing a 100% score)
+pnpm react-doctor:admin-ui
+
+# Changed files vs development (matches CI feedback)
+pnpm react-doctor:admin-ui:diff
+
+# Exact CI command (fails on new errors in diff)
+pnpm react-doctor:admin-ui:ci
+```
+
+From this package:
+
+```sh
+pnpm react-doctor
+pnpm react-doctor:diff
+pnpm react-doctor:ci
+```
+
+Optional one-time hook install (adds a local pre-commit scan; not committed to the repo):
+
+```sh
+pnpm exec react-doctor install --yes
+```
+
+**Score note:** CI `--diff` reports **0 new issues** when the PR is clean, but the numeric score still reflects baseline debt in touched files. A **100%** score requires clearing errors and warnings across the full `src/` tree (`pnpm react-doctor`), not only the diff.
+
 On a fresh machine, install Playwright browsers once:
 
 ```sh
