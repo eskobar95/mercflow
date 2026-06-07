@@ -1,136 +1,172 @@
 /**
- * Batch 1 design token source values (light, spacious admin — Shopify Admin–inspired).
+ * Batch 1 design token source values.
+ *
+ * Direction (Refero reference lock): "ink on paper" admin.
+ *   - Depth comes from a cool neutral ramp + hairline borders, never diffuse shadow
+ *     (Linear's depth philosophy expressed in a light shadcn/Audyr monochrome system).
+ *   - Primary actions are near-black ink (Asana / Linear / shadcn), NOT a colored fill.
+ *   - A single restrained blue accent is reserved for focus, selection, links, and info.
+ *     It is never used as a large background wash.
+ *
  * All sRGB color literals for the admin UI must originate here (or in this package only).
  */
 export declare const colorTree: {
+    readonly neutral: {
+        /** Pure white — card / popover surfaces */
+        readonly 0: "#ffffff";
+        readonly 25: "#fbfcfd";
+        /** App canvas */
+        readonly 50: "#f6f8fa";
+        readonly 100: "#eef1f5";
+        /** Subtle fills, table stripes, muted controls */
+        readonly 150: "#e7ebf0";
+        /** Default hairline border */
+        readonly 200: "#e1e6eb";
+        readonly 300: "#d2d8df";
+        readonly 400: "#aab2bd";
+        /** Tertiary text / placeholders */
+        readonly 500: "#7a828d";
+        /** Secondary text */
+        readonly 600: "#5a626d";
+        readonly 700: "#3e444d";
+        readonly 800: "#272b31";
+        /** Ink — primary text + primary action fill */
+        readonly 900: "#181b20";
+        readonly 950: "#0f1114";
+    };
     readonly surface: {
         /** Application canvas / page background */
-        readonly canvas: "#f6f6f7";
+        readonly canvas: "#f6f8fa";
         /** Same as canvas; semantic alias for MercFlow shell */
-        readonly appCanvas: "#f6f6f7";
+        readonly appCanvas: "#f6f8fa";
         /** Primary panels, cards, popovers (raised surfaces) */
         readonly default: "#ffffff";
         /** Same as default; semantic alias for card surfaces inside the shell */
         readonly appCard: "#ffffff";
         /** Secondary panels, table stripes */
-        readonly subtle: "#f9f9f9";
+        readonly subtle: "#f6f8fa";
         /** Disabled inputs, low-emphasis areas */
-        readonly muted: "#f1f1f1";
-        /** Same as default; use with shadow for elevation if needed */
+        readonly muted: "#eef1f5";
+        /** Same as default; raised surfaces (overlays) pair with shadow-md */
         readonly raised: "#ffffff";
         /** Scrim for modal overlays (light theme) */
-        readonly overlay: "rgba(16, 24, 32, 0.35)";
-        /** Sidebar background (narrow rail) */
-        readonly sidebar: "#ebebeb";
+        readonly overlay: "rgba(15, 17, 20, 0.40)";
+        /** Sidebar background (light rail — active item is a white pill) */
+        readonly sidebar: "#eef1f5";
         /** Sidebar row hover wash */
-        readonly sidebarHover: "#e3e5e8";
+        readonly sidebarHover: "#e7ebf0";
         /** Active sidebar item surface */
         readonly sidebarActive: "#ffffff";
     };
     readonly content: {
-        readonly primary: "#202223";
-        readonly secondary: "#6d7175";
-        readonly tertiary: "#8c9196";
-        readonly placeholder: "#8c9196";
+        readonly primary: "#181b20";
+        readonly secondary: "#5a626d";
+        readonly tertiary: "#7a828d";
+        readonly placeholder: "#aab2bd";
         /** Text on primary / danger fill buttons */
         readonly inverse: "#ffffff";
         /** Non-interactive de-emphasis */
-        readonly disabled: "#8c9196";
+        readonly disabled: "#aab2bd";
         /** Links and critical inline messaging */
-        readonly danger: "#c52828";
+        readonly danger: "#c0392b";
         /** Text on sidebar default state */
-        readonly onSidebar: "#303030";
-        readonly onSidebarMuted: "#616161";
-        readonly onSidebarActive: "#202223";
+        readonly onSidebar: "#3e444d";
+        readonly onSidebarMuted: "#7a828d";
+        readonly onSidebarActive: "#181b20";
     };
     readonly border: {
-        readonly default: "#e1e3e5";
-        readonly subtle: "#ebebeb";
-        readonly strong: "#8c9196";
-        readonly focus: "#2c6ecb";
+        readonly default: "#e1e6eb";
+        readonly subtle: "#eef1f5";
+        /** Hover / emphasized hairline */
+        readonly strong: "#d2d8df";
+        readonly focus: "#2b5cd9";
         /** Divider between sidebar / top chrome and main canvas */
-        readonly app: "#dadde0";
+        readonly app: "#e1e6eb";
         /** Hairline separators on the sidebar rail */
-        readonly onSidebar: "#d2d5d8";
+        readonly onSidebar: "#e1e6eb";
     };
-    /** Brand primitives (MercFlow neutrals + primary accent cue) */
+    /** Brand primitives (MercFlow ink base + single accent cue) */
     readonly brand: {
-        readonly base: "#202223";
-        readonly accent: "#2c6ecb";
-        readonly cream: "#f6f6f7";
+        readonly base: "#181b20";
+        readonly accent: "#2b5cd9";
+        readonly cream: "#f6f8fa";
     };
-    /** Decorative / marketing accent ramps (paired with CTAs + highlights) */
+    /**
+     * Accent — single restrained blue. Role: focus ring, selected/active state,
+     * links, and informational highlights. Never a large background fill.
+     */
     readonly accent: {
-        readonly default: "#2c6ecb";
-        readonly subtle: "#e6f0ff";
-        readonly soft: "#d5ebff";
-        readonly strong: "#1a5cb0";
+        readonly default: "#2b5cd9";
+        readonly subtle: "#eef2fd";
+        readonly soft: "#dbe4fb";
+        readonly strong: "#1f47ad";
         /** Text readable on accent-subtle fills */
-        readonly text: "#174a8c";
+        readonly text: "#1b3e96";
     };
     readonly interactive: {
+        /** Primary actions — ink fill (the signature "no blue button" move). */
         readonly primary: {
-            readonly default: "#2c6ecb";
-            readonly hover: "#1a5cb0";
-            readonly pressed: "#134c92";
+            readonly default: "#181b20";
+            readonly hover: "#272b31";
+            readonly pressed: "#0f1114";
             /** Ghost / low-emphasis control backgrounds */
-            readonly subtle: "#e6f0ff";
+            readonly subtle: "#eef1f5";
         };
         /** Soft tonal controls (muted fills) */
         readonly soft: {
-            readonly default: "#f1f3f5";
-            readonly hover: "#e3e7ea";
-            readonly border: "#cdd3d9";
-            readonly label: "#4a4d52";
+            readonly default: "#eef1f5";
+            readonly hover: "#e7ebf0";
+            readonly border: "#d2d8df";
+            readonly label: "#3e444d";
         };
         /** Neutral secondary buttons */
         readonly secondary: {
             readonly default: "#ffffff";
-            readonly hover: "#f6f7f9";
+            readonly hover: "#f6f8fa";
         };
         /** Destructive actions (paired with Tailwind interactive-destructive-*) */
         readonly destructive: {
-            readonly default: "#c52828";
-            readonly hover: "#9e1f1f";
+            readonly default: "#c0392b";
+            readonly hover: "#9c2a1f";
             /** Low-emphasis danger surfaces */
-            readonly subtle: "#fceded";
-            readonly border: "#eab4b4";
-            readonly label: "#8e1f18";
+            readonly subtle: "#fcecea";
+            readonly border: "#eab4ad";
+            readonly label: "#8a261c";
         };
         /** Focus affordance; pair with focus outline styles in admin-ui */
         readonly focus: {
-            readonly ring: "#2c6ecb";
+            readonly ring: "#2b5cd9";
         };
         readonly disabled: {
-            readonly background: "#f1f1f1";
-            readonly text: "#8c9196";
-            readonly border: "#e1e3e5";
+            readonly background: "#eef1f5";
+            readonly text: "#aab2bd";
+            readonly border: "#e1e6eb";
         };
     };
     readonly feedback: {
         readonly success: {
-            readonly default: "#007f5f";
-            readonly subtle: "#e3f6ef";
-            readonly content: "#0d4f3c";
-            readonly border: "#8fcbb5";
+            readonly default: "#0a7a55";
+            readonly subtle: "#e7f5ef";
+            readonly content: "#0a4a36";
+            readonly border: "#9ad0bb";
         };
         readonly warning: {
-            readonly default: "#b78600";
-            readonly subtle: "#fff5d9";
-            readonly content: "#5c4813";
-            readonly border: "#f0d878";
+            readonly default: "#b07400";
+            readonly subtle: "#fcf2d9";
+            readonly content: "#5a4410";
+            readonly border: "#eccf7d";
         };
         readonly danger: {
-            readonly default: "#c52828";
-            readonly subtle: "#fceded";
-            readonly content: "#771515";
-            readonly border: "#e89898";
+            readonly default: "#c0392b";
+            readonly subtle: "#fcecea";
+            readonly content: "#7a221a";
+            readonly border: "#e6a79f";
         };
         readonly info: {
-            readonly default: "#2c6ecb";
-            readonly subtle: "#e6f0ff";
-            readonly content: "#133e7c";
-            readonly border: "#8fb5ea";
+            readonly default: "#2b5cd9";
+            readonly subtle: "#eef2fd";
+            readonly content: "#1b3e96";
+            readonly border: "#a9bdee";
         };
         /** Amber-adjacent “attention” tone for on-hold / pending badges (distinct from warning). */
         readonly pending: {
@@ -199,10 +235,12 @@ export declare const lineHeight: {
     readonly relaxed: "1.625";
 };
 export declare const letterSpacing: {
-    readonly tight: "-0.01em";
+    /** Display / large headings — tight, confident (Linear / Audyr trait) */
+    readonly tighter: "-0.022em";
+    readonly tight: "-0.011em";
     readonly normal: "0";
     /** Caps / micro-metadata above lists */
-    readonly label: "0.08em";
+    readonly label: "0.06em";
     readonly wide: "0.02em";
 };
 export declare const radii: {
@@ -215,18 +253,26 @@ export declare const radii: {
     readonly full: "9999px";
 };
 /**
- * Layered box shadows. Values reference surface/content tokens for consistency.
+ * Elevation — intentionally near-flat. Depth in this admin comes from the neutral
+ * ramp + hairline borders, not diffuse shadow.
+ *
+ *   sm  — content surfaces (cards/tiles). Barely-there; rely on the border.
+ *   md  — transient floats only (dropdowns, popovers, toasts): one soft layer.
+ *   lg  — modals / sheets: a slightly deeper single layer.
+ *   focus — accent ring for keyboard focus.
  */
 export declare const shadows: {
-    readonly sm: "0 1px 2px rgba(32, 34, 35, 0.08), 0 0 0 1px rgba(32, 34, 35, 0.04)";
-    readonly md: "0 2px 6px rgba(32, 34, 35, 0.1), 0 0 0 1px rgba(32, 34, 35, 0.06)";
-    readonly lg: "0 8px 24px rgba(32, 34, 35, 0.12), 0 0 0 1px rgba(32, 34, 35, 0.06)";
-    readonly focus: "0 0 0 3px rgba(44, 110, 203, 0.35)";
+    readonly sm: "0 1px 2px -1px rgba(15, 17, 20, 0.05)";
+    readonly md: "0 6px 16px -6px rgba(15, 17, 20, 0.12), 0 0 0 1px rgba(15, 17, 20, 0.05)";
+    readonly lg: "0 16px 40px -12px rgba(15, 17, 20, 0.18), 0 0 0 1px rgba(15, 17, 20, 0.05)";
+    readonly focus: "0 0 0 3px rgba(43, 92, 217, 0.28)";
 };
 export declare const zIndex: {
     readonly base: "0";
-    readonly dropdown: "1000";
+    /** Sticky page chrome (top bar, table footers) — below floating menus. */
     readonly sticky: "1020";
+    /** Dropdown menus — must sit above sticky chrome when opened from the TopBar. */
+    readonly dropdown: "1030";
     readonly modalBackdrop: "1040";
     readonly modal: "1050";
     readonly popover: "1060";
@@ -239,17 +285,29 @@ export declare const zIndex: {
 export declare const motion: {
     readonly duration: {
         /** Default enter timing for main route outlet content */
-        readonly page: "200ms";
-        /** Micro-interactions (hover, ripple) */
-        readonly fast: "150ms";
+        readonly page: "190ms";
+        /** Micro-interactions (hover, press, color) */
+        readonly fast: "140ms";
+        /** Drawers / sheets / larger surfaces */
+        readonly slow: "280ms";
     };
     readonly easing: {
-        /** Standard deceleration for route outlet enter */
-        readonly page: "cubic-bezier(0.2, 0, 0, 1)";
+        /** Strong ease-out — enter timing (responsive, instant first frame) */
+        readonly page: "cubic-bezier(0.23, 1, 0.32, 1)";
         /** Alias referenced by `@mercflow/admin-ui/index.css` */
-        readonly enter: "cubic-bezier(0.2, 0, 0, 1)";
+        readonly enter: "cubic-bezier(0.23, 1, 0.32, 1)";
+        /** Snappy exit */
         readonly exit: "cubic-bezier(0.4, 0, 1, 1)";
+        /** On-screen movement / morph */
+        readonly standard: "cubic-bezier(0.77, 0, 0.175, 1)";
+        /** iOS drawer curve for slide-in panels */
+        readonly drawer: "cubic-bezier(0.32, 0.72, 0, 1)";
         readonly spring: "cubic-bezier(0.34, 1.56, 0.64, 1)";
     };
+};
+/** Fixed layout dimensions for list surfaces and compact filter chips. */
+export declare const layout: {
+    readonly listTableMinWidth: "600px";
+    readonly filterChipMaxWidth: "11rem";
 };
 //# sourceMappingURL=batch1.d.ts.map

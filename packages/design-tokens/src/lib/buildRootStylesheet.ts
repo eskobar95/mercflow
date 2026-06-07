@@ -5,6 +5,7 @@ import {
   fontWeight,
   letterSpacing,
   lineHeight,
+  layout,
   motion,
   radii,
   shadows,
@@ -61,6 +62,10 @@ export function buildRootStylesheet(): string {
   const zIndexLines = Object.entries(zIndex).map(
     ([k, v]) => `  --mf-z-${k}: ${v};`
   )
+  const layoutLines = Object.entries(layout).map(([k, v]) => {
+    const kebab = k.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`)
+    return `  --mf-layout-${kebab}: ${v};`
+  })
   const motionLines = linesForFlatPrefix(
     flattenRootStringTree(motion as unknown as Record<string, unknown>),
     "--mf-motion-"
@@ -77,6 +82,7 @@ export function buildRootStylesheet(): string {
     ...radiiLines,
     ...shadowLines,
     ...zIndexLines,
+    ...layoutLines,
     ...motionLines,
   ].join("\n")
 

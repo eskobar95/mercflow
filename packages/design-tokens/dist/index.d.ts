@@ -6,108 +6,124 @@ export { tailwindPreset } from "./tailwind-preset.js";
  */
 export declare const tokens: {
     readonly color: {
+        readonly neutral: {
+            readonly 0: "#ffffff";
+            readonly 25: "#fbfcfd";
+            readonly 50: "#f6f8fa";
+            readonly 100: "#eef1f5";
+            readonly 150: "#e7ebf0";
+            readonly 200: "#e1e6eb";
+            readonly 300: "#d2d8df";
+            readonly 400: "#aab2bd";
+            readonly 500: "#7a828d";
+            readonly 600: "#5a626d";
+            readonly 700: "#3e444d";
+            readonly 800: "#272b31";
+            readonly 900: "#181b20";
+            readonly 950: "#0f1114";
+        };
         readonly surface: {
-            readonly canvas: "#f6f6f7";
-            readonly appCanvas: "#f6f6f7";
+            readonly canvas: "#f6f8fa";
+            readonly appCanvas: "#f6f8fa";
             readonly default: "#ffffff";
             readonly appCard: "#ffffff";
-            readonly subtle: "#f9f9f9";
-            readonly muted: "#f1f1f1";
+            readonly subtle: "#f6f8fa";
+            readonly muted: "#eef1f5";
             readonly raised: "#ffffff";
-            readonly overlay: "rgba(16, 24, 32, 0.35)";
-            readonly sidebar: "#ebebeb";
-            readonly sidebarHover: "#e3e5e8";
+            readonly overlay: "rgba(15, 17, 20, 0.40)";
+            readonly sidebar: "#eef1f5";
+            readonly sidebarHover: "#e7ebf0";
             readonly sidebarActive: "#ffffff";
         };
         readonly content: {
-            readonly primary: "#202223";
-            readonly secondary: "#6d7175";
-            readonly tertiary: "#8c9196";
-            readonly placeholder: "#8c9196";
+            readonly primary: "#181b20";
+            readonly secondary: "#5a626d";
+            readonly tertiary: "#7a828d";
+            readonly placeholder: "#aab2bd";
             readonly inverse: "#ffffff";
-            readonly disabled: "#8c9196";
-            readonly danger: "#c52828";
-            readonly onSidebar: "#303030";
-            readonly onSidebarMuted: "#616161";
-            readonly onSidebarActive: "#202223";
+            readonly disabled: "#aab2bd";
+            readonly danger: "#c0392b";
+            readonly onSidebar: "#3e444d";
+            readonly onSidebarMuted: "#7a828d";
+            readonly onSidebarActive: "#181b20";
         };
         readonly border: {
-            readonly default: "#e1e3e5";
-            readonly subtle: "#ebebeb";
-            readonly strong: "#8c9196";
-            readonly focus: "#2c6ecb";
-            readonly app: "#dadde0";
-            readonly onSidebar: "#d2d5d8";
+            readonly default: "#e1e6eb";
+            readonly subtle: "#eef1f5";
+            readonly strong: "#d2d8df";
+            readonly focus: "#2b5cd9";
+            readonly app: "#e1e6eb";
+            readonly onSidebar: "#e1e6eb";
         };
         readonly brand: {
-            readonly base: "#202223";
-            readonly accent: "#2c6ecb";
-            readonly cream: "#f6f6f7";
+            readonly base: "#181b20";
+            readonly accent: "#2b5cd9";
+            readonly cream: "#f6f8fa";
         };
         readonly accent: {
-            readonly default: "#2c6ecb";
-            readonly subtle: "#e6f0ff";
-            readonly soft: "#d5ebff";
-            readonly strong: "#1a5cb0";
-            readonly text: "#174a8c";
+            readonly default: "#2b5cd9";
+            readonly subtle: "#eef2fd";
+            readonly soft: "#dbe4fb";
+            readonly strong: "#1f47ad";
+            readonly text: "#1b3e96";
         };
         readonly interactive: {
             readonly primary: {
-                readonly default: "#2c6ecb";
-                readonly hover: "#1a5cb0";
-                readonly pressed: "#134c92";
-                readonly subtle: "#e6f0ff";
+                readonly default: "#181b20";
+                readonly hover: "#272b31";
+                readonly pressed: "#0f1114";
+                readonly subtle: "#eef1f5";
             };
             readonly soft: {
-                readonly default: "#f1f3f5";
-                readonly hover: "#e3e7ea";
-                readonly border: "#cdd3d9";
-                readonly label: "#4a4d52";
+                readonly default: "#eef1f5";
+                readonly hover: "#e7ebf0";
+                readonly border: "#d2d8df";
+                readonly label: "#3e444d";
             };
             readonly secondary: {
                 readonly default: "#ffffff";
-                readonly hover: "#f6f7f9";
+                readonly hover: "#f6f8fa";
             };
             readonly destructive: {
-                readonly default: "#c52828";
-                readonly hover: "#9e1f1f";
-                readonly subtle: "#fceded";
-                readonly border: "#eab4b4";
-                readonly label: "#8e1f18";
+                readonly default: "#c0392b";
+                readonly hover: "#9c2a1f";
+                readonly subtle: "#fcecea";
+                readonly border: "#eab4ad";
+                readonly label: "#8a261c";
             };
             readonly focus: {
-                readonly ring: "#2c6ecb";
+                readonly ring: "#2b5cd9";
             };
             readonly disabled: {
-                readonly background: "#f1f1f1";
-                readonly text: "#8c9196";
-                readonly border: "#e1e3e5";
+                readonly background: "#eef1f5";
+                readonly text: "#aab2bd";
+                readonly border: "#e1e6eb";
             };
         };
         readonly feedback: {
             readonly success: {
-                readonly default: "#007f5f";
-                readonly subtle: "#e3f6ef";
-                readonly content: "#0d4f3c";
-                readonly border: "#8fcbb5";
+                readonly default: "#0a7a55";
+                readonly subtle: "#e7f5ef";
+                readonly content: "#0a4a36";
+                readonly border: "#9ad0bb";
             };
             readonly warning: {
-                readonly default: "#b78600";
-                readonly subtle: "#fff5d9";
-                readonly content: "#5c4813";
-                readonly border: "#f0d878";
+                readonly default: "#b07400";
+                readonly subtle: "#fcf2d9";
+                readonly content: "#5a4410";
+                readonly border: "#eccf7d";
             };
             readonly danger: {
-                readonly default: "#c52828";
-                readonly subtle: "#fceded";
-                readonly content: "#771515";
-                readonly border: "#e89898";
+                readonly default: "#c0392b";
+                readonly subtle: "#fcecea";
+                readonly content: "#7a221a";
+                readonly border: "#e6a79f";
             };
             readonly info: {
-                readonly default: "#2c6ecb";
-                readonly subtle: "#e6f0ff";
-                readonly content: "#133e7c";
-                readonly border: "#8fb5ea";
+                readonly default: "#2b5cd9";
+                readonly subtle: "#eef2fd";
+                readonly content: "#1b3e96";
+                readonly border: "#a9bdee";
             };
             readonly pending: {
                 readonly default: "#EA580C";
@@ -167,20 +183,24 @@ export declare const tokens: {
         readonly relaxed: "1.625";
     };
     readonly letterSpacing: {
-        readonly tight: "-0.01em";
+        readonly tighter: "-0.022em";
+        readonly tight: "-0.011em";
         readonly normal: "0";
-        readonly label: "0.08em";
+        readonly label: "0.06em";
         readonly wide: "0.02em";
     };
     readonly motion: {
         readonly duration: {
-            readonly page: "200ms";
-            readonly fast: "150ms";
+            readonly page: "190ms";
+            readonly fast: "140ms";
+            readonly slow: "280ms";
         };
         readonly easing: {
-            readonly page: "cubic-bezier(0.2, 0, 0, 1)";
-            readonly enter: "cubic-bezier(0.2, 0, 0, 1)";
+            readonly page: "cubic-bezier(0.23, 1, 0.32, 1)";
+            readonly enter: "cubic-bezier(0.23, 1, 0.32, 1)";
             readonly exit: "cubic-bezier(0.4, 0, 1, 1)";
+            readonly standard: "cubic-bezier(0.77, 0, 0.175, 1)";
+            readonly drawer: "cubic-bezier(0.32, 0.72, 0, 1)";
             readonly spring: "cubic-bezier(0.34, 1.56, 0.64, 1)";
         };
     };
@@ -194,15 +214,19 @@ export declare const tokens: {
         readonly full: "9999px";
     };
     readonly shadow: {
-        readonly sm: "0 1px 2px rgba(32, 34, 35, 0.08), 0 0 0 1px rgba(32, 34, 35, 0.04)";
-        readonly md: "0 2px 6px rgba(32, 34, 35, 0.1), 0 0 0 1px rgba(32, 34, 35, 0.06)";
-        readonly lg: "0 8px 24px rgba(32, 34, 35, 0.12), 0 0 0 1px rgba(32, 34, 35, 0.06)";
-        readonly focus: "0 0 0 3px rgba(44, 110, 203, 0.35)";
+        readonly sm: "0 1px 2px -1px rgba(15, 17, 20, 0.05)";
+        readonly md: "0 6px 16px -6px rgba(15, 17, 20, 0.12), 0 0 0 1px rgba(15, 17, 20, 0.05)";
+        readonly lg: "0 16px 40px -12px rgba(15, 17, 20, 0.18), 0 0 0 1px rgba(15, 17, 20, 0.05)";
+        readonly focus: "0 0 0 3px rgba(43, 92, 217, 0.28)";
+    };
+    readonly layout: {
+        readonly listTableMinWidth: "600px";
+        readonly filterChipMaxWidth: "11rem";
     };
     readonly zIndex: {
         readonly base: "0";
-        readonly dropdown: "1000";
         readonly sticky: "1020";
+        readonly dropdown: "1030";
         readonly modalBackdrop: "1040";
         readonly modal: "1050";
         readonly popover: "1060";
@@ -210,5 +234,5 @@ export declare const tokens: {
     };
 };
 export type MercflowTokenMap = typeof tokens;
-export { colorTree, fontFamily, fontSize, fontWeight, letterSpacing, lineHeight, motion, radii, shadows, spacingScale, zIndex, } from "./definitions/batch1.js";
+export { colorTree, fontFamily, fontSize, fontWeight, letterSpacing, lineHeight, layout, motion, radii, shadows, spacingScale, zIndex, } from "./definitions/batch1.js";
 //# sourceMappingURL=index.d.ts.map

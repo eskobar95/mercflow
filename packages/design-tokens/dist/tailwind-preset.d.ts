@@ -22,6 +22,10 @@ export declare const tailwindPreset: {
             readonly borderRadius: Record<string, string>;
             readonly boxShadow: Record<string, string>;
             readonly zIndex: Record<string, string>;
+            readonly minWidth: Record<string, string>;
+            readonly maxWidth: Record<string, string>;
+            readonly transitionTimingFunction: Record<string, string>;
+            readonly transitionDuration: Record<string, string>;
         };
     };
 };
