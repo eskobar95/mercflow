@@ -2,12 +2,9 @@ import { Link } from "react-router-dom"
 
 import { ProductStatusBadge } from "@/components/product-list/ProductStatusBadge"
 import { ProductThumbnail } from "@/components/product-list/ProductThumbnail"
-import type { SortOption } from "@/components/ui/list/ListSortControl"
 import type { ListColumnDef } from "@/components/ui/list/types"
 
 import type { ProductListRow } from "@/data/mockProducts"
-
-import type { ProductSortColumnPayload } from "@/hooks/products/useProductsCatalogList"
 
 export type ProductColumnId =
   | "thumbnail"
@@ -17,18 +14,6 @@ export type ProductColumnId =
   | "stockTotal"
   | "priceRange"
   | "updatedAt"
-
-export const SORTABLE_PRODUCT_COLUMNS = new Set<ProductColumnId>([
-  "title",
-  "status",
-  "updatedAt",
-])
-
-export const PRODUCT_CATALOG_SORT_OPTIONS: SortOption<keyof ProductSortColumnPayload>[] = [
-  { id: "title", label: "Name" },
-  { id: "status", label: "Status" },
-  { id: "updatedAt", label: "Last updated" },
-]
 
 export const PRODUCT_CATALOG_COLUMNS: ListColumnDef<ProductListRow, ProductColumnId>[] = [
   {

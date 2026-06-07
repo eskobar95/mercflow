@@ -68,7 +68,7 @@ export function TableSkeleton({
         <tr key={rowIndex} className="border-b border-border-subtle last:border-0">
           {showSelectColumn ? (
             <td className={cn(listUtilityColClass, "px-4 py-3 align-middle")}>
-              <div className="h-4 w-4 rounded bg-surface-subtle" aria-hidden="true" />
+              {rowIndex === 0 ? <span className="sr-only">Select rows</span> : null}
             </td>
           ) : null}
           {columns.map((col) => {
@@ -93,7 +93,7 @@ export function TableSkeleton({
           })}
           {showActionsColumn ? (
             <td className={cn(listUtilityColClass, "px-4 py-3 align-middle")}>
-              <div className="ml-auto h-4 w-4 rounded bg-surface-subtle" aria-hidden="true" />
+              {rowIndex === 0 ? <span className="sr-only">Actions</span> : null}
             </td>
           ) : null}
         </tr>

@@ -8,9 +8,11 @@ import { PRODUCT_FILTER_CATEGORIES } from "@/components/product-list/filter/prod
 import { ProductCardGrid } from "@/components/product-list/ProductCardGrid"
 import { ProductCatalogBulkActions } from "@/components/product-list/ProductCatalogBulkActions"
 import {
-  PRODUCT_CATALOG_COLUMNS,
   PRODUCT_CATALOG_SORT_OPTIONS,
   SORTABLE_PRODUCT_COLUMNS,
+} from "@/components/product-list/productCatalogSort"
+import {
+  PRODUCT_CATALOG_COLUMNS,
   type ProductColumnId,
 } from "@/components/product-list/productCatalogColumns"
 import { usePageChrome } from "@/components/layout/pageChrome"
@@ -72,7 +74,7 @@ export function ProductListPage(): ReactNode {
 
   const catalogRows = listQuery.data?.rows
   const rows = catalogRows ?? EMPTY_PRODUCT_ROWS
-  const rowIds = useMemo(() => rows.map((row) => row.id), [catalogRows])
+  const rowIds = (catalogRows ?? EMPTY_PRODUCT_ROWS).map((row) => row.id)
   const isBusy = listQuery.isLoading || listQuery.isFetching
 
   const { selectedCount, selection, clearSelection } = useListRowSelection(rowIds, [

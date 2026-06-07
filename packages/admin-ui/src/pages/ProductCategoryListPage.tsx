@@ -1,5 +1,5 @@
-import type { ReactNode } from "react"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import type { MutableRefObject, ReactNode } from "react"
+import { useCallback, useMemo, useRef, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
 import { AddFilterMenu } from "@/components/list-filter/AddFilterMenu"
@@ -64,11 +64,15 @@ function ProductCategoryBlockingNotice({
 
 function ProductCategoryListPageContent({
   categories,
+  filters,
+  pageResetRef,
 }: {
   categories: ProductCategoriesHook
+  filters: ReturnType<typeof useListFilters>
+  pageResetRef: MutableRefObject<() => void>
 }): ReactNode {
   const navigate = useNavigate()
-  const { state, reload, filteredRows, totalRowCount, setSearch } = categories
+  const { state, reload, filteredRows, totalRowCount } = categories
 
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
@@ -77,11 +81,7 @@ function ProductCategoryListPageContent({
     setPage(1)
   }, [])
 
-  const filters = useListFilters({ onPageReset: resetPage })
-
-  useEffect(() => {
-    setSearch(filters.debouncedSearch)
-  }, [filters.debouncedSearch, setSearch])
+  pageResetRef.current = resetPage
 
   const pagedRows = useMemo(() => {
     const start = (page - 1) * pageSize
@@ -115,7 +115,7 @@ function ProductCategoryListPageContent({
           onUpdate={filters.updateFilter}
           onSearchSubmit={(value) => {
             filters.setSearchDraft(value)
-            resetPage()
+            filters.resetPage()
           }}
           filterAriaLabel="Search categories"
         />
@@ -126,7 +126,7 @@ function ProductCategoryListPageContent({
         ) : null}
       </>
     ),
-    [filters, resetPage],
+    [filters],
   )
 
   const pageChrome = useMemo(
@@ -171,7 +171,7 @@ function ProductCategoryListPageContent({
         activeFilters={filters.activeFilters}
         onClearSearch={() => {
           filters.setSearchDraft("")
-          resetPage()
+          filters.resetPage()
         }}
         onOperatorChange={(categoryId, operator) =>
           filters.updateFilter(categoryId, { operator })
@@ -190,7 +190,7 @@ function ProductCategoryListPageContent({
       filters.setSearchDraft,
       filters.toggleFilterValue,
       filters.updateFilter,
-      resetPage,
+      filters.resetPage,
     ],
   )
 
@@ -275,11 +275,19 @@ function ProductCategoryListPageContent({
 }
 
 export function ProductCategoryListPage(): ReactNode {
-  const categories = useAdminProductCategories()
+  const pageResetRef = useRef<() => void>(() => {})
+  const filters = useListFilters({ onPageReset: () => pageResetRef.current() })
+  const categories = useAdminProductCategories(filters.debouncedSearch)
 
   if (categories.state.status === "config_error" || categories.state.status === "error") {
     return <ProductCategoryBlockingNotice state={categories.state} reload={categories.reload} />
   }
 
-  return <ProductCategoryListPageContent categories={categories} />
+  return (
+    <ProductCategoryListPageContent
+      categories={categories}
+      filters={filters}
+      pageResetRef={pageResetRef}
+    />
+  )
 }

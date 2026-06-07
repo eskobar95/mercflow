@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, type ReactNode } from "react"
+import { useCallback, useMemo, useRef, type ReactNode } from "react"
 import { useNavigate } from "react-router-dom"
 
 import { AddFilterMenu } from "@/components/list-filter/AddFilterMenu"
@@ -23,13 +23,12 @@ import {
   useCustomersDirectory,
 } from "@/features/customers/hooks/useCustomersDirectory"
 import { useListFilters } from "@/hooks/useListFilters"
-
-import { cn } from "@/lib/cn"
+import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 import { transitionShadowEnter } from "@/lib/motionClasses"
 
-const EMPTY_FILTER_CATEGORIES: never[] = []
+import { cn } from "@/lib/cn"
 
-type CustomersDirectory = ReturnType<typeof useCustomersDirectory>
+const EMPTY_FILTER_CATEGORIES: never[] = []
 
 function CustomersBackendMissingAlert(): ReactNode {
   return (
@@ -57,11 +56,16 @@ function CustomersBackendMissingAlert(): ReactNode {
   )
 }
 
-function CustomersListPageContent({ directory }: { directory: CustomersDirectory }): ReactNode {
+function CustomersListPageContent(): ReactNode {
   const navigate = useNavigate()
+  const setCurrentPageRef = useRef<(page: number) => void>(() => {})
+
+  const filters = useListFilters({
+    onPageReset: () => setCurrentPageRef.current(1),
+    debounceMs: 320,
+  })
 
   const {
-    setSearchInput,
     sortedRows,
     isListLoading,
     listError,
@@ -73,17 +77,9 @@ function CustomersListPageContent({ directory }: { directory: CustomersDirectory
     sort,
     requestSort,
     applySort,
-  } = directory
+  } = useCustomersDirectory({ searchQuery: filters.debouncedSearch })
 
-  const resetPage = useCallback((): void => {
-    setCurrentPage(1)
-  }, [setCurrentPage])
-
-  const filters = useListFilters({ onPageReset: resetPage, debounceMs: 320 })
-
-  useEffect(() => {
-    setSearchInput(filters.debouncedSearch)
-  }, [filters.debouncedSearch, setSearchInput])
+  setCurrentPageRef.current = setCurrentPage
 
   const sortControlColumn: CustomersDirectorySortCol = sort.column ?? "name"
   const sortControlDirection: SortDirection = sort.direction === "asc" ? "asc" : "desc"
@@ -118,7 +114,7 @@ function CustomersListPageContent({ directory }: { directory: CustomersDirectory
           onUpdate={filters.updateFilter}
           onSearchSubmit={(value) => {
             filters.setSearchDraft(value)
-            resetPage()
+            filters.resetPage()
           }}
           filterAriaLabel="Search customers"
         />
@@ -135,7 +131,7 @@ function CustomersListPageContent({ directory }: { directory: CustomersDirectory
         ) : null}
       </>
     ),
-    [filters, onSortControlChange, resetPage, sortControlColumn, sortControlDirection],
+    [filters, onSortControlChange, sortControlColumn, sortControlDirection],
   )
 
   const pageChrome = useMemo(
@@ -162,7 +158,7 @@ function CustomersListPageContent({ directory }: { directory: CustomersDirectory
         activeFilters={filters.activeFilters}
         onClearSearch={() => {
           filters.setSearchDraft("")
-          resetPage()
+          filters.resetPage()
         }}
         onOperatorChange={(categoryId, operator) =>
           filters.updateFilter(categoryId, { operator })
@@ -181,7 +177,7 @@ function CustomersListPageContent({ directory }: { directory: CustomersDirectory
       filters.setSearchDraft,
       filters.toggleFilterValue,
       filters.updateFilter,
-      resetPage,
+      filters.resetPage,
     ],
   )
 
@@ -251,11 +247,9 @@ function CustomersListPageContent({ directory }: { directory: CustomersDirectory
 }
 
 export function CustomersListPage(): ReactNode {
-  const directory = useCustomersDirectory()
-
-  if (!directory.hasBackendConfiguration) {
+  if (resolveMedusaAdminBackendUrl() === null) {
     return <CustomersBackendMissingAlert />
   }
 
-  return <CustomersListPageContent directory={directory} />
+  return <CustomersListPageContent />
 }

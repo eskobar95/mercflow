@@ -41,9 +41,11 @@ function filterHierarchyRow(
   )
 }
 
-export function useAdminProductCategories(): UseAdminProductCategoriesResult {
+export function useAdminProductCategories(searchQuery?: string): UseAdminProductCategoriesResult {
   const [state, setState] = useState<LoadState>({ status: "idle" })
-  const [search, setSearch] = useState("")
+  const [internalSearch, setInternalSearch] = useState("")
+  const search = searchQuery ?? internalSearch
+  const setSearch = searchQuery !== undefined ? (): void => {} : setInternalSearch
 
   const load = useCallback(async (): Promise<void> => {
     const backend = resolveMedusaAdminBackendUrl()

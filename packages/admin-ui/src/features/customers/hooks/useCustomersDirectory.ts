@@ -102,7 +102,10 @@ function sortRows(
   return copy
 }
 
-export function useCustomersDirectory(): {
+export function useCustomersDirectory(options: {
+  /** When provided, drives the Medusa search query instead of internal debounced input. */
+  searchQuery?: string
+} = {}): {
   readonly hasBackendConfiguration: boolean
   readonly searchInput: string
   readonly setSearchInput: (next: string) => void
@@ -120,10 +123,13 @@ export function useCustomersDirectory(): {
   readonly requestSort: (column: CustomersDirectorySortCol) => void
   readonly applySort: (column: CustomersDirectorySortCol, direction: "asc" | "desc") => void
 } {
+  const { searchQuery } = options
   const hasBackendConfiguration = resolveMedusaAdminBackendUrl() !== null
 
   const [searchInput, setSearchInputState] = useState("")
-  const debouncedQuery = useDebouncedValue(searchInput.trim(), DEBOUNCE_MS)
+  const debouncedInternal = useDebouncedValue(searchInput.trim(), DEBOUNCE_MS)
+  const debouncedQuery =
+    searchQuery !== undefined ? searchQuery.trim() : debouncedInternal
 
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
