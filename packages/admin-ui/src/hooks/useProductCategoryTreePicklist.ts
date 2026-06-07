@@ -4,7 +4,7 @@ import { listAllAdminProductCategories } from "@/features/product-categories/pro
 import type { AdminProductCategoryParsed } from "@/features/product-categories/types"
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
-export type UseProductCategoryTreePicklistResult = {
+type UseProductCategoryTreePicklistResult = {
   categories: AdminProductCategoryParsed[]
   loading: boolean
   errorMessage: string | null

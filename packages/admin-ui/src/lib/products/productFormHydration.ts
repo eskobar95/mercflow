@@ -20,11 +20,11 @@ export function hydrateEditorModelsFromAdminProduct(product: AdminProduct): {
 
   if (Array.isArray(options) && options.length > 0) {
     optionRows = options.map((option) => {
-      const values = (option.values ?? [])
-        .map((value) =>
-          typeof value.value === "string" ? value.value.trim() : String(value.value),
-        )
-        .filter(Boolean)
+      const values = (option.values ?? []).flatMap((value) => {
+        const trimmed =
+          typeof value.value === "string" ? value.value.trim() : String(value.value)
+        return trimmed !== "" ? [trimmed] : []
+      })
 
       return {
         medusaOptionId: option.id,

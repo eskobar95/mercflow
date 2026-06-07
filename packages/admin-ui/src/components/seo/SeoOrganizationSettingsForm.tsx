@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react"
+import { type ReactNode, useEffect, useState, type FormEvent } from "react"
 
 import { Button } from "@/components/ui/Button"
 import { Card } from "@/components/ui/Card"
@@ -10,7 +10,7 @@ import {
   type SeoOrganizationFormValues,
 } from "@/hooks/useSeoOrganizationSettings"
 
-export function SeoOrganizationSettingsForm(): JSX.Element {
+export function SeoOrganizationSettingsForm(): ReactNode {
   const { state, reload, save } = useSeoOrganizationSettings()
   const [values, setValues] = useState<SeoOrganizationFormValues>({
     storefront_url: "",
@@ -67,13 +67,10 @@ export function SeoOrganizationSettingsForm(): JSX.Element {
   return (
     <form className="space-y-6" onSubmit={(e) => void handleSubmit(e)} noValidate>
       {saveSucceeded ? (
-        <div
-          role="status"
-          className="rounded-lg border border-border-subtle bg-surface-subtle p-3 text-sm text-content-secondary"
-        >
+        <output className="block rounded-lg border border-border-subtle bg-surface-subtle p-3 text-sm text-content-secondary">
           Organisation settings saved. JSON-LD, OG, canonical, and sitemap use these values per
           tenant.
-        </div>
+        </output>
       ) : null}
       {errorMessage !== null ? (
         <div

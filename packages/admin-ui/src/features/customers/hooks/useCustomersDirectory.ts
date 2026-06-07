@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { compareSortValues, type ListSortState } from "@/components/ui/list/types"
 import { useDebouncedValue } from "@/hooks/useDebouncedValue"
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
+import { useAdjustStateWhenKeyChanges, useAdjustStateWhenSnapshotChanges } from "@/lib/react/useAdjustStateWhenKeyChanges"
 
 import { customerDisplayName } from "../customerFormatting"
 import {
@@ -170,36 +171,46 @@ export function useCustomersDirectory(options: {
     setCurrentPage(1)
   }, [])
 
-  useEffect(() => {
+  useAdjustStateWhenKeyChanges(debouncedQuery, () => {
     setCurrentPage(1)
-  }, [debouncedQuery])
+  })
 
-  useEffect(() => {
+  useAdjustStateWhenSnapshotChanges([hasBackendConfiguration], () => {
     if (!hasBackendConfiguration) {
       setCustomers([])
       setSpendStates({})
       setTotalCount(0)
       setListError(null)
       setIsListLoading(false)
+    }
+  })
+
+  useEffect(() => {
+    if (!hasBackendConfiguration) {
       return
     }
 
     const controller = new AbortController()
 
     async function load(): Promise<void> {
+      if (controller.signal.aborted) {
+        return
+      }
+
       setIsListLoading(true)
       setListError(null)
       try {
         const offset = (currentPage - 1) * pageSize
+        if (controller.signal.aborted) {
+          return
+        }
+
         const envelope = await listCustomers({
           q: debouncedQuery === "" ? undefined : debouncedQuery,
           limit: pageSize,
           offset,
           signal: controller.signal,
         })
-        if (controller.signal.aborted) {
-          return
-        }
         setCustomers(envelope.customers)
         setTotalCount(envelope.count)
         setSpendStates(() => {
@@ -210,7 +221,10 @@ export function useCustomersDirectory(options: {
           return nextSpend
         })
       } catch (error) {
-        if (controller.signal.aborted) {
+        if (
+          controller.signal.aborted ||
+          (error instanceof DOMException && error.name === "AbortError")
+        ) {
           return
         }
         if (error instanceof CustomersAdminConfigError) {

@@ -1,6 +1,8 @@
+import type { ReactNode } from "react"
 import type { AdminOrderLite } from "@/features/customers/customersAdminTypes"
 import { formatMinorAmount } from "@/features/customers/formatMoney"
 import { parseOrderMinorTotal } from "@/features/customers/customersPaidSpend"
+import { getDateTimeFormatter } from "@/utils/intlFormatCache"
 
 type CustomerOrdersTableProps = {
   readonly orders: readonly AdminOrderLite[]
@@ -13,7 +15,7 @@ function formatOrderRelativeTime(value: string | undefined): string {
   }
 
   try {
-    return new Intl.DateTimeFormat(undefined, {
+    return getDateTimeFormatter(undefined, {
       dateStyle: "medium",
       timeStyle: "short",
     }).format(new Date(value))
@@ -25,7 +27,7 @@ function formatOrderRelativeTime(value: string | undefined): string {
 export function CustomerOrdersTable({
   orders,
   caption = "Last ten orders fetched from Medusa Admin",
-}: CustomerOrdersTableProps): JSX.Element {
+}: CustomerOrdersTableProps): ReactNode {
   return (
     <div className="overflow-hidden rounded-lg border border-border-default bg-surface-default shadow-sm">
       <table className="min-w-full border-collapse">

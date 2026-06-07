@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { DataTable } from "@/components/ui/list/DataTable"
 import type { ListColumnDef } from "@/components/ui/list/types"
 
@@ -10,7 +11,7 @@ const columns: ListColumnDef<DetailVariantRow, Col>[] = [
     id: "name",
     header: "Variant",
     sortable: false,
-    renderCell: (r): JSX.Element => (
+    renderCell: (r): ReactNode => (
       <div>
         <p className="text-sm font-medium text-content-primary">{r.name}</p>
         <p className="font-mono text-2xs text-content-tertiary">{r.skuLabel}</p>
@@ -33,7 +34,7 @@ const columns: ListColumnDef<DetailVariantRow, Col>[] = [
   },
 ]
 
-export function ProductVariantsTable({ variants }: { variants: DetailVariantRow[] }): JSX.Element {
+export function ProductVariantsTable({ variants }: { variants: DetailVariantRow[] }): ReactNode {
   return (
     <div className="rounded-md border border-border-subtle">
       <DataTable<DetailVariantRow, Col>

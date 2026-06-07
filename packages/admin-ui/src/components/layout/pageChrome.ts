@@ -6,7 +6,7 @@ import { useEffect, useSyncExternalStore, type ReactNode } from "react"
  * header. Linear-style: the chrome bar owns identity + primary actions, the body
  * starts straight at the content.
  */
-export type PageChrome = {
+type PageChrome = {
   /** Small accessory shown next to the title (e.g. a live result count). */
   titleBadge: ReactNode
   /**

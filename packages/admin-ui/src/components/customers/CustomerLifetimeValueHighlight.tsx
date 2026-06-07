@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Card } from "@/components/ui/Card"
 import type { CustomerPaidSpendSummary } from "@/features/customers/customersAdminTypes"
 import { formatMinorAmount } from "@/features/customers/formatMoney"
@@ -16,7 +17,7 @@ export function CustomerLifetimeValueHighlight({
   summary,
   storeCurrencyCode,
   isLoading = false,
-}: CustomerLifetimeValueHighlightProps): JSX.Element {
+}: CustomerLifetimeValueHighlightProps): ReactNode {
   if (isLoading || summary === null) {
     return (
       <Card className="border-dashed bg-surface-raised">

@@ -9,7 +9,7 @@ import { mapAdminProductToListRow } from "@/lib/products/mapAdminProductToListRo
 import { createMercflowMedusaSdk } from "@/medusa-admin/createMercflowMedusaSdk"
 
 /** Map server sort indicator for Medusa Admin list (`order` query). */
-export function buildProductListOrder(
+function buildProductListOrder(
   columnId: keyof ProductSortColumnPayload | string | null,
   direction: "asc" | "desc" | "none"
 ): string | undefined {
@@ -36,7 +36,7 @@ export type ProductStatusValue = ProductStatus
 
 export type ProductSortColumnPayload = Pick<ProductListRow, "title" | "status" | "updatedAt">
 
-export type ProductsListQueryResult = {
+type ProductsListQueryResult = {
   rows: ProductListRow[]
   totalCount: number
   source: "medusa" | "mock"
@@ -54,11 +54,11 @@ type UseProductsCatalogListArgs = {
   sortDirection: "asc" | "desc" | "none"
 }
 
-export function getProductsCatalogQueryKey(args: Omit<UseProductsCatalogListArgs, "sortDirection">): QueryKey {
+function getProductsCatalogQueryKey(args: Omit<UseProductsCatalogListArgs, "sortDirection">): QueryKey {
   return [
     "products-catalog-list",
     args.debouncedSearch,
-    [...args.statuses].sort().join(","),
+    [...args.statuses].toSorted().join(","),
     args.page,
     args.pageSize,
     args.sortColumn,
@@ -98,7 +98,7 @@ export function useProductsCatalogList(args: UseProductsCatalogListArgs) {
         }
 
         if (!args.sortColumn || args.sortDirection === "none") {
-          return [...list].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+          return list.toSorted((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
         }
 
         const col = args.sortColumn

@@ -58,7 +58,7 @@ export function useAdminProductDetail(productId: string | undefined): {
   const sdk = useMemo(() => createMercflowMedusaSdk(), [])
   const hasBackend = sdk !== null && productId !== undefined && productId !== ""
 
-  const q = useQuery({
+  const { data, isLoading, error } = useQuery({
     enabled: hasBackend && productId !== undefined,
     queryKey: ["admin-product-detail", productId, hasBackend],
     queryFn: async (): Promise<AdminProduct | null> => {
@@ -72,7 +72,6 @@ export function useAdminProductDetail(productId: string | undefined): {
     },
   })
 
-  const error = q.error
   let errorMessage: string | null = null
   let authHint = false
   if (error instanceof FetchError && error.message !== "") {
@@ -85,8 +84,8 @@ export function useAdminProductDetail(productId: string | undefined): {
   }
 
   return {
-    data: q.data ?? undefined,
-    isLoading: q.isLoading,
+    data: data ?? undefined,
+    isLoading,
     errorMessage,
     isNotAuthenticatedHint: authHint,
   }

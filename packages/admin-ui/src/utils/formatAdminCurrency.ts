@@ -1,11 +1,9 @@
+import { getCurrencyFormatter } from "@/utils/intlFormatCache"
+
 function getMinorUnitDivisor(currencyCode: string, locale: string): number {
   const code = currencyCode.trim().toUpperCase()
   try {
-    const formatter = new Intl.NumberFormat(locale, {
-      style: "currency",
-      currency: code,
-    })
-    const { minimumFractionDigits } = formatter.resolvedOptions()
+    const { minimumFractionDigits } = getCurrencyFormatter(locale, code).resolvedOptions()
     const fractionDigits = minimumFractionDigits ?? 2
     return 10 ** fractionDigits
   } catch {
@@ -26,10 +24,7 @@ export function formatAdminCurrency(
   const divisor = getMinorUnitDivisor(code, locale)
   const fractionDigits = Math.max(0, Math.round(Math.log10(divisor)))
   try {
-    return new Intl.NumberFormat(locale, {
-      style: "currency",
-      currency: code,
-    }).format(amountMinor / divisor)
+    return getCurrencyFormatter(locale, code).format(amountMinor / divisor)
   } catch {
     return `${(amountMinor / divisor).toFixed(fractionDigits)} ${code}`
   }

@@ -1,4 +1,4 @@
-import { forwardRef } from "react"
+import { type ReactNode, forwardRef } from "react"
 
 type BrandAvatarProps = {
   /** Diameter in px. Defaults to 32 (the topbar/sheet-header size). */
@@ -42,7 +42,7 @@ export const BrandAvatar = forwardRef<HTMLButtonElement, BrandAvatarProps>(
       className,
     },
     ref
-  ): JSX.Element {
+  ): ReactNode {
     const fontSize = Math.round(size * 0.45)
 
     const visualClass = [

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useMemo, useState } from "react"
+import { type ReactNode, useCallback, useEffect, useId, useMemo, useState } from "react"
 
 import { Badge } from "@/components/ui/Badge"
 import { Card } from "@/components/ui/Card"
@@ -28,7 +28,7 @@ export type CategoryContentReadTabProps = {
 export function CategoryContentReadTab({
   categoryId,
   categoryTitleFallback,
-}: CategoryContentReadTabProps): JSX.Element {
+}: CategoryContentReadTabProps): ReactNode {
   const sectionIds = useId()
   const localesQuery = useAdminLocales()
   const readLocale = preferProductContentLocale(localesQuery.locales, DEFAULT_CATEGORY_CONTENT_LOCALE)

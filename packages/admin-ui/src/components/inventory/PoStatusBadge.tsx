@@ -1,4 +1,4 @@
-import type { JSX } from "react"
+import type { ReactNode } from "react"
 
 import { Badge } from "@/components/ui/Badge"
 
@@ -13,7 +13,7 @@ const STATUS_VARIANT: Record<
   cancelled: "danger",
 }
 
-export function PoStatusBadge({ status }: { status: string }): JSX.Element {
+export function PoStatusBadge({ status }: { status: string }): ReactNode {
   const variant = STATUS_VARIANT[status] ?? "neutral"
   const label = status.replace(/_/g, " ")
   return (

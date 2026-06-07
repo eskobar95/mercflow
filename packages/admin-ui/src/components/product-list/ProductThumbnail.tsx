@@ -1,8 +1,9 @@
+import type { CSSProperties, ReactNode } from "react"
+
 /**
  * Product thumbnail — image when `imageUrl` is set, otherwise a placeholder square with initials.
  *
- * Inline HSL styles are intentional for the initials fallback (`hue`-driven). Real images use
- * token-backed borders/radius instead.
+ * Dynamic hue/size use CSS custom properties on a token-backed shell class.
  */
 type ProductThumbnailProps = {
   title: string
@@ -12,22 +13,33 @@ type ProductThumbnailProps = {
   size?: number
 }
 
+const imageShellClass =
+  "inline-block shrink-0 overflow-hidden rounded-md bg-surface-subtle ring-1 ring-inset ring-border-default"
+
+const placeholderShellClass =
+  "inline-flex shrink-0 items-center justify-center rounded-md font-semibold tracking-tight shadow-[inset_0_0_0_1px_rgba(15,17,20,0.06)] [font-size:var(--thumb-fs)] [background:var(--thumb-bg)] [color:var(--thumb-fg)] [width:var(--thumb-size)] [height:var(--thumb-size)] [min-width:var(--thumb-size)]"
+
+function thumbnailSizeStyle(size: number, hue: number): CSSProperties {
+  return {
+    ["--thumb-size" as string]: `${size}px`,
+    ["--thumb-bg" as string]: `hsl(${hue} 38% 88%)`,
+    ["--thumb-fg" as string]: `hsl(${hue} 42% 32%)`,
+    ["--thumb-fs" as string]: `${size * 0.38}px`,
+  } as CSSProperties
+}
+
 export function ProductThumbnail({
   title,
   imageUrl,
   hue = 200,
   size = 36,
-}: ProductThumbnailProps): JSX.Element {
+}: ProductThumbnailProps): ReactNode {
   const initial = title.trim().charAt(0).toUpperCase()
-  const bg = `hsl(${hue} 38% 88%)`
-  const color = `hsl(${hue} 42% 32%)`
+  const dimensionStyle = { width: size, height: size, minWidth: size }
 
   if (typeof imageUrl === "string" && imageUrl.trim() !== "") {
     return (
-      <span
-        className="inline-block shrink-0 overflow-hidden rounded-md bg-surface-subtle ring-1 ring-inset ring-border-default"
-        style={{ width: size, height: size, minWidth: size }}
-      >
+      <span className={imageShellClass} style={dimensionStyle}>
         <img
           alt=""
           src={imageUrl}
@@ -43,21 +55,8 @@ export function ProductThumbnail({
   return (
     <span
       aria-hidden
-      style={{
-        width: size,
-        height: size,
-        minWidth: size,
-        background: bg,
-        color,
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: 6,
-        fontSize: size * 0.38,
-        fontWeight: 600,
-        letterSpacing: "-0.01em",
-        boxShadow: "inset 0 0 0 1px rgba(15, 17, 20, 0.06)",
-      }}
+      className={placeholderShellClass}
+      style={thumbnailSizeStyle(size, hue)}
     >
       {initial}
     </span>

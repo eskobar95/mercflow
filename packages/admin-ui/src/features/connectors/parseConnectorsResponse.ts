@@ -74,8 +74,8 @@ export function parseConnectorsResponse(json: unknown): ConnectorListItemDto[] |
   if (parsed.length !== CONNECTOR_SLUGS.length) {
     return null
   }
-  const sortedExpected = [...CONNECTOR_SLUGS].sort()
-  const sortedActual = [...parsed.map((p) => p.type)].sort()
+  const sortedExpected = CONNECTOR_SLUGS.toSorted()
+  const sortedActual = parsed.map((p) => p.type).toSorted()
   if (sortedExpected.join("|") !== sortedActual.join("|")) {
     return null
   }

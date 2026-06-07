@@ -7,14 +7,14 @@ import {
   resolveMedusaAdminBackendUrl,
 } from "@/medusa-admin/medusaAdminFetch"
 
-export type AdminSession = {
+type AdminSession = {
   displayName: string
   role: string
   initials: string
 }
 
 /** Generic fallback when the Medusa session endpoint is unavailable (local dev). */
-export const FALLBACK_ADMIN_SESSION: AdminSession = {
+const FALLBACK_ADMIN_SESSION: AdminSession = {
   displayName: "Admin",
   role: "Member",
   initials: "AD",
@@ -81,7 +81,7 @@ type UseAdminSessionResult = {
 export function useAdminSession(): UseAdminSessionResult {
   const hasBackend = useMemo(() => resolveMedusaAdminBackendUrl() !== null, [])
 
-  const query = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["admin-session"],
     queryFn: fetchAdminSession,
     enabled: hasBackend,
@@ -89,7 +89,7 @@ export function useAdminSession(): UseAdminSessionResult {
   })
 
   return {
-    session: query.data ?? FALLBACK_ADMIN_SESSION,
-    isLoading: hasBackend && query.isLoading,
+    session: data ?? FALLBACK_ADMIN_SESSION,
+    isLoading: hasBackend && isLoading,
   }
 }

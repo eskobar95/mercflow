@@ -1,9 +1,10 @@
+import type { ReactNode } from "react"
 type ProductGalleryStripProps = {
   thumbnails: Array<{ alt: string; src: string }>
 }
 
 /** Horizontal scrolling strip used on product detail Overview for media previews. */
-export function ProductGalleryStrip({ thumbnails }: ProductGalleryStripProps): JSX.Element {
+export function ProductGalleryStrip({ thumbnails }: ProductGalleryStripProps): ReactNode {
   if (thumbnails.length === 0) {
     return (
       <p className="text-sm text-content-tertiary">

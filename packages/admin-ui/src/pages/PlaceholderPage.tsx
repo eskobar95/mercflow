@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 
 import { IconArrowRight } from "@/components/ui/icons"
@@ -36,7 +37,7 @@ export function PlaceholderPage({
   title,
   description,
   fallback = DEFAULT_FALLBACK,
-}: PlaceholderPageProps): JSX.Element {
+}: PlaceholderPageProps): ReactNode {
   return (
     <div className="px-4 py-12 md:px-8 md:py-16">
       <div className="mx-auto flex max-w-xl flex-col items-start">

@@ -13,7 +13,7 @@ type LoadState =
   | { status: "error"; message: string }
   | { status: "success"; rows: AdminProductCategoryHierarchyRow[] }
 
-export type UseAdminProductCategoriesResult = {
+type UseAdminProductCategoriesResult = {
   state: LoadState
   /** Reloads from GET /admin/product-categories */
   reload: () => Promise<void>

@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { type ReactNode, useMemo } from "react"
 import { Link, useParams, useSearchParams } from "react-router-dom"
 
 import { ProductContentTab } from "@/components/product-content/ProductContentTab"
@@ -32,7 +32,7 @@ function mockVariantFallback(row: ProductListRow): DetailVariantRow[] {
   ]
 }
 
-export function ProductDetailPage(): JSX.Element {
+export function ProductDetailPage(): ReactNode {
   const { productId } = useParams<{ productId: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
   const hasBackend = resolveMedusaAdminBackendUrl() !== null

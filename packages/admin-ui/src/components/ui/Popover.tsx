@@ -6,8 +6,6 @@ import { cn } from "@/lib/cn"
 
 export const Popover = PopoverPrimitive.Root
 export const PopoverTrigger = PopoverPrimitive.Trigger
-export const PopoverAnchor = PopoverPrimitive.Anchor
-export const PopoverClose = PopoverPrimitive.Close
 
 export const PopoverContent = forwardRef<
   HTMLDivElement,

@@ -86,7 +86,7 @@ export async function getAdminSeoConfig(): Promise<SeoConfigDto> {
   return parsed
 }
 
-export type PutAdminSeoConfigPayload = {
+type PutAdminSeoConfigPayload = {
   slug_strategy?: SlugStrategy
   storefront_url?: string | null
   org_name?: string | null

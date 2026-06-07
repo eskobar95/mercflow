@@ -49,7 +49,7 @@ export async function getShipmondoConnectorAdmin(): Promise<ShipmondoConnectorGe
   return parsed.data
 }
 
-export type ShipmondoConnectorPatchPayload = Record<string, unknown>
+type ShipmondoConnectorPatchPayload = Record<string, unknown>
 
 export async function patchShipmondoConnectorAdmin(
   body: ShipmondoConnectorPatchPayload

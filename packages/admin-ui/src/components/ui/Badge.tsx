@@ -55,7 +55,7 @@ export function Badge({
   children,
   className = "",
   ...rest
-}: BadgeProps): JSX.Element {
+}: BadgeProps): ReactNode {
   if (dot) {
     return (
       <span

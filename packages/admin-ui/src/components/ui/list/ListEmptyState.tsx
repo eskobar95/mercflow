@@ -23,14 +23,13 @@ export function ListEmptyState({
   action,
   bare = false,
   className = "",
-}: ListEmptyStateProps): JSX.Element {
+}: ListEmptyStateProps): ReactNode {
   const chrome = bare
     ? "h-full px-6 py-12"
     : "min-h-48 rounded-lg border border-dashed border-border-subtle bg-surface-subtle px-6 py-12"
   return (
     <div
       className={`flex flex-col items-center justify-center gap-2 text-center ${chrome} ${className}`.trim()}
-      role="status"
     >
       <p className="text-base font-medium text-content-primary">{title}</p>
       {description ? (

@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react"
+import { type ReactNode, useReducer, type FormEvent } from "react"
 
 import { Button } from "@/components/ui/Button"
 import { Card } from "@/components/ui/Card"
@@ -10,50 +10,93 @@ import {
   normalizeGtmContainerIdInput,
 } from "@/features/connectors/gtmValidation"
 import { useGtmConnectorSettings } from "@/hooks/useGtmConnectorSettings"
+import { useAdjustStateWhenKeyChanges } from "@/lib/react/useAdjustStateWhenKeyChanges"
 
-export function GtmConnectorSettingsForm(): JSX.Element {
+type GtmFormState = {
+  value: string
+  localError: string | null
+  saveSucceeded: boolean
+}
+
+type GtmFormAction =
+  | { type: "syncFromServer"; containerId: string; clearLocalError: boolean }
+  | { type: "setValue"; value: string }
+  | { type: "setLocalError"; value: string | null }
+  | { type: "setSaveSucceeded"; value: boolean }
+
+const INITIAL_GTM_FORM_STATE: GtmFormState = {
+  value: "",
+  localError: null,
+  saveSucceeded: false,
+}
+
+function gtmFormReducer(state: GtmFormState, action: GtmFormAction): GtmFormState {
+  switch (action.type) {
+    case "syncFromServer":
+      return {
+        ...state,
+        value: action.containerId,
+        localError: action.clearLocalError ? null : state.localError,
+      }
+    case "setValue":
+      return { ...state, value: action.value, saveSucceeded: false }
+    case "setLocalError":
+      return { ...state, localError: action.value }
+    case "setSaveSucceeded":
+      return { ...state, saveSucceeded: action.value }
+    default:
+      return state
+  }
+}
+
+export function GtmConnectorSettingsForm(): ReactNode {
   const { state, reload, save } = useGtmConnectorSettings()
-  const [value, setValue] = useState("")
-  const [localError, setLocalError] = useState<string | null>(null)
-  const [saveSucceeded, setSaveSucceeded] = useState(false)
+  const [form, dispatch] = useReducer(gtmFormReducer, INITIAL_GTM_FORM_STATE)
+  const { value, localError, saveSucceeded } = form
 
-  useEffect(() => {
-    if (state.phase === "ready") {
-      setValue(state.container_id ?? "")
-      setLocalError(null)
-      return
+  const serverSyncKey =
+    state.phase === "ready" || state.phase === "save_error"
+      ? `${state.phase}:${state.container_id ?? ""}`
+      : null
+
+  useAdjustStateWhenKeyChanges(serverSyncKey, () => {
+    if (state.phase === "ready" || state.phase === "save_error") {
+      dispatch({
+        type: "syncFromServer",
+        containerId: state.container_id ?? "",
+        clearLocalError: state.phase === "ready",
+      })
     }
-    if (state.phase === "save_error") {
-      setValue(state.container_id ?? "")
-    }
-  }, [state])
+  })
 
   const handleSubmit = async (
     event: FormEvent<HTMLFormElement>
   ): Promise<void> => {
     event.preventDefault()
-    setSaveSucceeded(false)
+    dispatch({ type: "setSaveSucceeded", value: false })
     const normalized = normalizeGtmContainerIdInput(value)
 
     if (normalized !== "" && !GTM_CONTAINER_ID_INPUT_PATTERN.test(normalized)) {
-      setLocalError(
-        "Use uppercase GTM- followed by alphanumeric characters (example: GTM-ABC123)."
-      )
+      dispatch({
+        type: "setLocalError",
+        value: "Use uppercase GTM- followed by alphanumeric characters (example: GTM-ABC123).",
+      })
       return
     }
 
     if (normalized === "") {
-      setLocalError(
-        "Container ID cannot be blank. Paste the identifier from Tag Manager exactly as shown."
-      )
+      dispatch({
+        type: "setLocalError",
+        value: "Container ID cannot be blank. Paste the identifier from Tag Manager exactly as shown.",
+      })
       return
     }
 
-    setLocalError(null)
+    dispatch({ type: "setLocalError", value: null })
 
     const ok = await save(normalized)
     if (ok) {
-      setSaveSucceeded(true)
+      dispatch({ type: "setSaveSucceeded", value: true })
     }
   }
 
@@ -140,8 +183,7 @@ export function GtmConnectorSettingsForm(): JSX.Element {
             value={value}
             disabled={isSaving}
             onChange={(e) => {
-              setSaveSucceeded(false)
-              setValue(e.target.value)
+              dispatch({ type: "setValue", value: e.target.value })
             }}
           />
         </FormField>

@@ -12,7 +12,7 @@ import type { AdminProductCategoryParsed } from "./types"
 const LIST_FIELDS =
   "id,name,handle,description,parent_category_id,is_active,rank,created_at,updated_at,*products"
 
-export type AdminProductCategoryListResult = {
+type AdminProductCategoryListResult = {
   categories: AdminProductCategoryParsed[]
   count?: number
   limit?: number

@@ -1,4 +1,4 @@
-import { useId } from "react"
+import { type ReactNode, useId } from "react"
 
 type ListPaginationProps = {
   "aria-label": string
@@ -26,7 +26,7 @@ export function ListPagination({
   onPageSizeChange,
   pageSizeOptions = DEFAULT_PAGE_SIZES,
   className = "",
-}: ListPaginationProps): JSX.Element {
+}: ListPaginationProps): ReactNode {
   const totalPages = Math.max(1, Math.ceil(Math.max(0, totalItems) / pageSize))
   const safePage = Math.min(currentPage, totalPages)
   const start = totalItems === 0 ? 0 : (safePage - 1) * pageSize + 1

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { type ReactNode, useCallback, useEffect, useMemo, useReducer } from "react"
 
 import { Button } from "@/components/ui/Button"
 import { DialogFooter, DialogShell } from "@/components/ui/Dialog"
@@ -13,29 +13,99 @@ import type { OrderDetail } from "@/features/orders/orderTypes"
 
 type ConfirmKind = "capture" | "create_fulfillment" | "mark_shipped"
 
+type OrderFulfillmentBarState = {
+  confirmKind: ConfirmKind | null
+  mutationLoading: boolean
+  mutationError: string | null
+  stockLocationId: string | null
+  stockLocationLoading: boolean
+  stockLocationError: string | null
+}
+
+type OrderFulfillmentBarAction =
+  | { type: "openConfirm"; kind: ConfirmKind }
+  | { type: "closeDialog" }
+  | { type: "mutationStart" }
+  | { type: "mutationError"; message: string }
+  | { type: "mutationFinish" }
+  | { type: "stockLocationStart" }
+  | { type: "stockLocationSuccess"; id: string | null; error: string | null }
+  | { type: "stockLocationError"; message: string }
+  | { type: "stockLocationFinish" }
+
+const INITIAL_ORDER_FULFILLMENT_BAR_STATE: OrderFulfillmentBarState = {
+  confirmKind: null,
+  mutationLoading: false,
+  mutationError: null,
+  stockLocationId: null,
+  stockLocationLoading: false,
+  stockLocationError: null,
+}
+
+function orderFulfillmentBarReducer(
+  state: OrderFulfillmentBarState,
+  action: OrderFulfillmentBarAction,
+): OrderFulfillmentBarState {
+  switch (action.type) {
+    case "openConfirm":
+      return { ...state, confirmKind: action.kind, mutationError: null }
+    case "closeDialog":
+      return {
+        ...state,
+        confirmKind: null,
+        stockLocationId: null,
+        stockLocationError: null,
+        stockLocationLoading: false,
+      }
+    case "mutationStart":
+      return { ...state, mutationError: null, mutationLoading: true }
+    case "mutationError":
+      return { ...state, mutationError: action.message, mutationLoading: false }
+    case "mutationFinish":
+      return { ...state, mutationLoading: false }
+    case "stockLocationStart":
+      return { ...state, stockLocationLoading: true, stockLocationError: null }
+    case "stockLocationSuccess":
+      return {
+        ...state,
+        stockLocationId: action.id,
+        stockLocationError: action.error,
+        stockLocationLoading: false,
+      }
+    case "stockLocationError":
+      return { ...state, stockLocationError: action.message, stockLocationLoading: false }
+    case "stockLocationFinish":
+      return { ...state, stockLocationLoading: false }
+    default:
+      return state
+  }
+}
+
 export function OrderFulfillmentActionBar(props: {
   order: OrderDetail
   onDidMutate: () => void
-}): JSX.Element {
+}): ReactNode {
   const { order, onDidMutate } = props
   const visibility = useMemo(
     () => getOrderFulfillmentActionVisibility(order),
     [order],
   )
 
-  const [confirmKind, setConfirmKind] = useState<ConfirmKind | null>(null)
-  const [mutationLoading, setMutationLoading] = useState(false)
-  const [mutationError, setMutationError] = useState<string | null>(null)
-
-  const [stockLocationId, setStockLocationId] = useState<string | null>(null)
-  const [stockLocationLoading, setStockLocationLoading] = useState(false)
-  const [stockLocationError, setStockLocationError] = useState<string | null>(null)
+  const [ui, dispatch] = useReducer(
+    orderFulfillmentBarReducer,
+    INITIAL_ORDER_FULFILLMENT_BAR_STATE,
+  )
+  const {
+    confirmKind,
+    mutationLoading,
+    mutationError,
+    stockLocationId,
+    stockLocationLoading,
+    stockLocationError,
+  } = ui
 
   const closeDialog = useCallback((): void => {
-    setConfirmKind(null)
-    setStockLocationId(null)
-    setStockLocationError(null)
-    setStockLocationLoading(false)
+    dispatch({ type: "closeDialog" })
   }, [])
 
   useEffect(() => {
@@ -44,26 +114,27 @@ export function OrderFulfillmentActionBar(props: {
     }
     let cancelled = false
     const run = async (): Promise<void> => {
-      setStockLocationLoading(true)
-      setStockLocationError(null)
+      dispatch({ type: "stockLocationStart" })
       try {
         const id = await fetchFirstStockLocationId()
         if (!cancelled) {
-          setStockLocationId(id)
-          if (id === null) {
-            setStockLocationError(
-              "No stock location is available. Create a stock location in Medusa before fulfilling.",
-            )
-          }
+          dispatch({
+            type: "stockLocationSuccess",
+            id,
+            error:
+              id === null
+                ? "No stock location is available. Create a stock location in Medusa before fulfilling."
+                : null,
+          })
         }
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Failed to load stock locations"
         if (!cancelled) {
-          setStockLocationError(msg)
+          dispatch({ type: "stockLocationError", message: msg })
         }
       } finally {
         if (!cancelled) {
-          setStockLocationLoading(false)
+          dispatch({ type: "stockLocationFinish" })
         }
       }
     }
@@ -74,8 +145,7 @@ export function OrderFulfillmentActionBar(props: {
   }, [confirmKind])
 
   const runMutation = useCallback(async (): Promise<void> => {
-    setMutationError(null)
-    setMutationLoading(true)
+    dispatch({ type: "mutationStart" })
     try {
       if (confirmKind === "capture") {
         const paymentId = visibility.capturablePaymentId
@@ -112,9 +182,9 @@ export function OrderFulfillmentActionBar(props: {
       onDidMutate()
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Action failed"
-      setMutationError(msg)
+      dispatch({ type: "mutationError", message: msg })
     } finally {
-      setMutationLoading(false)
+      dispatch({ type: "mutationFinish" })
     }
   }, [
     closeDialog,
@@ -186,8 +256,7 @@ export function OrderFulfillmentActionBar(props: {
             size="sm"
             disabled={mutationLoading}
             onClick={() => {
-              setMutationError(null)
-              setConfirmKind("capture")
+              dispatch({ type: "openConfirm", kind: "capture" })
             }}
           >
             Capture payment
@@ -200,8 +269,7 @@ export function OrderFulfillmentActionBar(props: {
             size="sm"
             disabled={mutationLoading}
             onClick={() => {
-              setMutationError(null)
-              setConfirmKind("create_fulfillment")
+              dispatch({ type: "openConfirm", kind: "create_fulfillment" })
             }}
           >
             Create fulfillment
@@ -214,8 +282,7 @@ export function OrderFulfillmentActionBar(props: {
             size="sm"
             disabled={mutationLoading}
             onClick={() => {
-              setMutationError(null)
-              setConfirmKind("mark_shipped")
+              dispatch({ type: "openConfirm", kind: "mark_shipped" })
             }}
           >
             Mark as shipped

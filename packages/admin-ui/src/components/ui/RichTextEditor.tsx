@@ -4,7 +4,7 @@ import Link from "@tiptap/extension-link"
 import { EditorContent, useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import * as Popover from "@radix-ui/react-popover"
-import { useEffect, useId, useState } from "react"
+import { type ReactNode, useId, useState } from "react"
 
 import type { JSONContent } from "@tiptap/core"
 
@@ -16,8 +16,9 @@ import {
 import { Input } from "@/components/ui/Input"
 import { cn } from "@/lib/cn"
 import { tiptapDocFromUnknown } from "@/lib/tiptap"
+import { useAdjustStateWhenSnapshotChanges } from "@/lib/react/useAdjustStateWhenKeyChanges"
 
-export type RichTextEditorMode = "simple" | "full"
+type RichTextEditorMode = "simple" | "full"
 type RichTextEditorVariant = "standalone" | "embedded"
 
 export type RichTextEditorProps = {
@@ -52,7 +53,7 @@ function ToolbarButton({
   disabled = false,
   onClick,
   children,
-}: ToolbarButtonProps): JSX.Element {
+}: ToolbarButtonProps): ReactNode {
   return (
     <button
       type="button"
@@ -82,7 +83,7 @@ function LinkPopover({
   onApply: (url: string) => void
   onRemove: () => void
   hasLink: boolean
-}): JSX.Element {
+}): ReactNode {
   const [open, setOpen] = useState(false)
   const [url, setUrl] = useState("")
 
@@ -195,7 +196,7 @@ export function RichTextEditor({
   error = false,
   className,
   variant = "standalone",
-}: RichTextEditorProps): JSX.Element {
+}: RichTextEditorProps): ReactNode {
   const labelId = useId()
   const initial = tiptapDocFromUnknown(value)
   const embedded = variant === "embedded"
@@ -241,10 +242,10 @@ export function RichTextEditor({
         onChange(ed.getJSON())
       },
     },
-    [extensions, embedded, placeholder],
+    [extensions, embedded, placeholder, disabled],
   )
 
-  useEffect(() => {
+  useAdjustStateWhenSnapshotChanges([value], () => {
     if (!editor || editor.isDestroyed) {
       return
     }
@@ -254,14 +255,7 @@ export function RichTextEditor({
       return
     }
     editor.commands.setContent(next, { emitUpdate: false })
-  }, [editor, value])
-
-  useEffect(() => {
-    if (!editor || editor.isDestroyed) {
-      return
-    }
-    editor.setEditable(!disabled)
-  }, [editor, disabled])
+  })
 
   const chars =
     editor && !editor.isDestroyed

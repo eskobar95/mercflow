@@ -19,10 +19,6 @@ export type AdminSubscriptionListResponse = {
   offset: number
 }
 
-export type AdminSubscriptionDetailResponse = {
-  data: AdminSubscriptionRow
-}
-
 export type CanonicalSubscriptionUiStatus =
   | "active"
   | "paused"

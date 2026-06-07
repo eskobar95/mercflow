@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 
 import type { ListSelection } from "@/components/ui/list/types"
+import { useAdjustStateWhenSnapshotChanges } from "@/lib/react/useAdjustStateWhenKeyChanges"
 
 type UseListRowSelectionOptions = {
   /** Ids selected when "select all" is checked. Defaults to `rowIds`. */
@@ -38,10 +39,7 @@ export function useListRowSelection(
     setSelectedIds((prev) => (prev.size === 0 ? prev : new Set()))
   }, [])
 
-  useEffect(() => {
-    clearSelection()
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- explicit reset key list from caller
-  }, [clearSelection, ...resetDeps])
+  useAdjustStateWhenSnapshotChanges(resetDeps, clearSelection)
 
   useEffect(() => {
     if (selectedIds.size === 0) return

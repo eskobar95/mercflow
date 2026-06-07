@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 /**
  * Neutral status chip for order payment / fulfillment labels (token-backed).
  */
@@ -5,7 +6,7 @@ export function OrderAdminBadge(props: {
   /** Raw Medusa snake_case enum is fine — we soften display. */
   value: string
   "aria-label"?: string
-}): JSX.Element {
+}): ReactNode {
   const display = props.value.trim() === "" ? "—" : props.value.replaceAll("_", " ")
   const label = props["aria-label"] ?? display
 

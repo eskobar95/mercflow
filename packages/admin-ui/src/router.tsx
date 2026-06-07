@@ -385,32 +385,16 @@ export const router = createBrowserRouter([
         path: "settings/team",
         handle: { title: "Team" } satisfies AppRouteHandle,
         lazy: async () => {
-          const { PlaceholderPage } = await import("@/pages/PlaceholderPage")
-          return {
-            Component: () => (
-              <PlaceholderPage
-                title="Team"
-                description="Invite teammates, assign owner / admin / support roles, and audit the last sign-in for each member."
-                fallback={{ label: "Open General settings", to: "/settings" }}
-              />
-            ),
-          }
+          const { TeamSettingsPage } = await import("@/pages/settings/TeamSettingsPage")
+          return { Component: TeamSettingsPage }
         },
       },
       {
         path: "settings/billing",
         handle: { title: "Billing" } satisfies AppRouteHandle,
         lazy: async () => {
-          const { PlaceholderPage } = await import("@/pages/PlaceholderPage")
-          return {
-            Component: () => (
-              <PlaceholderPage
-                title="Billing"
-                description="Current plan, invoices, billing cycle, and the card on file for your MercFlow workspace."
-                fallback={{ label: "Open General settings", to: "/settings" }}
-              />
-            ),
-          }
+          const { BillingSettingsPage } = await import("@/pages/settings/BillingSettingsPage")
+          return { Component: BillingSettingsPage }
         },
       },
       {

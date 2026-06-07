@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 
 import {
@@ -82,7 +83,7 @@ const SHIPPING_LOG: ShippingItem[] = [
  * The whole page is information you couldn't reach otherwise from this
  * screen. Nothing decorative. Nothing fake.
  */
-export function HomePage(): JSX.Element {
+export function HomePage(): ReactNode {
   return (
     <div className="px-4 py-6 md:px-8 md:py-8">
       {/* ── Workspace status banner ─────────────────────────────── */}
@@ -93,8 +94,7 @@ export function HomePage(): JSX.Element {
         {/* Subtle corner-accent — a single chromatic move, not a wash */}
         <span
           aria-hidden
-          className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent/8"
-          style={{ filter: "blur(40px)" }}
+          className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent/8 blur-sm"
         />
 
         <div className="relative flex flex-col gap-6">
@@ -194,7 +194,7 @@ export function HomePage(): JSX.Element {
   )
 }
 
-function Shortcut({ tile }: { tile: ShortcutTile }): JSX.Element {
+function Shortcut({ tile }: { tile: ShortcutTile }): ReactNode {
   const Icon = tile.icon
   const loud = tile.emphasis === "loud"
 
@@ -235,7 +235,7 @@ function Shortcut({ tile }: { tile: ShortcutTile }): JSX.Element {
   )
 }
 
-function StatusGlyph({ status }: { status: ShippingItem["status"] }): JSX.Element {
+function StatusGlyph({ status }: { status: ShippingItem["status"] }): ReactNode {
   if (status === "shipped") {
     return (
       <span

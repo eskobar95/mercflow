@@ -1,11 +1,11 @@
 /** Operator options. Enum fields use is / is not; date fields use after / before. */
 export type FilterOperator = "is" | "is not" | "after" | "before"
 
-export type FilterCategoryType = "enum" | "date"
+type FilterCategoryType = "enum" | "date"
 
 export type FilterValueTone = "neutral" | "success" | "warning" | "danger" | "accent"
 
-export type FilterValue = {
+type FilterValue = {
   id: string
   label: string
   /** Optional status dot colour, Linear-style. */

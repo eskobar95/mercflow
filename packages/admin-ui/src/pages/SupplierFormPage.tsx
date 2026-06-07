@@ -1,5 +1,5 @@
-import type { FormEvent, JSX } from "react"
-import { useCallback, useEffect, useState } from "react"
+import type { FormEvent } from "react"
+import { type ReactNode, useCallback, useEffect, useReducer } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
 
 import { Button } from "@/components/ui/Button"
@@ -13,7 +13,7 @@ import {
 } from "@/features/inventory/suppliersAdminApi"
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
-function MissingBackendConfigMessage(): JSX.Element {
+function MissingBackendConfigMessage(): ReactNode {
   return (
     <p className="mt-6 text-sm text-text-secondary">
       Configure{" "}
@@ -23,47 +23,118 @@ function MissingBackendConfigMessage(): JSX.Element {
   )
 }
 
-export function SupplierFormPage(): JSX.Element {
+type SupplierFormState = {
+  name: string
+  contactPerson: string
+  email: string
+  country: string
+  currency: string
+  loading: boolean
+  saving: boolean
+  error: string | null
+}
+
+type SupplierFormAction =
+  | { type: "setName"; value: string }
+  | { type: "setContactPerson"; value: string }
+  | { type: "setEmail"; value: string }
+  | { type: "setCountry"; value: string }
+  | { type: "setCurrency"; value: string }
+  | { type: "loadStart" }
+  | { type: "loadFinish" }
+  | { type: "loadSuccess"; payload: Pick<SupplierFormState, "name" | "contactPerson" | "email" | "country" | "currency"> }
+  | { type: "setError"; message: string | null }
+  | { type: "saveStart" }
+  | { type: "saveFinish" }
+
+function supplierFormReducer(state: SupplierFormState, action: SupplierFormAction): SupplierFormState {
+  switch (action.type) {
+    case "setName":
+      return { ...state, name: action.value }
+    case "setContactPerson":
+      return { ...state, contactPerson: action.value }
+    case "setEmail":
+      return { ...state, email: action.value }
+    case "setCountry":
+      return { ...state, country: action.value }
+    case "setCurrency":
+      return { ...state, currency: action.value }
+    case "loadStart":
+      return { ...state, loading: true, error: null }
+    case "loadFinish":
+      return { ...state, loading: false }
+    case "loadSuccess":
+      return { ...state, ...action.payload }
+    case "setError":
+      return { ...state, error: action.message }
+    case "saveStart":
+      return { ...state, saving: true, error: null }
+    case "saveFinish":
+      return { ...state, saving: false }
+    default:
+      return state
+  }
+}
+
+function createInitialSupplierFormState(isCreate: boolean, hasBackend: boolean): SupplierFormState {
+  return {
+    name: "",
+    contactPerson: "",
+    email: "",
+    country: "",
+    currency: "",
+    loading: !isCreate && hasBackend,
+    saving: false,
+    error: null,
+  }
+}
+
+export function SupplierFormPage(): ReactNode {
   const { supplierId } = useParams<{ supplierId: string }>()
   const navigate = useNavigate()
   const isCreate = supplierId === undefined || supplierId === "new"
   const hasBackend = resolveMedusaAdminBackendUrl() !== null
 
-  const [name, setName] = useState("")
-  const [contactPerson, setContactPerson] = useState("")
-  const [email, setEmail] = useState("")
-  const [country, setCountry] = useState("")
-  const [currency, setCurrency] = useState("")
-  const [loading, setLoading] = useState(!isCreate && hasBackend)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [form, dispatch] = useReducer(
+    supplierFormReducer,
+    { isCreate, hasBackend },
+    ({ isCreate: create, hasBackend: backend }) => createInitialSupplierFormState(create, backend),
+  )
+  const { name, contactPerson, email, country, currency, loading, saving, error } = form
 
   useEffect(() => {
     if (isCreate || !hasBackend || !supplierId) {
       if (!isCreate) {
-        setLoading(false)
+        dispatch({ type: "loadFinish" })
       }
       return
     }
     void (async (): Promise<void> => {
-      setLoading(true)
-      setError(null)
+      dispatch({ type: "loadStart" })
       try {
         const rows = await listSuppliersAdmin()
         const row = rows.find((r) => r.id === supplierId)
         if (!row) {
-          setError("Supplier not found")
+          dispatch({ type: "setError", message: "Supplier not found" })
           return
         }
-        setName(row.name)
-        setContactPerson(row.contact_person ?? "")
-        setEmail(row.email ?? "")
-        setCountry(row.country ?? "")
-        setCurrency(row.currency ?? "")
+        dispatch({
+          type: "loadSuccess",
+          payload: {
+            name: row.name,
+            contactPerson: row.contact_person ?? "",
+            email: row.email ?? "",
+            country: row.country ?? "",
+            currency: row.currency ?? "",
+          },
+        })
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to load supplier")
+        dispatch({
+          type: "setError",
+          message: e instanceof Error ? e.message : "Failed to load supplier",
+        })
       } finally {
-        setLoading(false)
+        dispatch({ type: "loadFinish" })
       }
     })()
   }, [hasBackend, isCreate, supplierId])
@@ -72,11 +143,10 @@ export function SupplierFormPage(): JSX.Element {
     async (event: FormEvent): Promise<void> => {
       event.preventDefault()
       if (!hasBackend) {
-        setError("Backend URL is not configured")
+        dispatch({ type: "setError", message: "Backend URL is not configured" })
         return
       }
-      setSaving(true)
-      setError(null)
+      dispatch({ type: "saveStart" })
       const payload = {
         name,
         contact_person: contactPerson.trim() === "" ? null : contactPerson.trim(),
@@ -93,9 +163,12 @@ export function SupplierFormPage(): JSX.Element {
           navigate("/inventory/suppliers")
         }
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Save failed")
+        dispatch({
+          type: "setError",
+          message: e instanceof Error ? e.message : "Save failed",
+        })
       } finally {
-        setSaving(false)
+        dispatch({ type: "saveFinish" })
       }
     },
     [
@@ -127,7 +200,7 @@ export function SupplierFormPage(): JSX.Element {
             <Input
               id="supplier-name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => dispatch({ type: "setName", value: e.target.value })}
               required
             />
           </FormField>
@@ -135,7 +208,7 @@ export function SupplierFormPage(): JSX.Element {
             <Input
               id="supplier-contact"
               value={contactPerson}
-              onChange={(e) => setContactPerson(e.target.value)}
+              onChange={(e) => dispatch({ type: "setContactPerson", value: e.target.value })}
             />
           </FormField>
           <FormField label="Email" htmlFor="supplier-email">
@@ -143,21 +216,21 @@ export function SupplierFormPage(): JSX.Element {
               id="supplier-email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => dispatch({ type: "setEmail", value: e.target.value })}
             />
           </FormField>
           <FormField label="Country" htmlFor="supplier-country">
             <Input
               id="supplier-country"
               value={country}
-              onChange={(e) => setCountry(e.target.value)}
+              onChange={(e) => dispatch({ type: "setCountry", value: e.target.value })}
             />
           </FormField>
           <FormField label="Currency" htmlFor="supplier-currency">
             <Input
               id="supplier-currency"
               value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
+              onChange={(e) => dispatch({ type: "setCurrency", value: e.target.value })}
             />
           </FormField>
           {error ? (

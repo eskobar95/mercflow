@@ -13,16 +13,23 @@ const STATUS_FILTER_VALUES: FilterCategory["values"] = [
   { id: "cancelled", label: "Cancelled", tone: "danger" },
 ]
 
+const PAYMENT_FILTER_VALUES: FilterCategory["values"] = ((): FilterCategory["values"] => {
+  const values: FilterCategory["values"] = []
+  for (const option of PAYMENT_FILTER_OPTIONS) {
+    if (option.value !== "all") {
+      values.push({ id: option.value, label: option.label })
+    }
+  }
+  return values
+})()
+
 export const ORDER_FILTER_CATEGORIES: FilterCategory[] = [
   {
     id: "payment",
     label: "Payment",
     type: "enum",
     operators: ["is", "is not"],
-    values: PAYMENT_FILTER_OPTIONS.filter((option) => option.value !== "all").map((option) => ({
-      id: option.value,
-      label: option.label,
-    })),
+    values: PAYMENT_FILTER_VALUES,
   },
   {
     id: "status",

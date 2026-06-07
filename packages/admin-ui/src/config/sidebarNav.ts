@@ -134,24 +134,13 @@ export const settingsSidebarSection: SidebarNavSection = {
   ],
 }
 
-/** Flat list of all destinations — used by tests, search index, sitemap. */
-export function getAllSidebarNavItems(): SidebarNavItem[] {
-  return [
-    ...primarySidebarNav,
-    ...feedSidebarSection.items,
-    ...inventorySidebarSection.items,
-    ...contentSidebarSection.items,
-    ...settingsSidebarSection.items,
-  ]
-}
-
 /**
  * Mobile bottom tab bar — 4 direct destinations. The fifth "More" affordance
  * lives in the topbar as the brand avatar (see `TopBar`), so every slot here
  * is a real route the user can land on. Order mirrors `primarySidebarNav`
  * for muscle-memory parity between desktop and mobile.
  */
-export type MobileTabItem = {
+type MobileTabItem = {
   label: string
   to: string
   end?: boolean
@@ -165,4 +154,3 @@ export const mobileTabBar: MobileTabItem[] = [
   { label: "Customers", to: "/customers", icon: IconCustomers },
 ]
 
-export { IconSettings }

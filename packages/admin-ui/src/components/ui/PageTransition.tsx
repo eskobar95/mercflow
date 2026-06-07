@@ -14,7 +14,7 @@ type PageTransitionProps = {
  * component** and passes `routeKey={location.key}` so all pages share one transition pattern.
  * Individual pages should not wrap themselves — avoid double application.
  */
-export function PageTransition({ children, routeKey }: PageTransitionProps): JSX.Element {
+export function PageTransition({ children, routeKey }: PageTransitionProps): ReactNode {
   return (
     <div className="flex min-w-0 flex-1 flex-col" data-mercflow-page-transition="root">
       <div

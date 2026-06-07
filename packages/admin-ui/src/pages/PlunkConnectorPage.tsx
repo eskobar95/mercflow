@@ -1,10 +1,11 @@
+import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 
 import { Button } from "@/components/ui/Button"
 import { PlunkConnectorSettingsForm } from "@/components/connectors/plunk/PlunkConnectorSettingsForm"
 import { usePlunkConnectorAdmin } from "@/hooks/usePlunkConnectorAdmin"
 
-export function PlunkConnectorPage(): JSX.Element {
+export function PlunkConnectorPage(): ReactNode {
   const ctl = usePlunkConnectorAdmin()
 
   return (
@@ -48,16 +49,15 @@ export function PlunkConnectorPage(): JSX.Element {
       ) : null}
 
       {ctl.lastProbe !== null ? (
-        <div
-          role="status"
-          className={`mb-4 rounded-lg border p-4 text-sm shadow-sm ${
+        <output
+          className={`mb-4 block rounded-lg border p-4 text-sm shadow-sm ${
             ctl.lastProbe.success
               ? "border-feedback-success-border bg-feedback-success-subtle text-feedback-success-content"
               : "border-feedback-danger-border bg-feedback-danger-subtle text-feedback-danger-content"
           }`}
         >
           {ctl.lastProbe.message}
-        </div>
+        </output>
       ) : null}
 
       {ctl.state.phase === "ready" ? (

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from "react"
+import { type ReactNode, useCallback, useEffect, useReducer, type FormEvent } from "react"
 
 import { PageHeader } from "@/components/ui/PageHeader"
 import { Button } from "@/components/ui/Button"
@@ -52,28 +52,91 @@ const REDIRECT_COLUMNS: ListColumnDef<RedirectDto, RedirectCol>[] = [
   },
 ]
 
-export function RedirectsListPage(): JSX.Element {
-  const [rows, setRows] = useState<RedirectDto[]>([])
-  const [phase, setPhase] = useState<"loading" | "ready" | "error">("loading")
-  const [message, setMessage] = useState<string | null>(null)
-  const [fromPath, setFromPath] = useState("")
-  const [toPath, setToPath] = useState("")
-  const [creating, setCreating] = useState(false)
-  const [sort, setSort] = useState<ListSortState<RedirectCol>>({
-    column: "from_path",
-    direction: "asc",
-  })
+type RedirectsListState = {
+  rows: RedirectDto[]
+  phase: "loading" | "ready" | "error"
+  message: string | null
+  fromPath: string
+  toPath: string
+  creating: boolean
+  sort: ListSortState<RedirectCol>
+}
+
+type RedirectsListAction =
+  | { type: "reloadStart" }
+  | { type: "reloadSuccess"; rows: RedirectDto[] }
+  | { type: "reloadError"; message: string }
+  | { type: "setMessage"; message: string | null }
+  | { type: "setFromPath"; value: string }
+  | { type: "setToPath"; value: string }
+  | { type: "createStart" }
+  | { type: "createFinish" }
+  | { type: "clearCreateForm" }
+  | { type: "cycleSort"; columnId: RedirectCol }
+
+const INITIAL_REDIRECTS_LIST_STATE: RedirectsListState = {
+  rows: [],
+  phase: "loading",
+  message: null,
+  fromPath: "",
+  toPath: "",
+  creating: false,
+  sort: { column: "from_path", direction: "asc" },
+}
+
+function redirectsListReducer(
+  state: RedirectsListState,
+  action: RedirectsListAction,
+): RedirectsListState {
+  switch (action.type) {
+    case "reloadStart":
+      return { ...state, phase: "loading", message: null }
+    case "reloadSuccess":
+      return { ...state, rows: action.rows, phase: "ready" }
+    case "reloadError":
+      return { ...state, phase: "error", message: action.message }
+    case "setMessage":
+      return { ...state, message: action.message }
+    case "setFromPath":
+      return { ...state, fromPath: action.value }
+    case "setToPath":
+      return { ...state, toPath: action.value }
+    case "createStart":
+      return { ...state, creating: true, message: null }
+    case "createFinish":
+      return { ...state, creating: false }
+    case "clearCreateForm":
+      return { ...state, fromPath: "", toPath: "" }
+    case "cycleSort": {
+      const { columnId } = action
+      const { sort } = state
+      if (sort.column !== columnId) {
+        return { ...state, sort: { column: columnId, direction: "asc" } }
+      }
+      if (sort.direction === "asc") {
+        return { ...state, sort: { column: columnId, direction: "desc" } }
+      }
+      return { ...state, sort: { column: null, direction: "none" } }
+    }
+    default:
+      return state
+  }
+}
+
+export function RedirectsListPage(): ReactNode {
+  const [state, dispatch] = useReducer(redirectsListReducer, INITIAL_REDIRECTS_LIST_STATE)
+  const { rows, phase, message, fromPath, toPath, creating, sort } = state
 
   const reload = useCallback(async (): Promise<void> => {
-    setPhase("loading")
-    setMessage(null)
+    dispatch({ type: "reloadStart" })
     try {
       const list = await listAdminRedirects()
-      setRows(list)
-      setPhase("ready")
+      dispatch({ type: "reloadSuccess", rows: list })
     } catch (err: unknown) {
-      setPhase("error")
-      setMessage(err instanceof Error ? err.message : "Failed to load redirects")
+      dispatch({
+        type: "reloadError",
+        message: err instanceof Error ? err.message : "Failed to load redirects",
+      })
     }
   }, [])
 
@@ -82,18 +145,10 @@ export function RedirectsListPage(): JSX.Element {
   }, [reload])
 
   const onRequestSort = (columnId: RedirectCol): void => {
-    setSort((prev) => {
-      if (prev.column !== columnId) {
-        return { column: columnId, direction: "asc" }
-      }
-      if (prev.direction === "asc") {
-        return { column: columnId, direction: "desc" }
-      }
-      return { column: null, direction: "none" }
-    })
+    dispatch({ type: "cycleSort", columnId })
   }
 
-  const sortedRows = [...rows].sort((a, b) => {
+  const sortedRows = rows.toSorted((a, b) => {
     const col = sort.column
     if (col === null || sort.direction === "none") {
       return 0
@@ -116,7 +171,10 @@ export function RedirectsListPage(): JSX.Element {
             await deleteAdminRedirect(row.id)
             await reload()
           } catch (err: unknown) {
-            setMessage(err instanceof Error ? err.message : "Delete failed")
+            dispatch({
+              type: "setMessage",
+              message: err instanceof Error ? err.message : "Delete failed",
+            })
           }
         })()
       },
@@ -125,17 +183,18 @@ export function RedirectsListPage(): JSX.Element {
 
   const handleCreate = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault()
-    setCreating(true)
-    setMessage(null)
+    dispatch({ type: "createStart" })
     try {
       await createAdminRedirect({ from_path: fromPath, to_path: toPath })
-      setFromPath("")
-      setToPath("")
+      dispatch({ type: "clearCreateForm" })
       await reload()
     } catch (err: unknown) {
-      setMessage(err instanceof Error ? err.message : "Create failed")
+      dispatch({
+        type: "setMessage",
+        message: err instanceof Error ? err.message : "Create failed",
+      })
     } finally {
-      setCreating(false)
+      dispatch({ type: "createFinish" })
     }
   }
 
@@ -154,7 +213,7 @@ export function RedirectsListPage(): JSX.Element {
               value={fromPath}
               placeholder="/old-product"
               disabled={creating}
-              onChange={(e) => setFromPath(e.target.value)}
+              onChange={(e) => dispatch({ type: "setFromPath", value: e.target.value })}
             />
           </FormField>
           <FormField label="Destination path" required>
@@ -162,7 +221,7 @@ export function RedirectsListPage(): JSX.Element {
               value={toPath}
               placeholder="/new-product"
               disabled={creating}
-              onChange={(e) => setToPath(e.target.value)}
+              onChange={(e) => dispatch({ type: "setToPath", value: e.target.value })}
             />
           </FormField>
           <div className="md:col-span-2">

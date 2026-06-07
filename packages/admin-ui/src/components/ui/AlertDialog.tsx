@@ -1,15 +1,14 @@
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog"
-import { forwardRef, type ComponentPropsWithoutRef, type HTMLAttributes } from "react"
+import { type ReactNode, forwardRef, type ComponentPropsWithoutRef, type HTMLAttributes } from "react"
 
 import { Button } from "@/components/ui/Button"
 import { ENTER_EASE, SHEET_OPEN_MS } from "@/constants/motion"
 import { cn } from "@/lib/cn"
 
 export const AlertDialog = AlertDialogPrimitive.Root
-export const AlertDialogTrigger = AlertDialogPrimitive.Trigger
-export const AlertDialogPortal = AlertDialogPrimitive.Portal
+const AlertDialogPortal = AlertDialogPrimitive.Portal
 
-export const AlertDialogOverlay = forwardRef<
+const AlertDialogOverlay = forwardRef<
   HTMLDivElement,
   ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Overlay>
 >(function AlertDialogOverlay({ className, ...rest }, ref) {
@@ -65,7 +64,7 @@ export const AlertDialogContent = forwardRef<
 export function AlertDialogHeader({
   className,
   ...rest
-}: HTMLAttributes<HTMLDivElement>): JSX.Element {
+}: HTMLAttributes<HTMLDivElement>): ReactNode {
   return (
     <div className={cn("border-b border-border-subtle px-4 py-3", className)} {...rest} />
   )
@@ -74,7 +73,7 @@ export function AlertDialogHeader({
 export function AlertDialogFooter({
   className,
   ...rest
-}: HTMLAttributes<HTMLDivElement>): JSX.Element {
+}: HTMLAttributes<HTMLDivElement>): ReactNode {
   return (
     <div
       className={cn(
@@ -120,17 +119,6 @@ export const AlertDialogCancel = forwardRef<
     <AlertDialogPrimitive.Cancel ref={ref} asChild>
       <Button variant="secondary" className={className} {...rest} />
     </AlertDialogPrimitive.Cancel>
-  )
-})
-
-export const AlertDialogAction = forwardRef<
-  HTMLButtonElement,
-  ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Action>
->(function AlertDialogAction({ className, ...rest }, ref) {
-  return (
-    <AlertDialogPrimitive.Action ref={ref} asChild>
-      <Button variant="primary" className={className} {...rest} />
-    </AlertDialogPrimitive.Action>
   )
 })
 

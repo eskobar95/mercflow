@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Card } from "@/components/ui/Card"
 import type { AdminCustomer } from "@/features/customers/customersAdminTypes"
 import {
@@ -11,7 +12,7 @@ type CustomerProfileCardProps = {
 
 export function CustomerProfileCard({
   customer,
-}: CustomerProfileCardProps): JSX.Element {
+}: CustomerProfileCardProps): ReactNode {
   const phoneLabel = customer.phone?.trim() === "" ? "—" : customer.phone ?? "—"
 
   return (

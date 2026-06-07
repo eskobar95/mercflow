@@ -108,25 +108,49 @@ export function useOrdersList({
             dateTo.trim() !== "" ? `${dateTo.trim()}T23:59:59.999Z` : undefined,
         }
         const merged: OrderListRow[] = []
-        let serverTotal: number | null = null
-        for (let offset = 0; offset < MAX_LOAD; offset += CHUNK_SIZE) {
-          const chunk = await fetchAdminOrdersList({
-            ...baseQuery,
-            limit: CHUNK_SIZE,
-            offset,
-          })
-          if (serverTotal === null && typeof chunk.count === "number") {
-            serverTotal = chunk.count
+        const firstChunk = await fetchAdminOrdersList({
+          ...baseQuery,
+          limit: CHUNK_SIZE,
+          offset: 0,
+        })
+        merged.push(...firstChunk.rows)
+
+        const serverTotal =
+          typeof firstChunk.count === "number" ? firstChunk.count : null
+        const targetCount = Math.min(serverTotal ?? MAX_LOAD, MAX_LOAD)
+
+        if (
+          firstChunk.rows.length === CHUNK_SIZE &&
+          merged.length < targetCount
+        ) {
+          const remainingOffsets: number[] = []
+          for (let offset = CHUNK_SIZE; offset < targetCount; offset += CHUNK_SIZE) {
+            remainingOffsets.push(offset)
           }
-          merged.push(...chunk.rows)
-          if (chunk.rows.length < CHUNK_SIZE) {
-            break
-          }
-          if (serverTotal !== null && merged.length >= serverTotal) {
-            break
-          }
-          if (merged.length >= MAX_LOAD) {
-            break
+
+          if (remainingOffsets.length > 0) {
+            const restChunks = await Promise.all(
+              remainingOffsets.map((offset) =>
+                fetchAdminOrdersList({
+                  ...baseQuery,
+                  limit: CHUNK_SIZE,
+                  offset,
+                }),
+              ),
+            )
+
+            for (const chunk of restChunks) {
+              merged.push(...chunk.rows)
+              if (chunk.rows.length < CHUNK_SIZE) {
+                break
+              }
+              if (serverTotal !== null && merged.length >= serverTotal) {
+                break
+              }
+              if (merged.length >= MAX_LOAD) {
+                break
+              }
+            }
           }
         }
         if (!cancelled) {

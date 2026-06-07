@@ -97,25 +97,3 @@ export async function postCreateFulfillmentShipment(
     throw new Error(await readMedusaAdminHttpErrorMessage(response))
   }
 }
-
-export async function postOrderAdminNote(orderId: string, value: string): Promise<void> {
-  const trimmed = value.trim()
-  if (trimmed === "") {
-    throw new Error("Note text cannot be empty")
-  }
-  const base = requireBackendBase()
-  const url = `${base}/admin/notes`
-  const response = await fetch(url, {
-    method: "POST",
-    credentials: "include",
-    headers: buildMedusaAdminJsonHeaders(),
-    body: JSON.stringify({
-      resource_id: orderId,
-      resource_type: "order",
-      value: trimmed,
-    }),
-  })
-  if (!response.ok) {
-    throw new Error(await readMedusaAdminHttpErrorMessage(response))
-  }
-}

@@ -56,11 +56,16 @@ export function useListFilters({
 
   const updateFilter = useCallback(
     (categoryId: string, patch: Partial<ActiveFilter>): void => {
-      setActiveFilters((prev) =>
-        prev
-          .map((f) => (f.categoryId === categoryId ? { ...f, ...patch } : f))
-          .filter((f) => f.valueIds.length > 0),
-      )
+      setActiveFilters((prev) => {
+        const next: ActiveFilter[] = []
+        for (const filter of prev) {
+          const updated = filter.categoryId === categoryId ? { ...filter, ...patch } : filter
+          if (updated.valueIds.length > 0) {
+            next.push(updated)
+          }
+        }
+        return next
+      })
       resetPage()
     },
     [resetPage],
@@ -74,9 +79,14 @@ export function useListFilters({
         const valueIds = existing.valueIds.includes(valueId)
           ? existing.valueIds.filter((v) => v !== valueId)
           : [...existing.valueIds, valueId]
-        return prev
-          .map((f) => (f.categoryId === categoryId ? { ...f, valueIds } : f))
-          .filter((f) => f.valueIds.length > 0)
+        const next: ActiveFilter[] = []
+        for (const filter of prev) {
+          const updated = filter.categoryId === categoryId ? { ...filter, valueIds } : filter
+          if (updated.valueIds.length > 0) {
+            next.push(updated)
+          }
+        }
+        return next
       })
       resetPage()
     },

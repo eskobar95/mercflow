@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Card } from "@/components/ui/Card"
 
 import type { OrderAddress } from "@/features/orders/orderTypes"
@@ -12,7 +13,7 @@ function formatStreet(addr: OrderAddress): string[] {
 
 export function OrderShippingAddressCard(props: {
   address: OrderAddress | null
-}): JSX.Element {
+}): ReactNode {
   const addr = props.address
   return (
     <Card>

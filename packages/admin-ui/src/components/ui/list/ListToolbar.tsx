@@ -17,7 +17,7 @@ export function ListToolbar({
   description,
   children,
   end,
-}: ListToolbarProps): JSX.Element {
+}: ListToolbarProps): ReactNode {
   return (
     <div className="border-b border-border-default bg-surface-raised">
       <div className="flex flex-col gap-3 px-6 py-4">
@@ -35,12 +35,9 @@ export function ListToolbar({
           {end ? <div className="shrink-0">{end}</div> : null}
         </div>
         {children ? (
-          <div
-            className="flex flex-wrap items-center gap-3 border-t border-border-subtle pt-3"
-            role="search"
-          >
+          <search className="flex flex-wrap items-center gap-3 border-t border-border-subtle pt-3">
             {children}
-          </div>
+          </search>
         ) : null}
       </div>
     </div>

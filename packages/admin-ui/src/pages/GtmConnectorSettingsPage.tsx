@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 
 import { GtmConnectorSettingsForm } from "@/components/connectors/GtmConnectorSettingsForm"
@@ -6,7 +7,7 @@ import { CONNECTOR_CATALOG } from "@/features/connectors/connectorsCatalog"
 /**
  * Settings route for configuring the Google Tag Manager container ID consumed by storefront code.
  */
-export function GtmConnectorSettingsPage(): JSX.Element {
+export function GtmConnectorSettingsPage(): ReactNode {
   return (
     <div className="p-6">
       <Link

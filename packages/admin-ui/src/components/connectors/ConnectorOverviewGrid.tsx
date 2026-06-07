@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import type { ConnectorListItemDto } from "@/features/connectors/types"
 
 import { ConnectorCard } from "./ConnectorCard"
@@ -11,7 +12,7 @@ type ConnectorOverviewGridProps = {
  */
 export function ConnectorOverviewGrid({
   connectors,
-}: ConnectorOverviewGridProps): JSX.Element {
+}: ConnectorOverviewGridProps): ReactNode {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       {connectors.map((item) => (

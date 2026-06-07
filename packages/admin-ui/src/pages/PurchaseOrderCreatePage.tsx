@@ -1,5 +1,5 @@
-import type { FormEvent, JSX } from "react"
-import { useCallback, useEffect, useState } from "react"
+import type { FormEvent } from "react"
+import { type ReactNode, useCallback, useEffect, useReducer } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
 import { Button } from "@/components/ui/Button"
@@ -13,43 +13,134 @@ import type { SupplierDto } from "@/features/inventory/types"
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
 type LineDraft = {
+  key: string
   variant_id: string
   ordered_qty: string
   unit_cost: string
 }
 
-const EMPTY_LINE: LineDraft = { variant_id: "", ordered_qty: "1", unit_cost: "0" }
+function createEmptyLine(): LineDraft {
+  return { key: crypto.randomUUID(), variant_id: "", ordered_qty: "1", unit_cost: "0" }
+}
 
-export function PurchaseOrderCreatePage(): JSX.Element {
+type PurchaseOrderCreateState = {
+  suppliers: SupplierDto[]
+  supplierId: string
+  expectedDate: string
+  reference: string
+  notes: string
+  lines: LineDraft[]
+  loadingSuppliers: boolean
+  saving: boolean
+  error: string | null
+}
+
+type PurchaseOrderCreateAction =
+  | { type: "setSupplierId"; value: string }
+  | { type: "setExpectedDate"; value: string }
+  | { type: "setReference"; value: string }
+  | { type: "setNotes"; value: string }
+  | { type: "updateLine"; index: number; patch: Partial<LineDraft> }
+  | { type: "addLine" }
+  | { type: "loadSuppliersStart" }
+  | { type: "loadSuppliersFinish" }
+  | { type: "loadSuppliersSuccess"; suppliers: SupplierDto[] }
+  | { type: "setError"; message: string | null }
+  | { type: "saveStart" }
+  | { type: "saveFinish" }
+
+const INITIAL_PURCHASE_ORDER_CREATE_STATE: PurchaseOrderCreateState = {
+  suppliers: [],
+  supplierId: "",
+  expectedDate: "",
+  reference: "",
+  notes: "",
+  lines: [createEmptyLine()],
+  loadingSuppliers: true,
+  saving: false,
+  error: null,
+}
+
+function purchaseOrderCreateReducer(
+  state: PurchaseOrderCreateState,
+  action: PurchaseOrderCreateAction,
+): PurchaseOrderCreateState {
+  switch (action.type) {
+    case "setSupplierId":
+      return { ...state, supplierId: action.value }
+    case "setExpectedDate":
+      return { ...state, expectedDate: action.value }
+    case "setReference":
+      return { ...state, reference: action.value }
+    case "setNotes":
+      return { ...state, notes: action.value }
+    case "updateLine": {
+      const next = [...state.lines]
+      const current = next[action.index]
+      if (current) {
+        next[action.index] = { ...current, ...action.patch }
+      }
+      return { ...state, lines: next }
+    }
+    case "addLine":
+      return { ...state, lines: [...state.lines, createEmptyLine()] }
+    case "loadSuppliersStart":
+      return { ...state, loadingSuppliers: true }
+    case "loadSuppliersFinish":
+      return { ...state, loadingSuppliers: false }
+    case "loadSuppliersSuccess":
+      return {
+        ...state,
+        suppliers: action.suppliers,
+        supplierId: action.suppliers[0]?.id ?? state.supplierId,
+      }
+    case "setError":
+      return { ...state, error: action.message }
+    case "saveStart":
+      return { ...state, saving: true, error: null }
+    case "saveFinish":
+      return { ...state, saving: false }
+    default:
+      return state
+  }
+}
+
+export function PurchaseOrderCreatePage(): ReactNode {
   const navigate = useNavigate()
   const hasBackend = resolveMedusaAdminBackendUrl() !== null
-  const [suppliers, setSuppliers] = useState<SupplierDto[]>([])
-  const [supplierId, setSupplierId] = useState("")
-  const [expectedDate, setExpectedDate] = useState("")
-  const [reference, setReference] = useState("")
-  const [notes, setNotes] = useState("")
-  const [lines, setLines] = useState<LineDraft[]>([{ ...EMPTY_LINE }])
-  const [loadingSuppliers, setLoadingSuppliers] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [state, dispatch] = useReducer(
+    purchaseOrderCreateReducer,
+    INITIAL_PURCHASE_ORDER_CREATE_STATE,
+  )
+  const {
+    suppliers,
+    supplierId,
+    expectedDate,
+    reference,
+    notes,
+    lines,
+    loadingSuppliers,
+    saving,
+    error,
+  } = state
 
   useEffect(() => {
     if (!hasBackend) {
-      setLoadingSuppliers(false)
+      dispatch({ type: "loadSuppliersFinish" })
       return
     }
     void (async (): Promise<void> => {
-      setLoadingSuppliers(true)
+      dispatch({ type: "loadSuppliersStart" })
       try {
         const rows = await listSuppliersAdmin()
-        setSuppliers(rows)
-        if (rows[0]) {
-          setSupplierId(rows[0].id)
-        }
+        dispatch({ type: "loadSuppliersSuccess", suppliers: rows })
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to load suppliers")
+        dispatch({
+          type: "setError",
+          message: e instanceof Error ? e.message : "Failed to load suppliers",
+        })
       } finally {
-        setLoadingSuppliers(false)
+        dispatch({ type: "loadSuppliersFinish" })
       }
     })()
   }, [hasBackend])
@@ -58,39 +149,47 @@ export function PurchaseOrderCreatePage(): JSX.Element {
     async (event: FormEvent): Promise<void> => {
       event.preventDefault()
       if (!hasBackend) {
-        setError("Backend URL is not configured")
+        dispatch({ type: "setError", message: "Backend URL is not configured" })
         return
       }
       if (supplierId === "") {
-        setError("Select a supplier")
+        dispatch({ type: "setError", message: "Select a supplier" })
         return
       }
-      const parsedLines = lines
-        .map((line) => ({
-          variant_id: line.variant_id.trim(),
+      const parsedLines: Array<{
+        variant_id: string
+        ordered_qty: number
+        unit_cost: number
+      }> = []
+      for (const line of lines) {
+        const variantId = line.variant_id.trim()
+        if (variantId.length === 0) {
+          continue
+        }
+        parsedLines.push({
+          variant_id: variantId,
           ordered_qty: Number.parseInt(line.ordered_qty, 10),
           unit_cost: Number.parseFloat(line.unit_cost),
-        }))
-        .filter((line) => line.variant_id.length > 0)
+        })
+      }
 
       if (parsedLines.length === 0) {
-        setError("Add at least one line with a variant id")
+        dispatch({ type: "setError", message: "Add at least one line with a variant id" })
         return
       }
 
       for (const line of parsedLines) {
         if (!Number.isFinite(line.ordered_qty) || line.ordered_qty < 1) {
-          setError("Ordered quantity must be a positive integer")
+          dispatch({ type: "setError", message: "Ordered quantity must be a positive integer" })
           return
         }
         if (!Number.isFinite(line.unit_cost) || line.unit_cost < 0) {
-          setError("Unit cost must be zero or greater")
+          dispatch({ type: "setError", message: "Unit cost must be zero or greater" })
           return
         }
       }
 
-      setSaving(true)
-      setError(null)
+      dispatch({ type: "saveStart" })
       try {
         const expectedIso =
           expectedDate.trim() === ""
@@ -105,9 +204,12 @@ export function PurchaseOrderCreatePage(): JSX.Element {
         })
         navigate("/inventory/purchase-orders")
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Create failed")
+        dispatch({
+          type: "setError",
+          message: e instanceof Error ? e.message : "Create failed",
+        })
       } finally {
-        setSaving(false)
+        dispatch({ type: "saveFinish" })
       }
     },
     [expectedDate, hasBackend, lines, navigate, notes, reference, supplierId]
@@ -145,7 +247,7 @@ export function PurchaseOrderCreatePage(): JSX.Element {
               id="po-supplier"
               className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 text-sm text-content-primary"
               value={supplierId}
-              onChange={(e) => setSupplierId(e.target.value)}
+              onChange={(e) => dispatch({ type: "setSupplierId", value: e.target.value })}
               required
             >
               {suppliers.map((s) => (
@@ -160,21 +262,21 @@ export function PurchaseOrderCreatePage(): JSX.Element {
               id="po-expected"
               type="datetime-local"
               value={expectedDate}
-              onChange={(e) => setExpectedDate(e.target.value)}
+              onChange={(e) => dispatch({ type: "setExpectedDate", value: e.target.value })}
             />
           </FormField>
           <FormField label="Reference" htmlFor="po-reference">
             <Input
               id="po-reference"
               value={reference}
-              onChange={(e) => setReference(e.target.value)}
+              onChange={(e) => dispatch({ type: "setReference", value: e.target.value })}
             />
           </FormField>
           <FormField label="Notes" htmlFor="po-notes">
             <Textarea
               id="po-notes"
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              onChange={(e) => dispatch({ type: "setNotes", value: e.target.value })}
               rows={3}
             />
           </FormField>
@@ -182,7 +284,7 @@ export function PurchaseOrderCreatePage(): JSX.Element {
             <p className="text-sm font-medium text-content-primary">Lines</p>
             {lines.map((line, index) => (
               <div
-                key={`line-${index}`}
+                key={line.key}
                 className="grid gap-3 rounded-lg border border-border-default p-4 sm:grid-cols-3"
               >
                 <FormField label="Variant id" htmlFor={`variant-${index}`}>
@@ -190,9 +292,11 @@ export function PurchaseOrderCreatePage(): JSX.Element {
                     id={`variant-${index}`}
                     value={line.variant_id}
                     onChange={(e) => {
-                      const next = [...lines]
-                      next[index] = { ...line, variant_id: e.target.value }
-                      setLines(next)
+                      dispatch({
+                        type: "updateLine",
+                        index,
+                        patch: { variant_id: e.target.value },
+                      })
                     }}
                   />
                 </FormField>
@@ -203,9 +307,11 @@ export function PurchaseOrderCreatePage(): JSX.Element {
                     min={1}
                     value={line.ordered_qty}
                     onChange={(e) => {
-                      const next = [...lines]
-                      next[index] = { ...line, ordered_qty: e.target.value }
-                      setLines(next)
+                      dispatch({
+                        type: "updateLine",
+                        index,
+                        patch: { ordered_qty: e.target.value },
+                      })
                     }}
                   />
                 </FormField>
@@ -217,9 +323,11 @@ export function PurchaseOrderCreatePage(): JSX.Element {
                     step="0.01"
                     value={line.unit_cost}
                     onChange={(e) => {
-                      const next = [...lines]
-                      next[index] = { ...line, unit_cost: e.target.value }
-                      setLines(next)
+                      dispatch({
+                        type: "updateLine",
+                        index,
+                        patch: { unit_cost: e.target.value },
+                      })
                     }}
                   />
                 </FormField>
@@ -228,7 +336,7 @@ export function PurchaseOrderCreatePage(): JSX.Element {
             <Button
               type="button"
               variant="secondary"
-              onClick={() => setLines((prev) => [...prev, { ...EMPTY_LINE }])}
+              onClick={() => dispatch({ type: "addLine" })}
             >
               Add line
             </Button>

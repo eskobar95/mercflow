@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { cn } from "@/lib/cn"
 
 type SpinnerProps = {
@@ -19,14 +20,14 @@ export function Spinner({
   size = "md",
   label = "Loading",
   className,
-}: SpinnerProps): JSX.Element {
+}: SpinnerProps): ReactNode {
   return (
-    <span
-      role="status"
+    <output
       aria-label={label}
       className={cn("inline-flex items-center justify-center", className)}
     >
       <span
+        aria-hidden
         className={cn(
           "animate-spin rounded-full border-border-subtle border-t-accent",
           sizeMap[size],
@@ -34,30 +35,6 @@ export function Spinner({
         )}
         style={{ animationDuration: "650ms" }}
       />
-    </span>
-  )
-}
-
-type LoadingOverlayProps = {
-  label?: string
-  className?: string
-}
-
-export function LoadingOverlay({
-  label = "Loading",
-  className,
-}: LoadingOverlayProps): JSX.Element {
-  return (
-    <div
-      className={cn(
-        "absolute inset-0 z-10 flex items-center justify-center bg-surface-default/80",
-        className,
-      )}
-      role="status"
-      aria-live="polite"
-      aria-label={label}
-    >
-      <Spinner size="lg" label={label} />
-    </div>
+    </output>
   )
 }

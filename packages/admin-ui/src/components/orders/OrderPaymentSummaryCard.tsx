@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Card } from "@/components/ui/Card"
 
 import { formatAdminCurrency } from "@/utils/formatAdminCurrency"
@@ -6,7 +7,7 @@ export function OrderPaymentSummaryCard(props: {
   currencyCode: string
   paymentStatus: string
   totalMinor: number
-}): JSX.Element {
+}): ReactNode {
   return (
     <Card>
       <h2 className="text-xs font-semibold uppercase tracking-wide text-content-tertiary">

@@ -1,4 +1,4 @@
-import type { JSX, ReactNode } from "react"
+import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 
 import { RowActionsMenu, type RowActionItem } from "@/components/ui/list/RowActionsMenu"
@@ -23,7 +23,7 @@ const headerCell =
   "px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-content-tertiary"
 const dataCell = "px-4 py-3 text-sm text-content-primary align-middle"
 
-export type ProductCategoryHierarchyTableProps = {
+type ProductCategoryHierarchyTableProps = {
   rows: AdminProductCategoryHierarchyRow[]
   isLoading?: boolean
   emptyState?: ReactNode
@@ -35,7 +35,7 @@ export function ProductCategoryHierarchyTable({
   isLoading = false,
   emptyState,
   getRowActions,
-}: ProductCategoryHierarchyTableProps): JSX.Element {
+}: ProductCategoryHierarchyTableProps): ReactNode {
   const hasActionsColumn = typeof getRowActions === "function"
   const coreColumns = 5
   const colCount = coreColumns + (hasActionsColumn ? 1 : 0)

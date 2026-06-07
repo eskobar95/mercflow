@@ -22,13 +22,6 @@ export const formHintClass = "text-xs leading-relaxed text-content-tertiary"
 /** Error message below fields. */
 export const formErrorClass = "text-xs text-feedback-danger-content"
 
-/** Card section title inside form panels. */
-export const sectionTitleClass =
-  "text-base font-semibold tracking-tight text-content-primary"
-
-/** Card section description. */
-export const sectionDescClass = "mt-1 text-sm text-content-secondary"
-
 const fieldTransition =
   "transition-[border-color,box-shadow,background-color] duration-150 motion-reduce:transition-none"
 
@@ -40,7 +33,7 @@ export const fieldFocusClass =
   "focus-visible:outline-none focus-visible:border-accent focus-visible:shadow-none"
 
 /** Focus for icon-only controls — subtle inset hairline, not a halo. */
-export const iconControlFocusClass =
+const iconControlFocusClass =
   "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-border-strong"
 
 /** Focus for push buttons — thin offset outline (keyboard only). */
@@ -54,7 +47,7 @@ export const buttonPrimaryFocusClass =
 /**
  * Base field surface — Stripe flat input on white panels.
  */
-export const fieldBaseClass = cn(
+const fieldBaseClass = cn(
   "w-full min-w-0 h-9 rounded-sm border bg-surface-default px-3 text-sm text-content-primary",
   "placeholder:text-content-tertiary",
   "hover:border-border-strong",

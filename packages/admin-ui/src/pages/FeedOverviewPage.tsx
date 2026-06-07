@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
+import { type ReactNode, useCallback, useEffect, useMemo, useReducer, type FormEvent } from "react"
 
 import { Button } from "@/components/ui/Button"
 import { Card } from "@/components/ui/Card"
@@ -86,55 +86,145 @@ function formatTimestamp(iso: string | null): string {
   }
 }
 
-export function FeedOverviewPage(): JSX.Element {
-  const [phase, setPhase] = useState<"loading" | "ready" | "error">("loading")
-  const [message, setMessage] = useState<string | null>(null)
-  const [config, setConfig] = useState<FeedConfigDto | null>(null)
-  const [overview, setOverview] = useState<FeedAdminOverviewDto | null>(null)
-  const [storefrontUrl, setStorefrontUrl] = useState("")
-  const [excludedProducts, setExcludedProducts] = useState("")
-  const [excludedCategories, setExcludedCategories] = useState("")
-  const [saving, setSaving] = useState(false)
-  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle")
-  const [validationRows, setValidationRows] = useState<FeedValidationIssueDto[]>([])
-  const [validationPhase, setValidationPhase] = useState<"loading" | "ready" | "error">(
-    "loading"
-  )
-  const [sort, setSort] = useState<ListSortState<ValidationCol>>({
-    column: "product",
-    direction: "asc",
-  })
+type FeedOverviewState = {
+  phase: "loading" | "ready" | "error"
+  message: string | null
+  config: FeedConfigDto | null
+  overview: FeedAdminOverviewDto | null
+  storefrontUrl: string
+  excludedProducts: string
+  excludedCategories: string
+  saving: boolean
+  copyState: "idle" | "copied" | "failed"
+  validationRows: FeedValidationIssueDto[]
+  validationPhase: "loading" | "ready" | "error"
+  sort: ListSortState<ValidationCol>
+}
+
+type FeedOverviewAction =
+  | { type: "reloadStart" }
+  | { type: "reloadSuccess"; payload: Pick<FeedOverviewState, "config" | "overview" | "storefrontUrl" | "excludedProducts" | "excludedCategories"> }
+  | { type: "reloadError"; message: string }
+  | { type: "setMessage"; message: string | null }
+  | { type: "setStorefrontUrl"; value: string }
+  | { type: "setExcludedProducts"; value: string }
+  | { type: "setExcludedCategories"; value: string }
+  | { type: "saveStart" }
+  | { type: "saveFinish" }
+  | { type: "saveSuccess"; config: FeedConfigDto | null; overview: FeedAdminOverviewDto | null }
+  | { type: "setCopyState"; value: FeedOverviewState["copyState"] }
+  | { type: "validationStart" }
+  | { type: "validationSuccess"; rows: FeedValidationIssueDto[] }
+  | { type: "validationError" }
+  | { type: "cycleSort"; columnId: ValidationCol }
+
+const INITIAL_FEED_OVERVIEW_STATE: FeedOverviewState = {
+  phase: "loading",
+  message: null,
+  config: null,
+  overview: null,
+  storefrontUrl: "",
+  excludedProducts: "",
+  excludedCategories: "",
+  saving: false,
+  copyState: "idle",
+  validationRows: [],
+  validationPhase: "loading",
+  sort: { column: "product", direction: "asc" },
+}
+
+function feedOverviewReducer(state: FeedOverviewState, action: FeedOverviewAction): FeedOverviewState {
+  switch (action.type) {
+    case "reloadStart":
+      return { ...state, phase: "loading", message: null }
+    case "reloadSuccess":
+      return { ...state, ...action.payload, phase: "ready" }
+    case "reloadError":
+      return { ...state, phase: "error", message: action.message }
+    case "setMessage":
+      return { ...state, message: action.message }
+    case "setStorefrontUrl":
+      return { ...state, storefrontUrl: action.value }
+    case "setExcludedProducts":
+      return { ...state, excludedProducts: action.value }
+    case "setExcludedCategories":
+      return { ...state, excludedCategories: action.value }
+    case "saveStart":
+      return { ...state, saving: true, message: null }
+    case "saveFinish":
+      return { ...state, saving: false }
+    case "saveSuccess":
+      return { ...state, config: action.config, overview: action.overview }
+    case "setCopyState":
+      return { ...state, copyState: action.value }
+    case "validationStart":
+      return { ...state, validationPhase: "loading" }
+    case "validationSuccess":
+      return { ...state, validationRows: action.rows, validationPhase: "ready" }
+    case "validationError":
+      return { ...state, validationRows: [], validationPhase: "error" }
+    case "cycleSort": {
+      const { columnId } = action
+      const { sort } = state
+      if (sort.column !== columnId) {
+        return { ...state, sort: { column: columnId, direction: "asc" } }
+      }
+      if (sort.direction === "asc") {
+        return { ...state, sort: { column: columnId, direction: "desc" } }
+      }
+      return { ...state, sort: { column: null, direction: "none" } }
+    }
+    default:
+      return state
+  }
+}
+
+export function FeedOverviewPage(): ReactNode {
+  const [state, dispatch] = useReducer(feedOverviewReducer, INITIAL_FEED_OVERVIEW_STATE)
+  const {
+    phase,
+    message,
+    config,
+    overview,
+    storefrontUrl,
+    excludedProducts,
+    excludedCategories,
+    saving,
+    copyState,
+    validationRows,
+    validationPhase,
+    sort,
+  } = state
 
   const reload = useCallback(async (): Promise<void> => {
-    setPhase("loading")
-    setMessage(null)
+    dispatch({ type: "reloadStart" })
     try {
       const payload = await getAdminFeedConfig()
-      setConfig(payload.feed_config)
-      setOverview(payload.overview)
-      setStorefrontUrl(payload.feed_config?.storefront_url ?? "")
-      setExcludedProducts(
-        formatIdLines(payload.feed_config?.excluded_product_ids ?? [])
-      )
-      setExcludedCategories(
-        formatIdLines(payload.feed_config?.excluded_category_ids ?? [])
-      )
-      setPhase("ready")
+      dispatch({
+        type: "reloadSuccess",
+        payload: {
+          config: payload.feed_config,
+          overview: payload.overview,
+          storefrontUrl: payload.feed_config?.storefront_url ?? "",
+          excludedProducts: formatIdLines(payload.feed_config?.excluded_product_ids ?? []),
+          excludedCategories: formatIdLines(payload.feed_config?.excluded_category_ids ?? []),
+        },
+      })
     } catch (err: unknown) {
-      setPhase("error")
-      setMessage(err instanceof Error ? err.message : "Failed to load feed settings")
+      dispatch({
+        type: "reloadError",
+        message: err instanceof Error ? err.message : "Failed to load feed settings",
+      })
     }
   }, [])
 
   const reloadValidation = useCallback(async (): Promise<void> => {
-    setValidationPhase("loading")
+    dispatch({ type: "validationStart" })
     try {
       const report = await getAdminFeedValidation()
-      setValidationRows(report.validation.issues)
-      setValidationPhase("ready")
+      dispatch({ type: "validationSuccess", rows: report.validation.issues })
     } catch {
-      setValidationRows([])
-      setValidationPhase("error")
+      dispatch({ type: "validationError" })
     }
   }, [])
 
@@ -150,7 +240,7 @@ export function FeedOverviewPage(): JSX.Element {
     }
     const def = VALIDATION_COLUMNS.find((c) => c.id === col)
     const dir = sort.direction === "asc" ? 1 : -1
-    return [...validationRows].sort((a, b) => {
+    return validationRows.toSorted((a, b) => {
       const av = def?.getSortValue?.(a) ?? ""
       const bv = def?.getSortValue?.(b) ?? ""
       return String(av).localeCompare(String(bv)) * dir
@@ -158,48 +248,45 @@ export function FeedOverviewPage(): JSX.Element {
   }, [validationRows, sort])
 
   const onRequestSort = (columnId: ValidationCol): void => {
-    setSort((prev) => {
-      if (prev.column !== columnId) {
-        return { column: columnId, direction: "asc" }
-      }
-      if (prev.direction === "asc") {
-        return { column: columnId, direction: "desc" }
-      }
-      return { column: null, direction: "none" }
-    })
+    dispatch({ type: "cycleSort", columnId })
   }
 
   const handleSave = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault()
-    setSaving(true)
-    setMessage(null)
+    dispatch({ type: "saveStart" })
     try {
       const payload = await putAdminFeedConfig({
         storefront_url: storefrontUrl.trim() === "" ? null : storefrontUrl.trim(),
         excluded_product_ids: parseIdLines(excludedProducts),
         excluded_category_ids: parseIdLines(excludedCategories),
       })
-      setConfig(payload.feed_config)
-      setOverview(payload.overview)
+      dispatch({
+        type: "saveSuccess",
+        config: payload.feed_config,
+        overview: payload.overview,
+      })
       await reloadValidation()
     } catch (err: unknown) {
-      setMessage(err instanceof Error ? err.message : "Failed to save feed settings")
+      dispatch({
+        type: "setMessage",
+        message: err instanceof Error ? err.message : "Failed to save feed settings",
+      })
     } finally {
-      setSaving(false)
+      dispatch({ type: "saveFinish" })
     }
   }
 
   const handleCopyFeedUrl = async (): Promise<void> => {
     const url = overview?.feed_url
     if (url === null || url === undefined || url === "") {
-      setCopyState("failed")
+      dispatch({ type: "setCopyState", value: "failed" })
       return
     }
     try {
       await navigator.clipboard.writeText(url)
-      setCopyState("copied")
+      dispatch({ type: "setCopyState", value: "copied" })
     } catch {
-      setCopyState("failed")
+      dispatch({ type: "setCopyState", value: "failed" })
     }
   }
 
@@ -291,7 +378,7 @@ export function FeedOverviewPage(): JSX.Element {
                   value={storefrontUrl}
                   placeholder="https://your-store.com"
                   disabled={saving || phase === "loading"}
-                  onChange={(e) => setStorefrontUrl(e.target.value)}
+                  onChange={(e) => dispatch({ type: "setStorefrontUrl", value: e.target.value })}
                 />
               </FormField>
               <FormField
@@ -302,7 +389,7 @@ export function FeedOverviewPage(): JSX.Element {
                   value={excludedProducts}
                   rows={4}
                   disabled={saving || phase === "loading"}
-                  onChange={(e) => setExcludedProducts(e.target.value)}
+                  onChange={(e) => dispatch({ type: "setExcludedProducts", value: e.target.value })}
                 />
               </FormField>
               <FormField
@@ -313,7 +400,7 @@ export function FeedOverviewPage(): JSX.Element {
                   value={excludedCategories}
                   rows={3}
                   disabled={saving || phase === "loading"}
-                  onChange={(e) => setExcludedCategories(e.target.value)}
+                  onChange={(e) => dispatch({ type: "setExcludedCategories", value: e.target.value })}
                 />
               </FormField>
               {config !== null ? (

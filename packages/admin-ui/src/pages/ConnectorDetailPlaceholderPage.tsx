@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Link, Navigate, useParams } from "react-router-dom"
 
 import { Card } from "@/components/ui/Card"
@@ -17,7 +18,7 @@ function parseConnectorSlugParam(raw: string | undefined): ConnectorSlug | null 
 /**
  * Sprint 3 replaces this placeholder with connector-specific forms; route exists so Configure links resolve.
  */
-export function ConnectorDetailPlaceholderPage(): JSX.Element {
+export function ConnectorDetailPlaceholderPage(): ReactNode {
   const { connectorType } = useParams<{ connectorType: string }>()
   const slug = parseConnectorSlugParam(connectorType)
 

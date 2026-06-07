@@ -27,7 +27,7 @@ export function ProductCardGrid({ rows, selection }: ProductCardGridProps): Reac
   }
 
   return (
-    <ul className="divide-y divide-border-subtle" role="list">
+    <ul className="divide-y divide-border-subtle">
       {rows.map((row) => {
         const date = new Date(row.updatedAt).toLocaleDateString(undefined, {
           month: "short",

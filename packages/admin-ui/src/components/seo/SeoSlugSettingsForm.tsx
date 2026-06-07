@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react"
+import { type ReactNode, useEffect, useMemo, useState, type FormEvent } from "react"
 import { slugifyForStrategy } from "@mercflow/seo-module/slug"
 
 import { Button } from "@/components/ui/Button"
@@ -9,7 +9,7 @@ import { Spinner } from "@/components/ui/Spinner"
 import type { SlugStrategy } from "@/features/seo/types"
 import { useSeoSlugSettings } from "@/hooks/useSeoSlugSettings"
 
-export function SeoSlugSettingsForm(): JSX.Element {
+export function SeoSlugSettingsForm(): ReactNode {
   const { state, reload, save } = useSeoSlugSettings()
   const [strategy, setStrategy] = useState<SlugStrategy>("nordic")
   const [previewTitle, setPreviewTitle] = useState("Rødgrød med fløde")
@@ -65,12 +65,9 @@ export function SeoSlugSettingsForm(): JSX.Element {
   return (
     <form className="space-y-6" onSubmit={(e) => void handleSubmit(e)} noValidate>
       {saveSucceeded ? (
-        <div
-          role="status"
-          className="rounded-lg border border-border-subtle bg-surface-subtle p-3 text-sm text-content-secondary"
-        >
+        <output className="block rounded-lg border border-border-subtle bg-surface-subtle p-3 text-sm text-content-secondary">
           Slug strategy saved. New product and category handles will use this ruleset.
-        </div>
+        </output>
       ) : null}
       {errorMessage !== null ? (
         <div

@@ -34,7 +34,7 @@ export type StripePaymentOverviewDto = {
   createdEpoch: number
 }
 
-export type StripeConnectorPatchInput = Partial<{
+type StripeConnectorPatchInput = Partial<{
   secret_key: string
   publishable_key: string
   webhook_secret: string
@@ -60,7 +60,7 @@ function parseStripeVat(raw: unknown): StripeVatMode {
   return raw === "exclusive" ? "exclusive" : "inclusive"
 }
 
-export function parseStripeConnectorDetail(payload: unknown): StripeConnectorDetailDto | null {
+function parseStripeConnectorDetail(payload: unknown): StripeConnectorDetailDto | null {
   if (!isRecord(payload)) return null
   const dataUnknown = payload["data"]
   if (!isRecord(dataUnknown)) return null
@@ -78,7 +78,7 @@ export function parseStripeConnectorDetail(payload: unknown): StripeConnectorDet
   }
 }
 
-export function parseStripePaymentsPayload(payload: unknown): StripePaymentOverviewDto[] | null {
+function parseStripePaymentsPayload(payload: unknown): StripePaymentOverviewDto[] | null {
   if (!isRecord(payload)) return null
   const dataUnknown = payload["data"]
   if (!isRecord(dataUnknown)) return null

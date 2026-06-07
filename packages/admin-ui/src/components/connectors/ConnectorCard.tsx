@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 
 import { Card } from "@/components/ui/Card"
@@ -14,7 +15,7 @@ type ConnectorCardProps = {
   item: ConnectorListItemDto
 }
 
-export function ConnectorCard({ item }: ConnectorCardProps): JSX.Element {
+export function ConnectorCard({ item }: ConnectorCardProps): ReactNode {
   const catalog = CONNECTOR_CATALOG[item.type]
   const displayStatus = resolveConnectorDisplayStatus(item)
 

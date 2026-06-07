@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 
 import { ConnectorOverviewGrid } from "@/components/connectors/ConnectorOverviewGrid"
@@ -6,7 +7,7 @@ import { useAdminConnectors } from "@/hooks/useAdminConnectors"
 /**
  * Settings → Connectors overview (live data from `GET /admin/connectors`).
  */
-export function ConnectorsPage(): JSX.Element {
+export function ConnectorsPage(): ReactNode {
   const state = useAdminConnectors()
 
   return (

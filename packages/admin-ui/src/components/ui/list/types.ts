@@ -18,7 +18,7 @@ export type ListSortDirection = "asc" | "desc" | "none"
  */
 export type ListSkeletonVariant = "thumbnail" | "twoLine" | "pill" | "number" | "text"
 
-export type ListColumnAlign = "left" | "right"
+type ListColumnAlign = "left" | "right"
 
 /**
  * Minimal column shape the loading skeleton needs: width + responsive floor +

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { BrandAvatar } from "@/components/ui/BrandAvatar"
 import { IconSearch } from "@/components/ui/icons"
 
@@ -47,7 +48,7 @@ export function TopBar({
   title,
   onToggleMobileMenu,
   mobileMenuOpen = false,
-}: TopBarProps): JSX.Element {
+}: TopBarProps): ReactNode {
   const { titleBadge, toolbar, actions } = usePageChromeValue()
 
   return (

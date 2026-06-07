@@ -1,6 +1,6 @@
 import type { JSONContent } from "@tiptap/core"
-import type { JSX } from "react"
-import { useCallback, useEffect, useId, useState } from "react"
+import type { ReactNode } from "react"
+import { useCallback, useEffect, useId, useReducer, useRef } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
 
 import { Button } from "@/components/ui/Button"
@@ -35,10 +35,82 @@ function toDatetimeLocalValue(iso: string | null): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
-export function ArticleEditPage(): JSX.Element {
+type ArticleEditState = {
+  loadError: string | null
+  saveError: string | null
+  deleteError: string | null
+  isLoading: boolean
+  isSaving: boolean
+  isDeleting: boolean
+  title: string
+  slug: string
+  body: JSONContent
+  status: ArticleStatus
+  publishedLocal: string
+}
+
+type ArticleEditAction =
+  | { type: "loadIdle" }
+  | { type: "loadStart" }
+  | { type: "loadSuccess"; payload: Omit<ArticleEditState, "loadError" | "saveError" | "deleteError" | "isLoading" | "isSaving" | "isDeleting"> }
+  | { type: "loadError"; message: string }
+  | { type: "loadFinish" }
+  | { type: "setTitle"; value: string }
+  | { type: "setSlug"; value: string }
+  | { type: "setBody"; value: JSONContent }
+  | { type: "setStatus"; value: ArticleStatus }
+  | { type: "setPublishedLocal"; value: string }
+  | { type: "saveStart" }
+  | { type: "saveError"; message: string }
+  | { type: "saveFinish" }
+  | { type: "deleteStart" }
+  | { type: "deleteError"; message: string }
+  | { type: "deleteFinish" }
+
+function articleEditReducer(state: ArticleEditState, action: ArticleEditAction): ArticleEditState {
+  switch (action.type) {
+    case "loadIdle":
+      return { ...state, isLoading: false }
+    case "loadStart":
+      return { ...state, isLoading: true, loadError: null }
+    case "loadSuccess":
+      return { ...state, ...action.payload, loadError: null }
+    case "loadError":
+      return { ...state, loadError: action.message }
+    case "loadFinish":
+      return { ...state, isLoading: false }
+    case "setTitle":
+      return { ...state, title: action.value }
+    case "setSlug":
+      return { ...state, slug: action.value }
+    case "setBody":
+      return { ...state, body: action.value }
+    case "setStatus":
+      return { ...state, status: action.value }
+    case "setPublishedLocal":
+      return { ...state, publishedLocal: action.value }
+    case "saveStart":
+      return { ...state, saveError: null, isSaving: true }
+    case "saveError":
+      return { ...state, saveError: action.message, isSaving: false }
+    case "saveFinish":
+      return { ...state, isSaving: false }
+    case "deleteStart":
+      return { ...state, deleteError: null, isDeleting: true }
+    case "deleteError":
+      return { ...state, deleteError: action.message, isDeleting: false }
+    case "deleteFinish":
+      return { ...state, isDeleting: false }
+    default:
+      return state
+  }
+}
+
+export function ArticleEditPage(): ReactNode {
   const { articleId } = useParams<{ articleId: string }>()
   const navigate = useNavigate()
   const hasBackendConfiguration = resolveMedusaAdminBackendUrl() !== null
+  const slugManualRef = useRef(false)
 
   const titleFieldId = useId()
   const slugFieldId = useId()
@@ -47,45 +119,62 @@ export function ArticleEditPage(): JSX.Element {
 
   const isNew = articleId === "new"
 
-  const [loadError, setLoadError] = useState<string | null>(null)
-  const [saveError, setSaveError] = useState<string | null>(null)
-  const [deleteError, setDeleteError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(!isNew)
-  const [isSaving, setIsSaving] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
+  const [state, dispatch] = useReducer(articleEditReducer, {
+    loadError: null,
+    saveError: null,
+    deleteError: null,
+    isLoading: !isNew,
+    isSaving: false,
+    isDeleting: false,
+    title: "",
+    slug: "",
+    body: tiptapDocFromUnknown(null),
+    status: "draft",
+    publishedLocal: "",
+  })
 
-  const [title, setTitle] = useState("")
-  const [slug, setSlug] = useState("")
-  const [slugManual, setSlugManual] = useState(false)
-  const [body, setBody] = useState<JSONContent>(tiptapDocFromUnknown(null))
-  const [status, setStatus] = useState<ArticleStatus>("draft")
-  const [publishedLocal, setPublishedLocal] = useState("")
+  const {
+    loadError,
+    saveError,
+    deleteError,
+    isLoading,
+    isSaving,
+    isDeleting,
+    title,
+    slug,
+    body,
+    status,
+    publishedLocal,
+  } = state
 
-  useEffect(() => {
-    if (!slugManual) {
-      setSlug(slugifyTitleToArticleSegment(title))
-    }
-  }, [title, slugManual])
+  const displaySlug = slugManualRef.current ? slug : slugifyTitleToArticleSegment(title)
 
   const load = useCallback(async (): Promise<void> => {
     if (!hasBackendConfiguration || isNew || !articleId) {
-      setIsLoading(false)
+      dispatch({ type: "loadIdle" })
       return
     }
-    setIsLoading(true)
-    setLoadError(null)
+    dispatch({ type: "loadStart" })
     try {
       const row = await getArticleAdmin(articleId)
-      setTitle(row.title)
-      setSlug(row.slug)
-      setSlugManual(true)
-      setBody(tiptapDocFromUnknown(row.body_json))
-      setStatus(row.status)
-      setPublishedLocal(toDatetimeLocalValue(row.published_at))
+      slugManualRef.current = true
+      dispatch({
+        type: "loadSuccess",
+        payload: {
+          title: row.title,
+          slug: row.slug,
+          body: tiptapDocFromUnknown(row.body_json),
+          status: row.status,
+          publishedLocal: toDatetimeLocalValue(row.published_at),
+        },
+      })
     } catch (e) {
-      setLoadError(e instanceof Error ? e.message : "Failed to load article")
+      dispatch({
+        type: "loadError",
+        message: e instanceof Error ? e.message : "Failed to load article",
+      })
     } finally {
-      setIsLoading(false)
+      dispatch({ type: "loadFinish" })
     }
   }, [articleId, hasBackendConfiguration, isNew])
 
@@ -97,8 +186,7 @@ export function ArticleEditPage(): JSX.Element {
     if (!hasBackendConfiguration) {
       return
     }
-    setSaveError(null)
-    setIsSaving(true)
+    dispatch({ type: "saveStart" })
     try {
       const publishedAtIso =
         status === "published"
@@ -109,7 +197,7 @@ export function ArticleEditPage(): JSX.Element {
 
       const payload = {
         title: title.trim(),
-        slug: slug.trim() === "" ? null : slug.trim(),
+        slug: displaySlug.trim() === "" ? null : displaySlug.trim(),
         body_json: body,
         locale: DEFAULT_ARTICLE_LOCALE,
         status,
@@ -121,26 +209,29 @@ export function ArticleEditPage(): JSX.Element {
         navigate(`/content/articles/${encodeURIComponent(created.id)}`, { replace: true })
       } else {
         if (!articleId) {
-          setSaveError("Missing article id")
+          dispatch({ type: "saveError", message: "Missing article id" })
           return
         }
         await updateArticleAdmin(articleId, payload)
         await load()
       }
     } catch (e) {
-      setSaveError(e instanceof Error ? e.message : "Save failed")
+      dispatch({
+        type: "saveError",
+        message: e instanceof Error ? e.message : "Save failed",
+      })
     } finally {
-      setIsSaving(false)
+      dispatch({ type: "saveFinish" })
     }
   }, [
     articleId,
     body,
+    displaySlug,
     hasBackendConfiguration,
     isNew,
     load,
     navigate,
     publishedLocal,
-    slug,
     status,
     title,
   ])
@@ -152,15 +243,17 @@ export function ArticleEditPage(): JSX.Element {
     if (!window.confirm("Delete this article? This can be restored only from the database.")) {
       return
     }
-    setDeleteError(null)
-    setIsDeleting(true)
+    dispatch({ type: "deleteStart" })
     try {
       await deleteArticleAdmin(articleId)
       navigate("/content/articles")
     } catch (e) {
-      setDeleteError(e instanceof Error ? e.message : "Delete failed")
+      dispatch({
+        type: "deleteError",
+        message: e instanceof Error ? e.message : "Delete failed",
+      })
     } finally {
-      setIsDeleting(false)
+      dispatch({ type: "deleteFinish" })
     }
   }, [articleId, isNew, navigate])
 
@@ -232,7 +325,7 @@ export function ArticleEditPage(): JSX.Element {
             id={titleFieldId}
             value={title}
             onChange={(e) => {
-              setTitle(e.target.value)
+              dispatch({ type: "setTitle", value: e.target.value })
             }}
             autoComplete="off"
           />
@@ -242,10 +335,10 @@ export function ArticleEditPage(): JSX.Element {
           <Label htmlFor={slugFieldId}>Slug</Label>
           <Input
             id={slugFieldId}
-            value={slug}
+            value={displaySlug}
             onChange={(e) => {
-              setSlugManual(true)
-              setSlug(e.target.value)
+              slugManualRef.current = true
+              dispatch({ type: "setSlug", value: e.target.value })
             }}
             autoComplete="off"
           />
@@ -257,14 +350,19 @@ export function ArticleEditPage(): JSX.Element {
 
         <div className="space-y-2">
           <Label>Body</Label>
-          <RichTextEditor value={body} onChange={setBody} />
+          <RichTextEditor
+            value={body}
+            onChange={(value) => {
+              dispatch({ type: "setBody", value })
+            }}
+          />
         </div>
 
         <Switch
           id={statusSwitchId}
           checked={status === "published"}
           onCheckedChange={(checked) => {
-            setStatus(checked ? "published" : "draft")
+            dispatch({ type: "setStatus", value: checked ? "published" : "draft" })
           }}
           label={status === "published" ? "Published" : "Draft"}
         />
@@ -277,7 +375,7 @@ export function ArticleEditPage(): JSX.Element {
               type="datetime-local"
               value={publishedLocal}
               onChange={(e) => {
-                setPublishedLocal(e.target.value)
+                dispatch({ type: "setPublishedLocal", value: e.target.value })
               }}
             />
             <p className="text-xs text-text-secondary">

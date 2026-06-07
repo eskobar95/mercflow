@@ -3,7 +3,7 @@ import type { SelectOption } from "@/components/ui/Select"
 import type { AdminProductCategoryHierarchyRow } from "./types"
 
 /** Radix Select value meaning “no parent” (must not collide with Medusa IDs). */
-export const PARENT_CATEGORY_NONE_VALUE = "__mercflow_parent_none__"
+const PARENT_CATEGORY_NONE_VALUE = "__mercflow_parent_none__"
 
 export function parentCategoryIdToSelectValue(parentId: string | null): string {
   return parentId ?? PARENT_CATEGORY_NONE_VALUE
@@ -22,12 +22,16 @@ export function buildParentCategorySelectOptions(
     label: "No parent (top-level)",
   }
 
-  const rest: SelectOption[] = hierarchyRows
-    .filter((r) => !excludedIds.has(r.id))
-    .map((r) => ({
-      value: r.id,
-      label: `${"— ".repeat(r.depth)}${r.name}`,
-    }))
+  const rest: SelectOption[] = []
+  for (const row of hierarchyRows) {
+    if (excludedIds.has(row.id)) {
+      continue
+    }
+    rest.push({
+      value: row.id,
+      label: `${"— ".repeat(row.depth)}${row.name}`,
+    })
+  }
 
   return [base, ...rest]
 }

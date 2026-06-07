@@ -19,7 +19,7 @@ export type CmsPageAdminRow = {
   updated_at?: string
 }
 
-export type CmsPageCreateBody = {
+type CmsPageCreateBody = {
   title: string
   slug: string
   page_type: CmsPageType
@@ -27,7 +27,7 @@ export type CmsPageCreateBody = {
   locale: string
 }
 
-export type CmsPagePatchBody = Partial<{
+type CmsPagePatchBody = Partial<{
   title: string
   slug: string
   page_type: CmsPageType

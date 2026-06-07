@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn"
 import { transitionShadowEnter } from "@/lib/motionClasses"
 
 /** Id of the AdminShell scroll container the sticky footer reacts to. */
-export const MAIN_CONTENT_SCROLL_ID = "main-content"
+const MAIN_CONTENT_SCROLL_ID = "main-content"
 
 type ListPageShellProps = {
   /** Filter / sort controls — duplicated on mobile below the TopBar. */

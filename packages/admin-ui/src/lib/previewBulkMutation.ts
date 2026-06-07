@@ -5,7 +5,7 @@ type ToastFn = (options: {
   variant?: "default" | "error"
 }) => void
 
-export type PreviewBulkMutationArgs = {
+type PreviewBulkMutationArgs = {
   toast: ToastFn
   count: number
   /** Singular noun, e.g. "product". */

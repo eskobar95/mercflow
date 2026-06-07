@@ -1,7 +1,7 @@
 import { cn } from "@/lib/cn"
 
 /** Shared transition class fragments backed by design-token motion utilities. */
-export const transitionEnter =
+const transitionEnter =
   "duration-page ease-enter motion-reduce:transition-none"
 
 export const transitionOpacityEnter = cn(

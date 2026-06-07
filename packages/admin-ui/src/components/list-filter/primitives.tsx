@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu"
-import { IconCheck, IconChevronDown } from "@/components/ui/icons"
+import { IconCheck } from "@/components/ui/icons"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover"
 import { cn } from "@/lib/cn"
 
@@ -154,5 +154,3 @@ export function ValuePickerPopover({
     </Popover>
   )
 }
-
-export { IconChevronDown }

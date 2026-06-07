@@ -12,7 +12,7 @@ type DetailState =
   | { status: "not_found" }
   | { status: "success"; category: AdminProductCategoryParsed }
 
-export type UseAdminProductCategoryDetailResult = {
+type UseAdminProductCategoryDetailResult = {
   state: DetailState
   reload: () => Promise<void>
 }

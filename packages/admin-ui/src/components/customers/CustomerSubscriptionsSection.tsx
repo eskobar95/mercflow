@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Card } from "@/components/ui/Card"
 import { SubscriptionsTable } from "@/components/subscriptions"
 import { useCustomerSubscriptionsSection } from "@/features/subscriptions"
@@ -11,10 +12,10 @@ type CustomerSubscriptionsSectionProps = {
  */
 export function CustomerSubscriptionsSection({
   customerId,
-}: CustomerSubscriptionsSectionProps): JSX.Element {
+}: CustomerSubscriptionsSectionProps): ReactNode {
   const { data, loading, errorMessage } = useCustomerSubscriptionsSection(customerId)
 
-  let body: JSX.Element
+  let body: ReactNode
 
   if (errorMessage !== null) {
     body = (

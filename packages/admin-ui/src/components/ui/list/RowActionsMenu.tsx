@@ -34,7 +34,7 @@ export function RowActionsMenu({
   items,
   "aria-label": ariaLabel,
   trigger = defaultTrigger,
-}: RowActionsMenuProps): JSX.Element {
+}: RowActionsMenuProps): ReactNode {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

@@ -39,7 +39,7 @@ export type RobotsRuleDto = {
   disallow: string[]
 }
 
-export type RobotsChangeEntryDto = {
+type RobotsChangeEntryDto = {
   changed_at: string
   summary: string
 }

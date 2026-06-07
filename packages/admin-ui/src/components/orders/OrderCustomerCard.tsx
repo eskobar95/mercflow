@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Card } from "@/components/ui/Card"
 
 import type { OrderDetail } from "@/features/orders/orderTypes"
@@ -9,7 +10,7 @@ function formatPersonName(customer: NonNullable<OrderDetail["customer"]>): strin
   return parts.join(" ").trim() || "—"
 }
 
-export function OrderCustomerCard(props: { detail: OrderDetail }): JSX.Element {
+export function OrderCustomerCard(props: { detail: OrderDetail }): ReactNode {
   const c = props.detail.customer
   const custEmail =
     c !== null && typeof c.email === "string" && c.email.trim() !== "" ? c.email : null
