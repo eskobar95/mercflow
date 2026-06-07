@@ -17,6 +17,7 @@ alwaysApply: true
 - Prefer `type` over `interface` for data shapes. Use `interface` only when extension via `extends` is the intent.
 - All functions must have explicit return types unless the type is trivially inferred (e.g., a one-liner arrow function returning a primitive).
 - No barrel re-exports at the top level of a package unless explicitly needed for the public API (`index.ts`).
+- Never create `index.ts` files inside component subdirectories that simply re-export siblings for internal use. Import directly from the source file. These shims are flagged as unused files by React Doctor and add indirection with no benefit.
 
 ### Imports
 
@@ -225,10 +226,14 @@ Anything the reviewer should be aware of (edge cases, follow-up work, known limi
 - [ ] `pnpm typecheck` passes — no new errors
 - [ ] `pnpm lint` passes — no new errors
 - [ ] `pnpm test` passes — no new failures
+- [ ] `pnpm react-doctor:admin-ui` — 0 issues (100/100) for any admin-ui work
+- [ ] `pnpm react-doctor:admin-ui:ci` (diff vs `development`) — 0 issues — matches what CI runs
 - [ ] No `console.log` or debug statements left in
 - [ ] Commit messages follow conventional commits format
 - [ ] PR description (`.github/pull_request_template.md`) filled out
 - [ ] No unrelated changes included
+
+> **Note:** Never use `pnpm doctor` — that is pnpm's own dependency doctor and unrelated to React Doctor.
 
 **Security (non-negotiable)**
 - [ ] `pnpm audit --audit-level=high` — no unaddressed HIGH/CRITICAL CVEs
@@ -349,6 +354,18 @@ This provides full traceability without requiring the agent to stop and ask for 
 ### Production / staging
 
 Never run or generate migrations targeting a production or staging database without explicit written instruction from the user in the current task. If the agent is unsure which environment it is targeting, it must stop and ask before proceeding.
+
+---
+
+## React Component Size
+
+Exported React component functions must not exceed ~200 lines. If a component grows beyond this, split it by pulling each logical section into its own named component in a **separate file** in the same directory — never as an inline function inside the parent file (that would trigger `no-multi-comp`).
+
+Examples of good splits:
+- `ProductContentTab.tsx` → `ProductContentTabForm.tsx`, `ProductContentSeoSection.tsx`, `ProductContentTabStatusViews.tsx`
+- `InventoryOverviewPage.tsx` → `InventoryOverviewFilters.tsx`, `InventoryMovementSheet.tsx`, `useInventoryOverviewPage.ts`
+
+The split files are co-located; no barrel `index.ts` is created for them.
 
 ---
 

@@ -26,6 +26,7 @@
 - Prefer `type` for data shapes. Use `interface` only when extension through `extends` is intended.
 - Give functions explicit return types unless the type is trivially inferred from a one-line primitive return.
 - Avoid top-level barrel re-exports unless they are required for a package public API.
+- Never create `index.ts` files inside component subdirectories that only re-export siblings for internal use — import directly from the source file. These shims become unused-file warnings in React Doctor.
 - Order imports as Node built-ins, third-party packages, internal workspace packages, then relative imports, with a blank line between groups.
 - Prefer configured path aliases over deep relative imports.
 - Use PascalCase for component files and React components, camelCase for hooks/utilities, SCREAMING_SNAKE_CASE for constants, and snake_case for database columns and API route parameters.
@@ -40,6 +41,28 @@
 - Page-level components compose feature components and delegate business logic to hooks.
 - Always handle loading and error states explicitly. Do not silently render nothing on errors.
 - Interactive UI must be keyboard accessible, use semantic HTML, associate labels with form inputs, and avoid using color as the only way to convey information.
+
+### Prop-sync pattern (`useAdjustStateWhenKeyChanges`)
+
+Never use `useEffect` to sync derived local state from a prop. Use the canonical helpers in `src/lib/react/useAdjustStateWhenKeyChanges.ts`:
+
+```ts
+// Reset state when a single key changes (e.g. route key, entity id)
+useAdjustStateWhenKeyChanges(key, () => setState(initialValue))
+
+// Reset state when a snapshot of multiple values changes
+useAdjustStateWhenSnapshotChanges([dep1, dep2], () => setState(derived))
+```
+
+These must remain `use*` hooks (they call `useRef` internally). React Doctor flags plain functions that call `useRef` as "hook called conditionally". Do not rename them to non-hook identifiers.
+
+### Animation `will-change`
+
+Do not set `will-change: transform` (or any property) permanently on an element. Add it immediately before the animation starts and remove it in `onTransitionEnd` or `onAnimationEnd`. Permanent `will-change` wastes GPU memory and is flagged by React Doctor.
+
+### React component size
+
+Exported component functions in `admin-ui` must not exceed ~200 lines. Split by logical section into co-located files. No barrel `index.ts` for the splits. See `conventions.mdc → React Component Size` for examples.
 
 ## Navigation and list views
 
@@ -103,7 +126,7 @@
 - Run the most relevant available validation for changed code: typecheck, tests, lint, build, migration commands, or local browser smoke checks depending on the touched area.
 - After substantive edits, check diagnostics for recently edited files and fix introduced issues when the fix is clear.
 - Validate database and backend work against local PostgreSQL, not production or staging.
-- For admin UI work, verify accessibility basics, loading states, error states, and token-backed styling.
+- For admin UI work, verify accessibility basics, loading states, error states, and token-backed styling. Also run `pnpm react-doctor:admin-ui` and fix all reported issues before committing — target 0 issues (100/100). Use `pnpm react-doctor:admin-ui:ci` (diff mode) to see only what the PR introduces. Never use `pnpm doctor` — that is pnpm's own command.
 - For content module work, verify model definitions, migration behavior, service validation, API validation, and README accuracy.
 - For SEO and feed work, verify public route output, content types, slug behavior, redirect behavior, XML validity, validation reports, and caching/regeneration behavior where implemented.
 - For inventory, purchase order, and order-extension work, verify status transitions, receipt calculations, incoming quantities, internal-note behavior, and the boundary between MercFlow records and Medusa stock/order data.
