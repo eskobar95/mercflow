@@ -7,7 +7,7 @@ import {
 
 import type { GtmConnectorAdminDto } from "./types"
 
-export function parseGtmAdminResponsePayload(
+function parseGtmAdminResponsePayload(
   json: unknown
 ): GtmConnectorAdminDto | null {
   if (typeof json !== "object" || json === null || !("container_id" in json)) {

@@ -90,7 +90,7 @@ export async function getStoreDefaultCurrencyCode(
   }
 }
 
-export type ListCustomersArgs = {
+type ListCustomersArgs = {
   readonly q?: string
   readonly limit: number
   readonly offset: number
@@ -159,7 +159,7 @@ type FetchOrdersArgs = {
   readonly signal?: AbortSignal
 }
 
-export async function fetchOrdersPage(args: FetchOrdersArgs): Promise<AdminOrderLite[]> {
+async function fetchOrdersPage(args: FetchOrdersArgs): Promise<AdminOrderLite[]> {
   const base = await guardBackendBase()
   const params = new URLSearchParams()
   params.set("customer_id", args.customerId)

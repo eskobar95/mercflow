@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
+import { useAdjustStateWhenKeyChanges } from "@/lib/react/useAdjustStateWhenKeyChanges"
 
 import {
   CustomersAdminConfigError,
@@ -45,7 +46,7 @@ export function useCustomerWorkspace(
     })
   }
 
-  useEffect(() => {
+  useAdjustStateWhenKeyChanges(customerId ?? null, () => {
     if (!customerId) {
       setPhase("idle")
       setCustomer(null)
@@ -56,8 +57,6 @@ export function useCustomerWorkspace(
       return
     }
 
-    const scopedCustomerId = customerId
-
     if (!hasBackendConfiguration) {
       setPhase("error")
       setErrorMessage(
@@ -67,26 +66,40 @@ export function useCustomerWorkspace(
       setRecentOrders([])
       setSpendSummary(null)
       setLifetimeValueDisplayCurrency("usd")
+    }
+  })
+
+  useEffect(() => {
+    if (!customerId) {
+      return
+    }
+
+    const scopedCustomerId = customerId
+
+    if (!hasBackendConfiguration) {
       return
     }
 
     const controller = new AbortController()
 
     async function loadWorkspace(): Promise<void> {
+      if (controller.signal.aborted) {
+        return
+      }
+
       setPhase("loading")
       setErrorMessage(null)
       try {
-        const profile = await getCustomer(scopedCustomerId, { signal: controller.signal })
+        if (controller.signal.aborted) {
+          return
+        }
 
-        const [orders, lifetime, storeCurrency] = await Promise.all([
+        const [profile, orders, lifetime, storeCurrency] = await Promise.all([
+          getCustomer(scopedCustomerId, { signal: controller.signal }),
           fetchRecentOrdersForCustomer(scopedCustomerId, 10, { signal: controller.signal }),
           fetchCustomerPaidSpendSummary(scopedCustomerId, { signal: controller.signal }),
           getStoreDefaultCurrencyCode({ signal: controller.signal }),
         ])
-
-        if (controller.signal.aborted) {
-          return
-        }
 
         const orderCurrency =
           typeof orders[0]?.currency_code === "string"

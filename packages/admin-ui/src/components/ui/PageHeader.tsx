@@ -25,7 +25,7 @@ export function PageHeader({
   breadcrumbs,
   actions,
   className,
-}: PageHeaderProps): JSX.Element {
+}: PageHeaderProps): ReactNode {
   return (
     <header
       className={cn(

@@ -1,4 +1,4 @@
-import type { JSX } from "react"
+import type { ReactNode } from "react"
 import { useMemo } from "react"
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 
@@ -15,7 +15,7 @@ import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
 type CategoryTabId = "overview" | "content"
 
-export function ProductCategoryDetailPage(): JSX.Element {
+export function ProductCategoryDetailPage(): ReactNode {
   const { categoryId } = useParams<{ categoryId: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
   const hasBackend = resolveMedusaAdminBackendUrl() !== null
@@ -65,7 +65,7 @@ export function ProductCategoryDetailPage(): JSX.Element {
   const overviewTabId = "category-tab-overview"
   const contentTabId = "category-tab-content"
 
-  let blockingCard: JSX.Element | null = null
+  let blockingCard: ReactNode | null = null
 
   if (state.status === "config_error") {
     blockingCard = (

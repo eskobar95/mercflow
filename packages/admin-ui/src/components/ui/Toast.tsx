@@ -13,9 +13,9 @@ import { cn } from "@/lib/cn"
 
 import { formIconButtonClass } from "./formStyles"
 
-export type ToastVariant = "default" | "success" | "error"
+type ToastVariant = "default" | "success" | "error"
 
-export type ToastInput = {
+type ToastInput = {
   id?: string
   title: string
   description?: string
@@ -56,7 +56,7 @@ function toastReducer(state: ToastRecord[], action: ToastAction): ToastRecord[] 
   }
 }
 
-export function ToastProvider({ children }: { children: ReactNode }): JSX.Element {
+export function ToastProvider({ children }: { children: ReactNode }): ReactNode {
   const [toasts, dispatch] = useReducer(toastReducer, [])
 
   const dismiss = useCallback((id: string) => {
@@ -123,7 +123,7 @@ function ToasterViewport({
   toasts: ToastRecord[]
   onDismiss: (id: string) => void
   onRemove: (id: string) => void
-}): JSX.Element {
+}): ReactNode {
   return (
     <ToastPrimitive.Viewport className="fixed bottom-0 right-0 z-toast flex max-h-screen w-full flex-col gap-2 p-4 sm:max-w-sm">
       {toasts.map((item, index) => (

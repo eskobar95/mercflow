@@ -55,7 +55,7 @@ export function FormField({
   required = false,
   className,
   children,
-}: FormFieldProps): JSX.Element {
+}: FormFieldProps): ReactNode {
   const generatedId = useId()
   const fieldId = htmlFor ?? generatedId
   const hintId = hint ? `${fieldId}-hint` : undefined

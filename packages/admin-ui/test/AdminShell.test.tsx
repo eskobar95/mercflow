@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { render, screen } from "@testing-library/react"
 import { createMemoryRouter, RouterProvider } from "react-router-dom"
 import { describe, expect, it } from "vitest"
@@ -19,10 +20,14 @@ describe("AdminShell", (): void => {
           ],
         },
       ],
-      { initialEntries: ["/"] }
+      { initialEntries: ["/"] },
     )
 
-    render(<RouterProvider router={router} />)
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>,
+    )
 
     expect(
       screen.getByRole("complementary", { name: "Main navigation" })

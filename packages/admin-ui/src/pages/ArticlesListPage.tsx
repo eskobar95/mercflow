@@ -1,4 +1,4 @@
-import type { JSX } from "react"
+import type { ReactNode } from "react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
@@ -75,7 +75,7 @@ const COLUMNS: ListColumnDef<ArticleAdminRecord, ArticleCol>[] = [
   },
 ]
 
-export function ArticlesListPage(): JSX.Element {
+export function ArticlesListPage(): ReactNode {
   const navigate = useNavigate()
   const hasBackendConfiguration = resolveMedusaAdminBackendUrl() !== null
 
@@ -131,7 +131,7 @@ export function ArticlesListPage(): JSX.Element {
       return rows
     }
     const dir = sort.direction === "asc" ? 1 : -1
-    return [...rows].sort((a, b) => {
+    return rows.toSorted((a, b) => {
       const av = def.getSortValue?.(a)
       const bv = def.getSortValue?.(b)
       if (av === undefined || bv === undefined) {

@@ -1,6 +1,7 @@
+import type { ReactNode } from "react"
 import { PlaceholderPage } from "@/pages/PlaceholderPage"
 
-export function ContentGlobalsPage(): JSX.Element {
+export function ContentGlobalsPage(): ReactNode {
   return (
     <PlaceholderPage
       title="Globals"

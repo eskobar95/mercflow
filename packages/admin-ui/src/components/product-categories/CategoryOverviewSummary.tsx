@@ -1,4 +1,4 @@
-import type { JSX } from "react"
+import type { ReactNode } from "react"
 
 import { formatCategoryDescriptionPreview } from "@/components/product-categories/descriptionPreview"
 import { Card } from "@/components/ui/Card"
@@ -10,7 +10,7 @@ export function CategoryOverviewSummary({
 }: {
   category: AdminProductCategoryParsed
   categoryId: string
-}): JSX.Element {
+}): ReactNode {
   const preview = formatCategoryDescriptionPreview(category.description)
 
   return (

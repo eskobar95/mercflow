@@ -16,7 +16,7 @@ const NORDIC_REPLACEMENTS: Record<string, string> = {
   Ä: "a",
 }
 
-export function transliterateNordicForSlug(input: string): string {
+function transliterateNordicForSlug(input: string): string {
   let out = ""
   for (const ch of input) {
     out += NORDIC_REPLACEMENTS[ch] ?? ch

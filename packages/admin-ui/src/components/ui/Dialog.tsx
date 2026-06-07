@@ -2,17 +2,16 @@ import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { forwardRef, type ComponentPropsWithoutRef, type HTMLAttributes, type ReactNode } from "react"
 
 import { IconClose } from "@/components/ui/icons"
-import { ENTER_EASE, SHEET_CLOSE_MS, SHEET_OPEN_MS } from "@/constants/motion"
+import { ENTER_EASE, SHEET_OPEN_MS } from "@/constants/motion"
 import { cn } from "@/lib/cn"
 
 import { formIconButtonClass } from "./formStyles"
 
-export const Dialog = DialogPrimitive.Root
-export const DialogTrigger = DialogPrimitive.Trigger
-export const DialogClose = DialogPrimitive.Close
-export const DialogPortal = DialogPrimitive.Portal
+export const DialogRoot = DialogPrimitive.Root
+const Dialog = DialogRoot
+const DialogPortal = DialogPrimitive.Portal
 
-export const DialogOverlay = forwardRef<
+const DialogOverlay = forwardRef<
   HTMLDivElement,
   ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
 >(function DialogOverlay({ className, ...rest }, ref) {
@@ -35,7 +34,7 @@ type DialogContentProps = ComponentPropsWithoutRef<typeof DialogPrimitive.Conten
   showClose?: boolean
 }
 
-export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
+const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
   function DialogContent({ className, children, showClose = true, ...rest }, ref) {
     return (
       <DialogPortal>
@@ -80,10 +79,10 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
   },
 )
 
-export function DialogHeader({
+function DialogHeader({
   className,
   ...rest
-}: HTMLAttributes<HTMLDivElement>): JSX.Element {
+}: HTMLAttributes<HTMLDivElement>): ReactNode {
   return (
     <div
       className={cn("border-b border-border-subtle px-4 py-3 pr-12", className)}
@@ -95,7 +94,7 @@ export function DialogHeader({
 export function DialogFooter({
   className,
   ...rest
-}: HTMLAttributes<HTMLDivElement>): JSX.Element {
+}: HTMLAttributes<HTMLDivElement>): ReactNode {
   return (
     <div
       className={cn(
@@ -107,10 +106,10 @@ export function DialogFooter({
   )
 }
 
-export function DialogTitle({
+function DialogTitle({
   className,
   ...rest
-}: ComponentPropsWithoutRef<typeof DialogPrimitive.Title>): JSX.Element {
+}: ComponentPropsWithoutRef<typeof DialogPrimitive.Title>): ReactNode {
   return (
     <DialogPrimitive.Title
       className={cn("text-base font-semibold text-content-primary", className)}
@@ -119,10 +118,10 @@ export function DialogTitle({
   )
 }
 
-export function DialogDescription({
+function DialogDescription({
   className,
   ...rest
-}: ComponentPropsWithoutRef<typeof DialogPrimitive.Description>): JSX.Element {
+}: ComponentPropsWithoutRef<typeof DialogPrimitive.Description>): ReactNode {
   return (
     <DialogPrimitive.Description
       className={cn("mt-1 text-sm text-content-secondary", className)}
@@ -131,7 +130,7 @@ export function DialogDescription({
   )
 }
 
-export type DialogShellProps = {
+type DialogShellProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   title: string
@@ -148,7 +147,7 @@ export function DialogShell({
   description,
   children,
   footer,
-}: DialogShellProps): JSX.Element {
+}: DialogShellProps): ReactNode {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -162,5 +161,3 @@ export function DialogShell({
     </Dialog>
   )
 }
-
-export { SHEET_CLOSE_MS, SHEET_OPEN_MS }

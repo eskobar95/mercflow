@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from "react"
+import { type ReactNode, useCallback, useEffect, useReducer } from "react"
 
 import { Button } from "@/components/ui/Button"
-import { Label } from "@/components/ui/Label"
+import { FormField } from "@/components/ui/FormField"
+import { Textarea } from "@/components/ui/Textarea"
 import {
   createMercflowOrderNote,
   deleteMercflowOrderNote,
@@ -9,27 +10,84 @@ import {
   type MercflowOrderNote,
 } from "@/features/orders/orderNotesAdminApi"
 
-export function OrderInternalNotesPanel(props: { orderId: string }): JSX.Element {
+type OrderNotesPanelState = {
+  notes: MercflowOrderNote[]
+  loading: boolean
+  errorMessage: string | null
+  draft: string
+  submitting: boolean
+  deletingId: string | null
+}
+
+type OrderNotesPanelAction =
+  | { type: "loadStart" }
+  | { type: "loadSuccess"; notes: MercflowOrderNote[] }
+  | { type: "loadError"; message: string }
+  | { type: "loadFinish" }
+  | { type: "setDraft"; value: string }
+  | { type: "submitStart" }
+  | { type: "submitSuccess" }
+  | { type: "submitError"; message: string }
+  | { type: "deleteStart"; noteId: string }
+  | { type: "deleteError"; message: string }
+  | { type: "deleteFinish" }
+
+const INITIAL_ORDER_NOTES_PANEL_STATE: OrderNotesPanelState = {
+  notes: [],
+  loading: true,
+  errorMessage: null,
+  draft: "",
+  submitting: false,
+  deletingId: null,
+}
+
+function orderNotesPanelReducer(
+  state: OrderNotesPanelState,
+  action: OrderNotesPanelAction,
+): OrderNotesPanelState {
+  switch (action.type) {
+    case "loadStart":
+      return { ...state, loading: true, errorMessage: null }
+    case "loadSuccess":
+      return { ...state, notes: action.notes }
+    case "loadError":
+      return { ...state, notes: [], errorMessage: action.message }
+    case "loadFinish":
+      return { ...state, loading: false }
+    case "setDraft":
+      return { ...state, draft: action.value }
+    case "submitStart":
+      return { ...state, submitting: true, errorMessage: null }
+    case "submitSuccess":
+      return { ...state, submitting: false, draft: "" }
+    case "submitError":
+      return { ...state, submitting: false, errorMessage: action.message }
+    case "deleteStart":
+      return { ...state, deletingId: action.noteId, errorMessage: null }
+    case "deleteError":
+      return { ...state, errorMessage: action.message }
+    case "deleteFinish":
+      return { ...state, deletingId: null }
+    default:
+      return state
+  }
+}
+
+export function OrderInternalNotesPanel(props: { orderId: string }): ReactNode {
   const { orderId } = props
-  const [notes, setNotes] = useState<MercflowOrderNote[]>([])
-  const [loading, setLoading] = useState(true)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [draft, setDraft] = useState("")
-  const [submitting, setSubmitting] = useState(false)
-  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [ui, dispatch] = useReducer(orderNotesPanelReducer, INITIAL_ORDER_NOTES_PANEL_STATE)
+  const { notes, loading, errorMessage, draft, submitting, deletingId } = ui
 
   const load = useCallback(async (): Promise<void> => {
-    setLoading(true)
-    setErrorMessage(null)
+    dispatch({ type: "loadStart" })
     try {
       const rows = await fetchMercflowOrderNotes(orderId)
-      setNotes(rows)
+      dispatch({ type: "loadSuccess", notes: rows })
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to load internal notes"
-      setNotes([])
-      setErrorMessage(msg)
+      dispatch({ type: "loadError", message: msg })
     } finally {
-      setLoading(false)
+      dispatch({ type: "loadFinish" })
     }
   }, [orderId])
 
@@ -38,31 +96,27 @@ export function OrderInternalNotesPanel(props: { orderId: string }): JSX.Element
   }, [load])
 
   const submitNote = async (): Promise<void> => {
-    setSubmitting(true)
-    setErrorMessage(null)
+    dispatch({ type: "submitStart" })
     try {
       await createMercflowOrderNote(orderId, draft)
-      setDraft("")
+      dispatch({ type: "submitSuccess" })
       await load()
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Could not save note"
-      setErrorMessage(msg)
-    } finally {
-      setSubmitting(false)
+      dispatch({ type: "submitError", message: msg })
     }
   }
 
   const removeNote = async (noteId: string): Promise<void> => {
-    setDeletingId(noteId)
-    setErrorMessage(null)
+    dispatch({ type: "deleteStart", noteId })
     try {
       await deleteMercflowOrderNote(orderId, noteId)
       await load()
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Could not delete note"
-      setErrorMessage(msg)
+      dispatch({ type: "deleteError", message: msg })
     } finally {
-      setDeletingId(null)
+      dispatch({ type: "deleteFinish" })
     }
   }
 
@@ -124,19 +178,18 @@ export function OrderInternalNotesPanel(props: { orderId: string }): JSX.Element
       )}
 
       <div className="mt-4 border-t border-border-subtle pt-4">
-        <Label htmlFor="mercflow-order-note" className="text-content-primary">
-          Add note
-        </Label>
-        <textarea
-          id="mercflow-order-note"
-          rows={3}
-          value={draft}
-          disabled={submitting}
-          onChange={(ev) => {
-            setDraft(ev.target.value)
-          }}
-          className="mt-2 w-full max-w-xl rounded-md border border-border-default bg-surface-default px-3 py-2 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus disabled:opacity-60"
-        />
+        <FormField label="Add note" htmlFor="mercflow-order-note">
+          <Textarea
+            id="mercflow-order-note"
+            rows={3}
+            value={draft}
+            disabled={submitting}
+            onChange={(ev) => {
+              dispatch({ type: "setDraft", value: ev.target.value })
+            }}
+            className="max-w-xl"
+          />
+        </FormField>
         <div className="mt-2">
           <Button
             type="button"

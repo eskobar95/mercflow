@@ -1,4 +1,4 @@
-import type { JSX } from "react"
+import type { ReactNode } from "react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
@@ -53,7 +53,7 @@ const COLUMNS: ListColumnDef<SupplierDto, Col>[] = [
   },
 ]
 
-export function SuppliersListPage(): JSX.Element {
+export function SuppliersListPage(): ReactNode {
   const navigate = useNavigate()
   const hasBackend = resolveMedusaAdminBackendUrl() !== null
   const [rows, setRows] = useState<SupplierDto[]>([])
@@ -104,7 +104,7 @@ export function SuppliersListPage(): JSX.Element {
       return rows
     }
     const dir = sort.direction === "asc" ? 1 : -1
-    return [...rows].sort((a, b) => {
+    return rows.toSorted((a, b) => {
       const av = def.getSortValue?.(a)
       const bv = def.getSortValue?.(b)
       if (av === undefined || bv === undefined) {

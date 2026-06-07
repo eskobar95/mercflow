@@ -1,8 +1,8 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog"
-import { forwardRef, type ComponentPropsWithoutRef, type ReactNode } from "react"
+import { type ReactNode } from "react"
 
 import { IconClose } from "@/components/ui/icons"
-import { DRAWER_EASE, SHEET_CLOSE_MS, SHEET_OPEN_MS } from "@/constants/motion"
+import { DRAWER_EASE, SHEET_OPEN_MS } from "@/constants/motion"
 import { cn } from "@/lib/cn"
 
 import { formIconButtonClass } from "./formStyles"
@@ -30,7 +30,7 @@ export function Sheet({
   children,
   footer,
   side = "right",
-}: SheetProps): JSX.Element {
+}: SheetProps): ReactNode {
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
@@ -90,12 +90,3 @@ export function Sheet({
     </DialogPrimitive.Root>
   )
 }
-
-export const SheetTrigger = forwardRef<
-  HTMLButtonElement,
-  ComponentPropsWithoutRef<typeof DialogPrimitive.Trigger>
->(function SheetTrigger(props, ref) {
-  return <DialogPrimitive.Trigger ref={ref} {...props} />
-})
-
-export { SHEET_CLOSE_MS, SHEET_OPEN_MS }

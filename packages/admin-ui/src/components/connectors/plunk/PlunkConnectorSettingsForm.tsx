@@ -1,7 +1,8 @@
 import type { FormEventHandler } from "react"
-import { useEffect, useState } from "react"
+import { type ReactNode, useReducer } from "react"
 
 import { ConnectorConnectionBadge } from "@/components/connectors/ConnectorConnectionBadge"
+import { useAdjustStateWhenKeyChanges } from "@/lib/react/useAdjustStateWhenKeyChanges"
 import { Button } from "@/components/ui/Button"
 import { Card } from "@/components/ui/Card"
 import { Checkbox } from "@/components/ui/Checkbox"
@@ -9,12 +10,68 @@ import { Input } from "@/components/ui/Input"
 import type { PlunkConnectorAdminDto } from "@/features/connectors/parsePlunkConnectorResponse"
 import type { PatchPlunkConnectorPayload } from "@/features/connectors/plunkConnectorAdminApi"
 
-export type PlunkConnectorSettingsFormProps = {
+type PlunkConnectorSettingsFormProps = {
   dto: PlunkConnectorAdminDto
   saving: boolean
   testing: boolean
   onSubmit: (payload: PatchPlunkConnectorPayload) => Promise<void>
   onProbe: (payload: { test_email?: string }) => Promise<void>
+}
+
+type PlunkFormState = {
+  apiKeyDraft: string
+  fromEmail: string
+  fromName: string
+  active: boolean
+  testEmail: string
+  localError: string | null
+}
+
+type PlunkFormAction =
+  | { type: "setApiKeyDraft"; value: string }
+  | { type: "setFromEmail"; value: string }
+  | { type: "setFromName"; value: string }
+  | { type: "setActive"; value: boolean }
+  | { type: "setTestEmail"; value: string }
+  | { type: "setLocalError"; value: string | null }
+  | { type: "syncDeliverability"; fromEmail: string; fromName: string; active: boolean }
+  | { type: "resetSecrets" }
+
+const INITIAL_PLUNK_FORM_STATE: PlunkFormState = {
+  apiKeyDraft: "",
+  fromEmail: "",
+  fromName: "",
+  active: false,
+  testEmail: "",
+  localError: null,
+}
+
+function plunkFormReducer(state: PlunkFormState, action: PlunkFormAction): PlunkFormState {
+  switch (action.type) {
+    case "setApiKeyDraft":
+      return { ...state, apiKeyDraft: action.value }
+    case "setFromEmail":
+      return { ...state, fromEmail: action.value }
+    case "setFromName":
+      return { ...state, fromName: action.value }
+    case "setActive":
+      return { ...state, active: action.value }
+    case "setTestEmail":
+      return { ...state, testEmail: action.value }
+    case "setLocalError":
+      return { ...state, localError: action.value }
+    case "syncDeliverability":
+      return {
+        ...state,
+        fromEmail: action.fromEmail,
+        fromName: action.fromName,
+        active: action.active,
+      }
+    case "resetSecrets":
+      return { ...state, apiKeyDraft: "", localError: null }
+    default:
+      return state
+  }
 }
 
 export function PlunkConnectorSettingsForm({
@@ -23,28 +80,32 @@ export function PlunkConnectorSettingsForm({
   testing,
   onSubmit,
   onProbe,
-}: PlunkConnectorSettingsFormProps): JSX.Element {
-  const [apiKeyDraft, setApiKeyDraft] = useState<string>("")
-  const [fromEmail, setFromEmail] = useState<string>(dto.fromEmail ?? "")
-  const [fromName, setFromName] = useState<string>(dto.fromName ?? "")
-  const [active, setActive] = useState<boolean>(dto.active)
-  const [testEmail, setTestEmail] = useState<string>("")
-  const [localError, setLocalError] = useState<string | null>(null)
+}: PlunkConnectorSettingsFormProps): ReactNode {
+  const [form, dispatch] = useReducer(plunkFormReducer, INITIAL_PLUNK_FORM_STATE)
+  const { apiKeyDraft, fromEmail, fromName, active, testEmail, localError } = form
 
-  useEffect(() => {
-    setFromEmail(dto.fromEmail ?? "")
-    setFromName(dto.fromName ?? "")
-    setActive(dto.active)
-  }, [dto.active, dto.configured, dto.fromEmail, dto.fromName])
+  useAdjustStateWhenKeyChanges(
+    `${dto.active}\u0000${dto.fromEmail ?? ""}\u0000${dto.fromName ?? ""}`,
+    () => {
+      dispatch({
+        type: "syncDeliverability",
+        fromEmail: dto.fromEmail ?? "",
+        fromName: dto.fromName ?? "",
+        active: dto.active,
+      })
+    },
+  )
 
-  useEffect(() => {
-    setApiKeyDraft("")
-    setLocalError(null)
-  }, [dto.apiKeyMasked, dto.configured, dto.connectionHealth, dto.lastTestedAt])
+  useAdjustStateWhenKeyChanges(
+    `${dto.apiKeyMasked ?? ""}\u0000${dto.configured}\u0000${dto.connectionHealth ?? ""}\u0000${dto.lastTestedAt ?? ""}`,
+    () => {
+      dispatch({ type: "resetSecrets" })
+    },
+  )
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (evt) => {
     evt.preventDefault()
-    setLocalError(null)
+    dispatch({ type: "setLocalError", value: null })
 
     const payload: PatchPlunkConnectorPayload = {
       active,
@@ -58,20 +119,23 @@ export function PlunkConnectorSettingsForm({
     }
 
     if (!dto.configured && trimmedKey === "") {
-      setLocalError("Add your Plunk secret API key to finish configuration.")
+      dispatch({
+        type: "setLocalError",
+        value: "Add your Plunk secret API key to finish configuration.",
+      })
       return
     }
 
     try {
       await onSubmit(payload)
-      setApiKeyDraft("")
+      dispatch({ type: "setApiKeyDraft", value: "" })
     } catch {
       /* surfaced by parent banner */
     }
   }
 
   const handleProbeClick = async (): Promise<void> => {
-    setLocalError(null)
+    dispatch({ type: "setLocalError", value: null })
     const trimmed = testEmail.trim()
     await onProbe(trimmed !== "" ? { test_email: trimmed } : {})
   }
@@ -121,7 +185,7 @@ export function PlunkConnectorSettingsForm({
             autoComplete="off"
             value={apiKeyDraft}
             placeholder={dto.apiKeyMasked ? "Leave blank to keep the saved key." : "sk_..."}
-            onChange={(evt) => setApiKeyDraft(evt.target.value)}
+            onChange={(evt) => dispatch({ type: "setApiKeyDraft", value: evt.target.value })}
           />
           {dto.apiKeyMasked ? (
             <p className="text-xs text-content-tertiary">
@@ -140,7 +204,7 @@ export function PlunkConnectorSettingsForm({
             type="email"
             autoComplete="off"
             value={fromEmail}
-            onChange={(evt) => setFromEmail(evt.target.value)}
+            onChange={(evt) => dispatch({ type: "setFromEmail", value: evt.target.value })}
             placeholder="hello@yourdomain.com"
           />
         </div>
@@ -154,7 +218,7 @@ export function PlunkConnectorSettingsForm({
             name="plunk-from-name"
             type="text"
             value={fromName}
-            onChange={(evt) => setFromName(evt.target.value)}
+            onChange={(evt) => dispatch({ type: "setFromName", value: evt.target.value })}
             placeholder="Your store"
           />
         </div>
@@ -163,7 +227,7 @@ export function PlunkConnectorSettingsForm({
           <Checkbox
             id="plunk-active"
             checked={active}
-            onCheckedChange={(state) => setActive(state === true)}
+            onCheckedChange={(state) => dispatch({ type: "setActive", value: state === true })}
             label="Enable Plunk for outbound email"
           />
         </div>
@@ -199,7 +263,7 @@ export function PlunkConnectorSettingsForm({
             name="plunk-test-email"
             type="email"
             value={testEmail}
-            onChange={(evt) => setTestEmail(evt.target.value)}
+            onChange={(evt) => dispatch({ type: "setTestEmail", value: evt.target.value })}
             placeholder="you@example.com"
             disabled={!dto.configured || testing || saving}
           />

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
+import { useAdjustStateWhenSnapshotChanges } from "@/lib/react/useAdjustStateWhenKeyChanges"
 
 import { listCustomerSubscriptions } from "./subscriptionsApi"
 import type { AdminSubscriptionListResponse } from "./types"
@@ -35,11 +36,16 @@ export function useCustomerSubscriptionsSection(customerId: string): {
     }
   }, [customerId])
 
-  useEffect(() => {
+  useAdjustStateWhenSnapshotChanges([enabled], () => {
     if (!enabled) {
       setLoading(false)
       setErrorMessage(null)
       setData(null)
+    }
+  })
+
+  useEffect(() => {
+    if (!enabled) {
       return
     }
     void refresh()

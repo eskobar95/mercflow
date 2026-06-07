@@ -1,4 +1,4 @@
-export type ShipmondoCredentialFlagsDto = {
+type ShipmondoCredentialFlagsDto = {
   apiUserConfigured: boolean
   apiKeyConfigured: boolean
   shippingModuleKeyConfigured: boolean

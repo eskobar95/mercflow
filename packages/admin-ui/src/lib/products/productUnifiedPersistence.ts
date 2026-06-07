@@ -120,7 +120,7 @@ function medianFirstInventoryItem(variant: AdminProductVariant): string | null {
   return typeof fromDeep === "string" && fromDeep.trim() !== "" ? fromDeep : null
 }
 
-export async function setInventoryLevelQuantityAtLocation(params: {
+async function setInventoryLevelQuantityAtLocation(params: {
   sdk: Medusa
   inventoryItemId: string
   locationId: string
@@ -253,6 +253,7 @@ export async function persistUnifiedProductCreate(params: {
     params.variants.map((row) => [resolvePersistVariantComboKey(row), row.stockQuantity] as const),
   )
 
+  const stockUpdates: Array<Promise<void>> = []
   for (const variant of variantList) {
     const key = variantComboKey(variant)
     if (key === null) {
@@ -269,13 +270,17 @@ export async function persistUnifiedProductCreate(params: {
       continue
     }
 
-    await setInventoryLevelQuantityAtLocation({
-      sdk: params.sdk,
-      inventoryItemId,
-      locationId: params.prerequisites.primaryStockLocationId,
-      stockedQuantity: quantity,
-    })
+    stockUpdates.push(
+      setInventoryLevelQuantityAtLocation({
+        sdk: params.sdk,
+        inventoryItemId,
+        locationId: params.prerequisites.primaryStockLocationId,
+        stockedQuantity: quantity,
+      }),
+    )
   }
+
+  await Promise.all(stockUpdates)
 
   return { productId: product.id }
 }
@@ -295,19 +300,25 @@ export async function persistUnifiedProductUpdate(params: {
     fields: ADMIN_PRODUCT_EDITOR_FIELDS,
   })
 
-  const optionsUpdatePayload = params.optionRows
-    .filter(
-      (row) =>
-        typeof row.medusaOptionId === "string" &&
-        row.medusaOptionId.trim() !== "" &&
-        row.title.trim() !== "" &&
-        row.values.length > 0,
-    )
-    .map((row) => ({
-      id: row.medusaOptionId!.trim(),
-      title: row.title.trim(),
-      values: row.values,
-    }))
+  const optionsUpdatePayload: Array<{
+    id: string
+    title: string
+    values: string[]
+  }> = []
+  for (const row of params.optionRows) {
+    if (
+      typeof row.medusaOptionId === "string" &&
+      row.medusaOptionId.trim() !== "" &&
+      row.title.trim() !== "" &&
+      row.values.length > 0
+    ) {
+      optionsUpdatePayload.push({
+        id: row.medusaOptionId.trim(),
+        title: row.title.trim(),
+        values: row.values,
+      })
+    }
+  }
 
   await params.sdk.admin.product.update(
     params.productId,
@@ -321,6 +332,7 @@ export async function persistUnifiedProductUpdate(params: {
     { fields: ADMIN_PRODUCT_EDITOR_FIELDS },
   )
 
+  const newOptionCreates: Array<Promise<unknown>> = []
   for (const row of params.optionRows) {
     const hasId = typeof row.medusaOptionId === "string" && row.medusaOptionId.trim() !== ""
     if (hasId) {
@@ -331,21 +343,27 @@ export async function persistUnifiedProductUpdate(params: {
       continue
     }
 
-    await params.sdk.admin.product.createOption(
-      params.productId,
-      {
-        title: row.title.trim(),
-        values: row.values,
-      },
-      { fields: ADMIN_PRODUCT_EDITOR_FIELDS },
+    newOptionCreates.push(
+      params.sdk.admin.product.createOption(
+        params.productId,
+        {
+          title: row.title.trim(),
+          values: row.values,
+        },
+        { fields: ADMIN_PRODUCT_EDITOR_FIELDS },
+      ),
     )
   }
+
+  await Promise.all(newOptionCreates)
 
   const existingVariants = current.product?.variants ?? []
   const desiredKeys = new Set(params.variants.map((row) => resolvePersistVariantComboKey(row)))
 
   const existingByKey = new Map<string, AdminProductVariant>()
+  const existingById = new Map<string, AdminProductVariant>()
   for (const variant of existingVariants) {
+    existingById.set(variant.id, variant)
     const key = variantComboKey(variant)
     if (key !== null) {
       existingByKey.set(key, variant)
@@ -376,7 +394,7 @@ export async function persistUnifiedProductUpdate(params: {
 
     const resolvedExisting =
       (typeof row.existingVariantId === "string" && row.existingVariantId.trim() !== ""
-        ? existingVariants.find((variant) => variant.id === row.existingVariantId)
+        ? existingById.get(row.existingVariantId.trim())
         : undefined) ?? existingByKey.get(mapKey)
 
     if (resolvedExisting !== undefined) {
@@ -425,6 +443,7 @@ export async function persistUnifiedProductUpdate(params: {
     params.variants.map((row) => [resolvePersistVariantComboKey(row), row.stockQuantity] as const),
   )
 
+  const stockUpdates: Array<Promise<void>> = []
   for (const variant of refreshed.product?.variants ?? []) {
     const key = variantComboKey(variant)
     if (key === null) {
@@ -441,11 +460,15 @@ export async function persistUnifiedProductUpdate(params: {
       continue
     }
 
-    await setInventoryLevelQuantityAtLocation({
-      sdk: params.sdk,
-      inventoryItemId,
-      locationId: params.prerequisites.primaryStockLocationId,
-      stockedQuantity: quantity,
-    })
+    stockUpdates.push(
+      setInventoryLevelQuantityAtLocation({
+        sdk: params.sdk,
+        inventoryItemId,
+        locationId: params.prerequisites.primaryStockLocationId,
+        stockedQuantity: quantity,
+      }),
+    )
   }
+
+  await Promise.all(stockUpdates)
 }

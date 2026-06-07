@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { formatAdminCurrency } from "@/utils/formatAdminCurrency"
 
 import type { OrderLineItemRow } from "@/features/orders/orderTypes"
@@ -8,7 +9,7 @@ const thumbBox =
 export function OrderLineItemsTable(props: {
   items: OrderLineItemRow[]
   currencyCode: string
-}): JSX.Element {
+}): ReactNode {
   if (props.items.length === 0) {
     return (
       <div className="rounded-lg border border-border-default bg-surface-default px-4 py-6 text-sm text-content-secondary shadow-sm">

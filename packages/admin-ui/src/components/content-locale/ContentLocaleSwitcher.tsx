@@ -1,4 +1,4 @@
-import { useId } from "react"
+import { type ReactNode, useId } from "react"
 
 import { Select } from "@/components/ui/Select"
 import type { AdminLocale } from "@/features/content-locale"
@@ -24,7 +24,7 @@ export function ContentLocaleSwitcher({
   disabled = false,
   localesLoading = false,
   resolvedContentLocale = null,
-}: ContentLocaleSwitcherProps): JSX.Element {
+}: ContentLocaleSwitcherProps): ReactNode {
   const baseId = useId()
   const labelId = `${baseId}-label`
   const hintId = `${baseId}-hint`

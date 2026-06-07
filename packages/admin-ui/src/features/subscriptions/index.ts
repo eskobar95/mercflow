@@ -12,7 +12,6 @@ export {
 export {
   listAdminSubscriptions,
   listCustomerSubscriptions,
-  retrieveAdminCustomer,
 } from "./subscriptionsApi"
 export { parseSubscriptionsListEnvelope } from "./parseSubscriptionsListResponse"
 export { useAdminSubscriptions } from "./useAdminSubscriptions"

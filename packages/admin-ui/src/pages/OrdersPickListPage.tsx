@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { type ReactNode, useCallback, useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
 import { Button } from "@/components/ui/Button"
@@ -7,7 +7,7 @@ import {
   type PickListOrderGroup,
 } from "@/features/orders/orderNotesAdminApi"
 
-export function OrdersPickListPage(): JSX.Element {
+export function OrdersPickListPage(): ReactNode {
   const [groups, setGroups] = useState<PickListOrderGroup[]>([])
   const [dayLabel, setDayLabel] = useState("")
   const [loading, setLoading] = useState(true)

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import type { OrderTimelineStep } from "@/utils/buildOrderTimeline"
 
 function formatTimelineTimestamp(iso: string | null): string {
@@ -14,7 +15,7 @@ function formatTimelineTimestamp(iso: string | null): string {
   })
 }
 
-export function OrderStatusTimeline(props: { steps: OrderTimelineStep[] }): JSX.Element {
+export function OrderStatusTimeline(props: { steps: OrderTimelineStep[] }): ReactNode {
   return (
     <ol className="space-y-0" aria-label="Order status timeline">
       {props.steps.map((step, index) => {

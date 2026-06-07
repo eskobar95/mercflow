@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react"
+import { type ReactNode, useCallback, useMemo, useReducer } from "react"
 import { Link } from "react-router-dom"
 
 import { DataTable } from "@/components/ui/list/DataTable"
@@ -151,33 +151,114 @@ const COLUMNS: ListColumnDef<DemoRow, DemoCol>[] = [
   },
 ]
 
+const DEMO_ROW_ACTIONS: RowActionItem[] = [
+  {
+    id: "view",
+    label: "View (mock)",
+    onSelect: () => { /* demo stub */ },
+  },
+  {
+    id: "edit",
+    label: "Edit (mock)",
+    onSelect: () => { /* demo stub */ },
+  },
+  {
+    id: "delete",
+    label: "Remove from demo",
+    destructive: true,
+    onSelect: () => { /* demo stub */ },
+  },
+]
+
+const getDemoRowActions: (row: DemoRow) => RowActionItem[] = () => DEMO_ROW_ACTIONS
+
+type ListDemoUiState = {
+  search: string
+  page: number
+  pageSize: number
+  selectedIds: Set<string>
+  isLoading: boolean
+  sort: ListSortState<DemoCol>
+}
+
+type ListDemoUiAction =
+  | { type: "setSearch"; value: string }
+  | { type: "setPage"; page: number }
+  | { type: "setPageSize"; pageSize: number }
+  | { type: "toggleLoading" }
+  | { type: "cycleSort"; columnId: DemoCol }
+  | { type: "selectAll"; pageIds: string[]; select: boolean }
+  | { type: "selectRow"; id: string; select: boolean }
+
+const INITIAL_LIST_DEMO_UI_STATE: ListDemoUiState = {
+  search: "",
+  page: 1,
+  pageSize: 10,
+  selectedIds: new Set(),
+  isLoading: false,
+  sort: { column: "updatedAt", direction: "desc" },
+}
+
+function listDemoUiReducer(state: ListDemoUiState, action: ListDemoUiAction): ListDemoUiState {
+  switch (action.type) {
+    case "setSearch":
+      return { ...state, search: action.value, page: 1 }
+    case "setPage":
+      return { ...state, page: action.page }
+    case "setPageSize":
+      return { ...state, pageSize: action.pageSize, page: 1 }
+    case "toggleLoading":
+      return { ...state, isLoading: !state.isLoading }
+    case "cycleSort": {
+      const { columnId } = action
+      const { sort } = state
+      if (sort.column !== columnId) {
+        return { ...state, sort: { column: columnId, direction: "asc" } }
+      }
+      if (sort.direction === "asc") {
+        return { ...state, sort: { column: columnId, direction: "desc" } }
+      }
+      if (sort.direction === "desc") {
+        return { ...state, sort: { column: null, direction: "none" } }
+      }
+      return { ...state, sort: { column: columnId, direction: "asc" } }
+    }
+    case "selectAll": {
+      const next = new Set(state.selectedIds)
+      if (action.select) {
+        for (const id of action.pageIds) {
+          next.add(id)
+        }
+      } else {
+        for (const id of action.pageIds) {
+          next.delete(id)
+        }
+      }
+      return { ...state, selectedIds: next }
+    }
+    case "selectRow": {
+      const next = new Set(state.selectedIds)
+      if (action.select) {
+        next.add(action.id)
+      } else {
+        next.delete(action.id)
+      }
+      return { ...state, selectedIds: next }
+    }
+    default:
+      return state
+  }
+}
+
 /**
  * In-package list primitive demo. Mock rows only; no real API.
  */
-export function ListDemoPage(): JSX.Element {
-  const [search, setSearch] = useState("")
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set())
-  const [isLoading, setIsLoading] = useState(false)
-  const [sort, setSort] = useState<ListSortState<DemoCol>>({
-    column: "updatedAt",
-    direction: "desc",
-  })
+export function ListDemoPage(): ReactNode {
+  const [ui, dispatch] = useReducer(listDemoUiReducer, INITIAL_LIST_DEMO_UI_STATE)
+  const { search, page, pageSize, selectedIds, isLoading, sort } = ui
 
-  const onRequestSort = useCallback((columnId: DemoCol) => {
-    setSort((s) => {
-      if (s.column !== columnId) {
-        return { column: columnId, direction: "asc" }
-      }
-      if (s.direction === "asc") {
-        return { column: columnId, direction: "desc" }
-      }
-      if (s.direction === "desc") {
-        return { column: null, direction: "none" }
-      }
-      return { column: columnId, direction: "asc" }
-    })
+  const onRequestSort = useCallback((columnId: DemoCol): void => {
+    dispatch({ type: "cycleSort", columnId })
   }, [])
 
   const filtered = useMemo(() => {
@@ -200,7 +281,7 @@ export function ListDemoPage(): JSX.Element {
       return filtered
     }
     const dir = sort.direction === "asc" ? 1 : -1
-    const withSort = [...filtered].sort((a, b) => {
+    const withSort = filtered.toSorted((a, b) => {
       const av = def.getSortValue?.(a)
       const bv = def.getSortValue?.(b)
       if (av === undefined || bv === undefined) {
@@ -225,54 +306,14 @@ export function ListDemoPage(): JSX.Element {
   const pageIds = useMemo(() => paged.map((r) => r.id), [paged])
 
   const onSelectAll = (select: boolean): void => {
-    setSelectedIds((prev) => {
-      const n = new Set(prev)
-      if (select) {
-        for (const id of pageIds) {
-          n.add(id)
-        }
-      } else {
-        for (const id of pageIds) {
-          n.delete(id)
-        }
-      }
-      return n
-    })
+    dispatch({ type: "selectAll", pageIds, select })
   }
 
   const onSelectRow = (id: string, select: boolean): void => {
-    setSelectedIds((prev) => {
-      const n = new Set(prev)
-      if (select) {
-        n.add(id)
-      } else {
-        n.delete(id)
-      }
-      return n
-    })
+    dispatch({ type: "selectRow", id, select })
   }
 
-  const getRowActions = (row: DemoRow): RowActionItem[] => {
-    void row
-    return [
-    {
-      id: "view",
-      label: "View (mock)",
-      onSelect: () => { /* demo stub */ },
-    },
-    {
-      id: "edit",
-      label: "Edit (mock)",
-      onSelect: () => { /* demo stub */ },
-    },
-    {
-      id: "delete",
-      label: "Remove from demo",
-      destructive: true,
-      onSelect: () => { /* demo stub */ },
-    },
-  ]
-  }
+  const getRowActions = getDemoRowActions
 
   return (
     <div className="p-6">
@@ -292,7 +333,7 @@ export function ListDemoPage(): JSX.Element {
               type="button"
               className="rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm font-medium text-content-primary shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
               onClick={() => {
-                setIsLoading((v) => !v)
+                dispatch({ type: "toggleLoading" })
               }}
             >
               Toggle loading (demo)
@@ -306,8 +347,7 @@ export function ListDemoPage(): JSX.Element {
             type="search"
             value={search}
             onChange={(e) => {
-              setSearch(e.target.value)
-              setPage(1)
+              dispatch({ type: "setSearch", value: e.target.value })
             }}
             placeholder="Name or status"
             className="min-w-0 flex-1 rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus"
@@ -343,11 +383,10 @@ export function ListDemoPage(): JSX.Element {
           pageSize={pageSize}
           totalItems={sorted.length}
           onPageChange={(p) => {
-            setPage(p)
+            dispatch({ type: "setPage", page: p })
           }}
           onPageSizeChange={(s) => {
-            setPageSize(s)
-            setPage(1)
+            dispatch({ type: "setPageSize", pageSize: s })
           }}
         />
         </div>

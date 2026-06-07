@@ -1,31 +1,20 @@
+import type { ReactNode } from "react"
+
+import {
+  PRODUCT_STATUS_META,
+  type ProductStatus,
+} from "@/components/product-list/productStatusMeta"
 import { cn } from "@/lib/cn"
 
-type Status = "draft" | "published" | "proposed"
-
-const config: Record<Status, { label: string; className: string }> = {
-  published: {
-    label: "Published",
-    className: "bg-feedback-success-subtle text-feedback-success-content border-feedback-success-subtle",
-  },
-  draft: {
-    label: "Draft",
-    className: "bg-surface-subtle text-content-secondary border-border-subtle",
-  },
-  proposed: {
-    label: "Proposed",
-    className: "bg-feedback-warning-subtle text-feedback-warning-content border-feedback-warning-border",
-  },
-}
-
-export function ProductStatusBadge({ status }: { status: Status }): JSX.Element {
-  const { label, className } = config[status]
+/**
+ * Status indicator — a coloured dot plus label inside a hairline pill.
+ * Status is conveyed by both colour and text for accessibility.
+ */
+export function ProductStatusBadge({ status }: { status: ProductStatus }): ReactNode {
+  const { label, dotClass } = PRODUCT_STATUS_META[status]
   return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded border px-1.5 py-0.5 text-2xs font-medium",
-        className,
-      )}
-    >
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle bg-surface-default px-2 py-0.5 text-xs font-medium text-content-secondary">
+      <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", dotClass)} aria-hidden />
       {label}
     </span>
   )

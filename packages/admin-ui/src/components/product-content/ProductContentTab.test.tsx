@@ -12,6 +12,17 @@ const mockUseAdminLocales = vi.hoisted(() => vi.fn())
 
 vi.mock("@/features/content-locale", () => ({
   useAdminLocales: (): UseAdminLocalesReturn => mockUseAdminLocales() as UseAdminLocalesReturn,
+  useContentLocale: ({
+    locales,
+    preferredCode,
+  }: {
+    locales: { code: string; name: string }[]
+    preferredCode?: string
+  }) => ({
+    activeLocaleCode: preferredCode ?? locales[0]?.code ?? "en",
+    setActiveLocaleCode: vi.fn(),
+    activeLocale: locales[0] ?? null,
+  }),
 }))
 
 vi.mock("@/features/product-content", async (original) => {

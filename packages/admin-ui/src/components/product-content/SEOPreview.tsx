@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 export type SEOPreviewProps = {
   title: string
   description: string
@@ -12,7 +13,7 @@ export function SEOPreview({
   title,
   description,
   fallbackTitle = "Product",
-}: SEOPreviewProps): JSX.Element {
+}: SEOPreviewProps): ReactNode {
   const displayTitle = title.trim() !== "" ? title.trim() : fallbackTitle
   const displayDescription =
     description.trim() !== ""

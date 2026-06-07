@@ -1,20 +1,23 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { render, screen, waitFor, within } from "@testing-library/react"
-import type { JSX } from "react"
+import type { ReactNode } from "react"
 import { MemoryRouter, Route, Routes } from "react-router-dom"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { ToastProvider } from "@/components/ui/Toast"
 import { MOCK_PRODUCTS } from "@/data/mockProducts"
 
 import { ProductDetailPage } from "@/pages/ProductDetailPage"
 import { ProductListPage } from "@/pages/ProductListPage"
 
-function renderWithProviders(ui: JSX.Element): void {
+function renderWithProviders(ui: ReactNode): void {
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <MemoryRouter>{ui}</MemoryRouter>
+      <ToastProvider>
+        <MemoryRouter>{ui}</MemoryRouter>
+      </ToastProvider>
     </QueryClientProvider>,
   )
 }
@@ -22,13 +25,20 @@ function renderWithProviders(ui: JSX.Element): void {
 describe("ProductListPage mocked API response", (): void => {
   beforeEach((): void => {
     vi.unstubAllEnvs()
+    // Force the mock data path: with a backend URL set the catalogue hook hits
+    // the live Medusa SDK (empty in jsdom), so the seeded rows never render.
+    vi.stubEnv("VITE_MEDUSA_ADMIN_BACKEND_URL", "")
   })
 
   it("renders seeded mock rows supplied by TanStack Query", async (): Promise<void> => {
     renderWithProviders(<ProductListPage />)
 
+    // The page title now lives in the global TopBar (page chrome), not in the
+    // page body, so assert readiness via the catalogue table the page renders.
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: /products/i })).toBeTruthy()
+      expect(
+        screen.getByRole("table", { name: /product catalogue results/i }),
+      ).toBeTruthy()
     })
 
     const reference = MOCK_PRODUCTS[0]

@@ -14,7 +14,7 @@ type UsePlunkConnectorAdminState =
   | { phase: "error"; message: string }
   | { phase: "ready"; dto: PlunkConnectorAdminDto }
 
-export type UsePlunkConnectorAdminApi = {
+type UsePlunkConnectorAdminApi = {
   state: UsePlunkConnectorAdminState
   reload: () => Promise<void>
   saving: boolean

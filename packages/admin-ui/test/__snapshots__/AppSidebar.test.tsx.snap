@@ -34,6 +34,35 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
         Workspace
       </p>
     </div>
+    <button
+      aria-label="Search MercFlow"
+      class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-content-onSidebarMuted transition-[background-color,color,transform] duration-150 hover:bg-surface-sidebarHover hover:text-content-onSidebar focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-[0.94] motion-reduce:transition-none motion-reduce:active:scale-100"
+      style="transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);"
+      title="Search  ⌘K"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        focusable="false"
+        height="17"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="1.75"
+        viewBox="0 0 24 24"
+        width="17"
+      >
+        <circle
+          cx="10.5"
+          cy="10.5"
+          r="6.25"
+        />
+        <path
+          d="m15 15 4.5 4.5"
+        />
+      </svg>
+    </button>
   </div>
   <nav
     aria-label="Application"
@@ -44,7 +73,7 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
     >
       <a
         aria-current="page"
-        class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent bg-surface-sidebarActive text-content-onSidebarActive"
+        class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent bg-surface-sidebarActive text-content-onSidebarActive ring-1 ring-inset ring-border-onSidebar"
         href="/"
       >
         <svg
@@ -956,5 +985,54 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
       </div>
     </div>
   </nav>
+  <div
+    class="shrink-0 border-t border-border-onSidebar px-3 py-3"
+  >
+    <button
+      aria-label="Account: Admin"
+      class="group/account flex w-full items-center gap-3 rounded-md px-2 py-1.5 text-left transition-[background-color,transform] duration-fast hover:bg-surface-sidebarHover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100"
+      style="transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);"
+      title="Account"
+      type="button"
+    >
+      <span
+        aria-hidden="true"
+        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-sidebarActive text-2xs font-semibold text-content-onSidebar ring-1 ring-inset ring-border-onSidebar"
+      >
+        AD
+      </span>
+      <span
+        class="flex min-w-0 flex-1 flex-col"
+      >
+        <span
+          class="truncate text-sm font-medium text-content-onSidebar"
+        >
+          Admin
+        </span>
+        <span
+          class="truncate text-2xs font-medium text-content-onSidebarMuted"
+        >
+          Member
+        </span>
+      </span>
+      <svg
+        aria-hidden="true"
+        class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/account:text-content-onSidebar"
+        fill="none"
+        focusable="false"
+        height="14"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="1.75"
+        viewBox="0 0 24 24"
+        width="14"
+      >
+        <path
+          d="M6 9l6 6 6-6"
+        />
+      </svg>
+    </button>
+  </div>
 </aside>
 `;

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Button } from "@/components/ui/Button"
 import {
   AlertDialog,
@@ -30,7 +31,7 @@ export function ContentLocaleUnsavedDialog({
   onSave,
   onDiscard,
   onClose,
-}: ContentLocaleUnsavedDialogProps): JSX.Element {
+}: ContentLocaleUnsavedDialogProps): ReactNode {
   return (
     <AlertDialog
       open={open}

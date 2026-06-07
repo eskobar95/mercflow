@@ -1,4 +1,4 @@
-import { colorTree, fontFamily, fontSize, fontWeight, letterSpacing, lineHeight, motion, radii, shadows, spacingScale, zIndex, } from "./definitions/batch1.js";
+import { colorTree, fontFamily, fontSize, fontWeight, letterSpacing, lineHeight, layout, motion, radii, shadows, spacingScale, zIndex, } from "./definitions/batch1.js";
 export { buildRootStylesheet } from "./lib/buildRootStylesheet.js";
 export { tailwindPreset } from "./tailwind-preset.js";
 /**
@@ -16,6 +16,7 @@ export const tokens = {
     motion,
     radius: radii,
     shadow: shadows,
+    layout,
     zIndex,
 };
-export { colorTree, fontFamily, fontSize, fontWeight, letterSpacing, lineHeight, motion, radii, shadows, spacingScale, zIndex, } from "./definitions/batch1.js";
+export { colorTree, fontFamily, fontSize, fontWeight, letterSpacing, lineHeight, layout, motion, radii, shadows, spacingScale, zIndex, } from "./definitions/batch1.js";

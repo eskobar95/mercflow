@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { cn } from "@/lib/cn"
 
 import type { ListSortDirection } from "./types"
@@ -18,7 +19,7 @@ function SortIcon({
 }: {
   isActive: boolean
   direction: ListSortDirection
-}): JSX.Element {
+}): ReactNode {
   if (isActive && direction === "asc") {
     return (
       <svg
@@ -75,7 +76,7 @@ export function ListSortLabel<TCol extends string>({
   sortable,
   onRequestSort,
   id,
-}: ListSortLabelProps<TCol>): JSX.Element {
+}: ListSortLabelProps<TCol>): ReactNode {
   if (!sortable) {
     return (
       <span className="text-xs font-medium text-content-tertiary">{label}</span>

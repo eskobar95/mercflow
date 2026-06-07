@@ -16,7 +16,7 @@ function assertRecord(value: unknown): Record<string, unknown> {
   return value as Record<string, unknown>
 }
 
-export function parseArticleAdminRecord(value: unknown): ArticleAdminRecord {
+function parseArticleAdminRecord(value: unknown): ArticleAdminRecord {
   const r = assertRecord(value)
   const id = r.id
   const slug = r.slug
@@ -51,7 +51,7 @@ export function parseArticleAdminRecord(value: unknown): ArticleAdminRecord {
   }
 }
 
-export type SaveArticleBody = {
+type SaveArticleBody = {
   title: string
   slug?: string | null
   body_json?: unknown

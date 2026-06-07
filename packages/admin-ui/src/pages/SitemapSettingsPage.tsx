@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from "react"
+import { type ReactNode, useCallback, useEffect, useReducer, type FormEvent } from "react"
 
 import { PageHeader } from "@/components/ui/PageHeader"
 import { Button } from "@/components/ui/Button"
@@ -21,27 +21,127 @@ const DEFAULTS: Record<SitemapPageType, { priority: string; changefreq: string }
   page: { priority: "0.5", changefreq: "monthly" },
 }
 
-export function SitemapSettingsPage(): JSX.Element {
-  const [config, setConfig] = useState<SitemapConfigDto | null>(null)
-  const [phase, setPhase] = useState<"loading" | "ready" | "error">("loading")
-  const [message, setMessage] = useState<string | null>(null)
-  const [previewXml, setPreviewXml] = useState<string | null>(null)
-  const [previewLoading, setPreviewLoading] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [regenerating, setRegenerating] = useState(false)
-  const [lastRegenerated, setLastRegenerated] = useState<string | null>(null)
-  const [excludedProducts, setExcludedProducts] = useState("")
-  const [excludedCategories, setExcludedCategories] = useState("")
-  const [typeSettings, setTypeSettings] = useState(DEFAULTS)
+type SitemapTypeSettings = Record<SitemapPageType, { priority: string; changefreq: string }>
+
+type SitemapSettingsState = {
+  config: SitemapConfigDto | null
+  phase: "loading" | "ready" | "error"
+  message: string | null
+  previewXml: string | null
+  previewLoading: boolean
+  saving: boolean
+  regenerating: boolean
+  lastRegenerated: string | null
+  excludedProducts: string
+  excludedCategories: string
+  typeSettings: SitemapTypeSettings
+}
+
+type SitemapSettingsAction =
+  | { type: "loadStart" }
+  | { type: "loadSuccess"; payload: Pick<SitemapSettingsState, "config" | "excludedProducts" | "excludedCategories" | "typeSettings"> }
+  | { type: "loadError"; message: string }
+  | { type: "setMessage"; message: string | null }
+  | { type: "setExcludedProducts"; value: string }
+  | { type: "setExcludedCategories"; value: string }
+  | { type: "updateTypeSetting"; pageType: SitemapPageType; patch: Partial<{ priority: string; changefreq: string }> }
+  | { type: "saveStart" }
+  | { type: "saveFinish" }
+  | { type: "saveSuccess"; config: SitemapConfigDto; message: string }
+  | { type: "previewStart" }
+  | { type: "previewFinish" }
+  | { type: "previewSuccess"; xml: string }
+  | { type: "regenerateStart" }
+  | { type: "regenerateFinish" }
+  | { type: "regenerateSuccess"; regeneratedAt: string; xml: string; message: string }
+
+const INITIAL_SITEMAP_SETTINGS_STATE: SitemapSettingsState = {
+  config: null,
+  phase: "loading",
+  message: null,
+  previewXml: null,
+  previewLoading: false,
+  saving: false,
+  regenerating: false,
+  lastRegenerated: null,
+  excludedProducts: "",
+  excludedCategories: "",
+  typeSettings: DEFAULTS,
+}
+
+function sitemapSettingsReducer(
+  state: SitemapSettingsState,
+  action: SitemapSettingsAction,
+): SitemapSettingsState {
+  switch (action.type) {
+    case "loadStart":
+      return { ...state, phase: "loading", message: null }
+    case "loadSuccess":
+      return { ...state, ...action.payload, phase: "ready" }
+    case "loadError":
+      return { ...state, phase: "error", message: action.message }
+    case "setMessage":
+      return { ...state, message: action.message }
+    case "setExcludedProducts":
+      return { ...state, excludedProducts: action.value }
+    case "setExcludedCategories":
+      return { ...state, excludedCategories: action.value }
+    case "updateTypeSetting":
+      return {
+        ...state,
+        typeSettings: {
+          ...state.typeSettings,
+          [action.pageType]: { ...state.typeSettings[action.pageType], ...action.patch },
+        },
+      }
+    case "saveStart":
+      return { ...state, saving: true, message: null }
+    case "saveFinish":
+      return { ...state, saving: false }
+    case "saveSuccess":
+      return { ...state, config: action.config, message: action.message }
+    case "previewStart":
+      return { ...state, previewLoading: true, message: null }
+    case "previewFinish":
+      return { ...state, previewLoading: false }
+    case "previewSuccess":
+      return { ...state, previewXml: action.xml }
+    case "regenerateStart":
+      return { ...state, regenerating: true, message: null }
+    case "regenerateFinish":
+      return { ...state, regenerating: false }
+    case "regenerateSuccess":
+      return {
+        ...state,
+        lastRegenerated: action.regeneratedAt,
+        previewXml: action.xml,
+        message: action.message,
+      }
+    default:
+      return state
+  }
+}
+
+export function SitemapSettingsPage(): ReactNode {
+  const [state, dispatch] = useReducer(sitemapSettingsReducer, INITIAL_SITEMAP_SETTINGS_STATE)
+  const {
+    config,
+    phase,
+    message,
+    previewXml,
+    previewLoading,
+    saving,
+    regenerating,
+    lastRegenerated,
+    excludedProducts,
+    excludedCategories,
+    typeSettings,
+  } = state
 
   const load = useCallback(async (): Promise<void> => {
-    setPhase("loading")
-    setMessage(null)
+    dispatch({ type: "loadStart" })
     try {
       const data = await getAdminSitemapConfig()
-      setConfig(data)
-      setExcludedProducts(data.excluded_product_ids.join(", "))
-      setExcludedCategories(data.excluded_category_ids.join(", "))
       const next = { ...DEFAULTS }
       for (const pageType of PAGE_TYPES) {
         const row = data.page_type_settings[pageType]
@@ -52,11 +152,20 @@ export function SitemapSettingsPage(): JSX.Element {
           }
         }
       }
-      setTypeSettings(next)
-      setPhase("ready")
+      dispatch({
+        type: "loadSuccess",
+        payload: {
+          config: data,
+          excludedProducts: data.excluded_product_ids.join(", "),
+          excludedCategories: data.excluded_category_ids.join(", "),
+          typeSettings: next,
+        },
+      })
     } catch (err: unknown) {
-      setPhase("error")
-      setMessage(err instanceof Error ? err.message : "Failed to load sitemap config")
+      dispatch({
+        type: "loadError",
+        message: err instanceof Error ? err.message : "Failed to load sitemap config",
+      })
     }
   }, [])
 
@@ -66,8 +175,7 @@ export function SitemapSettingsPage(): JSX.Element {
 
   const handleSave = async (event: FormEvent): Promise<void> => {
     event.preventDefault()
-    setSaving(true)
-    setMessage(null)
+    dispatch({ type: "saveStart" })
     try {
       const page_type_settings = Object.fromEntries(
         PAGE_TYPES.map((pageType) => [
@@ -89,41 +197,50 @@ export function SitemapSettingsPage(): JSX.Element {
           .map((s) => s.trim())
           .filter((s) => s.length > 0),
       })
-      setConfig(updated)
-      setMessage("Sitemap configuration saved.")
+      dispatch({ type: "saveSuccess", config: updated, message: "Sitemap configuration saved." })
     } catch (err: unknown) {
-      setMessage(err instanceof Error ? err.message : "Failed to save")
+      dispatch({
+        type: "setMessage",
+        message: err instanceof Error ? err.message : "Failed to save",
+      })
     } finally {
-      setSaving(false)
+      dispatch({ type: "saveFinish" })
     }
   }
 
   const handlePreview = async (): Promise<void> => {
-    setPreviewLoading(true)
-    setMessage(null)
+    dispatch({ type: "previewStart" })
     try {
       const xml = await getAdminSitemapPreview()
-      setPreviewXml(xml)
+      dispatch({ type: "previewSuccess", xml })
     } catch (err: unknown) {
-      setMessage(err instanceof Error ? err.message : "Failed to load preview")
+      dispatch({
+        type: "setMessage",
+        message: err instanceof Error ? err.message : "Failed to load preview",
+      })
     } finally {
-      setPreviewLoading(false)
+      dispatch({ type: "previewFinish" })
     }
   }
 
   const handleRegenerate = async (): Promise<void> => {
-    setRegenerating(true)
-    setMessage(null)
+    dispatch({ type: "regenerateStart" })
     try {
       const result = await postAdminSitemapRegenerate()
-      setLastRegenerated(result.regenerated_at)
       const xml = await getAdminSitemapPreview()
-      setPreviewXml(xml)
-      setMessage("Sitemap cache regenerated.")
+      dispatch({
+        type: "regenerateSuccess",
+        regeneratedAt: result.regenerated_at,
+        xml,
+        message: "Sitemap cache regenerated.",
+      })
     } catch (err: unknown) {
-      setMessage(err instanceof Error ? err.message : "Failed to regenerate")
+      dispatch({
+        type: "setMessage",
+        message: err instanceof Error ? err.message : "Failed to regenerate",
+      })
     } finally {
-      setRegenerating(false)
+      dispatch({ type: "regenerateFinish" })
     }
   }
 
@@ -172,10 +289,11 @@ export function SitemapSettingsPage(): JSX.Element {
                   id={`priority-${pageType}`}
                   value={typeSettings[pageType].priority}
                   onChange={(e) =>
-                    setTypeSettings((prev) => ({
-                      ...prev,
-                      [pageType]: { ...prev[pageType], priority: e.target.value },
-                    }))
+                    dispatch({
+                      type: "updateTypeSetting",
+                      pageType,
+                      patch: { priority: e.target.value },
+                    })
                   }
                 />
               </FormField>
@@ -184,10 +302,11 @@ export function SitemapSettingsPage(): JSX.Element {
                   id={`changefreq-${pageType}`}
                   value={typeSettings[pageType].changefreq}
                   onChange={(e) =>
-                    setTypeSettings((prev) => ({
-                      ...prev,
-                      [pageType]: { ...prev[pageType], changefreq: e.target.value },
-                    }))
+                    dispatch({
+                      type: "updateTypeSetting",
+                      pageType,
+                      patch: { changefreq: e.target.value },
+                    })
                   }
                 />
               </FormField>
@@ -204,7 +323,7 @@ export function SitemapSettingsPage(): JSX.Element {
             <Input
               id="excluded-products"
               value={excludedProducts}
-              onChange={(e) => setExcludedProducts(e.target.value)}
+              onChange={(e) => dispatch({ type: "setExcludedProducts", value: e.target.value })}
             />
           </FormField>
           <FormField
@@ -215,7 +334,7 @@ export function SitemapSettingsPage(): JSX.Element {
             <Input
               id="excluded-categories"
               value={excludedCategories}
-              onChange={(e) => setExcludedCategories(e.target.value)}
+              onChange={(e) => dispatch({ type: "setExcludedCategories", value: e.target.value })}
             />
           </FormField>
         </Card>

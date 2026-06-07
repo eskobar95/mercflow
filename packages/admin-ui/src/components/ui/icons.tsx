@@ -1,4 +1,4 @@
-import type { SVGProps } from "react"
+import type { ReactNode, SVGProps } from "react"
 
 /**
  * Monoline icon system for MercFlow admin chrome.
@@ -11,7 +11,7 @@ import type { SVGProps } from "react"
  * Use these instead of pulling in lucide-react: the surface is small enough
  * that we avoid the dep, and consistency between sidebar + tab bar matters.
  */
-export type IconProps = SVGProps<SVGSVGElement> & {
+type IconProps = SVGProps<SVGSVGElement> & {
   /** Visual size in px — width === height. Defaults to 18 (sidebar density). */
   size?: number
 }
@@ -32,7 +32,7 @@ function baseProps(size: number, rest: SVGProps<SVGSVGElement>): SVGProps<SVGSVG
   }
 }
 
-export function IconHome({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconHome({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <path d="M3.5 10.5 12 3.5l8.5 7" />
@@ -41,7 +41,7 @@ export function IconHome({ size = 18, ...rest }: IconProps): JSX.Element {
   )
 }
 
-export function IconProducts({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconProducts({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <path d="M4 7.5 12 4l8 3.5v9L12 20l-8-3.5z" />
@@ -51,7 +51,7 @@ export function IconProducts({ size = 18, ...rest }: IconProps): JSX.Element {
   )
 }
 
-export function IconOrders({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconOrders({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <path d="M6 3.5h12v17l-3-2-3 2-3-2-3 2z" />
@@ -63,7 +63,7 @@ export function IconOrders({ size = 18, ...rest }: IconProps): JSX.Element {
 }
 
 /** Repeat / subscription cycles — radial arrows. */
-export function IconSubscriptions({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconSubscriptions({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <path d="M7 8h7a5 5 0 1 1-4.5 9" />
@@ -74,7 +74,7 @@ export function IconSubscriptions({ size = 18, ...rest }: IconProps): JSX.Elemen
   )
 }
 
-export function IconCustomers({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconCustomers({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <circle cx="9" cy="8" r="3.25" />
@@ -85,7 +85,7 @@ export function IconCustomers({ size = 18, ...rest }: IconProps): JSX.Element {
   )
 }
 
-export function IconCategories({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconCategories({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <path d="m12 3.5 8 4.5-8 4.5-8-4.5z" />
@@ -95,7 +95,7 @@ export function IconCategories({ size = 18, ...rest }: IconProps): JSX.Element {
   )
 }
 
-export function IconArticles({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconArticles({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <path d="M5.5 3.5h10L19 7v13.5H5.5z" />
@@ -107,7 +107,7 @@ export function IconArticles({ size = 18, ...rest }: IconProps): JSX.Element {
   )
 }
 
-export function IconPages({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconPages({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <rect x="4" y="4" width="16" height="16" rx="2" />
@@ -117,7 +117,7 @@ export function IconPages({ size = 18, ...rest }: IconProps): JSX.Element {
   )
 }
 
-export function IconGlobals({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconGlobals({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <circle cx="12" cy="12" r="8.25" />
@@ -127,7 +127,7 @@ export function IconGlobals({ size = 18, ...rest }: IconProps): JSX.Element {
   )
 }
 
-export function IconConnectors({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconConnectors({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <path d="M9 3.5v3.5" />
@@ -138,7 +138,7 @@ export function IconConnectors({ size = 18, ...rest }: IconProps): JSX.Element {
   )
 }
 
-export function IconSettings({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconSettings({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <circle cx="12" cy="12" r="2.5" />
@@ -147,17 +147,7 @@ export function IconSettings({ size = 18, ...rest }: IconProps): JSX.Element {
   )
 }
 
-export function IconMore({ size = 20, ...rest }: IconProps): JSX.Element {
-  return (
-    <svg {...baseProps(size, rest)}>
-      <path d="M4 6h16" />
-      <path d="M4 12h16" />
-      <path d="M4 18h10" />
-    </svg>
-  )
-}
-
-export function IconSearch({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconSearch({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <circle cx="10.5" cy="10.5" r="6.25" />
@@ -166,7 +156,26 @@ export function IconSearch({ size = 18, ...rest }: IconProps): JSX.Element {
   )
 }
 
-export function IconArrowRight({ size = 16, ...rest }: IconProps): JSX.Element {
+/** Funnel — list filter control. */
+export function IconFilter({ size = 18, ...rest }: IconProps): ReactNode {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <path d="M4 6h16l-6.3 7.4v4.3l-3.4 1.8v-6.1z" />
+    </svg>
+  )
+}
+
+/** Plus — create / add affordances. */
+export function IconPlus({ size = 18, ...rest }: IconProps): ReactNode {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </svg>
+  )
+}
+
+export function IconArrowRight({ size = 16, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <path d="M5 12h14" />
@@ -175,7 +184,7 @@ export function IconArrowRight({ size = 16, ...rest }: IconProps): JSX.Element {
   )
 }
 
-export function IconArrowUpRight({ size = 14, ...rest }: IconProps): JSX.Element {
+export function IconArrowUpRight({ size = 14, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <path d="M7 17 17 7" />
@@ -184,23 +193,8 @@ export function IconArrowUpRight({ size = 14, ...rest }: IconProps): JSX.Element
   )
 }
 
-export function IconSparkle({ size = 16, ...rest }: IconProps): JSX.Element {
-  return (
-    <svg {...baseProps(size, rest)}>
-      <path d="M12 4v4" />
-      <path d="M12 16v4" />
-      <path d="M4 12h4" />
-      <path d="M16 12h4" />
-      <path d="m6.5 6.5 2.5 2.5" />
-      <path d="m15 15 2.5 2.5" />
-      <path d="m15 9 2.5-2.5" />
-      <path d="m6.5 17.5 2.5-2.5" />
-    </svg>
-  )
-}
-
 /** Chevron pointing down — select triggers and expandable panels. */
-export function IconChevronDown({ size = 14, ...rest }: IconProps): JSX.Element {
+export function IconChevronDown({ size = 14, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <path d="M6 9l6 6 6-6" />
@@ -209,7 +203,7 @@ export function IconChevronDown({ size = 14, ...rest }: IconProps): JSX.Element 
 }
 
 /** Check mark — checkbox and select item indicators. */
-export function IconCheck({ size = 14, ...rest }: IconProps): JSX.Element {
+export function IconCheck({ size = 14, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <path d="M20 6 9 17l-5-5" />
@@ -218,7 +212,7 @@ export function IconCheck({ size = 14, ...rest }: IconProps): JSX.Element {
 }
 
 /** Chevron used for expandable parent nav items. Rotates 90° when open. */
-export function IconChevronRight({ size = 14, ...rest }: IconProps): JSX.Element {
+export function IconChevronRight({ size = 14, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <path d="m9 6 6 6-6 6" />
@@ -227,7 +221,7 @@ export function IconChevronRight({ size = 14, ...rest }: IconProps): JSX.Element
 }
 
 /** Chevron pointing left — used for "back" affordances on the mobile sheet. */
-export function IconChevronLeft({ size = 14, ...rest }: IconProps): JSX.Element {
+export function IconChevronLeft({ size = 14, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <path d="m15 6-6 6 6 6" />
@@ -236,7 +230,7 @@ export function IconChevronLeft({ size = 14, ...rest }: IconProps): JSX.Element 
 }
 
 /** Content section tile — layered stack metaphor. */
-export function IconContent({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconContent({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <rect x="3" y="6.5" width="14" height="13" rx="2" />
@@ -246,7 +240,7 @@ export function IconContent({ size = 18, ...rest }: IconProps): JSX.Element {
 }
 
 /** Workspace / team / company icon (rounded square + person). */
-export function IconWorkspace({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconWorkspace({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <rect x="3" y="3" width="18" height="18" rx="3" />
@@ -257,7 +251,7 @@ export function IconWorkspace({ size = 18, ...rest }: IconProps): JSX.Element {
 }
 
 /** People / team icon — two figures. */
-export function IconTeam({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconTeam({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <circle cx="9" cy="9" r="3" />
@@ -269,7 +263,7 @@ export function IconTeam({ size = 18, ...rest }: IconProps): JSX.Element {
 }
 
 /** Billing / credit card icon. */
-export function IconBilling({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconBilling({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <rect x="3" y="5" width="18" height="14" rx="2.5" />
@@ -280,7 +274,7 @@ export function IconBilling({ size = 18, ...rest }: IconProps): JSX.Element {
 }
 
 /** X / close — used by the mobile nav sheet header. */
-export function IconClose({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconClose({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <path d="M18 6 6 18" />
@@ -290,7 +284,7 @@ export function IconClose({ size = 18, ...rest }: IconProps): JSX.Element {
 }
 
 /** Catalogue (squares grid) — used as a Products sub-item icon. */
-export function IconCatalogue({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconCatalogue({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" />
@@ -302,7 +296,7 @@ export function IconCatalogue({ size = 18, ...rest }: IconProps): JSX.Element {
 }
 
 /** Inventory overview — stacked boxes. */
-export function IconInventory({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconInventory({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <path d="M4 8.5 12 4l8 4.5v7L12 20l-8-4.5v-7Z" />
@@ -313,7 +307,7 @@ export function IconInventory({ size = 18, ...rest }: IconProps): JSX.Element {
 }
 
 /** Supplier register — building. */
-export function IconSuppliers({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconSuppliers({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <path d="M5 20V6l7-3 7 3v14" />
@@ -324,7 +318,7 @@ export function IconSuppliers({ size = 18, ...rest }: IconProps): JSX.Element {
 }
 
 /** Purchase orders — clipboard list. */
-export function IconPurchaseOrders({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconPurchaseOrders({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <path d="M8 4h8a2 2 0 0 1 2 2v14H6V6a2 2 0 0 1 2-2Z" />
@@ -335,7 +329,7 @@ export function IconPurchaseOrders({ size = 18, ...rest }: IconProps): JSX.Eleme
 }
 
 /** Google Shopping / product feed — broadcast waves. */
-export function IconFeed({ size = 18, ...rest }: IconProps): JSX.Element {
+export function IconFeed({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>
       <path d="M4 11a8 8 0 0 1 16 0" />
@@ -346,4 +340,4 @@ export function IconFeed({ size = 18, ...rest }: IconProps): JSX.Element {
   )
 }
 
-export type IconComponent = (props: IconProps) => JSX.Element
+export type IconComponent = (props: IconProps) => ReactNode

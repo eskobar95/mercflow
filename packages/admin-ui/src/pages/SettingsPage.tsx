@@ -1,6 +1,7 @@
+import type { ReactNode } from "react"
 import { PlaceholderPage } from "@/pages/PlaceholderPage"
 
-export function SettingsPage(): JSX.Element {
+export function SettingsPage(): ReactNode {
   return (
     <PlaceholderPage
       title="General settings"

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 
 import { fetchAdminOrder } from "@/features/orders/ordersAdminApi"
 import type { OrderDetail } from "@/features/orders/orderTypes"
+import { useAdjustStateWhenKeyChanges } from "@/lib/react/useAdjustStateWhenKeyChanges"
 
 type UseOrderDetailReturn = {
   order: OrderDetail | null
@@ -20,11 +21,25 @@ export function useOrderDetail(orderId: string | undefined): UseOrderDetailRetur
     setReloadToken((t) => t + 1)
   }, [])
 
-  useEffect(() => {
-    if (orderId === undefined || orderId.trim() === "") {
+  const normalizedOrderId = orderId?.trim() ?? ""
+
+  useAdjustStateWhenKeyChanges(
+    orderId === undefined || normalizedOrderId === "" ? null : orderId,
+    () => {
+      if (orderId === undefined || normalizedOrderId === "") {
+        setOrder(null)
+        setIsLoading(false)
+        setErrorMessage("Missing order id")
+        return
+      }
       setOrder(null)
-      setIsLoading(false)
-      setErrorMessage("Missing order id")
+      setIsLoading(true)
+      setErrorMessage(null)
+    },
+  )
+
+  useEffect(() => {
+    if (orderId === undefined || normalizedOrderId === "") {
       return
     }
     let cancelled = false
@@ -52,7 +67,7 @@ export function useOrderDetail(orderId: string | undefined): UseOrderDetailRetur
     return (): void => {
       cancelled = true
     }
-  }, [orderId, reloadToken])
+  }, [orderId, normalizedOrderId, reloadToken])
 
   return { order, isLoading, errorMessage, refetch }
 }

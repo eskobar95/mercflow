@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { fireEvent, render, screen, within } from "@testing-library/react"
 import { MemoryRouter } from "react-router-dom"
 import { describe, expect, it } from "vitest"
@@ -9,13 +10,21 @@ import {
   settingsSidebarSection,
 } from "@/config/sidebarNav"
 
-describe("AppSidebar", (): void => {
-  it("renders leaf items as links and expandable parents as buttons", (): void => {
-    render(
-      <MemoryRouter>
+function renderSidebar(
+  initialEntries?: string[],
+): ReturnType<typeof render> {
+  return render(
+    <QueryClientProvider client={new QueryClient()}>
+      <MemoryRouter initialEntries={initialEntries}>
         <AppSidebar />
       </MemoryRouter>
-    )
+    </QueryClientProvider>,
+  )
+}
+
+describe("AppSidebar", (): void => {
+  it("renders leaf items as links and expandable parents as buttons", (): void => {
+    renderSidebar()
 
     // Top-level: each leaf item is a link, each parent with subItems is a button.
     for (const item of primarySidebarNav) {
@@ -40,11 +49,7 @@ describe("AppSidebar", (): void => {
   })
 
   it("reveals sub-items when an expandable parent is toggled open", (): void => {
-    render(
-      <MemoryRouter initialEntries={["/orders"]}>
-        <AppSidebar />
-      </MemoryRouter>
-    )
+    renderSidebar(["/orders"])
 
     const navRoots = screen.getAllByRole("complementary", { name: /Main navigation/i })
     expect(navRoots[0]).toBeDefined()
@@ -70,11 +75,7 @@ describe("AppSidebar", (): void => {
   })
 
   it("auto-expands the parent when its child route is active", (): void => {
-    render(
-      <MemoryRouter initialEntries={["/product-categories"]}>
-        <AppSidebar />
-      </MemoryRouter>
-    )
+    renderSidebar(["/product-categories"])
 
     const navRoots = screen.getAllByRole("complementary", { name: /Main navigation/i })
     expect(navRoots[0]).toBeDefined()
@@ -98,11 +99,7 @@ describe("AppSidebar", (): void => {
   })
 
   it("matches the structural snapshot", (): void => {
-    const { container } = render(
-      <MemoryRouter>
-        <AppSidebar />
-      </MemoryRouter>
-    )
+    const { container } = renderSidebar()
 
     // Restrict to the <aside> so we don't snapshot the temporary scroll container.
     const aside = within(container).getByRole("complementary", {

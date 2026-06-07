@@ -14,7 +14,7 @@ function parseStringOrNull(value: unknown): string | null {
   return null
 }
 
-export function parseAdminCustomer(value: unknown): AdminCustomer | null {
+function parseAdminCustomer(value: unknown): AdminCustomer | null {
   if (!isRecord(value)) {
     return null
   }
@@ -83,7 +83,7 @@ export function parseAdminCustomerDetailEnvelope(json: unknown): AdminCustomer |
   return parseAdminCustomer(json.customer)
 }
 
-export function parseAdminOrder(value: unknown): AdminOrderLite | null {
+function parseAdminOrder(value: unknown): AdminOrderLite | null {
   if (!isRecord(value)) {
     return null
   }

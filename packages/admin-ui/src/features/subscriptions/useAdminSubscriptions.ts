@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
+import { useAdjustStateWhenSnapshotChanges } from "@/lib/react/useAdjustStateWhenKeyChanges"
 
 import { listAdminSubscriptions } from "./subscriptionsApi"
 import type { AdminSubscriptionListResponse } from "./types"
@@ -32,17 +33,19 @@ export function useAdminSubscriptions(enabled: boolean): {
     }
   }, [])
 
-  useEffect(() => {
-    if (!enabled) {
+  useAdjustStateWhenSnapshotChanges([enabled], () => {
+    if (!enabled || resolveMedusaAdminBackendUrl() === null) {
       setLoading(false)
       setErrorMessage(null)
       setData(null)
+    }
+  })
+
+  useEffect(() => {
+    if (!enabled) {
       return
     }
     if (resolveMedusaAdminBackendUrl() === null) {
-      setLoading(false)
-      setErrorMessage(null)
-      setData(null)
       return
     }
     void refresh()

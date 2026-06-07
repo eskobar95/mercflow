@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 
 import { IconArrowRight } from "@/components/ui/icons"
@@ -6,7 +7,7 @@ import { IconArrowRight } from "@/components/ui/icons"
  * Catch-all 404 — Stripe / Mercury empty-state framing.
  * Single primary CTA back to home. No decorative graphics.
  */
-export function NotFoundPage(): JSX.Element {
+export function NotFoundPage(): ReactNode {
   return (
     <div className="px-4 py-16 md:px-8 md:py-24">
       <div className="mx-auto flex max-w-xl flex-col items-center text-center">

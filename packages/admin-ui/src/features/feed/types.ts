@@ -23,7 +23,7 @@ export type FeedValidationIssueDto = {
   missing_fields: string[]
 }
 
-export type FeedValidationSummaryDto = {
+type FeedValidationSummaryDto = {
   products_checked: number
   products_with_issues: number
   issue_count: number

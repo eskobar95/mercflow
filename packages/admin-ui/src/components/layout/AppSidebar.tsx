@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react"
+import { type ReactNode, useRef, useState } from "react"
 import { NavLink, useLocation, useResolvedPath } from "react-router-dom"
 
+import { UserAccountButton } from "@/components/layout/UserAccountButton"
 import { BrandAvatar } from "@/components/ui/BrandAvatar"
-import { IconChevronRight } from "@/components/ui/icons"
+import { IconChevronRight, IconSearch } from "@/components/ui/icons"
 import {
   contentSidebarSection,
   feedSidebarSection,
@@ -37,7 +38,7 @@ const itemBase =
 
 function leafClass({ isActive }: { isActive: boolean }): string {
   if (isActive) {
-    return `${itemBase} bg-surface-sidebarActive text-content-onSidebarActive`
+    return `${itemBase} bg-surface-sidebarActive text-content-onSidebarActive ring-1 ring-inset ring-border-onSidebar`
   }
   return `${itemBase} text-content-onSidebar hover:bg-surface-sidebarHover`
 }
@@ -48,7 +49,7 @@ function LeafItem({
 }: {
   item: SidebarNavItem
   onNavigate?: () => void
-}): JSX.Element {
+}): ReactNode {
   const Icon = item.icon
   return (
     <NavLink to={item.to} end={item.end} className={leafClass} onClick={onNavigate}>
@@ -80,7 +81,7 @@ function ExpandableItem({
 }: {
   item: SidebarNavItem
   onNavigate?: () => void
-}): JSX.Element {
+}): ReactNode {
   const subItems = item.subItems ?? []
   const location = useLocation()
   const parentPath = useResolvedPath(item.to)
@@ -96,21 +97,25 @@ function ExpandableItem({
     location.pathname === parentPath.pathname ||
     location.pathname.startsWith(`${parentPath.pathname}/`)
 
-  const [open, setOpen] = useState<boolean>(hasActiveChild || isParentRouteActive)
+  const isInside = hasActiveChild || isParentRouteActive
+  const expandedOverrideRef = useRef<boolean | undefined>(undefined)
+  const prevIsInsideRef = useRef(isInside)
+  const [, rerenderExpandable] = useState(0)
 
   // Auto-expand only on the *transition* from outside → inside this group
   // (e.g. clicking a top-level link that lands on a child). Once the user
   // manually toggles the chevron we respect their state; we don't keep
   // re-opening just because a child route is still active — that would
   // make the parent feel "locked" while you're inside it.
-  const wasInsideRef = useRef<boolean>(hasActiveChild || isParentRouteActive)
-  useEffect(() => {
-    const isInside = hasActiveChild || isParentRouteActive
-    if (isInside && !wasInsideRef.current) {
-      setOpen(true)
+  if (isInside !== prevIsInsideRef.current) {
+    if (isInside && !prevIsInsideRef.current) {
+      expandedOverrideRef.current = undefined
+      rerenderExpandable((n) => n + 1)
     }
-    wasInsideRef.current = isInside
-  }, [hasActiveChild, isParentRouteActive])
+    prevIsInsideRef.current = isInside
+  }
+
+  const open = expandedOverrideRef.current ?? isInside
 
   const Icon = item.icon
 
@@ -118,7 +123,10 @@ function ExpandableItem({
     <div className="flex flex-col">
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          expandedOverrideRef.current = !(expandedOverrideRef.current ?? isInside)
+          rerenderExpandable((n) => n + 1)
+        }}
         aria-expanded={open}
         className={[
           itemBase,
@@ -181,7 +189,7 @@ function SubLeaf({
 }: {
   sub: SidebarSubItem
   onNavigate?: () => void
-}): JSX.Element {
+}): ReactNode {
   return (
     <li>
       <NavLink
@@ -192,7 +200,7 @@ function SubLeaf({
           [
             "group/sub flex h-8 items-center rounded-md px-2.5 text-sm transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
             isActive
-              ? "bg-surface-sidebarActive font-medium text-content-onSidebarActive"
+              ? "bg-surface-sidebarActive font-medium text-content-onSidebarActive ring-1 ring-inset ring-border-onSidebar"
               : "font-medium text-content-onSidebarMuted hover:bg-surface-sidebarHover hover:text-content-onSidebar",
           ].join(" ")
         }
@@ -209,7 +217,7 @@ function NavEntry({
 }: {
   item: SidebarNavItem
   onNavigate?: () => void
-}): JSX.Element {
+}): ReactNode {
   if (item.subItems && item.subItems.length > 0) {
     return <ExpandableItem item={item} onNavigate={onNavigate} />
   }
@@ -222,7 +230,7 @@ function Section({
 }: {
   section: SidebarNavSection
   onNavigate?: () => void
-}): JSX.Element {
+}): ReactNode {
   return (
     <div className="mt-6">
       <p className="px-3 pb-2 text-2xs font-medium uppercase tracking-label text-content-onSidebarMuted">
@@ -237,7 +245,7 @@ function Section({
   )
 }
 
-export function AppSidebar({ onNavigate }: AppSidebarProps): JSX.Element {
+export function AppSidebar({ onNavigate }: AppSidebarProps): ReactNode {
   return (
     <aside
       className="flex h-full w-60 shrink-0 flex-col bg-surface-sidebar"
@@ -253,6 +261,20 @@ export function AppSidebar({ onNavigate }: AppSidebarProps): JSX.Element {
             Workspace
           </p>
         </div>
+        {/*
+          Global search lives in the sidebar header (Linear pattern) so the page
+          chrome bar only carries page identity + contextual actions. Keyboard:
+          ⌘K opens the same surface once the command palette ships.
+        */}
+        <button
+          type="button"
+          aria-label="Search MercFlow"
+          title="Search  ⌘K"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-content-onSidebarMuted transition-[background-color,color,transform] duration-150 hover:bg-surface-sidebarHover hover:text-content-onSidebar focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-[0.94] motion-reduce:transition-none motion-reduce:active:scale-100"
+          style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
+        >
+          <IconSearch size={17} />
+        </button>
       </div>
 
       <nav
@@ -269,6 +291,8 @@ export function AppSidebar({ onNavigate }: AppSidebarProps): JSX.Element {
         <Section section={contentSidebarSection} onNavigate={onNavigate} />
         <Section section={settingsSidebarSection} onNavigate={onNavigate} />
       </nav>
+
+      <UserAccountButton />
     </aside>
   )
 }

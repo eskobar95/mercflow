@@ -260,12 +260,23 @@ All shadows use warm navy rgba(26,26,46,…) — never pure black.
 | CSS variable | Value | Use case |
 |---|---|---|
 | `--mf-z-base` | `0` | Document flow |
-| `--mf-z-dropdown` | `1000` | Dropdown menus |
-| `--mf-z-sticky` | `1020` | Sticky headers |
+| `--mf-z-sticky` | `1020` | Sticky headers, table footers |
+| `--mf-z-dropdown` | `1030` | Dropdown menus (above sticky chrome) |
 | `--mf-z-modal-backdrop` | `1040` | Modal overlay scrim |
 | `--mf-z-modal` | `1050` | Modal panels |
 | `--mf-z-popover` | `1060` | Popovers, tooltips |
 | `--mf-z-toast` | `1080` | Toast notifications |
+
+---
+
+### Layout — `--mf-layout-*`
+
+| CSS variable | Value | Tailwind utility | Use case |
+|---|---|---|---|
+| `--mf-layout-list-table-min-width` | `600px` | `min-w-listTable` | Horizontal scroll floor for data tables |
+| `--mf-layout-filter-chip-max-width` | `11rem` | `max-w-filterChip` | Truncated filter/search chip labels |
+
+Motion and layout utilities are also exposed on the Tailwind preset as `ease-enter`, `duration-page`, `duration-fast`, etc.
 
 ---
 

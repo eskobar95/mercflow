@@ -51,14 +51,26 @@ export const DEFAULT_SINGLE_OPTION_VALUE = "Standard"
 export function buildVariantRowsFromOptionMatrix(
   options: ProductOptionRowModel[],
 ): Array<Pick<VariantRowModel, "comboKey" | "selections">> {
-  const cleaned = options
-    .map((row) => {
-      const title = row.title.trim()
-      const uniq = [...new Set(row.values.map((v) => v.trim()).filter(Boolean))]
-      return title !== "" ? { title, values: uniq } : null
-    })
-    .filter((row): row is { title: string; values: string[] } => row !== null)
-    .filter((row) => row.values.length > 0)
+  const cleaned: Array<{ title: string; values: string[] }> = []
+  for (const row of options) {
+    const title = row.title.trim()
+    if (title === "") {
+      continue
+    }
+
+    const uniq = [
+      ...new Set(
+        row.values.flatMap((value) => {
+          const trimmed = value.trim()
+          return trimmed !== "" ? [trimmed] : []
+        }),
+      ),
+    ]
+
+    if (uniq.length > 0) {
+      cleaned.push({ title, values: uniq })
+    }
+  }
 
   if (cleaned.length === 0) {
     const selections = { [DEFAULT_SINGLE_OPTION_TITLE]: DEFAULT_SINGLE_OPTION_VALUE }

@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react"
+import { type ReactNode, useCallback, useMemo, useRef, useState } from "react"
 import { NavLink, useLocation } from "react-router-dom"
 
 import { DRAWER_EASE, ENTER_EASE } from "@/constants/motion"
+import { useAdjustStateWhenKeyChanges } from "@/lib/react/useAdjustStateWhenKeyChanges"
 import { BrandAvatar } from "@/components/ui/BrandAvatar"
 import {
   IconChevronLeft,
@@ -136,18 +137,22 @@ const SHEET_EASE = DRAWER_EASE
 export function MobileNavSheet({
   open,
   onClose,
-}: MobileNavSheetProps): JSX.Element {
+}: MobileNavSheetProps): ReactNode {
   const rootTiles = useMemo(buildRootTiles, [])
   const [drillKey, setDrillKey] = useState<string | null>(null)
   const location = useLocation()
+  const closeResetTimerRef = useRef<number | null>(null)
 
-  // Reset to root when the sheet finishes closing so the next open starts
-  // fresh. Delay the reset so the close animation doesn't snap.
-  useEffect(() => {
-    if (open) return
-    const timer = window.setTimeout(() => setDrillKey(null), 250)
-    return () => window.clearTimeout(timer)
-  }, [open])
+  const requestClose = useCallback((): void => {
+    onClose()
+    if (closeResetTimerRef.current !== null) {
+      window.clearTimeout(closeResetTimerRef.current)
+    }
+    closeResetTimerRef.current = window.setTimeout(() => {
+      setDrillKey(null)
+      closeResetTimerRef.current = null
+    }, 250)
+  }, [onClose])
 
   const drillTile = useMemo(
     () => (drillKey ? rootTiles.find((t) => t.drillTo === drillKey) ?? null : null),
@@ -164,7 +169,7 @@ export function MobileNavSheet({
       <SheetHeader
         isDrilled={isDrilled}
         drillLabel={drillTile?.label ?? null}
-        onClose={onClose}
+        onClose={requestClose}
         onBack={() => setDrillKey(null)}
       />
 
@@ -176,13 +181,13 @@ export function MobileNavSheet({
           tiles={rootTiles}
           currentPath={location.pathname}
           onDrill={setDrillKey}
-          onNavigate={onClose}
+          onNavigate={requestClose}
         />
         <DrillPane
           open={open}
           isActive={isDrilled}
           tile={drillTile}
-          onNavigate={onClose}
+          onNavigate={requestClose}
         />
       </div>
     </aside>
@@ -215,7 +220,7 @@ function SheetHeader({
   drillLabel: string | null
   onClose: () => void
   onBack: () => void
-}): JSX.Element {
+}): ReactNode {
   return (
     <header className="sticky top-0 z-sticky flex h-14 shrink-0 items-center gap-3 border-b border-border-app bg-surface-appCard px-3 backdrop-blur-sm">
       {/*
@@ -258,7 +263,6 @@ function SheetHeader({
         <button
           type="button"
           onClick={onBack}
-          aria-hidden={!isDrilled}
           tabIndex={isDrilled ? 0 : -1}
           className="absolute left-0 inline-flex h-9 items-center gap-1 rounded-full pl-1.5 pr-3 text-interface font-semibold tracking-tight text-content-primary transition-colors duration-150 hover:bg-surface-subtle active:bg-surface-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           style={{
@@ -312,7 +316,7 @@ function RootPane({
   currentPath: string
   onDrill: (key: string) => void
   onNavigate: () => void
-}): JSX.Element {
+}): ReactNode {
   return (
     <div
       aria-hidden={!isActive}
@@ -356,15 +360,18 @@ function DrillPane({
   isActive: boolean
   tile: TileSource | null
   onNavigate: () => void
-}): JSX.Element {
+}): ReactNode {
   // Keep the last-known tile in memo so the exit animation plays with the
   // right content even after `tile` becomes null on close.
-  const [lastTile, setLastTile] = useState<TileSource | null>(tile)
-  useEffect(() => {
-    if (tile) setLastTile(tile)
-  }, [tile])
+  const lastTileRef = useRef<TileSource | null>(tile)
 
-  const renderTile = tile ?? lastTile
+  useAdjustStateWhenKeyChanges(tile?.key ?? null, () => {
+    if (tile) {
+      lastTileRef.current = tile
+    }
+  })
+
+  const renderTile = tile ?? lastTileRef.current
   const subItems = renderTile?.subItems ?? []
 
   return (
@@ -412,7 +419,7 @@ function DrillPane({
 /* Grid + Tile primitives                                                 */
 /* ─────────────────────────────────────────────────────────────────────── */
 
-function TileGrid({ children }: { children: React.ReactNode }): JSX.Element {
+function TileGrid({ children }: { children: React.ReactNode }): ReactNode {
   return <div className="grid grid-cols-2 gap-3">{children}</div>
 }
 
@@ -438,7 +445,7 @@ function Tile({
   staggerIndex: number
   onDrill: (key: string) => void
   onNavigate: () => void
-}): JSX.Element {
+}): ReactNode {
   const Icon = tile.icon
   const isDrillable = Boolean(tile.drillTo && tile.subItems)
   const subCount = tile.subItems?.length ?? 0
@@ -526,7 +533,7 @@ function SubTile({
   open: boolean
   staggerIndex: number
   onNavigate: () => void
-}): JSX.Element {
+}): ReactNode {
   const Icon = sub.icon ?? fallbackIcon
   if (!Icon) {
     // Defensive — sub-items always carry an icon in our config, but the
@@ -586,7 +593,7 @@ function TileTop({
   active: boolean
   /** Render an amber dot on the icon chip indicating the current route lives in this section. */
   showSectionDot?: boolean
-}): JSX.Element {
+}): ReactNode {
   return (
     <div className="flex items-start justify-between">
       <span
@@ -620,7 +627,7 @@ function TileBottom({
   meta?: string
   active: boolean
   drill?: boolean
-}): JSX.Element {
+}): ReactNode {
   return (
     <div className="flex items-end justify-between gap-2">
       <div className="min-w-0">

@@ -9,6 +9,22 @@
  *   export default { presets: [tailwindPreset], ... }
  */
 const colors = {
+    neutral: {
+        0: "var(--mf-color-neutral-0)",
+        25: "var(--mf-color-neutral-25)",
+        50: "var(--mf-color-neutral-50)",
+        100: "var(--mf-color-neutral-100)",
+        150: "var(--mf-color-neutral-150)",
+        200: "var(--mf-color-neutral-200)",
+        300: "var(--mf-color-neutral-300)",
+        400: "var(--mf-color-neutral-400)",
+        500: "var(--mf-color-neutral-500)",
+        600: "var(--mf-color-neutral-600)",
+        700: "var(--mf-color-neutral-700)",
+        800: "var(--mf-color-neutral-800)",
+        900: "var(--mf-color-neutral-900)",
+        950: "var(--mf-color-neutral-950)",
+    },
     surface: {
         canvas: "var(--mf-color-surface-canvas)",
         DEFAULT: "var(--mf-color-surface-default)",
@@ -179,6 +195,7 @@ const lineHeight = {
     relaxed: "var(--mf-line-height-relaxed)",
 };
 const letterSpacing = {
+    tighter: "var(--mf-letter-spacing-tighter)",
     tight: "var(--mf-letter-spacing-tight)",
     normal: "var(--mf-letter-spacing-normal)",
     label: "var(--mf-letter-spacing-label)",
@@ -213,6 +230,23 @@ const zIndex = {
     popover: "var(--mf-z-popover)",
     toast: "var(--mf-z-toast)",
 };
+const minWidth = {
+    listTable: "var(--mf-layout-list-table-min-width)",
+};
+const maxWidth = {
+    filterChip: "var(--mf-layout-filter-chip-max-width)",
+};
+const transitionTimingFunction = {
+    enter: "var(--mf-motion-easing-enter)",
+    exit: "var(--mf-motion-easing-exit)",
+    drawer: "var(--mf-motion-easing-drawer)",
+    standard: "var(--mf-motion-easing-standard)",
+};
+const transitionDuration = {
+    fast: "var(--mf-motion-duration-fast)",
+    page: "var(--mf-motion-duration-page)",
+    slow: "var(--mf-motion-duration-slow)",
+};
 export const tailwindPreset = {
     theme: {
         extend: {
@@ -226,6 +260,10 @@ export const tailwindPreset = {
             borderRadius,
             boxShadow,
             zIndex,
+            minWidth,
+            maxWidth,
+            transitionTimingFunction,
+            transitionDuration,
         },
     },
 };

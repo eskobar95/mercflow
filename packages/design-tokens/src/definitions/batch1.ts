@@ -1,136 +1,180 @@
 /**
- * Batch 1 design token source values (light, spacious admin — Shopify Admin–inspired).
+ * Batch 1 design token source values.
+ *
+ * Direction (Refero reference lock): "ink on paper" admin.
+ *   - Depth comes from a cool neutral ramp + hairline borders, never diffuse shadow
+ *     (Linear's depth philosophy expressed in a light shadcn/Audyr monochrome system).
+ *   - Primary actions are near-black ink (Asana / Linear / shadcn), NOT a colored fill.
+ *   - A single restrained blue accent is reserved for focus, selection, links, and info.
+ *     It is never used as a large background wash.
+ *
  * All sRGB color literals for the admin UI must originate here (or in this package only).
  */
+
+/**
+ * Neutral ramp — single source of truth for every grey in the admin.
+ * Slightly cool cast so the UI reads crisp and modern rather than warm/office-beige.
+ * Surfaces, borders, and text are all derived from this ramp below.
+ */
+const neutral = {
+  /** Pure white — card / popover surfaces */
+  0: "#ffffff",
+  25: "#fbfcfd",
+  /** App canvas */
+  50: "#f6f8fa",
+  100: "#eef1f5",
+  /** Subtle fills, table stripes, muted controls */
+  150: "#e7ebf0",
+  /** Default hairline border */
+  200: "#e1e6eb",
+  300: "#d2d8df",
+  400: "#aab2bd",
+  /** Tertiary text / placeholders */
+  500: "#7a828d",
+  /** Secondary text */
+  600: "#5a626d",
+  700: "#3e444d",
+  800: "#272b31",
+  /** Ink — primary text + primary action fill */
+  900: "#181b20",
+  950: "#0f1114",
+} as const
+
 export const colorTree = {
+  neutral,
   surface: {
     /** Application canvas / page background */
-    canvas: "#f6f6f7",
+    canvas: neutral[50],
     /** Same as canvas; semantic alias for MercFlow shell */
-    appCanvas: "#f6f6f7",
+    appCanvas: neutral[50],
     /** Primary panels, cards, popovers (raised surfaces) */
-    default: "#ffffff",
+    default: neutral[0],
     /** Same as default; semantic alias for card surfaces inside the shell */
-    appCard: "#ffffff",
+    appCard: neutral[0],
     /** Secondary panels, table stripes */
-    subtle: "#f9f9f9",
+    subtle: neutral[50],
     /** Disabled inputs, low-emphasis areas */
-    muted: "#f1f1f1",
-    /** Same as default; use with shadow for elevation if needed */
-    raised: "#ffffff",
+    muted: neutral[100],
+    /** Same as default; raised surfaces (overlays) pair with shadow-md */
+    raised: neutral[0],
     /** Scrim for modal overlays (light theme) */
-    overlay: "rgba(16, 24, 32, 0.35)",
-    /** Sidebar background (narrow rail) */
-    sidebar: "#ebebeb",
+    overlay: "rgba(15, 17, 20, 0.40)",
+    /** Sidebar background (light rail — active item is a white pill) */
+    sidebar: neutral[100],
     /** Sidebar row hover wash */
-    sidebarHover: "#e3e5e8",
+    sidebarHover: neutral[150],
     /** Active sidebar item surface */
-    sidebarActive: "#ffffff",
+    sidebarActive: neutral[0],
   },
   content: {
-    primary: "#202223",
-    secondary: "#6d7175",
-    tertiary: "#8c9196",
-    placeholder: "#8c9196",
+    primary: neutral[900],
+    secondary: neutral[600],
+    tertiary: neutral[500],
+    placeholder: neutral[400],
     /** Text on primary / danger fill buttons */
-    inverse: "#ffffff",
+    inverse: neutral[0],
     /** Non-interactive de-emphasis */
-    disabled: "#8c9196",
+    disabled: neutral[400],
     /** Links and critical inline messaging */
-    danger: "#c52828",
+    danger: "#c0392b",
     /** Text on sidebar default state */
-    onSidebar: "#303030",
-    onSidebarMuted: "#616161",
-    onSidebarActive: "#202223",
+    onSidebar: neutral[700],
+    onSidebarMuted: neutral[500],
+    onSidebarActive: neutral[900],
   },
   border: {
-    default: "#e1e3e5",
-    subtle: "#ebebeb",
-    strong: "#8c9196",
-    focus: "#2c6ecb",
+    default: neutral[200],
+    subtle: neutral[100],
+    /** Hover / emphasized hairline */
+    strong: neutral[300],
+    focus: "#2b5cd9",
     /** Divider between sidebar / top chrome and main canvas */
-    app: "#dadde0",
+    app: neutral[200],
     /** Hairline separators on the sidebar rail */
-    onSidebar: "#d2d5d8",
+    onSidebar: neutral[200],
   },
-  /** Brand primitives (MercFlow neutrals + primary accent cue) */
+  /** Brand primitives (MercFlow ink base + single accent cue) */
   brand: {
-    base: "#202223",
-    accent: "#2c6ecb",
-    cream: "#f6f6f7",
+    base: neutral[900],
+    accent: "#2b5cd9",
+    cream: neutral[50],
   },
-  /** Decorative / marketing accent ramps (paired with CTAs + highlights) */
+  /**
+   * Accent — single restrained blue. Role: focus ring, selected/active state,
+   * links, and informational highlights. Never a large background fill.
+   */
   accent: {
-    default: "#2c6ecb",
-    subtle: "#e6f0ff",
-    soft: "#d5ebff",
-    strong: "#1a5cb0",
+    default: "#2b5cd9",
+    subtle: "#eef2fd",
+    soft: "#dbe4fb",
+    strong: "#1f47ad",
     /** Text readable on accent-subtle fills */
-    text: "#174a8c",
+    text: "#1b3e96",
   },
   interactive: {
+    /** Primary actions — ink fill (the signature "no blue button" move). */
     primary: {
-      default: "#2c6ecb",
-      hover: "#1a5cb0",
-      pressed: "#134c92",
+      default: neutral[900],
+      hover: neutral[800],
+      pressed: neutral[950],
       /** Ghost / low-emphasis control backgrounds */
-      subtle: "#e6f0ff",
+      subtle: neutral[100],
     },
     /** Soft tonal controls (muted fills) */
     soft: {
-      default: "#f1f3f5",
-      hover: "#e3e7ea",
-      border: "#cdd3d9",
-      label: "#4a4d52",
+      default: neutral[100],
+      hover: neutral[150],
+      border: neutral[300],
+      label: neutral[700],
     },
     /** Neutral secondary buttons */
     secondary: {
-      default: "#ffffff",
-      hover: "#f6f7f9",
+      default: neutral[0],
+      hover: neutral[50],
     },
     /** Destructive actions (paired with Tailwind interactive-destructive-*) */
     destructive: {
-      default: "#c52828",
-      hover: "#9e1f1f",
+      default: "#c0392b",
+      hover: "#9c2a1f",
       /** Low-emphasis danger surfaces */
-      subtle: "#fceded",
-      border: "#eab4b4",
-      label: "#8e1f18",
+      subtle: "#fcecea",
+      border: "#eab4ad",
+      label: "#8a261c",
     },
     /** Focus affordance; pair with focus outline styles in admin-ui */
     focus: {
-      ring: "#2c6ecb",
+      ring: "#2b5cd9",
     },
     disabled: {
-      background: "#f1f1f1",
-      text: "#8c9196",
-      border: "#e1e3e5",
+      background: neutral[100],
+      text: neutral[400],
+      border: neutral[200],
     },
   },
   feedback: {
     success: {
-      default: "#007f5f",
-      subtle: "#e3f6ef",
-      content: "#0d4f3c",
-      border: "#8fcbb5",
+      default: "#0a7a55",
+      subtle: "#e7f5ef",
+      content: "#0a4a36",
+      border: "#9ad0bb",
     },
     warning: {
-      default: "#b78600",
-      subtle: "#fff5d9",
-      content: "#5c4813",
-      border: "#f0d878",
+      default: "#b07400",
+      subtle: "#fcf2d9",
+      content: "#5a4410",
+      border: "#eccf7d",
     },
     danger: {
-      default: "#c52828",
-      subtle: "#fceded",
-      content: "#771515",
-      border: "#e89898",
+      default: "#c0392b",
+      subtle: "#fcecea",
+      content: "#7a221a",
+      border: "#e6a79f",
     },
     info: {
-      default: "#2c6ecb",
-      subtle: "#e6f0ff",
-      content: "#133e7c",
-      border: "#8fb5ea",
+      default: "#2b5cd9",
+      subtle: "#eef2fd",
+      content: "#1b3e96",
+      border: "#a9bdee",
     },
     /** Amber-adjacent “attention” tone for on-hold / pending badges (distinct from warning). */
     pending: {
@@ -247,10 +291,12 @@ export const lineHeight = {
 } as const
 
 export const letterSpacing = {
-  tight: "-0.01em",
+  /** Display / large headings — tight, confident (Linear / Audyr trait) */
+  tighter: "-0.022em",
+  tight: "-0.011em",
   normal: "0",
   /** Caps / micro-metadata above lists */
-  label: "0.08em",
+  label: "0.06em",
   wide: "0.02em",
 } as const
 
@@ -265,19 +311,27 @@ export const radii = {
 } as const
 
 /**
- * Layered box shadows. Values reference surface/content tokens for consistency.
+ * Elevation — intentionally near-flat. Depth in this admin comes from the neutral
+ * ramp + hairline borders, not diffuse shadow.
+ *
+ *   sm  — content surfaces (cards/tiles). Barely-there; rely on the border.
+ *   md  — transient floats only (dropdowns, popovers, toasts): one soft layer.
+ *   lg  — modals / sheets: a slightly deeper single layer.
+ *   focus — accent ring for keyboard focus.
  */
 export const shadows = {
-  sm: "0 1px 2px rgba(32, 34, 35, 0.08), 0 0 0 1px rgba(32, 34, 35, 0.04)",
-  md: "0 2px 6px rgba(32, 34, 35, 0.1), 0 0 0 1px rgba(32, 34, 35, 0.06)",
-  lg: "0 8px 24px rgba(32, 34, 35, 0.12), 0 0 0 1px rgba(32, 34, 35, 0.06)",
-  focus: "0 0 0 3px rgba(44, 110, 203, 0.35)",
+  sm: "0 1px 2px -1px rgba(15, 17, 20, 0.05)",
+  md: "0 6px 16px -6px rgba(15, 17, 20, 0.12), 0 0 0 1px rgba(15, 17, 20, 0.05)",
+  lg: "0 16px 40px -12px rgba(15, 17, 20, 0.18), 0 0 0 1px rgba(15, 17, 20, 0.05)",
+  focus: "0 0 0 3px rgba(43, 92, 217, 0.28)",
 } as const
 
 export const zIndex = {
   base: "0",
-  dropdown: "1000",
+  /** Sticky page chrome (top bar, table footers) — below floating menus. */
   sticky: "1020",
+  /** Dropdown menus — must sit above sticky chrome when opened from the TopBar. */
+  dropdown: "1030",
   modalBackdrop: "1040",
   modal: "1050",
   popover: "1060",
@@ -291,16 +345,29 @@ export const zIndex = {
 export const motion = {
   duration: {
     /** Default enter timing for main route outlet content */
-    page: "200ms",
-    /** Micro-interactions (hover, ripple) */
-    fast: "150ms",
+    page: "190ms",
+    /** Micro-interactions (hover, press, color) */
+    fast: "140ms",
+    /** Drawers / sheets / larger surfaces */
+    slow: "280ms",
   },
   easing: {
-    /** Standard deceleration for route outlet enter */
-    page: "cubic-bezier(0.2, 0, 0, 1)",
+    /** Strong ease-out — enter timing (responsive, instant first frame) */
+    page: "cubic-bezier(0.23, 1, 0.32, 1)",
     /** Alias referenced by `@mercflow/admin-ui/index.css` */
-    enter: "cubic-bezier(0.2, 0, 0, 1)",
+    enter: "cubic-bezier(0.23, 1, 0.32, 1)",
+    /** Snappy exit */
     exit: "cubic-bezier(0.4, 0, 1, 1)",
+    /** On-screen movement / morph */
+    standard: "cubic-bezier(0.77, 0, 0.175, 1)",
+    /** iOS drawer curve for slide-in panels */
+    drawer: "cubic-bezier(0.32, 0.72, 0, 1)",
     spring: "cubic-bezier(0.34, 1.56, 0.64, 1)",
   },
+} as const
+
+/** Fixed layout dimensions for list surfaces and compact filter chips. */
+export const layout = {
+  listTableMinWidth: "600px",
+  filterChipMaxWidth: "11rem",
 } as const

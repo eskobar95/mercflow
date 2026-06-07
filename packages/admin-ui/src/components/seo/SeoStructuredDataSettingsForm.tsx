@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react"
+import { type ReactNode, useEffect, useState, type FormEvent } from "react"
 
 import { Button } from "@/components/ui/Button"
 import { Card } from "@/components/ui/Card"
@@ -6,7 +6,7 @@ import { Spinner } from "@/components/ui/Spinner"
 import type { JsonLdSettingsDto } from "@/features/seo/types"
 import { useSeoStructuredDataSettings } from "@/hooks/useSeoStructuredDataSettings"
 
-export function SeoStructuredDataSettingsForm(): JSX.Element {
+export function SeoStructuredDataSettingsForm(): ReactNode {
   const { state, reload, save } = useSeoStructuredDataSettings()
   const [settings, setSettings] = useState<JsonLdSettingsDto>({
     product: true,
@@ -60,12 +60,9 @@ export function SeoStructuredDataSettingsForm(): JSX.Element {
   return (
     <form className="space-y-6" onSubmit={(e) => void handleSubmit(e)} noValidate>
       {saveSucceeded ? (
-        <div
-          role="status"
-          className="rounded-lg border border-border-subtle bg-surface-subtle p-3 text-sm text-content-secondary"
-        >
+        <output className="block rounded-lg border border-border-subtle bg-surface-subtle p-3 text-sm text-content-secondary">
           Structured data toggles saved. Storefront requests respect these flags per page type.
-        </div>
+        </output>
       ) : null}
       {errorMessage !== null ? (
         <div

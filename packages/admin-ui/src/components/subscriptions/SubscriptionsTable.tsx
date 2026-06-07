@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { type ReactNode, useMemo, useState } from "react"
 
 import { Link } from "react-router-dom"
 
@@ -99,7 +99,7 @@ const SUB_COLUMNS: ListColumnDef<AdminSubscriptionRow, SubCol>[] = [
   },
 ]
 
-export type SubscriptionsTableProps = {
+type SubscriptionsTableProps = {
   rows: readonly AdminSubscriptionRow[]
   isLoading?: boolean
 }
@@ -107,7 +107,7 @@ export type SubscriptionsTableProps = {
 /**
  * Sortable subscriptions grid with preset-backed badges (MercFlow `/subscriptions`).
  */
-export function SubscriptionsTable({ rows, isLoading = false }: SubscriptionsTableProps): JSX.Element {
+export function SubscriptionsTable({ rows, isLoading = false }: SubscriptionsTableProps): ReactNode {
   const allRows = useMemo(() => [...rows], [rows])
 
   const [sort, setSort] = useState<ListSortState<SubCol>>({
@@ -136,7 +136,7 @@ export function SubscriptionsTable({ rows, isLoading = false }: SubscriptionsTab
       return allRows
     }
     const dir = sort.direction === "asc" ? 1 : -1
-    return [...allRows].sort((a, b) => {
+    return allRows.toSorted((a, b) => {
       const av = def.getSortValue?.(a)
       const bv = def.getSortValue?.(b)
       if (av === undefined || bv === undefined) {

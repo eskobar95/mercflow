@@ -1,10 +1,11 @@
-import { Suspense, useCallback, useEffect, useState } from "react"
+import { type ReactNode, Suspense, useCallback, useEffect, useState } from "react"
 import { Outlet, useLocation } from "react-router-dom"
 
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary"
 import { MainLoadingFallback } from "@/components/ui/MainLoadingFallback"
 import { PageTransition } from "@/components/ui/PageTransition"
 import { useRouteTitle } from "@/hooks/useRouteTitle"
+import { useAdjustStateWhenKeyChanges } from "@/lib/react/useAdjustStateWhenKeyChanges"
 
 import { DRAWER_EASE, ENTER_EASE, SHEET_CLOSE_MS, SHEET_OPEN_MS } from "@/constants/motion"
 
@@ -13,7 +14,7 @@ import { MobileNavSheet } from "./MobileNavSheet"
 import { MobileTabBar } from "./MobileTabBar"
 import { TopBar } from "./TopBar"
 
-function RoutedMainOutlet(): JSX.Element {
+function RoutedMainOutlet(): ReactNode {
   const { key } = useLocation()
   return (
     <PageTransition routeKey={key}>
@@ -39,25 +40,28 @@ function RoutedMainOutlet(): JSX.Element {
  * 280ms slide-in (drawer ease), 200ms slide-out (snappier release). Backdrop
  * uses opacity transition so it can be interrupted mid-flight.
  */
-export function AdminShell(): JSX.Element {
+export function AdminShell(): ReactNode {
   const [moreSheetOpen, setMoreSheetOpen] = useState(false)
+  const [navSheetWillChange, setNavSheetWillChange] = useState(false)
   const title = useRouteTitle()
   const location = useLocation()
 
   const closeMoreSheet = useCallback((): void => {
+    setNavSheetWillChange(true)
     setMoreSheetOpen(false)
   }, [])
 
   const toggleMoreSheet = useCallback((): void => {
+    setNavSheetWillChange(true)
     setMoreSheetOpen((open) => !open)
   }, [])
 
   const dismissMoreSheetNavigationToken = location.key
 
-  // Always dismiss the sheet on route change.
-  useEffect(() => {
+  useAdjustStateWhenKeyChanges(dismissMoreSheetNavigationToken, () => {
+    setNavSheetWillChange(true)
     setMoreSheetOpen(false)
-  }, [dismissMoreSheetNavigationToken])
+  })
 
   // Lock background scroll while the sheet is open — common drawer hygiene.
   useEffect(() => {
@@ -98,7 +102,6 @@ export function AdminShell(): JSX.Element {
         type="button"
         aria-label="Close navigation menu"
         onClick={closeMoreSheet}
-        aria-hidden={!moreSheetOpen}
         tabIndex={moreSheetOpen ? 0 : -1}
         className="fixed inset-0 z-modal-backdrop bg-surface-overlay md:hidden motion-reduce:transition-none"
         style={{
@@ -107,24 +110,28 @@ export function AdminShell(): JSX.Element {
           transition: `opacity 240ms ${DRAWER_EASE}`,
         }}
       />
-      <div
+      <dialog
         id="mobile-nav-sheet"
-        role="dialog"
-        aria-modal="true"
+        open={moreSheetOpen || undefined}
         aria-label="Main navigation"
-        aria-hidden={!moreSheetOpen}
-        className="fixed inset-0 z-modal flex md:hidden motion-reduce:transition-none"
+        className="fixed inset-0 z-modal m-0 flex h-[100dvh] max-h-none w-full max-w-none border-0 bg-transparent p-0 md:hidden motion-reduce:transition-none"
         style={{
           transform: moreSheetOpen ? "translateX(0)" : "translateX(-100%)",
           transition: moreSheetOpen
             ? `transform ${SHEET_OPEN_MS}ms ${DRAWER_EASE}`
             : `transform ${SHEET_CLOSE_MS}ms ${ENTER_EASE}`,
-          willChange: "transform",
+          ...(navSheetWillChange ? { willChange: "transform" as const } : {}),
           pointerEvents: moreSheetOpen ? "auto" : "none",
+        }}
+        onTransitionEnd={(event) => {
+          if (event.propertyName !== "transform") {
+            return
+          }
+          setNavSheetWillChange(false)
         }}
       >
         <MobileNavSheet open={moreSheetOpen} onClose={closeMoreSheet} />
-      </div>
+      </dialog>
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <TopBar
@@ -135,7 +142,7 @@ export function AdminShell(): JSX.Element {
         <main
           id="main-content"
           tabIndex={-1}
-          className="min-h-0 flex-1 overflow-y-auto focus:outline-none"
+          className="flex min-h-0 flex-1 flex-col overflow-y-auto focus:outline-none"
         >
           <ErrorBoundary>
             <Suspense fallback={<MainLoadingFallback />}>

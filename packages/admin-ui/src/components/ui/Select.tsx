@@ -47,7 +47,7 @@ export function Select({
   "aria-describedby": ariaDescribedBy,
   className,
   triggerClassName,
-}: SelectProps): JSX.Element {
+}: SelectProps): ReactNode {
   return (
     <SelectPrimitive.Root
       value={value}

@@ -1,4 +1,4 @@
-import type { JSX } from "react"
+import type { ReactNode } from "react"
 import { useCallback, useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
@@ -29,7 +29,7 @@ function formatUpdatedAt(value: string | undefined): string {
   return d.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })
 }
 
-export function PagesListPage(): JSX.Element {
+export function PagesListPage(): ReactNode {
   const navigate = useNavigate()
   const [state, setState] = useState<LoadState>({ status: "idle" })
 
@@ -73,7 +73,7 @@ export function PagesListPage(): JSX.Element {
     [navigate]
   )
 
-  let notice: JSX.Element | null = null
+  let notice: ReactNode | null = null
   if (state.status === "config_error" || state.status === "error") {
     notice = (
       <div
@@ -170,16 +170,19 @@ export function PagesListPage(): JSX.Element {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-subtle bg-surface-default text-content-primary">
-                {showSkeleton
-                  ? Array.from({ length: 4 }).map((_, i) => (
-                      <tr key={`sk-${String(i)}`}>
-                        <td className="px-4 py-3" colSpan={6}>
-                          <div className="h-4 w-48 max-w-full animate-pulse rounded bg-surface-subtle" />
-                        </td>
-                      </tr>
-                    ))
-                  : state.status === "success"
+              <tbody
+                className="divide-y divide-border-subtle bg-surface-default text-content-primary"
+                aria-busy={showSkeleton}
+              >
+                {showSkeleton ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-8 text-center">
+                      <output aria-live="polite" className="text-sm text-content-secondary">
+                        Loading pages…
+                      </output>
+                    </td>
+                  </tr>
+                ) : state.status === "success"
                     ? state.rows.map((row) => (
                         <tr key={row.id}>
                           <td className="px-4 py-3 font-medium">

@@ -10,21 +10,26 @@ import type { ShipmondoConnectorGetDto, ShipmondoTestResultDto } from "@/feature
 export const ADMIN_SHIPMONDO_SETTINGS_QUERY_KEY = ["admin-shipmondo-connector"] as const
 
 export function useShipmondoConnectorSettings(): {
-  query: ReturnType<typeof useQuery<ShipmondoConnectorGetDto>>
+  data: ShipmondoConnectorGetDto | undefined
+  isLoading: boolean
+  isError: boolean
+  error: Error | null
+  isFetching: boolean
+  refetch: ReturnType<typeof useQuery<ShipmondoConnectorGetDto>>["refetch"]
   patch: ReturnType<typeof useMutation<ShipmondoConnectorGetDto, Error, Record<string, unknown>>>
   test: ReturnType<typeof useMutation<ShipmondoTestResultDto, Error, void>>
 } {
   const queryClient = useQueryClient()
 
-  const query = useQuery({
+  const { data, isLoading, isError, error, isFetching, refetch } = useQuery({
     queryKey: ADMIN_SHIPMONDO_SETTINGS_QUERY_KEY,
     queryFn: getShipmondoConnectorAdmin,
   })
 
   const patch = useMutation({
     mutationFn: patchShipmondoConnectorAdmin,
-    onSuccess: (data) => {
-      queryClient.setQueryData(ADMIN_SHIPMONDO_SETTINGS_QUERY_KEY, data)
+    onSuccess: (next) => {
+      queryClient.setQueryData(ADMIN_SHIPMONDO_SETTINGS_QUERY_KEY, next)
     },
   })
 
@@ -35,5 +40,5 @@ export function useShipmondoConnectorSettings(): {
     },
   })
 
-  return { query, patch, test }
+  return { data, isLoading, isError, error, isFetching, refetch, patch, test }
 }

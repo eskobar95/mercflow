@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import type { AdminProduct } from "@medusajs/types"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useMemo, useRef, useState } from "react"
 
 import { ADMIN_PRODUCT_EDITOR_FIELDS } from "@/lib/products/adminProductEditorFields"
 import { hydrateEditorModelsFromAdminProduct } from "@/lib/products/productFormHydration"
@@ -18,6 +18,7 @@ import {
 } from "@/lib/products/productUnifiedPersistence"
 import type { ProductFormPrerequisites } from "@/lib/products/productUnifiedPersistence"
 import { createMercflowMedusaSdk } from "@/medusa-admin/createMercflowMedusaSdk"
+import { useAdjustStateWhenKeyChanges } from "@/lib/react/useAdjustStateWhenKeyChanges"
 
 export type UnifiedCatalogProductFormErrors = Record<string, string>
 
@@ -25,7 +26,7 @@ type UnifiedCatalogPriceParse =
   | { ok: true; minorUnits: number }
   | { ok: false; message: string }
 
-export function parseDkkMajorToMinorUnits(rawInput: string): UnifiedCatalogPriceParse {
+function parseDkkMajorToMinorUnits(rawInput: string): UnifiedCatalogPriceParse {
   const normalized = rawInput.trim().replace(",", ".")
   if (normalized === "") {
     return { ok: false, message: "Price is required." }
@@ -43,7 +44,7 @@ type UnifiedCatalogStockParse =
   | { ok: true; quantity: number }
   | { ok: false; message: string }
 
-export function parsePositiveIntegerQty(rawInput: string): UnifiedCatalogStockParse {
+function parsePositiveIntegerQty(rawInput: string): UnifiedCatalogStockParse {
   const normalized = rawInput.trim()
   if (normalized === "") {
     return { ok: false, message: "Quantity is required." }
@@ -57,7 +58,7 @@ export function parsePositiveIntegerQty(rawInput: string): UnifiedCatalogStockPa
   return { ok: true, quantity: parsed }
 }
 
-export type ProductFormMode = "create" | "edit"
+type ProductFormMode = "create" | "edit"
 
 export class UnifiedFormValidationError extends Error {
   readonly fieldErrors: UnifiedCatalogProductFormErrors
@@ -141,13 +142,19 @@ export function useUnifiedCatalogProductForm(params: {
 
   const createBootstrapped = useRef(params.mode !== "create")
 
-  const prereqQuery = useQuery({
+  const {
+    data: prerequisites,
+    error: prerequisitesError,
+  } = useQuery({
     enabled: sdk !== null,
     queryKey: ["catalog-product-form-prereq"],
     queryFn: async (): Promise<ProductFormPrerequisites> => fetchProductFormPrerequisites(sdk!),
   })
 
-  const categoriesQuery = useQuery({
+  const {
+    data: categoriesPayload,
+    error: categoriesError,
+  } = useQuery({
     enabled: sdk !== null,
     queryKey: ["catalog-product-form-categories"],
     queryFn: async (): Promise<unknown> =>
@@ -158,7 +165,12 @@ export function useUnifiedCatalogProductForm(params: {
       }),
   })
 
-  const productQuery = useQuery({
+  const {
+    data: productPayload,
+    error: productHydrationError,
+    isLoading: isProductQueryLoading,
+    isFetching: isProductQueryFetching,
+  } = useQuery({
     enabled: sdk !== null && params.mode === "edit" && params.productId !== undefined,
     queryKey: ["catalog-product-detail-editor", params.productId],
     queryFn: async (): Promise<{ product: AdminProduct }> =>
@@ -170,7 +182,7 @@ export function useUnifiedCatalogProductForm(params: {
       product_categories?: Array<{ id?: string; name?: string }>
     }
 
-    const resolved = categoriesQuery.data as Payload | undefined
+    const resolved = categoriesPayload as Payload | undefined
     const rows = resolved?.product_categories ?? []
 
     return rows
@@ -180,11 +192,13 @@ export function useUnifiedCatalogProductForm(params: {
       )
       .map((row) => ({ id: row.id, label: row.name }))
       .sort((a, b) => a.label.localeCompare(b.label))
-  }, [categoriesQuery.data])
+  }, [categoriesPayload])
 
   const derivedCombos = useMemo(() => buildVariantRowsFromOptionMatrix(optionRows), [optionRows])
 
-  useEffect(() => {
+  const derivedComboKeys = derivedCombos.map((combo) => combo.comboKey).join("\u0000")
+
+  useAdjustStateWhenKeyChanges(derivedComboKeys === "" ? null : derivedComboKeys, () => {
     const keysNext = derivedCombos.map((combo) => combo.comboKey)
 
     setEconomicsMap((previous) => {
@@ -202,10 +216,15 @@ export function useUnifiedCatalogProductForm(params: {
 
       return cloned
     })
-  }, [derivedCombos])
+  })
 
-  useEffect(() => {
-    const productEntity = productQuery.data?.product
+  const productEntity = productPayload?.product
+  const productHydrationKey =
+    params.mode === "edit" && productEntity !== undefined
+      ? `${productEntity.id}:${productEntity.updated_at ?? ""}`
+      : null
+
+  useAdjustStateWhenKeyChanges(productHydrationKey, () => {
     if (
       params.mode !== "edit" ||
       params.productId === undefined ||
@@ -224,15 +243,18 @@ export function useUnifiedCatalogProductForm(params: {
     )
     setIsPublished(productEntity.status === "published")
 
-    setSelectedCategoryIds(
-      new Set(
-        Array.isArray(productEntity.categories)
-          ? productEntity.categories
-              .map((category) => category?.id ?? "")
-              .filter((candidate) => candidate !== "")
-          : [],
-      ),
-    )
+    setSelectedCategoryIds(() => {
+      const categoryIds = new Set<string>()
+      if (Array.isArray(productEntity.categories)) {
+        for (const category of productEntity.categories) {
+          const candidate = category?.id ?? ""
+          if (candidate !== "") {
+            categoryIds.add(candidate)
+          }
+        }
+      }
+      return categoryIds
+    })
 
     if (hydrated.optionRows.length > 0) {
       setOptionRows(hydrated.optionRows)
@@ -250,27 +272,18 @@ export function useUnifiedCatalogProductForm(params: {
     }
 
     setEconomicsMap(economicsHydrated)
-  }, [params.mode, params.productId, productQuery.data])
+  })
 
-  useEffect(() => {
-    if (params.mode !== "create") {
-      return
-    }
-
-    if (createBootstrapped.current) {
-      return
-    }
-
+  if (params.mode === "create" && !createBootstrapped.current) {
     createBootstrapped.current = true
     const combosBootstrap = buildVariantRowsFromOptionMatrix([{ title: "", values: [] }])
     const initialEconomics: Partial<Record<string, VariantEconomics>> = {}
     for (const combo of combosBootstrap) {
       initialEconomics[combo.comboKey] = emptyEconomicsSnapshot()
     }
-
     setEconomicsMap(initialEconomics)
     setOptionRows([{ title: "", values: [] }])
-  }, [params.mode])
+  }
 
   const variantRowsPreview = useMemo((): VariantRowModel[] => {
     return derivedCombos.map((combo) => ({
@@ -333,7 +346,7 @@ export function useUnifiedCatalogProductForm(params: {
         throw new Error("Medusa Admin backend URL is not configured for this build.")
       }
 
-      const prerequisitesEntity = prereqQuery.data
+      const prerequisitesEntity = prerequisites
       if (prerequisitesEntity === undefined) {
         throw new Error("Medusa prerequisites are still loading.")
       }
@@ -389,13 +402,24 @@ export function useUnifiedCatalogProductForm(params: {
 
       const categoryIds = [...selectedCategoryIds.values()]
 
-      const trimmedOptionRows = optionRows
-        .map((rowOption) => ({
-          ...rowOption,
-          title: rowOption.title.trim(),
-          values: rowOption.values.map((value) => value.trim()).filter((value) => value !== ""),
-        }))
-        .filter((rowClean) => rowClean.title !== "" && rowClean.values.length > 0)
+      const trimmedOptionRows: ProductOptionRowModel[] = []
+      for (const rowOption of optionRows) {
+        const title = rowOption.title.trim()
+        const values: string[] = []
+        for (const value of rowOption.values) {
+          const trimmed = value.trim()
+          if (trimmed !== "") {
+            values.push(trimmed)
+          }
+        }
+        if (title !== "" && values.length > 0) {
+          trimmedOptionRows.push({
+            ...rowOption,
+            title,
+            values,
+          })
+        }
+      }
 
       if (params.mode === "create") {
         const { productId } = await persistUnifiedProductCreate({
@@ -409,10 +433,12 @@ export function useUnifiedCatalogProductForm(params: {
           variants: cleanPayload,
         })
 
-        await queryClient.invalidateQueries({
-          predicate: ({ queryKey }) => queryKey[0] === "products-catalog-list",
-        })
-        await queryClient.invalidateQueries({ queryKey: ["catalog-product-detail-editor", productId] })
+        await Promise.all([
+          queryClient.invalidateQueries({
+            predicate: ({ queryKey }) => queryKey[0] === "products-catalog-list",
+          }),
+          queryClient.invalidateQueries({ queryKey: ["catalog-product-detail-editor", productId] }),
+        ])
 
         if (typeof params.onSuccessfulCreateNavigate === "function") {
           params.onSuccessfulCreateNavigate(productId)
@@ -430,15 +456,17 @@ export function useUnifiedCatalogProductForm(params: {
           variants: cleanPayload,
         })
 
-        await queryClient.invalidateQueries({
-          predicate: ({ queryKey }) => queryKey[0] === "products-catalog-list",
-        })
-        await queryClient.invalidateQueries({
-          queryKey: ["catalog-product-detail-editor", params.productId],
-        })
-        await queryClient.invalidateQueries({
-          queryKey: ["admin-product-detail", params.productId],
-        })
+        await Promise.all([
+          queryClient.invalidateQueries({
+            predicate: ({ queryKey }) => queryKey[0] === "products-catalog-list",
+          }),
+          queryClient.invalidateQueries({
+            queryKey: ["catalog-product-detail-editor", params.productId],
+          }),
+          queryClient.invalidateQueries({
+            queryKey: ["admin-product-detail", params.productId],
+          }),
+        ])
       } else {
         throw new Error("Missing product id for edit flows.")
       }
@@ -466,14 +494,14 @@ export function useUnifiedCatalogProductForm(params: {
 
   return {
     sdkReturned: sdk,
-    prerequisites: prereqQuery.data ?? undefined,
+    prerequisites: prerequisites ?? undefined,
     categories,
-    prerequisitesError: prereqQuery.error,
-    categoriesError: categoriesQuery.error,
-    hydratedProduct: productQuery.data?.product ?? undefined,
-    productHydrationError: productQuery.error,
+    prerequisitesError,
+    categoriesError,
+    hydratedProduct: productPayload?.product ?? undefined,
+    productHydrationError,
     isLoadingProductDetail:
-      params.mode === "edit" && (productQuery.isLoading || productQuery.isFetching),
+      params.mode === "edit" && (isProductQueryLoading || isProductQueryFetching),
 
     title,
     description,

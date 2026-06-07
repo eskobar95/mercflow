@@ -1,5 +1,5 @@
-import type { JSX } from "react"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import type { ReactNode } from "react"
+import { useCallback, useEffect, useMemo, useReducer } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
 import { PoStatusBadge } from "@/components/inventory/PoStatusBadge"
@@ -23,39 +23,99 @@ import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
 type Col = "reference" | "status" | "supplier" | "expected_date"
 
-export function PurchaseOrdersListPage(): JSX.Element {
+type PurchaseOrdersListState = {
+  rows: PurchaseOrderDto[]
+  supplierNames: Record<string, string>
+  isLoading: boolean
+  listError: string | null
+  sort: ListSortState<Col>
+}
+
+type PurchaseOrdersListAction =
+  | { type: "loadStart" }
+  | { type: "loadSuccess"; rows: PurchaseOrderDto[]; supplierNames: Record<string, string> }
+  | { type: "loadError"; message: string }
+  | { type: "loadFinish" }
+  | { type: "setListError"; message: string | null }
+  | { type: "cycleSort"; columnId: Col }
+
+const INITIAL_PURCHASE_ORDERS_LIST_STATE: PurchaseOrdersListState = {
+  rows: [],
+  supplierNames: {},
+  isLoading: false,
+  listError: null,
+  sort: { column: "reference", direction: "desc" },
+}
+
+function purchaseOrdersListReducer(
+  state: PurchaseOrdersListState,
+  action: PurchaseOrdersListAction,
+): PurchaseOrdersListState {
+  switch (action.type) {
+    case "loadStart":
+      return { ...state, isLoading: true, listError: null }
+    case "loadSuccess":
+      return {
+        ...state,
+        rows: action.rows,
+        supplierNames: action.supplierNames,
+      }
+    case "loadError":
+      return { ...state, listError: action.message }
+    case "loadFinish":
+      return { ...state, isLoading: false }
+    case "setListError":
+      return { ...state, listError: action.message }
+    case "cycleSort": {
+      const { columnId } = action
+      const { sort } = state
+      if (sort.column !== columnId) {
+        return { ...state, sort: { column: columnId, direction: "asc" } }
+      }
+      if (sort.direction === "asc") {
+        return { ...state, sort: { column: columnId, direction: "desc" } }
+      }
+      if (sort.direction === "desc") {
+        return { ...state, sort: { column: null, direction: "none" } }
+      }
+      return { ...state, sort: { column: columnId, direction: "asc" } }
+    }
+    default:
+      return state
+  }
+}
+
+export function PurchaseOrdersListPage(): ReactNode {
   const navigate = useNavigate()
   const hasBackend = resolveMedusaAdminBackendUrl() !== null
-  const [rows, setRows] = useState<PurchaseOrderDto[]>([])
-  const [supplierNames, setSupplierNames] = useState<Record<string, string>>({})
-  const [isLoading, setIsLoading] = useState(false)
-  const [listError, setListError] = useState<string | null>(null)
-  const [sort, setSort] = useState<ListSortState<Col>>({
-    column: "reference",
-    direction: "desc",
-  })
+  const [state, dispatch] = useReducer(
+    purchaseOrdersListReducer,
+    INITIAL_PURCHASE_ORDERS_LIST_STATE,
+  )
+  const { rows, supplierNames, isLoading, listError, sort } = state
 
   const load = useCallback(async (): Promise<void> => {
     if (!hasBackend) {
       return
     }
-    setIsLoading(true)
-    setListError(null)
+    dispatch({ type: "loadStart" })
     try {
       const [orders, suppliers] = await Promise.all([
         listPurchaseOrdersAdmin(),
         listSuppliersAdmin(),
       ])
-      setRows(orders)
       const map: Record<string, string> = {}
       for (const s of suppliers) {
         map[s.id] = s.name
       }
-      setSupplierNames(map)
+      dispatch({ type: "loadSuccess", rows: orders, supplierNames: map })
     } catch (e) {
-      setListError(e instanceof Error ? e.message : "Failed to load purchase orders")
+      dispatch({
+        type: "loadError",
+        message: e instanceof Error ? e.message : "Failed to load purchase orders",
+      })
     } finally {
-      setIsLoading(false)
+      dispatch({ type: "loadFinish" })
     }
   }, [hasBackend])
 
@@ -107,19 +167,8 @@ export function PurchaseOrdersListPage(): JSX.Element {
     [supplierNames]
   )
 
-  const onRequestSort = useCallback((columnId: Col) => {
-    setSort((s) => {
-      if (s.column !== columnId) {
-        return { column: columnId, direction: "asc" }
-      }
-      if (s.direction === "asc") {
-        return { column: columnId, direction: "desc" }
-      }
-      if (s.direction === "desc") {
-        return { column: null, direction: "none" }
-      }
-      return { column: columnId, direction: "asc" }
-    })
+  const onRequestSort = useCallback((columnId: Col): void => {
+    dispatch({ type: "cycleSort", columnId })
   }, [])
 
   const sortedRows = useMemo(() => {
@@ -131,7 +180,7 @@ export function PurchaseOrdersListPage(): JSX.Element {
       return rows
     }
     const dir = sort.direction === "asc" ? 1 : -1
-    return [...rows].sort((a, b) => {
+    return rows.toSorted((a, b) => {
       const av = def.getSortValue?.(a)
       const bv = def.getSortValue?.(b)
       if (av === undefined || bv === undefined) {
@@ -154,7 +203,10 @@ export function PurchaseOrdersListPage(): JSX.Element {
                 await updatePurchaseOrderStatusAdmin(row.id, "ordered")
                 await load()
               } catch (e) {
-                setListError(e instanceof Error ? e.message : "Status update failed")
+                dispatch({
+                  type: "setListError",
+                  message: e instanceof Error ? e.message : "Status update failed",
+                })
               }
             })()
           },

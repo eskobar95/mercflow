@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Link, useParams } from "react-router-dom"
 
 import { CustomerSubscriptionsSection } from "@/components/customers/CustomerSubscriptionsSection"
@@ -8,7 +9,7 @@ import { Card } from "@/components/ui/Card"
 import { customerDisplayName } from "@/features/customers/customerFormatting"
 import { useCustomerWorkspace } from "@/features/customers/hooks/useCustomerWorkspace"
 
-export function CustomerDetailPage(): JSX.Element {
+export function CustomerDetailPage(): ReactNode {
   const { customerId } = useParams<{ customerId: string }>()
   const {
     phase,

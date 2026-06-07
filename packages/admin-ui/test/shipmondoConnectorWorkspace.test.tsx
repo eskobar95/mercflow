@@ -8,28 +8,27 @@ const mutateTest = vi.fn()
 
 vi.mock("@/hooks/useShipmondoConnectorSettings", () => ({
   useShipmondoConnectorSettings: () => ({
-    query: {
-      isLoading: false,
-      isError: false,
-      isSuccess: true,
-      error: null,
-      data: {
-        type: "shipmondo" as const,
-        active: false,
-        lastTestedAt: null,
-        credentials: {
-          apiUserConfigured: true,
-          apiKeyConfigured: true,
-          shippingModuleKeyConfigured: false,
-        },
-        recentLogs: [],
-        shippingRules: {
-          markupAmountMinor: 0,
-          freeShippingThresholdMinor: 0,
-          enabledCarrierCodes: [],
-        },
+    data: {
+      type: "shipmondo" as const,
+      active: false,
+      lastTestedAt: null,
+      credentials: {
+        apiUserConfigured: true,
+        apiKeyConfigured: true,
+        shippingModuleKeyConfigured: false,
+      },
+      recentLogs: [],
+      shippingRules: {
+        markupAmountMinor: 0,
+        freeShippingThresholdMinor: 0,
+        enabledCarrierCodes: [],
       },
     },
+    isLoading: false,
+    isError: false,
+    error: null,
+    isFetching: false,
+    refetch: vi.fn(),
     patch: {
       isPending: false,
       isError: false,

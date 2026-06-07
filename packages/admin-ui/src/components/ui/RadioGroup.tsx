@@ -5,7 +5,7 @@ import { cn } from "@/lib/cn"
 
 type RadioGroupProps = ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
 
-export function RadioGroup({ className, ...rest }: RadioGroupProps): JSX.Element {
+export function RadioGroup({ className, ...rest }: RadioGroupProps): ReactNode {
   return (
     <RadioGroupPrimitive.Root
       className={cn("grid gap-2", className)}

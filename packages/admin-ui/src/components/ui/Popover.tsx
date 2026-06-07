@@ -6,8 +6,6 @@ import { cn } from "@/lib/cn"
 
 export const Popover = PopoverPrimitive.Root
 export const PopoverTrigger = PopoverPrimitive.Trigger
-export const PopoverAnchor = PopoverPrimitive.Anchor
-export const PopoverClose = PopoverPrimitive.Close
 
 export const PopoverContent = forwardRef<
   HTMLDivElement,
@@ -20,7 +18,9 @@ export const PopoverContent = forwardRef<
         align={align}
         sideOffset={sideOffset}
         className={cn(
-          "z-popover rounded-md border border-border-default bg-surface-raised p-3 shadow-md",
+          // No default padding — callers set p-0 / p-0.5 / p-1. Our cn() does not
+          // merge Tailwind conflicts, so a base p-* would fight overrides in the DOM.
+          "z-popover rounded-md bg-surface-raised shadow-lg",
           "origin-[var(--radix-popover-content-transform-origin)]",
           "data-[state=open]:scale-100 data-[state=open]:opacity-100",
           "data-[state=closed]:scale-[0.97] data-[state=closed]:opacity-0",

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { compareSortValues, type ListSortState } from "@/components/ui/list/types"
 import { useDebouncedValue } from "@/hooks/useDebouncedValue"
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
+import { useAdjustStateWhenKeyChanges, useAdjustStateWhenSnapshotChanges } from "@/lib/react/useAdjustStateWhenKeyChanges"
 
 import { customerDisplayName } from "../customerFormatting"
 import {
@@ -102,7 +103,10 @@ function sortRows(
   return copy
 }
 
-export function useCustomersDirectory(): {
+export function useCustomersDirectory(options: {
+  /** When provided, drives the Medusa search query instead of internal debounced input. */
+  searchQuery?: string
+} = {}): {
   readonly hasBackendConfiguration: boolean
   readonly searchInput: string
   readonly setSearchInput: (next: string) => void
@@ -118,11 +122,15 @@ export function useCustomersDirectory(): {
   readonly setPageSize: (next: number) => void
   readonly sort: ListSortState<CustomersDirectorySortCol>
   readonly requestSort: (column: CustomersDirectorySortCol) => void
+  readonly applySort: (column: CustomersDirectorySortCol, direction: "asc" | "desc") => void
 } {
+  const { searchQuery } = options
   const hasBackendConfiguration = resolveMedusaAdminBackendUrl() !== null
 
   const [searchInput, setSearchInputState] = useState("")
-  const debouncedQuery = useDebouncedValue(searchInput.trim(), DEBOUNCE_MS)
+  const debouncedInternal = useDebouncedValue(searchInput.trim(), DEBOUNCE_MS)
+  const debouncedQuery =
+    searchQuery !== undefined ? searchQuery.trim() : debouncedInternal
 
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
@@ -158,36 +166,51 @@ export function useCustomersDirectory(): {
     })
   }, [])
 
-  useEffect(() => {
+  const applySort = useCallback((column: CustomersDirectorySortCol, direction: "asc" | "desc"): void => {
+    setSort({ column, direction })
     setCurrentPage(1)
-  }, [debouncedQuery])
+  }, [])
 
-  useEffect(() => {
+  useAdjustStateWhenKeyChanges(debouncedQuery, () => {
+    setCurrentPage(1)
+  })
+
+  useAdjustStateWhenSnapshotChanges([hasBackendConfiguration], () => {
     if (!hasBackendConfiguration) {
       setCustomers([])
       setSpendStates({})
       setTotalCount(0)
       setListError(null)
       setIsListLoading(false)
+    }
+  })
+
+  useEffect(() => {
+    if (!hasBackendConfiguration) {
       return
     }
 
     const controller = new AbortController()
 
     async function load(): Promise<void> {
+      if (controller.signal.aborted) {
+        return
+      }
+
       setIsListLoading(true)
       setListError(null)
       try {
         const offset = (currentPage - 1) * pageSize
+        if (controller.signal.aborted) {
+          return
+        }
+
         const envelope = await listCustomers({
           q: debouncedQuery === "" ? undefined : debouncedQuery,
           limit: pageSize,
           offset,
           signal: controller.signal,
         })
-        if (controller.signal.aborted) {
-          return
-        }
         setCustomers(envelope.customers)
         setTotalCount(envelope.count)
         setSpendStates(() => {
@@ -198,7 +221,10 @@ export function useCustomersDirectory(): {
           return nextSpend
         })
       } catch (error) {
-        if (controller.signal.aborted) {
+        if (
+          controller.signal.aborted ||
+          (error instanceof DOMException && error.name === "AbortError")
+        ) {
           return
         }
         if (error instanceof CustomersAdminConfigError) {
@@ -308,5 +334,6 @@ export function useCustomersDirectory(): {
     setPageSize: setPageSizeBounded,
     sort,
     requestSort,
+    applySort,
   }
 }

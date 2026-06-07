@@ -9,7 +9,7 @@ import { mapAdminProductToListRow } from "@/lib/products/mapAdminProductToListRo
 import { createMercflowMedusaSdk } from "@/medusa-admin/createMercflowMedusaSdk"
 
 /** Map server sort indicator for Medusa Admin list (`order` query). */
-export function buildProductListOrder(
+function buildProductListOrder(
   columnId: keyof ProductSortColumnPayload | string | null,
   direction: "asc" | "desc" | "none"
 ): string | undefined {
@@ -29,11 +29,14 @@ export function buildProductListOrder(
   return "-updated_at"
 }
 
-export type ProductsStatusTabFilter = "all" | "active" | "draft"
+import type { ProductStatus } from "@/components/product-list/productStatusMeta"
+
+/** Catalogue status values, aligned with Medusa Admin `status` enum. */
+export type ProductStatusValue = ProductStatus
 
 export type ProductSortColumnPayload = Pick<ProductListRow, "title" | "status" | "updatedAt">
 
-export type ProductsListQueryResult = {
+type ProductsListQueryResult = {
   rows: ProductListRow[]
   totalCount: number
   source: "medusa" | "mock"
@@ -43,18 +46,19 @@ type AdminProductWire = Parameters<typeof mapAdminProductToListRow>[0]
 
 type UseProductsCatalogListArgs = {
   debouncedSearch: string
-  statusTab: ProductsStatusTabFilter
+  /** Active status filter values; empty array means "all statuses". */
+  statuses: ProductStatusValue[]
   page: number
   pageSize: number
   sortColumn: keyof ProductSortColumnPayload | null
   sortDirection: "asc" | "desc" | "none"
 }
 
-export function getProductsCatalogQueryKey(args: Omit<UseProductsCatalogListArgs, "sortDirection">): QueryKey {
+function getProductsCatalogQueryKey(args: Omit<UseProductsCatalogListArgs, "sortDirection">): QueryKey {
   return [
     "products-catalog-list",
     args.debouncedSearch,
-    args.statusTab,
+    [...args.statuses].toSorted().join(","),
     args.page,
     args.pageSize,
     args.sortColumn,
@@ -71,7 +75,7 @@ export function useProductsCatalogList(args: UseProductsCatalogListArgs) {
     queryKey: [
       ...getProductsCatalogQueryKey({
         debouncedSearch: args.debouncedSearch,
-        statusTab: args.statusTab,
+        statuses: args.statuses,
         page: args.page,
         pageSize: args.pageSize,
         sortColumn: args.sortColumn,
@@ -89,14 +93,12 @@ export function useProductsCatalogList(args: UseProductsCatalogListArgs) {
         if (q.length > 0) {
           list = list.filter((r) => r.title.toLowerCase().includes(q))
         }
-        if (args.statusTab === "active") {
-          list = list.filter((r) => r.status === "published")
-        } else if (args.statusTab === "draft") {
-          list = list.filter((r) => r.status === "draft")
+        if (args.statuses.length > 0) {
+          list = list.filter((r) => args.statuses.includes(r.status))
         }
 
         if (!args.sortColumn || args.sortDirection === "none") {
-          return [...list].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+          return list.toSorted((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
         }
 
         const col = args.sortColumn
@@ -130,18 +132,11 @@ export function useProductsCatalogList(args: UseProductsCatalogListArgs) {
         }
       }
 
-      const statusFilter =
-        args.statusTab === "active"
-          ? "published"
-          : args.statusTab === "draft"
-            ? "draft"
-            : undefined
-
       const { products, count } = await sdk.admin.product.list({
         limit: args.pageSize,
         offset,
         q: args.debouncedSearch.trim() !== "" ? args.debouncedSearch.trim() : undefined,
-        ...(statusFilter !== undefined ? { status: [statusFilter] } : {}),
+        ...(args.statuses.length > 0 ? { status: args.statuses } : {}),
         order,
         fields: ADMIN_PRODUCT_LIST_FIELDS,
       })

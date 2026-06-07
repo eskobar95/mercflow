@@ -1,47 +1,135 @@
-import { useCallback, useEffect, useState, type FormEvent } from "react"
+import { type ReactNode, useCallback, useEffect, useReducer, type FormEvent } from "react"
 
 import { PageHeader } from "@/components/ui/PageHeader"
 import { Button } from "@/components/ui/Button"
 import { Card } from "@/components/ui/Card"
+import { Checkbox } from "@/components/ui/Checkbox"
 import { FormField } from "@/components/ui/FormField"
 import { Input } from "@/components/ui/Input"
+import { Textarea } from "@/components/ui/Textarea"
 import { getAdminRobotsConfig, putAdminRobotsConfig } from "@/features/seo/robotsApi"
 import type { RobotsConfigDto, RobotsRuleDto } from "@/features/seo/types"
 
-function defaultRule(): RobotsRuleDto {
-  return { user_agent: "*", allow: ["/"], disallow: [] }
+function defaultRule(): RobotsRuleRow {
+  return { clientId: crypto.randomUUID(), user_agent: "*", allow: ["/"], disallow: [] }
 }
 
-export function RobotsSettingsPage(): JSX.Element {
-  const [config, setConfig] = useState<RobotsConfigDto | null>(null)
-  const [preview, setPreview] = useState<string>("")
-  const [phase, setPhase] = useState<"loading" | "ready" | "error">("loading")
-  const [message, setMessage] = useState<string | null>(null)
-  const [freetextMode, setFreetextMode] = useState(false)
-  const [freetext, setFreetext] = useState("")
-  const [rules, setRules] = useState<RobotsRuleDto[]>([defaultRule()])
-  const [saving, setSaving] = useState(false)
+type RobotsRuleRow = RobotsRuleDto & { clientId: string }
+
+function toRuleRows(rules: RobotsRuleDto[]): RobotsRuleRow[] {
+  return rules.map((rule) => ({ ...rule, clientId: crypto.randomUUID() }))
+}
+
+function stripRuleIds(rules: RobotsRuleRow[]): RobotsRuleDto[] {
+  return rules.map(({ user_agent, allow, disallow }) => ({
+    user_agent,
+    allow,
+    disallow,
+  }))
+}
+
+type RobotsSettingsState = {
+  config: RobotsConfigDto | null
+  preview: string
+  phase: "loading" | "ready" | "error"
+  message: string | null
+  freetextMode: boolean
+  freetext: string
+  rules: RobotsRuleRow[]
+  saving: boolean
+}
+
+type RobotsSettingsAction =
+  | { type: "loadStart" }
+  | { type: "loadSuccess"; payload: Pick<RobotsSettingsState, "config" | "preview" | "freetextMode" | "freetext" | "rules"> }
+  | { type: "loadError"; message: string }
+  | { type: "setMessage"; message: string | null }
+  | { type: "setFreetextMode"; value: boolean }
+  | { type: "setFreetext"; value: string }
+  | { type: "updateRule"; index: number; patch: Partial<RobotsRuleDto> }
+  | { type: "saveStart" }
+  | { type: "saveFinish" }
+  | { type: "saveSuccess"; config: RobotsConfigDto; preview: string; message: string }
+
+const INITIAL_ROBOTS_SETTINGS_STATE: RobotsSettingsState = {
+  config: null,
+  preview: "",
+  phase: "loading",
+  message: null,
+  freetextMode: false,
+  freetext: "",
+  rules: [defaultRule()],
+  saving: false,
+}
+
+function robotsSettingsReducer(
+  state: RobotsSettingsState,
+  action: RobotsSettingsAction,
+): RobotsSettingsState {
+  switch (action.type) {
+    case "loadStart":
+      return { ...state, phase: "loading", message: null }
+    case "loadSuccess":
+      return { ...state, ...action.payload, phase: "ready" }
+    case "loadError":
+      return { ...state, phase: "error", message: action.message }
+    case "setMessage":
+      return { ...state, message: action.message }
+    case "setFreetextMode":
+      return { ...state, freetextMode: action.value }
+    case "setFreetext":
+      return { ...state, freetext: action.value }
+    case "updateRule":
+      return {
+        ...state,
+        rules: state.rules.map((rule, i) =>
+          i === action.index ? { ...rule, ...action.patch } : rule
+        ),
+      }
+    case "saveStart":
+      return { ...state, saving: true, message: null }
+    case "saveFinish":
+      return { ...state, saving: false }
+    case "saveSuccess":
+      return {
+        ...state,
+        config: action.config,
+        preview: action.preview,
+        message: action.message,
+      }
+    default:
+      return state
+  }
+}
+
+export function RobotsSettingsPage(): ReactNode {
+  const [state, dispatch] = useReducer(robotsSettingsReducer, INITIAL_ROBOTS_SETTINGS_STATE)
+  const { config, preview, phase, message, freetextMode, freetext, rules, saving } = state
 
   const load = useCallback(async (): Promise<void> => {
-    setPhase("loading")
-    setMessage(null)
+    dispatch({ type: "loadStart" })
     try {
       const data = await getAdminRobotsConfig()
-      setConfig(data.config)
-      setPreview(data.preview)
       const hasFreetext =
         data.config.freetext_override !== null && data.config.freetext_override.trim().length > 0
-      setFreetextMode(hasFreetext)
-      setFreetext(data.config.freetext_override ?? "")
-      setRules(
-        data.config.structured_rules.rules.length > 0
-          ? data.config.structured_rules.rules
-          : [defaultRule()]
-      )
-      setPhase("ready")
+      dispatch({
+        type: "loadSuccess",
+        payload: {
+          config: data.config,
+          preview: data.preview,
+          freetextMode: hasFreetext,
+          freetext: data.config.freetext_override ?? "",
+          rules:
+            data.config.structured_rules.rules.length > 0
+              ? toRuleRows(data.config.structured_rules.rules)
+              : [defaultRule()],
+        },
+      })
     } catch (err: unknown) {
-      setPhase("error")
-      setMessage(err instanceof Error ? err.message : "Failed to load robots config")
+      dispatch({
+        type: "loadError",
+        message: err instanceof Error ? err.message : "Failed to load robots config",
+      })
     }
   }, [])
 
@@ -51,8 +139,7 @@ export function RobotsSettingsPage(): JSX.Element {
 
   const handleSave = async (event: FormEvent): Promise<void> => {
     event.preventDefault()
-    setSaving(true)
-    setMessage(null)
+    dispatch({ type: "saveStart" })
     try {
       const payload = freetextMode
         ? {
@@ -60,25 +147,29 @@ export function RobotsSettingsPage(): JSX.Element {
             change_summary: "Updated robots.txt (freetext)",
           }
         : {
-            structured_rules: { rules },
+            structured_rules: { rules: stripRuleIds(rules) },
             freetext_override: null,
             change_summary: "Updated robots.txt (structured)",
           }
       const result = await putAdminRobotsConfig(payload)
-      setConfig(result.config)
-      setPreview(result.preview)
-      setMessage("Robots configuration saved.")
+      dispatch({
+        type: "saveSuccess",
+        config: result.config,
+        preview: result.preview,
+        message: "Robots configuration saved.",
+      })
     } catch (err: unknown) {
-      setMessage(err instanceof Error ? err.message : "Failed to save")
+      dispatch({
+        type: "setMessage",
+        message: err instanceof Error ? err.message : "Failed to save",
+      })
     } finally {
-      setSaving(false)
+      dispatch({ type: "saveFinish" })
     }
   }
 
   const updateRule = (index: number, patch: Partial<RobotsRuleDto>): void => {
-    setRules((prev) =>
-      prev.map((rule, i) => (i === index ? { ...rule, ...patch } : rule))
-    )
+    dispatch({ type: "updateRule", index, patch })
   }
 
   if (phase === "loading") {
@@ -117,27 +208,27 @@ export function RobotsSettingsPage(): JSX.Element {
       ) : null}
       <form className="space-y-6" onSubmit={(e) => void handleSave(e)}>
         <Card className="space-y-4 p-6">
-          <label className="flex items-center gap-2 text-body-sm text-content-primary">
-            <input
-              type="checkbox"
-              checked={freetextMode}
-              onChange={(e) => setFreetextMode(e.target.checked)}
-            />
-            Use freetext mode
-          </label>
+          <Checkbox
+            id="robots-freetext-mode"
+            checked={freetextMode}
+            onCheckedChange={(checked) =>
+              dispatch({ type: "setFreetextMode", value: checked === true })
+            }
+            label="Use freetext mode"
+          />
           {freetextMode ? (
             <FormField label="robots.txt body" htmlFor="robots-freetext">
-              <textarea
+              <Textarea
                 id="robots-freetext"
-                className="min-h-40 w-full rounded-md border border-border-default bg-surface-default px-3 py-2 text-body-sm text-content-primary"
+                className="min-h-40"
                 value={freetext}
-                onChange={(e) => setFreetext(e.target.value)}
+                onChange={(e) => dispatch({ type: "setFreetext", value: e.target.value })}
               />
             </FormField>
           ) : (
             <div className="space-y-4">
               {rules.map((rule, index) => (
-                <div key={index} className="space-y-3 rounded-md border border-border-default p-4">
+                <div key={rule.clientId} className="space-y-3 rounded-md border border-border-default p-4">
                   <FormField label="User-agent" htmlFor={`ua-${index}`}>
                     <Input
                       id={`ua-${index}`}

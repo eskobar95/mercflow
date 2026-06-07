@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Link, useParams } from "react-router-dom"
 
 import { Card } from "@/components/ui/Card"
@@ -14,7 +15,7 @@ import { useOrderDetail } from "@/hooks/useOrderDetail"
 import { formatAdminCurrency } from "@/utils/formatAdminCurrency"
 import { buildOrderTimeline } from "@/utils/buildOrderTimeline"
 
-export function OrderDetailPage(): JSX.Element {
+export function OrderDetailPage(): ReactNode {
   const { orderId } = useParams<{ orderId: string }>()
   const { order, isLoading, errorMessage, refetch } = useOrderDetail(orderId)
 

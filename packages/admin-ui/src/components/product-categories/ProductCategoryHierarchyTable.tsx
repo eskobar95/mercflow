@@ -1,9 +1,18 @@
-import type { JSX, ReactNode } from "react"
+import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 
 import { RowActionsMenu, type RowActionItem } from "@/components/ui/list/RowActionsMenu"
 import { TableSkeleton } from "@/components/ui/list/TableSkeleton"
+import type { SkeletonColumn } from "@/components/ui/list/types"
 import type { AdminProductCategoryHierarchyRow } from "@/features/product-categories/types"
+
+const SKELETON_COLUMNS: SkeletonColumn[] = [
+  { id: "name", skeletonVariant: "text" },
+  { id: "handle", skeletonVariant: "text" },
+  { id: "products", skeletonVariant: "number" },
+  { id: "status", skeletonVariant: "pill" },
+  { id: "updated", skeletonVariant: "text" },
+]
 
 function nameIndentClass(depth: number): string {
   const tiers = ["pl-4", "pl-10", "pl-16", "pl-24", "pl-32", "pl-40"]
@@ -14,7 +23,7 @@ const headerCell =
   "px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-content-tertiary"
 const dataCell = "px-4 py-3 text-sm text-content-primary align-middle"
 
-export type ProductCategoryHierarchyTableProps = {
+type ProductCategoryHierarchyTableProps = {
   rows: AdminProductCategoryHierarchyRow[]
   isLoading?: boolean
   emptyState?: ReactNode
@@ -26,7 +35,7 @@ export function ProductCategoryHierarchyTable({
   isLoading = false,
   emptyState,
   getRowActions,
-}: ProductCategoryHierarchyTableProps): JSX.Element {
+}: ProductCategoryHierarchyTableProps): ReactNode {
   const hasActionsColumn = typeof getRowActions === "function"
   const coreColumns = 5
   const colCount = coreColumns + (hasActionsColumn ? 1 : 0)
@@ -63,7 +72,7 @@ export function ProductCategoryHierarchyTable({
         </thead>
         {isLoading ? (
           <TableSkeleton
-            columnCount={coreColumns}
+            columns={SKELETON_COLUMNS}
             rowCount={6}
             showSelectColumn={false}
             showActionsColumn={hasActionsColumn}

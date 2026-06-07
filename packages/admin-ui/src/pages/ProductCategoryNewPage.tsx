@@ -1,4 +1,4 @@
-import type { JSX } from "react"
+import type { ReactNode } from "react"
 import { useMemo } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
@@ -11,7 +11,7 @@ import { useProductCategoryTreePicklist } from "@/hooks/useProductCategoryTreePi
  * Create category — POST /admin/product-categories (Medusa). Configure
  * `VITE_MEDUSA_ADMIN_BACKEND_URL` for live API; parent list loads in tree order.
  */
-export function ProductCategoryNewPage(): JSX.Element {
+export function ProductCategoryNewPage(): ReactNode {
   const navigate = useNavigate()
   const { categories, loading, errorMessage, reload } = useProductCategoryTreePicklist()
 

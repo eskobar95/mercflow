@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 
 import {
@@ -82,19 +83,18 @@ const SHIPPING_LOG: ShippingItem[] = [
  * The whole page is information you couldn't reach otherwise from this
  * screen. Nothing decorative. Nothing fake.
  */
-export function HomePage(): JSX.Element {
+export function HomePage(): ReactNode {
   return (
     <div className="px-4 py-6 md:px-8 md:py-8">
       {/* ── Workspace status banner ─────────────────────────────── */}
       <section
         aria-labelledby="workspace-status"
-        className="relative overflow-hidden rounded-2xl border border-border-default bg-surface-appCard p-5 shadow-sm md:p-7"
+        className="relative overflow-hidden rounded-2xl border border-border-default bg-surface-appCard p-5 md:p-7"
       >
         {/* Subtle corner-accent — a single chromatic move, not a wash */}
         <span
           aria-hidden
-          className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent/8"
-          style={{ filter: "blur(40px)" }}
+          className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent/8 blur-sm"
         />
 
         <div className="relative flex flex-col gap-6">
@@ -119,7 +119,7 @@ export function HomePage(): JSX.Element {
 
             <Link
               to="/settings/connectors"
-              className="group/cta inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-content-primary px-4 text-sm font-semibold text-content-inverse shadow-sm transition-[background-color,transform,box-shadow] duration-150 hover:shadow-md active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              className="group/cta inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-content-primary px-4 text-sm font-semibold text-content-inverse transition-[background-color,transform] duration-150 hover:bg-neutral-800 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               style={{
                 transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)",
               }}
@@ -194,22 +194,22 @@ export function HomePage(): JSX.Element {
   )
 }
 
-function Shortcut({ tile }: { tile: ShortcutTile }): JSX.Element {
+function Shortcut({ tile }: { tile: ShortcutTile }): ReactNode {
   const Icon = tile.icon
   const loud = tile.emphasis === "loud"
 
   return (
     <Link
       to={tile.to}
-      className="group/tile relative flex h-full flex-col gap-5 rounded-2xl border border-border-default bg-surface-appCard p-5 shadow-sm transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-border-strong hover:shadow-md"
+      className="group/tile relative flex h-full flex-col gap-5 rounded-2xl border border-border-default bg-surface-appCard p-5 transition-[border-color,transform] duration-200 hover:-translate-y-0.5 hover:border-border-strong"
       style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
     >
       <span
         className={[
           "flex h-10 w-10 items-center justify-center rounded-xl transition-transform duration-200 group-hover/tile:scale-[1.05]",
           loud
-            ? "bg-accent text-content-inverse shadow-sm"
-            : "bg-surface-subtle text-content-secondary group-hover/tile:bg-accent-subtle group-hover/tile:text-accent-text",
+            ? "bg-interactive-primary text-content-inverse"
+            : "bg-surface-subtle text-content-secondary ring-1 ring-inset ring-border-subtle group-hover/tile:bg-accent-subtle group-hover/tile:text-accent-text group-hover/tile:ring-accent-soft",
         ].join(" ")}
         aria-hidden
       >
@@ -235,7 +235,7 @@ function Shortcut({ tile }: { tile: ShortcutTile }): JSX.Element {
   )
 }
 
-function StatusGlyph({ status }: { status: ShippingItem["status"] }): JSX.Element {
+function StatusGlyph({ status }: { status: ShippingItem["status"] }): ReactNode {
   if (status === "shipped") {
     return (
       <span

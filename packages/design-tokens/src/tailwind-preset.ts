@@ -12,6 +12,22 @@
 type TailwindColorMap = Record<string, string | Record<string, string>>
 
 const colors: Record<string, TailwindColorMap> = {
+  neutral: {
+    0:   "var(--mf-color-neutral-0)",
+    25:  "var(--mf-color-neutral-25)",
+    50:  "var(--mf-color-neutral-50)",
+    100: "var(--mf-color-neutral-100)",
+    150: "var(--mf-color-neutral-150)",
+    200: "var(--mf-color-neutral-200)",
+    300: "var(--mf-color-neutral-300)",
+    400: "var(--mf-color-neutral-400)",
+    500: "var(--mf-color-neutral-500)",
+    600: "var(--mf-color-neutral-600)",
+    700: "var(--mf-color-neutral-700)",
+    800: "var(--mf-color-neutral-800)",
+    900: "var(--mf-color-neutral-900)",
+    950: "var(--mf-color-neutral-950)",
+  },
   surface: {
     canvas:        "var(--mf-color-surface-canvas)",
     DEFAULT:       "var(--mf-color-surface-default)",
@@ -188,10 +204,11 @@ const lineHeight: Record<string, string> = {
 }
 
 const letterSpacing: Record<string, string> = {
-  tight:  "var(--mf-letter-spacing-tight)",
-  normal: "var(--mf-letter-spacing-normal)",
-  label:  "var(--mf-letter-spacing-label)",
-  wide:   "var(--mf-letter-spacing-wide)",
+  tighter: "var(--mf-letter-spacing-tighter)",
+  tight:   "var(--mf-letter-spacing-tight)",
+  normal:  "var(--mf-letter-spacing-normal)",
+  label:   "var(--mf-letter-spacing-label)",
+  wide:    "var(--mf-letter-spacing-wide)",
 }
 
 const borderRadius: Record<string, string> = {
@@ -226,6 +243,27 @@ const zIndex: Record<string, string> = {
   toast:           "var(--mf-z-toast)",
 }
 
+const minWidth: Record<string, string> = {
+  listTable: "var(--mf-layout-list-table-min-width)",
+}
+
+const maxWidth: Record<string, string> = {
+  filterChip: "var(--mf-layout-filter-chip-max-width)",
+}
+
+const transitionTimingFunction: Record<string, string> = {
+  enter: "var(--mf-motion-easing-enter)",
+  exit: "var(--mf-motion-easing-exit)",
+  drawer: "var(--mf-motion-easing-drawer)",
+  standard: "var(--mf-motion-easing-standard)",
+}
+
+const transitionDuration: Record<string, string> = {
+  fast: "var(--mf-motion-duration-fast)",
+  page: "var(--mf-motion-duration-page)",
+  slow: "var(--mf-motion-duration-slow)",
+}
+
 export const tailwindPreset = {
   theme: {
     extend: {
@@ -239,6 +277,10 @@ export const tailwindPreset = {
       borderRadius,
       boxShadow,
       zIndex,
+      minWidth,
+      maxWidth,
+      transitionTimingFunction,
+      transitionDuration,
     },
   },
 } as const

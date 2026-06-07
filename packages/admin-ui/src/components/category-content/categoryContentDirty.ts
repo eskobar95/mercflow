@@ -8,7 +8,7 @@ function stableDocJson(doc: JSONContent): string {
   return JSON.stringify(doc)
 }
 
-export type CategoryContentFormSnapshot = {
+type CategoryContentFormSnapshot = {
   descriptionJson: JSONContent
   seoTitle: string
   seoDescription: string

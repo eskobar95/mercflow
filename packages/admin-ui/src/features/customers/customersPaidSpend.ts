@@ -8,7 +8,7 @@ const PAID_ORDER_PAYMENT_STATUSES = new Set<string>([
   "partially_captured",
 ])
 
-export function isPaidOrderForLifetimeValue(order: AdminOrderLite): boolean {
+function isPaidOrderForLifetimeValue(order: AdminOrderLite): boolean {
   if (order.payment_status === null) {
     return false
   }

@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 import type { AdminLocale } from "./types"
+import { useAdjustStateWhenKeyChanges } from "@/lib/react/useAdjustStateWhenKeyChanges"
 
 export const DEFAULT_CONTENT_LOCALE_CODE = "en"
 
@@ -24,11 +25,10 @@ export function useContentLocale(options: UseContentLocaleOptions): UseContentLo
   const { locales, preferredCode } = options
   const [activeLocaleCode, setActiveLocaleCode] = useState<string>(DEFAULT_CONTENT_LOCALE_CODE)
 
-  useEffect(() => {
-    if (locales.length === 0) {
-      return
-    }
-    const byCode = new Map(locales.map((l) => [l.code, l]))
+  const localeCodesKey = locales.map((locale) => locale.code).join("\u0000")
+
+  useAdjustStateWhenKeyChanges(locales.length === 0 ? null : localeCodesKey, () => {
+    const byCode = new Map(locales.map((locale) => [locale.code, locale]))
     if (byCode.has(activeLocaleCode)) {
       return
     }
@@ -37,7 +37,7 @@ export function useContentLocale(options: UseContentLocaleOptions): UseContentLo
       locales[0]?.code ??
       DEFAULT_CONTENT_LOCALE_CODE
     setActiveLocaleCode(fallback)
-  }, [locales, activeLocaleCode, preferredCode])
+  })
 
   const activeLocale =
     locales.find((locale) => locale.code === activeLocaleCode) ?? null

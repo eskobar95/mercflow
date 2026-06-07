@@ -1,10 +1,11 @@
+import type { ReactNode } from "react"
 import type { CustomersDirectoryRow } from "@/features/customers/hooks/useCustomersDirectory"
 import { formatMinorAmount } from "@/features/customers/formatMoney"
 import {
   summarizeLifetimeDisplayText,
 } from "@/features/customers/customersPaidSpend"
 
-function MetricPlaceholder({ label }: { readonly label: string }): JSX.Element {
+function MetricPlaceholder({ label }: { readonly label: string }): ReactNode {
   return (
     <span
       aria-busy="true"
@@ -18,7 +19,7 @@ export function CustomersOrderCountCell({
   row,
 }: {
   readonly row: CustomersDirectoryRow
-}): JSX.Element {
+}): ReactNode {
   if (row.spend.status === "loading") {
     return <MetricPlaceholder label="Loading order count" />
   }
@@ -32,7 +33,7 @@ export function CustomersLifetimeValueCell({
   row,
 }: {
   readonly row: CustomersDirectoryRow
-}): JSX.Element {
+}): ReactNode {
   if (row.spend.status === "loading") {
     return <MetricPlaceholder label="Loading lifetime value" />
   }

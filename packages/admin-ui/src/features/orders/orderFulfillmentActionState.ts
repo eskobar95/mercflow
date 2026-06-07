@@ -13,7 +13,7 @@ function readString(obj: Record<string, unknown>, key: string): string | undefin
 /**
  * Remaining quantity per order line item Medusa can still fulfill.
  */
-export function buildFulfillmentItemsFromOrderRaw(
+function buildFulfillmentItemsFromOrderRaw(
   order: Record<string, unknown>
 ): { id: string; quantity: number }[] {
   const items = order.items
@@ -43,7 +43,7 @@ export function buildFulfillmentItemsFromOrderRaw(
 }
 
 /** First payment that still needs capture (Medusa `awaiting` or similar, not yet captured). */
-export function findCapturablePaymentId(order: Record<string, unknown>): string | null {
+function findCapturablePaymentId(order: Record<string, unknown>): string | null {
   const collections = order.payment_collections
   if (!Array.isArray(collections)) {
     return null
@@ -90,7 +90,7 @@ function readPositiveNumber(raw: Record<string, unknown>, key: string): number |
 }
 
 /** Active fulfillment awaiting a shipment registration in Medusa. */
-export type UnfulfilledShipmentTarget = {
+type UnfulfilledShipmentTarget = {
   fulfillmentId: string
   shipmentItems: { id: string; quantity: number }[]
 }
@@ -98,7 +98,7 @@ export type UnfulfilledShipmentTarget = {
 /**
  * Locate the first fulfillment that is not canceled, has no shipments yet, and is not flagged shipped.
  */
-export function resolveUnshippedFulfillmentShipment(
+function resolveUnshippedFulfillmentShipment(
   order: Record<string, unknown>
 ): UnfulfilledShipmentTarget | null {
   const list = order.fulfillments
@@ -148,7 +148,7 @@ export function resolveUnshippedFulfillmentShipment(
   return null
 }
 
-export type OrderFulfillmentActionVisibility = {
+type OrderFulfillmentActionVisibility = {
   showCapturePayment: boolean
   showCreateFulfillment: boolean
   showMarkShipped: boolean

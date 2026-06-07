@@ -5,6 +5,7 @@ import {
   fontWeight,
   letterSpacing,
   lineHeight,
+  layout,
   motion,
   radii,
   shadows,
@@ -30,6 +31,7 @@ export const tokens = {
   motion,
   radius: radii,
   shadow: shadows,
+  layout,
   zIndex,
 } as const
 
@@ -42,6 +44,7 @@ export {
   fontWeight,
   letterSpacing,
   lineHeight,
+  layout,
   motion,
   radii,
   shadows,

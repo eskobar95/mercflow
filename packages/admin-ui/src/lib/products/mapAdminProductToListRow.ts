@@ -3,6 +3,7 @@ import type { AdminPrice } from "@medusajs/types"
 import type { ProductListRow } from "@/data/mockProducts"
 
 import { resolveMedusaAssetUrl } from "@/lib/products/resolveMedusaAssetUrl"
+import { getCurrencyFormatter } from "@/utils/intlFormatCache"
 
 type AdminProductWire = {
   id: string
@@ -39,19 +40,19 @@ function normalizeStatus(raw: string | null | undefined): ProductListRow["status
  */
 function formatMinorAmount(amount: number, currencyCode: string): string {
   try {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency: currencyCode.toUpperCase(),
-    }).format(amount / 100)
+    return getCurrencyFormatter(undefined, currencyCode).format(amount / 100)
   } catch {
     return `${currencyCode.toUpperCase()} ${(amount / 100).toFixed(2)}`
   }
 }
 
 export function formatPriceRangeLabel(prices: AdminPrice[]): string {
-  const amountsWithCurrency = prices
-    .filter((p) => typeof p.amount === "number" && typeof p.currency_code === "string")
-    .map((p) => ({ amount: p.amount, currency: p.currency_code }))
+  const amountsWithCurrency: Array<{ amount: number; currency: string }> = []
+  for (const price of prices) {
+    if (typeof price.amount === "number" && typeof price.currency_code === "string") {
+      amountsWithCurrency.push({ amount: price.amount, currency: price.currency_code })
+    }
+  }
 
   if (amountsWithCurrency.length === 0) {
     return "–"
@@ -63,7 +64,12 @@ export function formatPriceRangeLabel(prices: AdminPrice[]): string {
     return "–"
   }
   const firstCurrency = currencies[0] ?? baseline.currency
-  const sameCurrencyAmounts = amountsWithCurrency.filter((p) => p.currency === firstCurrency).map((p) => p.amount)
+  const sameCurrencyAmounts: number[] = []
+  for (const entry of amountsWithCurrency) {
+    if (entry.currency === firstCurrency) {
+      sameCurrencyAmounts.push(entry.amount)
+    }
+  }
   const min = Math.min(...sameCurrencyAmounts)
   const max = Math.max(...sameCurrencyAmounts)
 

@@ -33,7 +33,7 @@ function mergeOptimisticCategoryPayload(
   }
 }
 
-export type UseCategoryContentStateOptions = {
+type UseCategoryContentStateOptions = {
   categoryId: string
   /** Active locale for read/write; defaults to `en` to match the API. */
   locale?: string
@@ -41,7 +41,7 @@ export type UseCategoryContentStateOptions = {
   loadOnMount?: boolean
 }
 
-export type UseCategoryContentStateResult = {
+type UseCategoryContentStateResult = {
   content: CategoryContentReadPayload | null
   loading: boolean
   saving: boolean

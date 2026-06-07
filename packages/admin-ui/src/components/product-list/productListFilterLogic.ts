@@ -2,7 +2,7 @@ import type { ProductListRow } from "@/data/mockProducts"
 
 import type { ActiveFilter } from "./filter/types"
 
-export type DatePeriod = "today" | "week" | "month"
+type DatePeriod = "today" | "week" | "month"
 
 /** Start of calendar period in local time. Pass `now` in tests for deterministic results. */
 export function startOfPeriod(period: DatePeriod, now: Date = new Date()): number {

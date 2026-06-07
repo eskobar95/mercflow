@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import type { ConnectorDisplayStatus } from "@/features/connectors/types"
 
 const STYLE_BY_STATUS: Record<
@@ -27,7 +28,7 @@ type ConnectorStatusBadgeProps = {
 
 export function ConnectorStatusBadge({
   status,
-}: ConnectorStatusBadgeProps): JSX.Element {
+}: ConnectorStatusBadgeProps): ReactNode {
   const cfg = STYLE_BY_STATUS[status]
   return (
     <span

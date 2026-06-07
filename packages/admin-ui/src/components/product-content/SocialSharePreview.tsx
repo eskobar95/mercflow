@@ -1,4 +1,5 @@
-export type SocialSharePreviewProps = {
+import type { ReactNode } from "react"
+type SocialSharePreviewProps = {
   title: string
   description: string
   imageUrl: string | null
@@ -13,7 +14,7 @@ export function SocialSharePreview({
   description,
   imageUrl,
   fallbackTitle = "Product",
-}: SocialSharePreviewProps): JSX.Element {
+}: SocialSharePreviewProps): ReactNode {
   const displayTitle = title.trim() !== "" ? title.trim() : fallbackTitle
   const displayDescription =
     description.trim() !== ""

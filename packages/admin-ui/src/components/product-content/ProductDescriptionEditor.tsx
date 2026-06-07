@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import type { JSONContent } from "@tiptap/core"
 
 import {
@@ -21,7 +22,7 @@ export function ProductDescriptionEditor({
   disabled = false,
   variant = "embedded",
   placeholder = "Describe this product for shoppers…",
-}: ProductDescriptionEditorProps): JSX.Element {
+}: ProductDescriptionEditorProps): ReactNode {
   return (
     <RichTextEditor
       value={value}

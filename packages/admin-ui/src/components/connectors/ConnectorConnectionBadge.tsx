@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import type { ConnectorConnectionHealthUi } from "@/features/connectors/types"
 
 const STYLE_MAP: Record<
@@ -26,7 +27,7 @@ type ConnectorConnectionBadgeProps = {
 }
 
 /** Summarises the last outbound Plunk/connectivity probe (only when a connector row exists). */
-export function ConnectorConnectionBadge({ health }: ConnectorConnectionBadgeProps): JSX.Element {
+export function ConnectorConnectionBadge({ health }: ConnectorConnectionBadgeProps): ReactNode {
   const cfg = STYLE_MAP[health]
   return (
     <span

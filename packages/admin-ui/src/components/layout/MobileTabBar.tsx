@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { type ReactNode, useMemo } from "react"
 import { NavLink, useLocation } from "react-router-dom"
 
 import { mobileTabBar } from "@/config/sidebarNav"
@@ -31,7 +31,7 @@ function matchesActive(pathname: string, to: string, end?: boolean): boolean {
   return pathname === to || pathname.startsWith(`${to}/`)
 }
 
-export function MobileTabBar(): JSX.Element {
+export function MobileTabBar(): ReactNode {
   const location = useLocation()
   const slotCount = mobileTabBar.length
 

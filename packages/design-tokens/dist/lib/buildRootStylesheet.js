@@ -1,4 +1,4 @@
-import { colorTree, fontFamily, fontSize, fontWeight, letterSpacing, lineHeight, motion, radii, shadows, spacingScale, zIndex, } from "../definitions/batch1.js";
+import { colorTree, fontFamily, fontSize, fontWeight, letterSpacing, lineHeight, layout, motion, radii, shadows, spacingScale, zIndex, } from "../definitions/batch1.js";
 import { flattenRootStringTree } from "./flattenTree.js";
 function linesForFlatPrefix(entries, varPrefix) {
     return entries.map(([key, value]) => `  ${varPrefix}${key}: ${value};`);
@@ -17,6 +17,10 @@ export function buildRootStylesheet() {
     const radiiLines = Object.entries(radii).map(([k, v]) => `  --mf-radius-${k}: ${v};`);
     const shadowLines = Object.entries(shadows).map(([k, v]) => `  --mf-shadow-${k}: ${v};`);
     const zIndexLines = Object.entries(zIndex).map(([k, v]) => `  --mf-z-${k}: ${v};`);
+    const layoutLines = Object.entries(layout).map(([k, v]) => {
+        const kebab = k.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
+        return `  --mf-layout-${kebab}: ${v};`;
+    });
     const motionLines = linesForFlatPrefix(flattenRootStringTree(motion), "--mf-motion-");
     const body = [
         ...colorLines,
@@ -29,6 +33,7 @@ export function buildRootStylesheet() {
         ...radiiLines,
         ...shadowLines,
         ...zIndexLines,
+        ...layoutLines,
         ...motionLines,
     ].join("\n");
     return `:root {\n${body}\n}\n`;

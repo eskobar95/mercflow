@@ -22,11 +22,58 @@ export function orderListRowEligibleForBulkFulfillment(row: OrderListRow): boole
   return fulfill === "not_fulfilled" || fulfill === "partially_fulfilled"
 }
 
-export type BulkFulfillmentResult = {
+type BulkFulfillmentResult = {
   orderId: string
   displayId: string
   ok: boolean
   message: string
+}
+
+async function fulfillSingleOrder(
+  row: OrderListRow,
+  locationId: string,
+): Promise<BulkFulfillmentResult> {
+  if (!orderListRowEligibleForBulkFulfillment(row)) {
+    return {
+      orderId: row.id,
+      displayId: row.displayId,
+      ok: false,
+      message: "Order is not paid or already fulfilled.",
+    }
+  }
+
+  try {
+    const detail = await fetchAdminOrder(row.id)
+    const visibility = getOrderFulfillmentActionVisibility(detail)
+    if (!visibility.showCreateFulfillment || visibility.fulfillmentItemsPayload.length === 0) {
+      return {
+        orderId: row.id,
+        displayId: row.displayId,
+        ok: false,
+        message: "No remaining items to fulfill for this order.",
+      }
+    }
+
+    await postCreateOrderFulfillment(row.id, {
+      items: visibility.fulfillmentItemsPayload,
+      location_id: locationId,
+    })
+
+    return {
+      orderId: row.id,
+      displayId: row.displayId,
+      ok: true,
+      message: "Fulfillment created.",
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Fulfillment failed"
+    return {
+      orderId: row.id,
+      displayId: row.displayId,
+      ok: false,
+      message,
+    }
+  }
 }
 
 /**
@@ -42,48 +89,5 @@ export async function bulkMarkFulfillmentReady(
     )
   }
 
-  const results: BulkFulfillmentResult[] = []
-  for (const row of rows) {
-    if (!orderListRowEligibleForBulkFulfillment(row)) {
-      results.push({
-        orderId: row.id,
-        displayId: row.displayId,
-        ok: false,
-        message: "Order is not paid or already fulfilled.",
-      })
-      continue
-    }
-    try {
-      const detail = await fetchAdminOrder(row.id)
-      const visibility = getOrderFulfillmentActionVisibility(detail)
-      if (!visibility.showCreateFulfillment || visibility.fulfillmentItemsPayload.length === 0) {
-        results.push({
-          orderId: row.id,
-          displayId: row.displayId,
-          ok: false,
-          message: "No remaining items to fulfill for this order.",
-        })
-        continue
-      }
-      await postCreateOrderFulfillment(row.id, {
-        items: visibility.fulfillmentItemsPayload,
-        location_id: locationId,
-      })
-      results.push({
-        orderId: row.id,
-        displayId: row.displayId,
-        ok: true,
-        message: "Fulfillment created.",
-      })
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "Fulfillment failed"
-      results.push({
-        orderId: row.id,
-        displayId: row.displayId,
-        ok: false,
-        message: msg,
-      })
-    }
-  }
-  return results
+  return Promise.all(rows.map((row) => fulfillSingleOrder(row, locationId)))
 }

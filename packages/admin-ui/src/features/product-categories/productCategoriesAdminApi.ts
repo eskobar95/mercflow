@@ -9,9 +9,10 @@ import { parseAdminProductCategory } from "./parseAdminProductCategory"
 import type { AdminProductCategoryParsed } from "./types"
 
 /** Request enough relations to derive product counts without extra round-trips. */
-const LIST_EXPAND = "products"
+const LIST_FIELDS =
+  "id,name,handle,description,parent_category_id,is_active,rank,created_at,updated_at,*products"
 
-export type AdminProductCategoryListResult = {
+type AdminProductCategoryListResult = {
   categories: AdminProductCategoryParsed[]
   count?: number
   limit?: number
@@ -128,7 +129,7 @@ export async function listAdminProductCategories(options: {
     )
   }
   const params = new URLSearchParams({
-    expand: LIST_EXPAND,
+    fields: LIST_FIELDS,
     limit: String(options.limit ?? 500),
     offset: String(options.offset ?? 0),
   })
@@ -156,7 +157,7 @@ export async function retrieveAdminProductCategory(
     )
   }
   const params = new URLSearchParams({
-    expand: "products,parent_category",
+    fields: `${LIST_FIELDS},*parent_category`,
   })
   const response = await fetch(
     `${base}/admin/product-categories/${encodeURIComponent(categoryId)}?${params.toString()}`,
