@@ -118,6 +118,7 @@ export function useCustomersDirectory(): {
   readonly setPageSize: (next: number) => void
   readonly sort: ListSortState<CustomersDirectorySortCol>
   readonly requestSort: (column: CustomersDirectorySortCol) => void
+  readonly applySort: (column: CustomersDirectorySortCol, direction: "asc" | "desc") => void
 } {
   const hasBackendConfiguration = resolveMedusaAdminBackendUrl() !== null
 
@@ -156,6 +157,11 @@ export function useCustomersDirectory(): {
       }
       return { column, direction: "asc" }
     })
+  }, [])
+
+  const applySort = useCallback((column: CustomersDirectorySortCol, direction: "asc" | "desc"): void => {
+    setSort({ column, direction })
+    setCurrentPage(1)
   }, [])
 
   useEffect(() => {
@@ -308,5 +314,6 @@ export function useCustomersDirectory(): {
     setPageSize: setPageSizeBounded,
     sort,
     requestSort,
+    applySort,
   }
 }

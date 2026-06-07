@@ -109,7 +109,7 @@ describe("OrdersListPage", () => {
       </MemoryRouter>
     )
 
-    expect(await screen.findByRole("heading", { name: "Orders" })).toBeInTheDocument()
+    expect(await screen.findByRole("table", { name: /orders list/i })).toBeInTheDocument()
 
     await waitFor(() => expect(fetchSpy).toHaveBeenCalled())
 
