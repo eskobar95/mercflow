@@ -1,6 +1,15 @@
+import { cn } from "@/lib/cn"
+
+import {
+  listResponsiveClass,
+  listUtilityColClass,
+  type ListSkeletonVariant,
+  type SkeletonColumn,
+} from "./types"
+
 type TableSkeletonProps = {
-  /** Total columns including built-in select/actions if parent table adds them. */
-  columnCount: number
+  /** Column descriptors — drive per-column silhouette, width and responsive hiding. */
+  columns: SkeletonColumn[]
   rowCount: number
   /** Include a leading select column. */
   showSelectColumn: boolean
@@ -8,37 +17,83 @@ type TableSkeletonProps = {
   showActionsColumn: boolean
 }
 
+const bar = "rounded bg-surface-subtle"
+
+/** A single column's loading silhouette. Mirrors the real cell's shape. */
+function Silhouette({
+  variant,
+  rowIndex,
+}: {
+  variant: ListSkeletonVariant
+  rowIndex: number
+}): JSX.Element {
+  switch (variant) {
+    case "thumbnail":
+      return <div className="h-10 w-10 rounded-md bg-surface-subtle" />
+    case "twoLine":
+      return (
+        <div className="flex flex-col gap-1.5">
+          {/* Alternate the title width per row so the column reads organic, not striped. */}
+          <div className={cn(bar, "h-3.5", rowIndex % 2 === 0 ? "w-40" : "w-52")} />
+          <div className={cn(bar, "h-3 w-24")} />
+        </div>
+      )
+    case "pill":
+      return <div className="h-5 w-20 rounded-full bg-surface-subtle" />
+    case "number":
+      return <div className={cn(bar, "h-3.5 w-8")} />
+    case "text":
+    default:
+      return <div className={cn(bar, "h-3.5 w-24")} />
+  }
+}
+
 /**
- * Placeholder body while a list is loading. Uses pulse bars instead of
- * full-page spinners, per `admin-ui.mdc` list view guidance.
+ * Placeholder body while a list is loading. The parent table is `table-fixed`,
+ * so column widths come from the header row and stay pixel-identical between
+ * loading and loaded — the skeleton only paints content silhouettes, never
+ * reflows the grid.
  */
 export function TableSkeleton({
-  columnCount,
+  columns,
   rowCount,
   showSelectColumn,
   showActionsColumn,
 }: TableSkeletonProps): JSX.Element {
-  const cols =
-    (showSelectColumn ? 1 : 0) +
-    columnCount +
-    (showActionsColumn ? 1 : 0)
-
   return (
-    <tbody
-      className="animate-pulse"
-      role="rowgroup"
-      aria-hidden="true"
-    >
+    <tbody className="animate-pulse" role="rowgroup" aria-hidden="true">
       {Array.from({ length: rowCount }).map((_, rowIndex) => (
-        <tr
-          key={rowIndex}
-          className="border-b border-border-subtle"
-        >
-          {Array.from({ length: cols }).map((_, colIndex) => (
-            <td key={colIndex} className="px-4 py-3">
-              <div className="h-4 w-full max-w-md rounded-sm bg-surface-subtle" />
+        <tr key={rowIndex} className="border-b border-border-subtle last:border-0">
+          {showSelectColumn ? (
+            <td className={cn(listUtilityColClass, "px-4 py-3 align-middle")}>
+              <div className="h-4 w-4 rounded bg-surface-subtle" />
             </td>
-          ))}
+          ) : null}
+          {columns.map((col) => {
+            const alignRight = col.align === "right"
+            return (
+              <td
+                key={col.id}
+                className={cn(
+                  "px-4 py-3 align-middle",
+                  col.responsive ? listResponsiveClass[col.responsive] : undefined,
+                  col.headerClassName,
+                )}
+              >
+                <div className={cn("flex items-center", alignRight && "justify-end")}>
+                  <Silhouette
+                    variant={col.skeletonVariant ?? "text"}
+                    rowIndex={rowIndex}
+                  />
+                </div>
+              </td>
+            )
+          })}
+          {showActionsColumn ? (
+            <td className={cn(listUtilityColClass, "px-4 py-3 align-middle")}>
+              <div className="ml-auto h-4 w-4 rounded bg-surface-subtle" />
+            </td>
+          ) : null}
         </tr>
       ))}
     </tbody>

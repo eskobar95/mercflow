@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react"
 import { NavLink, useLocation, useResolvedPath } from "react-router-dom"
 
+import { UserAccountButton } from "@/components/layout/UserAccountButton"
 import { BrandAvatar } from "@/components/ui/BrandAvatar"
-import { IconChevronRight } from "@/components/ui/icons"
+import { IconChevronRight, IconSearch } from "@/components/ui/icons"
 import {
   contentSidebarSection,
   feedSidebarSection,
@@ -37,7 +38,7 @@ const itemBase =
 
 function leafClass({ isActive }: { isActive: boolean }): string {
   if (isActive) {
-    return `${itemBase} bg-surface-sidebarActive text-content-onSidebarActive`
+    return `${itemBase} bg-surface-sidebarActive text-content-onSidebarActive ring-1 ring-inset ring-border-onSidebar`
   }
   return `${itemBase} text-content-onSidebar hover:bg-surface-sidebarHover`
 }
@@ -192,7 +193,7 @@ function SubLeaf({
           [
             "group/sub flex h-8 items-center rounded-md px-2.5 text-sm transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
             isActive
-              ? "bg-surface-sidebarActive font-medium text-content-onSidebarActive"
+              ? "bg-surface-sidebarActive font-medium text-content-onSidebarActive ring-1 ring-inset ring-border-onSidebar"
               : "font-medium text-content-onSidebarMuted hover:bg-surface-sidebarHover hover:text-content-onSidebar",
           ].join(" ")
         }
@@ -253,6 +254,20 @@ export function AppSidebar({ onNavigate }: AppSidebarProps): JSX.Element {
             Workspace
           </p>
         </div>
+        {/*
+          Global search lives in the sidebar header (Linear pattern) so the page
+          chrome bar only carries page identity + contextual actions. Keyboard:
+          ⌘K opens the same surface once the command palette ships.
+        */}
+        <button
+          type="button"
+          aria-label="Search MercFlow"
+          title="Search  ⌘K"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-content-onSidebarMuted transition-[background-color,color,transform] duration-150 hover:bg-surface-sidebarHover hover:text-content-onSidebar focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-[0.94] motion-reduce:transition-none motion-reduce:active:scale-100"
+          style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
+        >
+          <IconSearch size={17} />
+        </button>
       </div>
 
       <nav
@@ -269,6 +284,8 @@ export function AppSidebar({ onNavigate }: AppSidebarProps): JSX.Element {
         <Section section={contentSidebarSection} onNavigate={onNavigate} />
         <Section section={settingsSidebarSection} onNavigate={onNavigate} />
       </nav>
+
+      <UserAccountButton />
     </aside>
   )
 }

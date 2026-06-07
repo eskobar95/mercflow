@@ -166,6 +166,25 @@ export function IconSearch({ size = 18, ...rest }: IconProps): JSX.Element {
   )
 }
 
+/** Funnel — list filter control. */
+export function IconFilter({ size = 18, ...rest }: IconProps): JSX.Element {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <path d="M4 6h16l-6.3 7.4v4.3l-3.4 1.8v-6.1z" />
+    </svg>
+  )
+}
+
+/** Plus — create / add affordances. */
+export function IconPlus({ size = 18, ...rest }: IconProps): JSX.Element {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </svg>
+  )
+}
+
 export function IconArrowRight({ size = 16, ...rest }: IconProps): JSX.Element {
   return (
     <svg {...baseProps(size, rest)}>

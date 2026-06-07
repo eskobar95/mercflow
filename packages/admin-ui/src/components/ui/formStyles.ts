@@ -96,9 +96,13 @@ export const formIconButtonClass = cn(
   "motion-reduce:transition-none motion-reduce:active:scale-100",
 )
 
-/** Floating panel chrome — Stripe dropdown (one elevation layer). */
+/**
+ * Floating panel chrome — Linear-style menu surface. No hard border: the soft
+ * shadow carries a faint 1px ring already, so a solid neutral border just
+ * doubles the edge and reads heavy. Rely on elevation + tonal lift instead.
+ */
 export const overlayPanelClass = cn(
-  "rounded-sm border border-border-default bg-surface-raised shadow-md",
+  "rounded-lg bg-surface-raised shadow-lg",
 )
 
 /** Highlight row inside select / menu lists. */

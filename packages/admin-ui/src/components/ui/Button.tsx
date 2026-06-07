@@ -50,7 +50,7 @@ const shapeClass: Record<ButtonShape, string> = {
 
 const variantClass: Record<ButtonVariant, string> = {
   primary: cn(
-    "bg-accent text-content-inverse hover:bg-accent-strong",
+    "bg-interactive-primary text-content-inverse hover:bg-interactive-primary-hover active:bg-interactive-primary-pressed",
     buttonPrimaryFocusClass,
   ),
   secondary: cn(

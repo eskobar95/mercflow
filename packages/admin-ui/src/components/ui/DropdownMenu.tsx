@@ -25,7 +25,7 @@ export const DropdownMenuContent = forwardRef<
         sideOffset={sideOffset}
         className={cn(
           overlayPanelClass,
-          "z-dropdown min-w-44 overflow-hidden p-1",
+          "z-dropdown min-w-40 overflow-hidden p-1",
           "origin-[var(--radix-dropdown-menu-content-transform-origin)]",
           "data-[state=open]:scale-100 data-[state=open]:opacity-100",
           "data-[state=closed]:scale-[0.97] data-[state=closed]:opacity-0",
@@ -55,7 +55,7 @@ export const DropdownMenuItem = forwardRef<HTMLDivElement, DropdownMenuItemProps
       <DropdownMenuPrimitive.Item
         ref={ref}
         className={cn(
-          "relative flex min-h-11 cursor-pointer select-none items-center rounded-sm px-2 py-2 text-sm outline-none",
+          "relative flex min-h-8 cursor-pointer select-none items-center rounded-md px-2 py-1.5 text-sm outline-none",
           "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
           "data-[highlighted]:bg-accent-subtle",
           destructive

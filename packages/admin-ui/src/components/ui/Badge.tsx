@@ -28,12 +28,17 @@ type BadgeProps = BadgeNativeProps & {
   children: ReactNode
 }
 
+// Each pill carries a hairline ring so it stays crisp on flat (shadow-less)
+// surfaces — the inset 1px reads as a border without adding layout width.
 const fillMap: Record<BadgeVariant, string> = {
-  neutral: "bg-surface-subtle text-content-secondary",
-  accent: "bg-accent-subtle text-accent-text",
-  success: "bg-feedback-success-subtle text-feedback-success-content",
-  warning: "bg-feedback-warning-subtle text-feedback-warning-content",
-  danger: "bg-feedback-danger-subtle text-feedback-danger-content",
+  neutral: "bg-surface-subtle text-content-secondary ring-1 ring-inset ring-border-default",
+  accent: "bg-accent-subtle text-accent-text ring-1 ring-inset ring-accent-soft",
+  success:
+    "bg-feedback-success-subtle text-feedback-success-content ring-1 ring-inset ring-feedback-success-border",
+  warning:
+    "bg-feedback-warning-subtle text-feedback-warning-content ring-1 ring-inset ring-feedback-warning-border",
+  danger:
+    "bg-feedback-danger-subtle text-feedback-danger-content ring-1 ring-inset ring-feedback-danger-border",
 }
 
 const dotColorMap: Record<BadgeVariant, string> = {

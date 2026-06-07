@@ -135,7 +135,7 @@ export function AdminShell(): JSX.Element {
         <main
           id="main-content"
           tabIndex={-1}
-          className="min-h-0 flex-1 overflow-y-auto focus:outline-none"
+          className="flex min-h-0 flex-1 flex-col overflow-y-auto focus:outline-none"
         >
           <ErrorBoundary>
             <Suspense fallback={<MainLoadingFallback />}>

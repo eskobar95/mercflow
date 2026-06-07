@@ -7,11 +7,19 @@ import { ListSortLabel } from "./ListSortLabel"
 import { getColumnAriaSort } from "./listSortState"
 import { RowActionsMenu, type RowActionItem } from "./RowActionsMenu"
 import { TableSkeleton } from "./TableSkeleton"
-import type { ListColumnDef, ListSelection, ListSortState } from "./types"
+import {
+  listResponsiveClass,
+  listUtilityColClass,
+  type ListColumnDef,
+  type ListSelection,
+  type ListSortState,
+} from "./types"
 
-/** Header cell base — no uppercase, lighter density */
-const headerCellBase = "px-4 py-2 text-left"
-const dataCell = "px-4 py-2.5 text-sm text-content-primary align-middle"
+/** Header cell base — no uppercase, lighter density. Alignment is applied
+ * separately (left by default, right when the column opts in) so the two never
+ * collide in the class list — our `cn()` concatenates, it does not merge. */
+const headerCellBase = "px-4 py-2.5"
+const dataCell = "px-4 py-3 text-sm text-content-primary align-middle"
 
 function HeaderSelectAllCheckbox({
   checked,
@@ -48,12 +56,20 @@ type DataTableProps<TRow, TCol extends string> = {
   onRequestSort: (columnId: TCol) => void
   selection?: ListSelection
   getRowActions?: (row: TRow) => RowActionItem[] | null
+  /** Navigate when a row is clicked. Clicks on links/buttons inside the row are ignored. */
+  onRowClick?: (row: TRow) => void
   isLoading?: boolean
   skeletonRowCount?: number
   /** Rendered in place of the body when there are zero rows. */
   emptyState: ReactNode
   /** If false, do not add an actions column. */
   hasRowActions?: boolean
+  /**
+   * Stretch the table to fill its (flex) parent so the empty / loading body
+   * occupies the remaining height. Use in full-bleed lists where the footer
+   * docks at the viewport bottom and the body should fill the gap above it.
+   */
+  fillHeight?: boolean
 }
 
 /**
@@ -70,10 +86,12 @@ export function DataTable<TRow, TCol extends string>({
   onRequestSort,
   selection,
   getRowActions,
+  onRowClick,
   isLoading = false,
   skeletonRowCount = 6,
   emptyState,
   hasRowActions = true,
+  fillHeight = false,
 }: DataTableProps<TRow, TCol>): JSX.Element {
   const tableId = useId()
   const colCount = columns.length
@@ -98,7 +116,7 @@ export function DataTable<TRow, TCol extends string>({
       {selection ? (
         <th
           scope="col"
-          className={cn(headerCellBase, "w-0 align-middle")}
+          className={cn(headerCellBase, listUtilityColClass, "align-middle")}
         >
           <span className="sr-only">Select rows</span>
           <HeaderSelectAllCheckbox
@@ -114,15 +132,18 @@ export function DataTable<TRow, TCol extends string>({
       {columns.map((col) => {
         const isActive = sortState.column === col.id
         const isSortable = Boolean(col.sortable)
+        const alignRight = col.align === "right"
         return (
           <th
             key={col.id}
             scope="col"
             className={cn(
               headerCellBase,
+              alignRight ? "text-right" : "text-left",
+              col.responsive ? listResponsiveClass[col.responsive] : undefined,
               col.headerClassName,
               isSortable && "transition-colors hover:bg-surface-subtle",
-              isSortable && isActive && "bg-accent-subtle/25",
+              isSortable && isActive && "bg-surface-subtle",
             )}
             aria-sort={
               isSortable
@@ -146,7 +167,7 @@ export function DataTable<TRow, TCol extends string>({
         )
       })}
       {showActions ? (
-        <th className={cn(headerCellBase, "w-0 text-right text-xs font-medium text-content-tertiary")} scope="col">
+        <th className={cn(headerCellBase, listUtilityColClass, "text-right text-xs font-medium text-content-tertiary")} scope="col">
           <span className="sr-only">Actions</span>
         </th>
       ) : null}
@@ -157,7 +178,7 @@ export function DataTable<TRow, TCol extends string>({
     if (isLoading) {
       return (
         <TableSkeleton
-          columnCount={colCount}
+          columns={columns}
           rowCount={skeletonRowCount}
           showSelectColumn={showSelect}
           showActionsColumn={showActions}
@@ -183,13 +204,30 @@ export function DataTable<TRow, TCol extends string>({
             ? selection.selectedIds.has(rowId)
             : false
           const rowActions = getRowActions ? getRowActions(row) : null
+          const clickable = Boolean(onRowClick)
           return (
             <tr
               key={rowId}
-              className="border-b border-border-subtle last:border-0"
+              className={cn(
+                "border-b border-border-subtle transition-colors last:border-0",
+                clickable && "cursor-pointer hover:bg-surface-subtle",
+              )}
+              onClick={
+                clickable
+                  ? (event) => {
+                      if (
+                        event.target instanceof HTMLElement &&
+                        event.target.closest("a,button,input,[role='menu'],[data-row-stop]")
+                      ) {
+                        return
+                      }
+                      onRowClick?.(row)
+                    }
+                  : undefined
+              }
             >
               {selection ? (
-                <td className={`w-0 ${dataCell} align-top`}>
+                <td className={cn(listUtilityColClass, dataCell)}>
                   <Checkbox
                     touchTarget
                     checked={isRowSelected}
@@ -203,13 +241,17 @@ export function DataTable<TRow, TCol extends string>({
               {columns.map((col) => (
                 <td
                   key={col.id}
-                  className={`${dataCell} ${col.cellClassName ?? ""}`.trim()}
+                  className={cn(
+                    dataCell,
+                    col.responsive ? listResponsiveClass[col.responsive] : undefined,
+                    col.cellClassName,
+                  )}
                 >
                   {col.renderCell(row)}
                 </td>
               ))}
               {showActions ? (
-                <td className={`w-0 ${dataCell} text-right`}>
+                <td className={cn(listUtilityColClass, dataCell, "text-right")}>
                   {rowActions && rowActions.length > 0 ? (
                     <RowActionsMenu
                       items={rowActions}
@@ -225,14 +267,23 @@ export function DataTable<TRow, TCol extends string>({
     )
   }
 
+  // Tables don't stretch to a flex parent's height, so when `fillHeight` is set
+  // and the body is empty we render the empty state as a flex sibling below the
+  // header row instead of inside a cell — it then fills the gap above a docked
+  // footer and centers cleanly.
+  const fillEmpty = fillHeight && !isLoading && data.length === 0
+
   return (
-    <div className="overflow-x-auto">
-      <div className="min-w-[600px]">
-        <table className="w-full border-collapse" aria-label={tableLabel}>
+    <div className={cn("overflow-x-auto", fillHeight && "flex flex-1 flex-col")}>
+      <div className={cn("min-w-listTable", fillHeight && "flex flex-1 flex-col")}>
+        <table className="w-full table-fixed border-collapse" aria-label={tableLabel}>
           {caption ? <caption className="sr-only">{caption}</caption> : null}
           <thead>{renderHeaderRow()}</thead>
-          {renderBody()}
+          {fillEmpty ? null : renderBody()}
         </table>
+        {fillEmpty ? (
+          <div className="flex flex-1 items-center justify-center">{emptyState}</div>
+        ) : null}
       </div>
     </div>
   )

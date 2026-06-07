@@ -21,12 +21,14 @@ export function Card({
   elevation = "resting",
   compact = false,
 }: CardProps): JSX.Element {
+  // Depth is border-driven, not shadow-driven. `hover` adds a tiny lift + a
+  // crisper hairline rather than a drop shadow (the "no shadow" house style).
   const elev =
     elevation === "flat"
       ? ""
       : elevation === "hover"
-        ? "shadow-sm transition-all duration-200 hover:-translate-y-px hover:shadow-md"
-        : "shadow-sm"
+        ? "transition-[border-color,transform] duration-200 hover:-translate-y-px hover:border-border-strong"
+        : ""
 
   const pad = compact ? "p-4" : "p-6"
 

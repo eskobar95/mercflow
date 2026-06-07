@@ -33,9 +33,11 @@
   @keyframes mercflow-page-enter {
     from {
       opacity: 0;
+      transform: translateY(4px);
     }
     to {
       opacity: 1;
+      transform: translateY(0);
     }
   }
 
@@ -51,8 +53,51 @@
     }
   }
 
+  /**
+   * TopBar list toolbar enter — the filter/sort cluster eases in from the title
+   * when a page registers chrome. Opacity + a short horizontal slide (it belongs
+   * to the title on its left), token-backed easing/duration. Transform/opacity
+   * only, so it stays on the GPU.
+   */
+  .mercflow-chrome-in {
+    animation: mercflow-chrome-in var(--mf-motion-duration-page)
+      var(--mf-motion-easing-enter) both;
+  }
+
+  @keyframes mercflow-chrome-in {
+    from {
+      opacity: 0;
+      transform: translateX(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /**
+   * Filter chip enter — each chip rises + settles into place when it mounts
+   * (a filter is added). Transform only (GPU); the surrounding bar owns the
+   * opacity fade, so chips don't double up on it. Short + snappy.
+   */
+  .mercflow-chip-in {
+    animation: mercflow-chip-in var(--mf-motion-duration-fast)
+      var(--mf-motion-easing-enter) both;
+  }
+
+  @keyframes mercflow-chip-in {
+    from {
+      transform: translateY(4px) scale(0.96);
+    }
+    to {
+      transform: translateY(0) scale(1);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .mercflow-page-transition,
+    .mercflow-chrome-in,
+    .mercflow-chip-in,
     [style*="mercflow-stat-in"] {
       animation: none !important;
     }

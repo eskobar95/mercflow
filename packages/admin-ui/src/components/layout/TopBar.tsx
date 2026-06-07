@@ -1,6 +1,7 @@
-import { Button } from "@/components/ui/Button"
 import { BrandAvatar } from "@/components/ui/BrandAvatar"
 import { IconSearch } from "@/components/ui/icons"
+
+import { usePageChromeValue } from "./pageChrome"
 
 type TopBarProps = {
   title: string
@@ -14,31 +15,41 @@ type TopBarProps = {
 }
 
 /**
- * App top bar — Mercury / Stripe synthesis.
+ * App top bar — the single page header (Linear-style chrome bar).
  *
- * Layout (mobile):
- *   ┌─────────────────────────────────────────────────────┐
- *   │  (M)  Title                            [🔍]  [+]    │
- *   └─────────────────────────────────────────────────────┘
+ * The bar owns page identity and primary actions so pages never repeat their
+ * own title or action cluster in the body:
  *
- * Layout (desktop ≥md):
- *   ┌─────────────────────────────────────────────────────┐
- *   │  Title          [        Search ⌘K        ]   [+]   │
- *   └─────────────────────────────────────────────────────┘
+ *   ┌─────────────────────────────────────────────────────────────┐
+ *   │  Title ⟨14⟩ │ Filter Sort              ⟨page action icons⟩    │
+ *   └─────────────────────────────────────────────────────────────┘
  *
- *   - Topbar height matches the mobile nav sheet header at 56px (h-14) so
- *     the chrome lines up exactly when the sheet slides in.
- *   - Mobile: brand circle avatar lives top-left and is the menu trigger.
- *     A subtle ring appears around it when the sheet is open so the user
- *     always knows that's the affordance they need to dismiss it.
- *   - Desktop: the brand avatar lives in the sidebar header, so the topbar
- *     keeps its current title + search + create cluster.
+ *   - `title` comes from the active route handle; `titleBadge` + `toolbar` +
+ *     `actions` are injected per page via `usePageChrome`. The `toolbar` (list
+ *     filter/sort) sits left next to the title so the body can start straight at
+ *     the table — no separate control row between the chrome and the data. Page
+ *     `actions` are round icon buttons (`IconButton`) with tooltips on the right.
+ *   - The workspace/account avatar is NOT here — it lives at the foot of the
+ *     sidebar (Linear/Notion pattern), so the bar carries only page identity +
+ *     contextual actions.
+ *   - There is no generic "Create" here anymore: the create affordance is a
+ *     contextual page action, so it is defined exactly once.
+ *   - Global search is NOT in this bar on desktop — it lives in the sidebar
+ *     header (Linear pattern), so there is a single search entry point and the
+ *     chrome bar stays quiet. On mobile (no visible sidebar) a compact search
+ *     icon is kept here.
+ *   - Topbar height matches the mobile nav sheet header at 56px (h-14) so the
+ *     chrome lines up exactly when the sheet slides in.
+ *   - Mobile: brand circle avatar lives top-left and is the menu trigger; a
+ *     subtle ring appears around it when the sheet is open.
  */
 export function TopBar({
   title,
   onToggleMobileMenu,
   mobileMenuOpen = false,
 }: TopBarProps): JSX.Element {
+  const { titleBadge, toolbar, actions } = usePageChromeValue()
+
   return (
     <header className="z-sticky flex h-14 shrink-0 items-center gap-3 border-b border-border-app bg-surface-appCard px-3 md:h-16 md:px-6">
       {/* Mobile: brand avatar = menu trigger */}
@@ -56,93 +67,36 @@ export function TopBar({
         </div>
       ) : null}
 
-      <h1 className="min-w-0 flex-1 truncate text-interface font-semibold tracking-tight text-content-primary md:text-base">
-        {title}
-      </h1>
-
-      {/* Desktop: full search + create + workspace avatar */}
-      <div className="hidden items-center gap-2 md:flex">
-        <button
-          type="button"
-          className="group/search inline-flex h-9 w-[280px] items-center gap-2 rounded-full border border-border-default bg-surface-appCanvas px-3.5 text-left text-sm text-content-tertiary transition-[background-color,border-color,color] duration-150 hover:border-border-strong hover:bg-surface-appCard focus-visible:outline-none focus-visible:border-accent"
-          style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
-          aria-label="Search MercFlow"
-        >
-          <IconSearch
-            size={15}
-            className="shrink-0 text-content-tertiary transition-colors group-hover/search:text-content-secondary"
-          />
-          <span className="flex-1">Search</span>
-          <kbd className="ml-auto rounded border border-border-default bg-surface-appCard px-1.5 py-px font-mono text-3xs font-medium text-content-tertiary">
-            ⌘K
-          </kbd>
-        </button>
-
-        <Button
-          type="button"
-          shape="pill"
-          variant="primary"
-          aria-label="Create new"
-          leadingIcon={
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.25"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M12 5v14M5 12h14" />
-            </svg>
-          }
-        >
-          Create
-        </Button>
-
-        <div
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-content-primary text-2xs font-semibold text-content-inverse"
-          aria-label="Workspace owner"
-          title="Nicklas Eskou"
-        >
-          NE
-        </div>
+      {/* Page identity — title + optional live badge, then list toolbar (desktop) */}
+      <div className="flex min-w-0 flex-1 items-center gap-2">
+        <h1 className="min-w-0 shrink-0 truncate text-interface font-semibold tracking-tight text-content-primary md:text-base">
+          {title}
+        </h1>
+        {titleBadge}
+        {toolbar ? (
+          <div
+            key="topbar-toolbar"
+            className="mercflow-chrome-in ml-1 hidden min-w-0 items-center gap-1.5 md:flex"
+          >
+            <span className="mr-0.5 h-5 w-px shrink-0 bg-border-subtle" aria-hidden />
+            {toolbar}
+          </div>
+        ) : null}
       </div>
 
-      {/* Mobile: search icon + create icon */}
-      <div className="flex items-center gap-1 md:hidden">
+      {/* Right cluster: page action icons → (mobile search) */}
+      <div className="flex items-center gap-1.5">
+        {actions ? <div className="flex items-center gap-1.5">{actions}</div> : null}
+
+        {/* Mobile-only global search (desktop search lives in the sidebar) */}
         <button
           type="button"
-          aria-label="Search"
-          className="flex h-9 w-9 items-center justify-center rounded-full text-content-secondary transition-colors duration-150 hover:bg-surface-subtle active:scale-[0.95]"
+          aria-label="Search MercFlow"
+          className="flex h-9 w-9 items-center justify-center rounded-full text-content-secondary transition-[background-color,color,transform] duration-150 hover:bg-surface-subtle hover:text-content-primary active:scale-[0.94] motion-reduce:transition-none motion-reduce:active:scale-100 md:hidden"
+          style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
         >
           <IconSearch size={17} />
         </button>
-        <Button
-          type="button"
-          shape="pill"
-          variant="primary"
-          size="md"
-          className="h-9 w-9 px-0"
-          aria-label="Create new"
-          leadingIcon={
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.25"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M12 5v14M5 12h14" />
-            </svg>
-          }
-        />
       </div>
     </header>
   )

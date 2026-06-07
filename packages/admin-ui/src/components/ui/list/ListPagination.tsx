@@ -37,49 +37,54 @@ export function ListPagination({
   const canNext = safePage < totalPages
 
   const navLabel = (
-    <span className="text-sm text-content-secondary">
-      Showing {start}–{end} of {totalItems}
+    <span className="text-xs text-content-tertiary tabular-nums">
+      {start}–{end} of {totalItems}
     </span>
   )
 
+  const navButtonClass =
+    "inline-flex h-8 items-center rounded-md border border-border-default bg-surface-default px-3 text-xs font-medium text-content-secondary transition-colors hover:border-border-strong hover:text-content-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-1 focus-visible:ring-offset-surface-default disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-border-default disabled:hover:text-content-secondary"
+
   return (
     <nav
-      className={`flex flex-wrap items-center justify-between gap-3 border-t border-border-default bg-surface-raised px-6 py-3 ${className}`.trim()}
+      className={`flex flex-wrap items-center justify-between gap-3 bg-surface-default px-3 py-2.5 sm:px-4 ${className}`.trim()}
       aria-label={ariaLabel}
     >
       {navLabel}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2">
-          <label
-            htmlFor={selectId}
-            className="text-sm text-content-secondary"
-            id={`${selectId}-label`}
-          >
-            Rows per page
-          </label>
-          <select
-            id={selectId}
-            aria-labelledby={`${selectId}-label`}
-            className="rounded-md border border-border-default bg-surface-default px-2 py-1.5 text-sm text-content-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-border-focus"
-            value={pageSize}
-            onChange={(e) => {
-              onPageSizeChange(Number(e.target.value))
-            }}
-          >
-            {pageSizeOptions.map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
-        </div>
-        <p className="text-sm text-content-secondary" aria-live="polite">
+        {pageSizeOptions.length > 1 ? (
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor={selectId}
+              className="text-xs text-content-tertiary"
+              id={`${selectId}-label`}
+            >
+              Rows
+            </label>
+            <select
+              id={selectId}
+              aria-labelledby={`${selectId}-label`}
+              className="h-8 rounded-md border border-border-default bg-surface-default px-2 text-xs text-content-primary transition-colors hover:border-border-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+              value={pageSize}
+              onChange={(e) => {
+                onPageSizeChange(Number(e.target.value))
+              }}
+            >
+              {pageSizeOptions.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
+        <p className="text-xs text-content-tertiary tabular-nums" aria-live="polite">
           Page {safePage} of {totalPages}
         </p>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
-            className="rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm font-medium text-content-primary shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus disabled:cursor-not-allowed disabled:opacity-50"
+            className={navButtonClass}
             onClick={() => onPageChange(safePage - 1)}
             disabled={!canPrev}
             aria-label="Previous page"
@@ -88,7 +93,7 @@ export function ListPagination({
           </button>
           <button
             type="button"
-            className="rounded-md border border-border-default bg-surface-default px-3 py-1.5 text-sm font-medium text-content-primary shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus disabled:cursor-not-allowed disabled:opacity-50"
+            className={navButtonClass}
             onClick={() => onPageChange(safePage + 1)}
             disabled={!canNext}
             aria-label="Next page"
