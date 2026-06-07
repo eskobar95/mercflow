@@ -18,6 +18,7 @@
 | S006 | M004 | inventory-module + supplier register + PO create | T020, T021, T022 | done |
 | S007 | M004 | PO receive flow + inventory dashboard | T023, T024 | done |
 | S008 | M005 | Improved order list + order detail + pick list | T025, T026 | done |
+| S009 | M006 | Hetzner infra + observability + backup + provisioning | T027, T028, T029, T030 | planned |
 
 ---
 
@@ -28,3 +29,4 @@
 - **S003** starts after S002 (needs seo-module foundation from T004) — **ready now** (S002 merged 2026-06-04).
 - **S004** merged 2026-06-04 (PR #62 `e9f0c6f`) — JSON-LD, OG, canonical store APIs + admin settings.
 - **S007** starts after S006 (needs PO table from T020, T022).
+- **S009** starts after Batch 2 is stable on `development`. T027 + T028 run in parallel (group A). T029 + T030 run in parallel after T027 is deployed (group B).

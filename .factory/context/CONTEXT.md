@@ -186,4 +186,59 @@
 
 ---
 
+## Compute hosting (Hetzner)
+
+**Meaning:** MercFlow's production compute runs on a **Hetzner VPS**. The backend, workers, Redis, Traefik, and Portainer all live here. Docker Compose is the deployment unit.
+
+**Not:** Railway (referenced as a planning artefact in ADR-005 — superseded by ADR-006). Not a managed cloud (GCP/AWS/Azure). Not per-tenant VMs.
+
+**Database:** Neon (managed PostgreSQL, separate from Hetzner) — see ADR-004. Neon connects to Hetzner via allowed-IP policy (interim) → Neon Private Link (target).
+
+**See:** ADR-006
+
+---
+
+## Infrastructure stack (production)
+
+**Meaning:** The set of services that make up the MercFlow production environment on Hetzner:
+
+| Component | Role |
+|---|---|
+| Docker Compose | Reproducible deployment unit for all services |
+| Traefik | Reverse proxy, SSL (Let's Encrypt), per-tenant domain routing |
+| Redis | Medusa event bus + rate-limiting counters (ADR-005) |
+| Neon | Managed PostgreSQL — row-level isolated, shared across tenants |
+| Sentry | Error tracking, tagged by `store_id` (tenant) |
+| BetterStack | Log aggregation + uptime checks per tenant domain |
+| Hetzner Object Storage (S3) | Media assets + automated daily pg_dump backups |
+| Portainer CE | Container dashboard — no SSH required for ops |
+
+**Not:** Per-tenant Docker stacks. Not a Kubernetes cluster. Not Railway. Not self-hosted PostgreSQL.
+
+**See:** ADR-006
+
+---
+
+## Tenant onboarding (MVP)
+
+**Meaning:** **Assisted onboarding** — MercFlow team runs a provisioning script for each new customer. The script accepts `shop_name`, `domain`, `admin_email` and creates: Medusa Store, Sales Channel, Publishable API Key, Admin user. Credentials are sent manually to the customer.
+
+**Not:** Self-service signup. Not Stripe billing (post-MVP). Not an onboarding UI in the admin. Not automatic — a human triggers it.
+
+**Target time:** Under 5 minutes per new tenant.
+
+**Post-MVP:** Self-service signup page + automated provisioning + Stripe subscription billing. Tracked as a separate PRD (not yet written).
+
+---
+
+## Storefront kit (deferred)
+
+**Meaning:** A Next.js template repo that tenants (or MercFlow team on their behalf) deploy to Cloudflare Pages / Vercel. Connects to the shared Medusa backend via `publishable_api_key`. Each tenant gets their own deployment with their own domain.
+
+**Not:** In scope until the production infrastructure (ADR-006) and tenant onboarding MVP are complete.
+
+**Status:** Deferred — post-infrastructure. No code to be written until backend infra is stable.
+
+---
+
 <!-- Add terms below during /align sessions -->

@@ -16,12 +16,12 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 
 | ID | Title | Outcome | Depends on | Status |
 |----|-------|---------|------------|--------|
-| M000 | Tenancy Foundation | SaaS isolation safe; ready for second tenant | — | reviewed (yellow) |
-| M001 | SEO Infrastructure | Redirects, sitemap, robots, slug utility live | M000 | in progress |
-| M002 | SEO Metadata | JSON-LD, OG, canonical on all pages | M001 | planned |
-| M003 | Shopping Feed | Google/Meta/TikTok feed live and validated | M000 | in progress |
-| M004 | Inventory & Purchase Orders | Full PO lifecycle + inventory dashboard | M000 | planned |
-| M005 | Improved Order Flow | Faster order processing + pick list | M000 | in progress |
+| M000 | Tenancy Foundation | SaaS isolation safe; ready for second tenant | — | done (yellow: Neon IP HITL open) |
+| M001 | SEO Infrastructure | Redirects, sitemap, robots, slug utility live | M000 | done |
+| M002 | SEO Metadata | JSON-LD, OG, canonical on all pages | M001 | done (yellow: category canonical UI deferred) |
+| M003 | Shopping Feed | Google/Meta/TikTok feed live and validated | M000 | done |
+| M004 | Inventory & Purchase Orders | Full PO lifecycle + inventory dashboard | M000 | done |
+| M005 | Improved Order Flow | Faster order processing + pick list | M000 | done |
 
 ---
 
@@ -181,6 +181,35 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 
 ---
 
+---
+
+## M006 — Production Infrastructure
+
+**Outcome:** MercFlow runs reproducibly on Hetzner. Traefik routes per-tenant domains with SSL. Redis, Sentry, BetterStack, and automated S3 backups are active. A new tenant can be provisioned in under 5 minutes via CLI script.
+
+**PRD:** `.factory/context/PRD-infra.md`
+**ADR:** ADR-006
+
+**Sprints in this milestone:**
+
+| Sprint | Goal | Tasks |
+|--------|------|-------|
+| S009 | Full infra stack + observability + backup + provisioning | T027, T028, T029, T030 |
+
+**Dependencies:** Batch 2 modules stable on `development` (M000–M005 done)
+
+**Definition of done:**
+- [ ] Docker Compose stack running on Hetzner (Traefik + Medusa backend + worker + Redis + Portainer + backup-cron)
+- [ ] SSL cert auto-provisioned for configured domain via Let's Encrypt
+- [ ] Sentry errors tagged with `store_id`; BetterStack uptime checks active per tenant domain
+- [ ] Daily pg_dump backup reaching Hetzner Object Storage S3; restore tested
+- [ ] `pnpm provision-tenant` creates Store + Sales Channel + Publishable Key + Admin user in < 5 min
+- [ ] Neon allowed-IP updated to Hetzner VPS egress IP (closes T003 HITL from M000)
+- [ ] `infra/RUNBOOK.md` complete — second person can operate without the original author
+- [ ] `/milestone-review M006` green
+
+---
+
 ## Dependency graph
 
 ```mermaid
@@ -190,4 +219,5 @@ flowchart LR
   M000 --> M004
   M000 --> M005
   M001 --> M002
+  M005 --> M006
 ```

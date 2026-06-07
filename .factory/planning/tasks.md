@@ -5,6 +5,7 @@
 > Mode: `AFK` | `HITL`
 > Updated: 2026-06-04 (S003 merged — T008–T012; PR #60; closeout `.factory/logs/sprints/S003-closeout-2026-06-04.md`)
 > Updated: 2026-06-04 (M000 review + acceptance sync; S003 active)
+> Updated: 2026-06-08 (all M000–M005 tasks done; PR #63 unified list pages merged outside Factory — logged for traceability)
 
 ---
 
@@ -1013,16 +1014,16 @@ Admin can view feed status (product count, last updated, validation errors), exc
 
 ### Acceptance criteria
 
-- [ ] All tables with `store_id NOT NULL` + RLS
-- [ ] `pnpm migration:run` clean
-- [ ] Package README
+- [x] All tables with `store_id NOT NULL` + RLS
+- [x] `pnpm migration:run` clean
+- [x] Package README
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
-- [ ] All migrations have DECISION LOG + `down()`
-- [ ] Package README
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
+- [x] All migrations have DECISION LOG + `down()`
+- [x] Package README
+- [x] PR description filled in
 
 ---
 
@@ -1050,13 +1051,13 @@ Admin can create, edit, and delete suppliers. Supplier list available as dropdow
 
 ### Acceptance criteria
 
-- [ ] Supplier CRUD works end-to-end
-- [ ] Supplier list is tenant-scoped
+- [x] Supplier CRUD works end-to-end
+- [x] Supplier list is tenant-scoped
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
+- [x] PR description filled in
 
 ---
 
@@ -1084,14 +1085,14 @@ Admin can create a PO (select supplier, add lines, set expected date, reference,
 
 ### Acceptance criteria
 
-- [ ] PO created with supplier, lines, date, reference
-- [ ] PO list tenant-scoped
-- [ ] Status transition draft → ordered works
+- [x] PO created with supplier, lines, date, reference
+- [x] PO list tenant-scoped
+- [x] Status transition draft → ordered works
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
+- [x] PR description filled in
 
 ---
 
@@ -1125,17 +1126,17 @@ Before implementing: decide — does `receive` also call Medusa `createReservati
 
 ### Acceptance criteria
 
-- [ ] Admin opens PO → enters received qty per line → submits
-- [ ] Discrepancy clearly shown (ordered 100, received 94 → -6 flagged)
-- [ ] Partial receipt leaves PO `partially_received`
-- [ ] UI explicitly labels whether stock has been applied or not
-- [ ] `store_id` isolation on all receipt records
+- [x] Admin opens PO → enters received qty per line → submits
+- [x] Discrepancy clearly shown (ordered 100, received 94 → -6 flagged)
+- [x] Partial receipt leaves PO `partially_received`
+- [x] UI explicitly labels whether stock has been applied or not
+- [x] `store_id` isolation on all receipt records
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
-- [ ] HITL: stock mutation decision confirmed and documented in PR
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
+- [x] HITL: stock mutation decision confirmed and documented in PR
+- [x] PR description filled in
 
 ---
 
@@ -1165,15 +1166,15 @@ Admin sees a unified inventory table: stocked (Medusa), reserved (Medusa), avail
 
 ### Acceptance criteria
 
-- [ ] `available = stocked - reserved` is always live (never cached)
-- [ ] `incoming` reflects open POs for that variant
-- [ ] Low-stock threshold configurable; variants below threshold highlighted
-- [ ] Movement history shows correct source label (sale, PO receipt, manual)
+- [x] `available = stocked - reserved` is always live (never cached)
+- [x] `incoming` reflects open POs for that variant
+- [x] Low-stock threshold configurable; variants below threshold highlighted
+- [x] Movement history shows correct source label (sale, PO receipt, manual)
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes / `pnpm lint` passes / tests passing
+- [x] PR description filled in
 
 ---
 
@@ -1260,3 +1261,276 @@ Order detail page shows all info without modal navigation. Internal notes sectio
 
 <!-- Total: T001–T026 | AFK: 22 | HITL: 4 (T003, T008, T013, T023) -->
 <!-- Sprints: S001–S008 | Milestones: M000–M005 -->
+
+---
+
+## M006 — Production Infrastructure / S009
+
+---
+
+## T027 — Docker Compose stack — Traefik + Redis + Portainer + Medusa on Hetzner
+
+**Sprint:** S009
+**Milestone:** M006
+**Status:** todo
+**Mode:** HITL
+**Parallel group:** A
+**Blocked by:** none
+**Branch:** feature/S009/T027-hetzner-docker-compose
+**PRD journey:** J001
+**ADRs:** ADR-006
+
+**HITL reason:** Requires SSH access to Hetzner VPS to deploy and verify. Domain DNS must be configured before SSL provisioning can be tested. Human must confirm all containers are healthy in Portainer and admin URL is accessible. Neon IP allowlist must be updated to Hetzner egress IP (closes open HITL from T003/M000).
+
+### Slice objective
+
+Full MercFlow stack runs on Hetzner via Docker Compose. Traefik routes configured domain with automatic SSL (Let's Encrypt). Medusa backend + worker start cleanly, connect to Neon. Redis available. Portainer accessible. Neon IP allowlist updated to Hetzner egress IP.
+
+### Layers in scope
+
+- Infra: `infra/docker-compose.yml` — services: `traefik`, `medusa-backend`, `medusa-worker`, `redis`, `portainer`
+- Config: `infra/traefik/traefik.yml` (static), `infra/traefik/dynamic/` (routing rules), `infra/traefik/acme.json` (gitignored)
+- Env: `infra/.env.example` — all required vars documented (`NEON_DATABASE_URL`, `REDIS_URL`, `SENTRY_DSN`, `DOMAIN`, etc.)
+- Runbook: `infra/RUNBOOK.md` — deploy, restart, add domain, update cert
+- Ops: Neon project `young-waterfall-54245022` allowed-IP updated to Hetzner VPS static/floating IP
+
+### Services
+
+| Service | Image | Notes |
+|---|---|---|
+| `traefik` | `traefik:v3` | HTTP-01 ACME, dashboard disabled in prod |
+| `medusa-backend` | Built from `apps/backend` | HTTP on internal port; exposed via Traefik |
+| `medusa-worker` | Same image, worker mode | No external exposure |
+| `redis` | `redis:7-alpine` | Internal only |
+| `portainer` | `portainer/portainer-ce:latest` | Exposed via Traefik on `portainer.<domain>` |
+
+### Acceptance criteria
+
+- [ ] `docker compose up -d` starts all containers without errors
+- [ ] `GET https://<configured-domain>/health` returns 200 with valid SSL cert
+- [ ] Portainer UI accessible at `portainer.<configured-domain>`
+- [ ] Medusa admin login works end-to-end
+- [ ] Redis connectivity verified (Medusa logs no event bus errors)
+- [ ] Neon allowed-IP updated; connection string unreachable from other IPs (verify)
+- [ ] `infra/.env.example` documents all required vars without real values
+
+### HITL checkpoint
+
+1. Human configures DNS (A record or CNAME for configured domain → Hetzner IP)
+2. Human SSHes to Hetzner, runs `docker compose up -d`
+3. Human verifies all containers green in Portainer
+4. Human updates Neon `allowed_ips` with Hetzner egress IP in [Neon console](https://console.neon.tech/app/projects/young-waterfall-54245022)
+5. Human confirms admin URL accessible → approves PR
+
+### Out of scope
+
+- CI/CD auto-deploy (post-MVP)
+- Backup cron (T029)
+- Multi-tenant domain routing beyond first domain (T030)
+- Horizontal scaling
+
+### Definition of done
+
+- [ ] `infra/docker-compose.yml` committed and reviewed
+- [ ] `infra/.env.example` complete — no real values
+- [ ] `infra/RUNBOOK.md` covers deploy + restart + cert renewal
+- [ ] HITL: human confirms stack running on Hetzner
+- [ ] HITL: Neon IP allowlist updated (closes T003/M000 HITL)
+- [ ] PR description filled in
+
+---
+
+## T028 — Observability — Sentry SDK + BetterStack logs + uptime checks
+
+**Sprint:** S009
+**Milestone:** M006
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none (code); T027 deployed for uptime check config
+**Branch:** feature/S009/T028-observability
+**PRD journey:** J003
+**ADRs:** ADR-006
+
+### Slice objective
+
+Sentry SDK integrated into Medusa backend — unhandled errors captured and tagged with `store_id`. BetterStack log source connected. Uptime checks configured per tenant domain. Both services have no real credentials in code.
+
+### Layers in scope
+
+- Code: Sentry SDK in `apps/backend` — `@sentry/node` init with `store_id` tag in error context
+- Config: `SENTRY_DSN` env var; Sentry project created (separate from Guapo if applicable)
+- Ops: BetterStack log source connected to Docker container stdout/stderr via log driver or agent
+- Ops: BetterStack uptime check created for each configured tenant domain (initially Guapo)
+- Env: `infra/.env.example` updated with `SENTRY_DSN`, `BETTERSTACK_SOURCE_TOKEN`
+
+### Sentry integration pattern
+
+```ts
+// apps/backend/src/lib/sentry.ts
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+})
+
+// In request context middleware — attach store_id to all errors
+Sentry.setTag("store_id", resolvedStoreId)
+```
+
+### Acceptance criteria
+
+- [ ] Unhandled error in Medusa backend appears in Sentry with `store_id` tag
+- [ ] Container logs visible in BetterStack log explorer
+- [ ] Uptime check for Guapo domain active; alert fires on simulated downtime
+- [ ] No `SENTRY_DSN` or BetterStack tokens committed to repo
+
+### Out of scope
+
+- Per-tenant Sentry projects (single project with `store_id` tag is sufficient)
+- Custom BetterStack dashboards
+- Performance tracing (Sentry)
+
+### Definition of done
+
+- [ ] `pnpm typecheck` passes
+- [ ] `pnpm lint` passes
+- [ ] Sentry init documented in `infra/RUNBOOK.md`
+- [ ] `infra/.env.example` updated
+- [ ] PR description filled in
+
+---
+
+## T029 — Automated pg_dump backup → Hetzner S3 + restore runbook
+
+**Sprint:** S009
+**Milestone:** M006
+**Status:** todo
+**Mode:** HITL
+**Parallel group:** B
+**Blocked by:** T027
+**Branch:** feature/S009/T029-backup-restore
+**PRD journey:** J004
+**ADRs:** ADR-006
+
+**HITL reason:** Requires Hetzner Object Storage bucket + credentials to be provisioned by human. Restore must be tested manually on a real backup to verify it works.
+
+### Slice objective
+
+Daily automated pg_dump from Neon runs via a cron container. Backup uploaded to Hetzner Object Storage via rclone. Restore script documented and tested. BetterStack alert fires if backup job fails.
+
+### Layers in scope
+
+- Infra: `backup` service added to `docker-compose.yml` — cron-based `pg_dump` + rclone upload
+- Scripts: `infra/backup/backup.sh` — pg_dump → compress → rclone copy to S3
+- Scripts: `scripts/restore-backup.sh <date>` — downloads backup → pg_restore to Neon (local target configurable)
+- Config: `infra/backup/rclone.conf.example` — S3 provider config template (no real keys)
+- Env: `HETZNER_S3_ACCESS_KEY`, `HETZNER_S3_SECRET_KEY`, `HETZNER_S3_BUCKET`, `BACKUP_RETENTION_DAYS` added to `.env.example`
+- Runbook: backup section in `infra/RUNBOOK.md`
+
+### Backup schedule
+
+- **Daily at 02:00 UTC** — full pg_dump of Neon database
+- **Retention:** 30 days (configurable via `BACKUP_RETENTION_DAYS`)
+- **Naming:** `mercflow-backup-YYYY-MM-DD-HHMMSS.sql.gz`
+- **Failure alert:** BetterStack alert if no backup file uploaded within 26 hours
+
+### Acceptance criteria
+
+- [ ] `backup.sh` runs without error; file appears in Hetzner Object Storage
+- [ ] `restore-backup.sh 2026-06-08` downloads and restores backup to a test DB without error
+- [ ] Cron fires at configured time (verify via container logs)
+- [ ] BetterStack heartbeat monitor configured; alerts on missed backup
+- [ ] No S3 credentials committed to repo
+
+### HITL checkpoint
+
+1. Human creates Hetzner Object Storage bucket + access key
+2. Human adds credentials to `.env.production` on Hetzner VPS
+3. Human triggers manual backup run (`docker compose exec backup /backup.sh`) → confirms file in S3
+4. Human runs `restore-backup.sh` against a test DB → confirms data integrity
+5. Human approves PR
+
+### Out of scope
+
+- Point-in-time recovery (Neon has its own PITR — this is an additional safety net)
+- Cross-region backup replication
+
+### Definition of done
+
+- [ ] `infra/backup/backup.sh` and `scripts/restore-backup.sh` committed
+- [ ] `infra/backup/rclone.conf.example` committed (no real keys)
+- [ ] `infra/.env.example` updated with backup vars
+- [ ] Backup section in `infra/RUNBOOK.md`
+- [ ] HITL: human confirms backup reaching S3 and restore works
+- [ ] PR description filled in
+
+---
+
+## T030 — Tenant provisioning script
+
+**Sprint:** S009
+**Milestone:** M006
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** B
+**Blocked by:** T027
+**Branch:** feature/S009/T030-provision-tenant
+**PRD journey:** J002
+**ADRs:** ADR-004, ADR-006
+
+### Slice objective
+
+`pnpm provision-tenant` accepts `--name`, `--domain`, `--email` and creates a fully isolated MercFlow tenant: Medusa Store, Sales Channel, Publishable API Key, Admin user with generated password, and a Traefik routing rule for the domain. Target: under 5 minutes end-to-end.
+
+### Layers in scope
+
+- Script: `scripts/provision-tenant.ts` — CLI using Medusa Admin API + Traefik dynamic config file
+- Output: prints Store ID, Publishable API Key, admin URL, generated password to stdout
+- Traefik: appends a new routing rule to `infra/traefik/dynamic/tenants.yml` (or equivalent file provider)
+- Env: reads `MEDUSA_ADMIN_API_KEY` (or equivalent auth) + `TRAEFIK_DYNAMIC_DIR` from env
+
+### CLI interface
+
+```bash
+pnpm provision-tenant \
+  --name "Salon Maria" \
+  --domain shop.salon-maria.dk \
+  --email maria@salon-maria.dk
+```
+
+### What the script creates
+
+1. `POST /admin/stores` → Medusa Store (`store_id`)
+2. `POST /admin/sales-channels` → Sales Channel linked to store
+3. `POST /admin/publishable-api-keys` → Publishable API Key for storefront
+4. `POST /admin/users` → Admin user with `--email` + generated 16-char password
+5. Appends Traefik router + service rule for `--domain` to dynamic config file
+
+### Acceptance criteria
+
+- [ ] Script runs to completion without errors on a live Hetzner deployment (T027 deployed)
+- [ ] New tenant visible in Medusa admin store list
+- [ ] Admin login with generated credentials works
+- [ ] `GET https://<domain>/health` routed correctly via Traefik after DNS propagates
+- [ ] Generated password not stored in script output files or logs
+- [ ] Idempotency: running script twice with same domain gives a clear error (not silent duplicate)
+
+### Out of scope
+
+- Sending credentials to customer (manual step — operator copies from stdout)
+- Self-service UI (future PRD)
+- Stripe billing setup
+- Storefront deployment
+
+### Definition of done
+
+- [ ] `pnpm typecheck` passes
+- [ ] `pnpm lint` passes
+- [ ] Script documented in `infra/RUNBOOK.md` (provisioning section)
+- [ ] `scripts/provision-tenant.ts` committed
+- [ ] PR description filled in
+
+---
+
+<!-- Total: T001–T030 | AFK: 24 | HITL: 6 (T003, T008, T013, T023, T027, T029) -->
+<!-- Sprints: S001–S009 | Milestones: M000–M006 -->

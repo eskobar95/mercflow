@@ -46,6 +46,22 @@
 | `feed-module` | **Planned Batch 2** — Google Shopping XML |
 | `inventory-module` | **Planned Batch 2** — POs, suppliers, inventory dashboard |
 
+## Hosting & infrastructure
+
+| Component | Choice | Notes |
+|-----------|--------|-------|
+| Compute | Hetzner VPS | All backend services run here |
+| Deployment unit | Docker Compose | Single `docker-compose.yml` per environment |
+| Reverse proxy | Traefik | SSL (Let's Encrypt), per-tenant domain routing |
+| Cache / queue state | Redis | Medusa event bus + rate-limiting counters |
+| Database | Neon (managed PostgreSQL) | Shared across tenants, row-level isolated — ADR-004 |
+| Error tracking | Sentry | Tagged by `store_id` |
+| Observability | BetterStack | Logs + uptime checks per tenant domain |
+| Object storage | Hetzner Object Storage (S3-compatible) | Media assets + daily pg_dump backups |
+| Container management | Portainer CE | Self-hosted, free, no SSH required |
+
+**Not in infra MVP:** CI/CD auto-deploy pipeline, Kubernetes, Railway, self-hosted PostgreSQL, per-tenant VMs.
+
 ## Integrations (connector-module)
 
 - Stripe, Shipmondo, Plunk, GTM — credentials in module; no Guapo production secrets in repo

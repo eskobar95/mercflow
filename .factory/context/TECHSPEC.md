@@ -130,6 +130,7 @@ BDD: optional under `.factory/specs/` — link to PRD journeys when used.
 | [ADR-003](ADR/ADR-003-batch2-module-split.md) | 2026-06-04 | Batch 2: separate seo / feed / inventory modules | accepted |
 | [ADR-004](ADR/ADR-004-shared-instance-multi-tenancy.md) | 2026-06-04 | SaaS multi-tenancy — shared Neon DB, `store_id` row isolation | accepted |
 | [ADR-005](ADR/ADR-005-security-rls-rate-limiting.md) | 2026-06-04 | Security: RLS on MercFlow tables + rate limiting + Neon IP policy | accepted |
+| [ADR-006](ADR/ADR-006-hetzner-infra-stack.md) | 2026-06-08 | Production infra: Hetzner + Docker Compose + Traefik + Redis + Portainer | accepted |
 
 ---
 
