@@ -21,7 +21,11 @@ function toRuleRows(rules: RobotsRuleDto[]): RobotsRuleRow[] {
 }
 
 function stripRuleIds(rules: RobotsRuleRow[]): RobotsRuleDto[] {
-  return rules.map(({ clientId: _clientId, ...rule }) => rule)
+  return rules.map(({ user_agent, allow, disallow }) => ({
+    user_agent,
+    allow,
+    disallow,
+  }))
 }
 
 type RobotsSettingsState = {

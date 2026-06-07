@@ -170,9 +170,7 @@ const DEMO_ROW_ACTIONS: RowActionItem[] = [
   },
 ]
 
-function demoRowActions(_row: DemoRow): RowActionItem[] {
-  return DEMO_ROW_ACTIONS
-}
+const getDemoRowActions: (row: DemoRow) => RowActionItem[] = () => DEMO_ROW_ACTIONS
 
 type ListDemoUiState = {
   search: string
@@ -315,7 +313,7 @@ export function ListDemoPage(): ReactNode {
     dispatch({ type: "selectRow", id, select })
   }
 
-  const getRowActions = demoRowActions
+  const getRowActions = getDemoRowActions
 
   return (
     <div className="p-6">
