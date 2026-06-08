@@ -345,5 +345,24 @@ Sprint 1 (Foundation, 17 maj – 7 juni) er funktionelt færdig. Tasks fra Sprin
 
 **Approver:** human
 **Verified:** Better Stack uptime monitor on `https://api.mercflow.shop/health` (60s); Neon IP allowlist includes Hetzner `46.225.226.143`.
-**PR:** https://github.com/eskobar95/mercflow/pull/68 — awaiting CI + merge.
+**PR:** https://github.com/eskobar95/mercflow/pull/68 — merged to `development`.
 **Unblocks:** T029 (backup), T030 (provision tenant).
+
+## Decision — T029 cancelled — 2026-06-08
+
+**Decider:** human
+**Rationale:** Hetzner Object Storage + pg_dump cron is overkill for MVP when Neon daily snapshots + PITR and Hetzner Server Backup on `mercflow` VPS cover database and infrastructure respectively.
+**Documentation:** `infra/RUNBOOK.md` § Backup & restore; `tasks.md` T029 → cancelled.
+**Next:** T030 tenant provisioning script on `feature/S009/T030-provision-tenant`.
+
+## T030 implementation started — 2026-06-08
+
+**Branch:** `feature/S009/T030-provision-tenant`
+**Delivered:** `pnpm provision-tenant` CLI — store via `medusa exec`, sales channel / API key / admin user via Admin API, Traefik file per tenant in `infra/traefik/dynamic/tenants/`.
+**Gate:** Unit tests green; backend typecheck green.
+
+## T030 dry-run complete — 2026-06-08
+
+**Tenant:** Salon Maria (test) — `store_01KTMK3806JRVQ00MR856BT302`; domain `shop.salon-maria.dk` not owned; Traefik file deployed to VPS anyway.
+**Model:** Admin at `https://api.mercflow.shop/app`; tenant host = storefront/public only.
+**Deferred:** DNS health HITL until first real customer domain.

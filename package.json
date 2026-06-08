@@ -15,7 +15,8 @@
     "ci": "pnpm install --frozen-lockfile && pnpm lint && pnpm test && pnpm typecheck && pnpm build",
     "react-doctor:admin-ui": "pnpm --filter @mercflow/admin-ui react-doctor",
     "react-doctor:admin-ui:diff": "pnpm --filter @mercflow/admin-ui react-doctor:diff",
-    "react-doctor:admin-ui:ci": "pnpm --filter @mercflow/admin-ui react-doctor:ci"
+    "react-doctor:admin-ui:ci": "pnpm --filter @mercflow/admin-ui react-doctor:ci",
+    "provision-tenant": "tsx scripts/provision-tenant.ts"
   },
   "pnpm": {
     "overrides": {
@@ -37,6 +38,7 @@
     "jsdom": "^25.0.1",
     "react-doctor": "^0.4.2",
     "typescript": "^5.6.3",
+    "tsx": "^4.20.3",
     "typescript-eslint": "^8.24.0",
     "vitest": "^3.2.0"
   }

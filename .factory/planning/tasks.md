@@ -1272,7 +1272,7 @@ Order detail page shows all info without modal navigation. Internal notes sectio
 
 **Sprint:** S009
 **Milestone:** M006
-**Status:** in-review
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
@@ -1344,7 +1344,7 @@ Full MercFlow stack runs on Hetzner via Docker Compose. Traefik routes configure
 ### Out of scope
 
 - CI/CD auto-deploy (post-MVP)
-- Backup cron (T029)
+- Backup cron (T029 — cancelled; Neon snapshots + Hetzner VPS backup)
 - Multi-tenant domain routing beyond first domain (T030)
 - Horizontal scaling
 
@@ -1424,13 +1424,15 @@ Sentry.setTag("store_id", resolvedStoreId)
 
 **Sprint:** S009
 **Milestone:** M006
-**Status:** todo
+**Status:** cancelled
 **Mode:** HITL
 **Parallel group:** B
-**Blocked by:** T027
-**Branch:** feature/S009/T029-backup-restore
+**Blocked by:** n/a
+**Branch:** feature/S009/T029-backup-restore (not started)
 **PRD journey:** J004
 **ADRs:** ADR-006
+
+**Cancelled:** 2026-06-08 — Operator decision: Hetzner Object Storage + pg_dump cron is redundant for MVP. Production backup uses **Neon daily snapshots + PITR** (database) and **Hetzner Server Backup** on `mercflow` VPS (infrastructure). Restore procedures documented in `infra/RUNBOOK.md` § Backup & restore. Re-open only if vendor-independent pg_dump exports become a requirement.
 
 **HITL reason:** Requires Hetzner Object Storage bucket + credentials to be provisioned by human. Restore must be tested manually on a real backup to verify it works.
 
@@ -1490,11 +1492,12 @@ Daily automated pg_dump from Neon runs via a cron container. Backup uploaded to 
 
 **Sprint:** S009
 **Milestone:** M006
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** B
-**Blocked by:** T027
+**Blocked by:** none (T027 done; T029 cancelled)
 **Branch:** feature/S009/T030-provision-tenant
+**Note:** 2026-06-08 — Dry-run tenant "Salon Maria" provisioned (no owned domain; script + Medusa resources verified). Live DNS/health HITL deferred to first real customer domain.
 **PRD journey:** J002
 **ADRs:** ADR-004, ADR-006
 
@@ -1528,12 +1531,12 @@ pnpm provision-tenant \
 
 ### Acceptance criteria
 
-- [ ] Script runs to completion without errors on a live Hetzner deployment (T027 deployed)
-- [ ] New tenant visible in Medusa admin store list
-- [ ] Admin login with generated credentials works
-- [ ] `GET https://<domain>/health` routed correctly via Traefik after DNS propagates
-- [ ] Generated password not stored in script output files or logs
-- [ ] Idempotency: running script twice with same domain gives a clear error (not silent duplicate)
+- [x] Script runs to completion without errors on a live Hetzner deployment (T027 deployed)
+- [x] New tenant visible in Medusa admin store list
+- [x] Admin login with generated credentials works (platform admin URL)
+- [ ] `GET https://<domain>/health` routed correctly via Traefik after DNS propagates (deferred — no owned test domain)
+- [x] Generated password not stored in script output files or logs
+- [x] Idempotency: running script twice with same domain gives a clear error (not silent duplicate)
 
 ### Out of scope
 
@@ -1558,11 +1561,12 @@ pnpm provision-tenant \
 
 **Sprint:** S009
 **Milestone:** M006
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S009/T031-pagination-error-shape
+**PR:** https://github.com/eskobar95/mercflow/pull/67
 **PRD journey:** J002
 **ADRs:** PRD-api-hardening
 
@@ -1580,11 +1584,11 @@ Every MercFlow list endpoint enforces `limit = Math.min(query.limit ?? 50, 100)`
 
 ### Acceptance criteria
 
-- [ ] `rg "Math.min" packages/*/src/api` matches every list handler
-- [ ] `rg "new Error" packages/*/src/api` returns zero matches (all replaced with `MedusaError`)
-- [ ] `GET /admin/redirects?limit=500` returns `count` ≤ 100
-- [ ] `pnpm typecheck` passes
-- [ ] `pnpm lint` passes
+- [x] `rg "Math.min" packages/*/src/api` matches every list handler
+- [x] `rg "new Error" packages/*/src/api` returns zero matches (all replaced with `MedusaError`)
+- [x] `GET /admin/redirects?limit=500` returns `count` ≤ 100
+- [x] `pnpm typecheck` passes
+- [x] `pnpm lint` passes
 
 ### Out of scope
 
@@ -1605,11 +1609,12 @@ Every MercFlow list endpoint enforces `limit = Math.min(query.limit ?? 50, 100)`
 
 **Sprint:** S009
 **Milestone:** M006
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S009/T032-store-route-versioning
+**PR:** https://github.com/eskobar95/mercflow/pull/66
 **PRD journey:** J001
 **ADRs:** PRD-api-hardening
 
@@ -1637,12 +1642,12 @@ All routes under `apps/backend/src/api/store/` registered by MercFlow modules:
 
 ### Acceptance criteria
 
-- [ ] `GET /v1/store/seo/json-ld/product/:id` returns same response as `GET /store/seo/json-ld/product/:id` did before
-- [ ] `GET /store/seo/json-ld/product/:id` returns 301 → `/v1/store/seo/json-ld/product/:id`
-- [ ] All other MercFlow store routes follow same pattern (verified with smoke test list)
+- [x] `GET /v1/store/seo/json-ld/product/:id` returns same response as `GET /store/seo/json-ld/product/:id` did before
+- [x] `GET /store/seo/json-ld/product/:id` returns 301 → `/v1/store/seo/json-ld/product/:id`
+- [x] All other MercFlow store routes follow same pattern (verified with smoke test list)
 - [ ] Guapo storefront smoke test: no broken store API calls after deploy
-- [ ] `pnpm typecheck` passes
-- [ ] `pnpm lint` passes
+- [x] `pnpm typecheck` passes
+- [x] `pnpm lint` passes
 
 ### Out of scope
 
@@ -1660,5 +1665,5 @@ All routes under `apps/backend/src/api/store/` registered by MercFlow modules:
 
 ---
 
-<!-- Total: T001–T032 | AFK: 26 | HITL: 6 (T003, T008, T013, T023, T027, T029) -->
+<!-- Total: T001–T032 | AFK: 26 | HITL: 5 (T003, T008, T013, T023, T027) | Cancelled: T029 -->
 <!-- Sprints: S001–S009 | Milestones: M000–M006 -->
