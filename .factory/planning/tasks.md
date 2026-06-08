@@ -1492,11 +1492,12 @@ Daily automated pg_dump from Neon runs via a cron container. Backup uploaded to 
 
 **Sprint:** S009
 **Milestone:** M006
-**Status:** in-progress
+**Status:** done
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** none (T027 done; T029 cancelled)
 **Branch:** feature/S009/T030-provision-tenant
+**Note:** 2026-06-08 — Dry-run tenant "Salon Maria" provisioned (no owned domain; script + Medusa resources verified). Live DNS/health HITL deferred to first real customer domain.
 **PRD journey:** J002
 **ADRs:** ADR-004, ADR-006
 
@@ -1530,12 +1531,12 @@ pnpm provision-tenant \
 
 ### Acceptance criteria
 
-- [ ] Script runs to completion without errors on a live Hetzner deployment (T027 deployed)
-- [ ] New tenant visible in Medusa admin store list
-- [ ] Admin login with generated credentials works
-- [ ] `GET https://<domain>/health` routed correctly via Traefik after DNS propagates
-- [ ] Generated password not stored in script output files or logs
-- [ ] Idempotency: running script twice with same domain gives a clear error (not silent duplicate)
+- [x] Script runs to completion without errors on a live Hetzner deployment (T027 deployed)
+- [x] New tenant visible in Medusa admin store list
+- [x] Admin login with generated credentials works (platform admin URL)
+- [ ] `GET https://<domain>/health` routed correctly via Traefik after DNS propagates (deferred — no owned test domain)
+- [x] Generated password not stored in script output files or logs
+- [x] Idempotency: running script twice with same domain gives a clear error (not silent duplicate)
 
 ### Out of scope
 

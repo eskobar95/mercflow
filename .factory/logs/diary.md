@@ -360,3 +360,9 @@ Sprint 1 (Foundation, 17 maj – 7 juni) er funktionelt færdig. Tasks fra Sprin
 **Branch:** `feature/S009/T030-provision-tenant`
 **Delivered:** `pnpm provision-tenant` CLI — store via `medusa exec`, sales channel / API key / admin user via Admin API, Traefik file per tenant in `infra/traefik/dynamic/tenants/`.
 **Gate:** Unit tests green; backend typecheck green.
+
+## T030 dry-run complete — 2026-06-08
+
+**Tenant:** Salon Maria (test) — `store_01KTMK3806JRVQ00MR856BT302`; domain `shop.salon-maria.dk` not owned; Traefik file deployed to VPS anyway.
+**Model:** Admin at `https://api.mercflow.shop/app`; tenant host = storefront/public only.
+**Deferred:** DNS health HITL until first real customer domain.
