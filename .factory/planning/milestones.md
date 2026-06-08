@@ -194,7 +194,7 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 
 | Sprint | Goal | Tasks |
 |--------|------|-------|
-| S009 | Full infra stack + observability + backup + provisioning | T027, T028, T029, T030 |
+| S009 | Full infra stack + observability + backup + provisioning + API hardening | T027, T028, T029, T030, T031, T032 |
 
 **Dependencies:** Batch 2 modules stable on `development` (M000–M005 done)
 
@@ -206,6 +206,8 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 - [ ] `pnpm provision-tenant` creates Store + Sales Channel + Publishable Key + Admin user in < 5 min
 - [ ] Neon allowed-IP updated to Hetzner VPS egress IP (closes T003 HITL from M000)
 - [ ] `infra/RUNBOOK.md` complete — second person can operate without the original author
+- [ ] All MercFlow list endpoints enforce max 100 records — no unbounded queries (T031)
+- [ ] All MercFlow store routes accessible under `/v1/` prefix; old paths 301-redirect (T032)
 - [ ] `/milestone-review M006` green
 
 ---

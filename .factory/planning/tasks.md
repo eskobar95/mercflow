@@ -1532,5 +1532,113 @@ pnpm provision-tenant \
 
 ---
 
-<!-- Total: T001–T030 | AFK: 24 | HITL: 6 (T003, T008, T013, T023, T027, T029) -->
+---
+
+## T031 — Pagination max + error shape audit
+
+**Sprint:** S009
+**Milestone:** M006
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none
+**Branch:** feature/S009/T031-pagination-error-shape
+**PRD journey:** J002
+**ADRs:** PRD-api-hardening
+
+### Slice objective
+
+Every MercFlow list endpoint enforces `limit = Math.min(query.limit ?? 50, 100)` — no unbounded queries. Every MercFlow route error path uses `MedusaError({ message, type, code })` — no raw `Error` or plain JSON shapes. Guapo cannot trigger a memory spike by loading a large `redirects` or `purchase-orders` table.
+
+### Layers in scope
+
+- API: `packages/seo-module/src/api/admin/redirects/route.ts` and all list handlers — add limit guard
+- API: `packages/inventory-module/src/api/admin/purchase-orders/route.ts` and all list handlers — add limit guard
+- API: audit all `GET /admin/[resource]` handlers in `content-module`, `feed-module`, `connector-module`, `subscription-module` — add guard where missing
+- API: audit all error paths in MercFlow route handlers — replace raw `Error` with `MedusaError`
+- Tests: verify `GET /admin/redirects?limit=200` returns max 100
+
+### Acceptance criteria
+
+- [ ] `rg "Math.min" packages/*/src/api` matches every list handler
+- [ ] `rg "new Error" packages/*/src/api` returns zero matches (all replaced with `MedusaError`)
+- [ ] `GET /admin/redirects?limit=500` returns `count` ≤ 100
+- [ ] `pnpm typecheck` passes
+- [ ] `pnpm lint` passes
+
+### Out of scope
+
+- Admin UI pagination UI changes
+- Medusa core route changes
+- Response envelope for success payloads
+
+### Definition of done
+
+- [ ] `pnpm typecheck` passes
+- [ ] `pnpm lint` passes
+- [ ] Acceptance criteria above checked
+- [ ] PR description filled in
+
+---
+
+## T032 — `/v1/` prefix on all MercFlow store routes + 301 redirects
+
+**Sprint:** S009
+**Milestone:** M006
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none
+**Branch:** feature/S009/T032-store-route-versioning
+**PRD journey:** J001
+**ADRs:** PRD-api-hardening
+
+### Slice objective
+
+All MercFlow store-facing routes are accessible under `/v1/` before the first non-Guapo tenant is provisioned. Old unversioned paths redirect to `/v1/` equivalents with 301. Storefront developers get a stable URL contract.
+
+### Routes in scope
+
+All routes under `apps/backend/src/api/store/` registered by MercFlow modules:
+
+- `/store/seo/*` → `/v1/store/seo/*`
+- `/store/feed/*` → `/v1/store/feed/*`
+- `/store/sitemap*` → `/v1/store/sitemap*`
+- `/store/robots*` → `/v1/store/robots*`
+- Any other MercFlow-owned store route
+
+**Not in scope:** Medusa core store routes (`/store/products`, `/store/orders`, etc.) — these are Medusa's contract, not ours.
+
+### Layers in scope
+
+- API: add `/v1/` prefix to all MercFlow store route registrations in `apps/backend`
+- API: add 301 redirect middleware from old unversioned paths to `/v1/` equivalents
+- Docs: update any route references in `packages/*/README.md` and `apps/backend/README.md`
+
+### Acceptance criteria
+
+- [ ] `GET /v1/store/seo/json-ld/product/:id` returns same response as `GET /store/seo/json-ld/product/:id` did before
+- [ ] `GET /store/seo/json-ld/product/:id` returns 301 → `/v1/store/seo/json-ld/product/:id`
+- [ ] All other MercFlow store routes follow same pattern (verified with smoke test list)
+- [ ] Guapo storefront smoke test: no broken store API calls after deploy
+- [ ] `pnpm typecheck` passes
+- [ ] `pnpm lint` passes
+
+### Out of scope
+
+- Admin route versioning
+- Medusa core route versioning
+- `/v2/` planning
+
+### Definition of done
+
+- [ ] `pnpm typecheck` passes
+- [ ] `pnpm lint` passes
+- [ ] Acceptance criteria above checked
+- [ ] README route references updated
+- [ ] PR description filled in
+
+---
+
+<!-- Total: T001–T032 | AFK: 26 | HITL: 6 (T003, T008, T013, T023, T027, T029) -->
 <!-- Sprints: S001–S009 | Milestones: M000–M006 -->
