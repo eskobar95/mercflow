@@ -34,7 +34,13 @@ From the **repository root** after `pnpm install`:
 | `RATE_LIMIT_PUBLIC_RPM` | Optional; default `60`. Per-IP limit for `GET /sitemap.xml`, `/robots.txt`, `/feed/*`. |
 | `RATE_LIMIT_STORE_RPM` | Optional; default `300`. Per-`x-publishable-api-key` limit for `GET /store/*`. |
 
+| `SENTRY_DSN` | Optional locally; required in production (see `infra/RUNBOOK.md`). |
+
 Never commit `.env` or production secrets.
+
+## Observability
+
+Sentry initializes from `src/instrumentation.ts` when `SENTRY_DSN` is set. Request middleware tags errors with `store_id`.
 
 ## Registered modules
 
