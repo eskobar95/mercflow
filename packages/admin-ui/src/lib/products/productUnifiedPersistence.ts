@@ -2,7 +2,9 @@ import type Medusa from "@medusajs/js-sdk"
 import { FetchError } from "@medusajs/js-sdk"
 import type { AdminProductVariant, ProductStatus } from "@medusajs/types"
 
+import type { ProductPartialUpdatePayload } from "@/components/products/editor/productEditorTypes"
 import { ADMIN_PRODUCT_EDITOR_FIELDS } from "@/lib/products/adminProductEditorFields"
+import { ADMIN_PRODUCT_DETAIL_FIELDS } from "@/lib/products/adminProductFieldSets"
 import {
   buildVariantComboKey,
   DEFAULT_SINGLE_OPTION_TITLE,
@@ -471,4 +473,164 @@ export async function persistUnifiedProductUpdate(params: {
   }
 
   await Promise.all(stockUpdates)
+}
+
+/**
+ * Partial product-level update for the unified editor (Overview + Relations).
+ * Covers Medusa scalars, organisation, physical attributes, media and metadata.
+ * Variants, prices, inventory and per-locale content persist through their own
+ * flows — this never touches them.
+ */
+/**
+ * Resolves free-form tag values to Medusa tag ids, creating any that do not yet
+ * exist. Medusa attaches tags to a product by id, so the editor's value-based UX
+ * is reconciled here.
+ */
+async function resolveTagIds(sdk: Medusa, values: string[]): Promise<Array<{ id: string }>> {
+  const wanted = [...new Set(values.map((value) => value.trim()).filter((value) => value !== ""))]
+  if (wanted.length === 0) {
+    return []
+  }
+
+  const existing = await sdk.admin.productTag.list({ limit: 1000, fields: "id,value" })
+  const byValue = new Map<string, string>()
+  for (const tag of existing.product_tags ?? []) {
+    if (typeof tag.value === "string" && typeof tag.id === "string") {
+      byValue.set(tag.value.toLowerCase(), tag.id)
+    }
+  }
+
+  const resolved: Array<{ id: string }> = []
+  for (const value of wanted) {
+    const found = byValue.get(value.toLowerCase())
+    if (found !== undefined) {
+      resolved.push({ id: found })
+      continue
+    }
+    const created = await sdk.admin.productTag.create({ value })
+    if (typeof created.product_tag?.id === "string") {
+      resolved.push({ id: created.product_tag.id })
+    }
+  }
+  return resolved
+}
+
+export async function persistProductPartialUpdate(params: {
+  sdk: Medusa
+  productId: string
+  payload: ProductPartialUpdatePayload
+  tagValues: string[]
+}): Promise<void> {
+  const tags = await resolveTagIds(params.sdk, params.tagValues)
+  await params.sdk.admin.product.update(
+    params.productId,
+    { ...params.payload, tags },
+    { fields: ADMIN_PRODUCT_DETAIL_FIELDS },
+  )
+}
+
+export type VariantDetailFields = {
+  title: string
+  sku: string | null
+  barcode: string | null
+  ean: string | null
+  upc: string | null
+  manageInventory: boolean
+  allowBackorder: boolean
+  priceMinorUnits: number | null
+  weight: number | null
+  length: number | null
+  height: number | null
+  width: number | null
+  material: string | null
+  hsCode: string | null
+  midCode: string | null
+  originCountry: string | null
+}
+
+/**
+ * Deep update of a single variant (identifiers, price, dimensions) plus optional
+ * inventory level at the primary stock location. Used by the variant sub-page.
+ */
+export async function persistVariantDetailUpdate(params: {
+  sdk: Medusa
+  productId: string
+  variantId: string
+  primaryStockLocationId: string
+  fields: VariantDetailFields
+  stockQuantity: number | null
+}): Promise<void> {
+  const f = params.fields
+
+  type VariantBatchUpdate = {
+    id: string
+    title: string
+    sku: string | null
+    barcode: string | null
+    ean: string | null
+    upc: string | null
+    manage_inventory: boolean
+    allow_backorder: boolean
+    weight: number | null
+    length: number | null
+    height: number | null
+    width: number | null
+    material: string | null
+    hs_code: string | null
+    mid_code: string | null
+    origin_country: string | null
+    prices?: Array<{ currency_code: string; amount: number }>
+  }
+
+  const updateRow: VariantBatchUpdate = {
+    id: params.variantId,
+    title: f.title.trim(),
+    sku: f.sku,
+    barcode: f.barcode,
+    ean: f.ean,
+    upc: f.upc,
+    manage_inventory: f.manageInventory,
+    allow_backorder: f.allowBackorder,
+    weight: f.weight,
+    length: f.length,
+    height: f.height,
+    width: f.width,
+    material: f.material,
+    hs_code: f.hsCode,
+    mid_code: f.midCode,
+    origin_country: f.originCountry,
+    ...(f.priceMinorUnits !== null
+      ? { prices: [{ currency_code: "dkk", amount: f.priceMinorUnits }] }
+      : {}),
+  }
+
+  await params.sdk.admin.product.batchVariants(
+    params.productId,
+    { update: [updateRow] },
+    { fields: ADMIN_PRODUCT_EDITOR_FIELDS },
+  )
+
+  if (!f.manageInventory || params.stockQuantity === null) {
+    return
+  }
+
+  const refreshed = await params.sdk.admin.product.retrieve(params.productId, {
+    fields: ADMIN_PRODUCT_EDITOR_FIELDS,
+  })
+  const variant = refreshed.product?.variants?.find((row) => row.id === params.variantId)
+  if (variant === undefined) {
+    return
+  }
+
+  const inventoryItemId = medianFirstInventoryItem(variant)
+  if (inventoryItemId === null) {
+    return
+  }
+
+  await setInventoryLevelQuantityAtLocation({
+    sdk: params.sdk,
+    inventoryItemId,
+    locationId: params.primaryStockLocationId,
+    stockedQuantity: params.stockQuantity,
+  })
 }

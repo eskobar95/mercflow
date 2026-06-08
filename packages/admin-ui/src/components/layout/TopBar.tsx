@@ -49,7 +49,9 @@ export function TopBar({
   onToggleMobileMenu,
   mobileMenuOpen = false,
 }: TopBarProps): ReactNode {
-  const { titleBadge, toolbar, actions } = usePageChromeValue()
+  const { titleOverride, titleBadge, toolbar, actions } = usePageChromeValue()
+  const resolvedTitle =
+    titleOverride !== undefined && titleOverride.trim() !== "" ? titleOverride : title
 
   return (
     <header className="z-sticky flex h-14 shrink-0 items-center gap-3 border-b border-border-app bg-surface-appCard px-3 md:h-16 md:px-6">
@@ -71,7 +73,7 @@ export function TopBar({
       {/* Page identity — title + optional live badge, then list toolbar (desktop) */}
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <h1 className="min-w-0 shrink-0 truncate text-interface font-semibold tracking-tight text-content-primary md:text-base">
-          {title}
+          {resolvedTitle}
         </h1>
         {titleBadge}
         {toolbar ? (

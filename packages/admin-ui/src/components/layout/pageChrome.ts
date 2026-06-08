@@ -7,6 +7,13 @@ import { useEffect, useSyncExternalStore, type ReactNode } from "react"
  * starts straight at the content.
  */
 type PageChrome = {
+  /**
+   * Optional title override. When set, the TopBar shows this in place of the
+   * static route `handle.title` — used by detail pages so the bar carries the
+   * live entity name (e.g. the product title). Additive: pages that omit it keep
+   * the route title untouched.
+   */
+  titleOverride?: string
   /** Small accessory shown next to the title (e.g. a live result count). */
   titleBadge: ReactNode
   /**
@@ -20,7 +27,12 @@ type PageChrome = {
   actions: ReactNode
 }
 
-const EMPTY_CHROME: PageChrome = { titleBadge: null, toolbar: null, actions: null }
+const EMPTY_CHROME: PageChrome = {
+  titleOverride: undefined,
+  titleBadge: null,
+  toolbar: null,
+  actions: null,
+}
 
 let currentChrome: PageChrome = EMPTY_CHROME
 const listeners = new Set<() => void>()
