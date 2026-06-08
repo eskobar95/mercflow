@@ -21,7 +21,7 @@ alwaysApply: true
 Local key pair lives in `~/Documents/`:
 
 ```bash
-~~/Documents/hetzner_key      # private key
+~/Documents/hetzner_key      # private key
 ~/Documents/hetzner_key.pub   # public key
 ```
 
