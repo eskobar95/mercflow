@@ -18,15 +18,13 @@ import type ContentModuleService from "../../../modules/content/service"
 export const POST = async (req: MedusaRequest, res: MedusaResponse): Promise<void> => {
   const query = localeQuerySchema.safeParse(req.query)
   if (!query.success) {
-    sendZodError(res, query.error)
-    return
+    sendZodError(query.error)
   }
   const locale = query.data.locale
 
   const parsed = adminProductContentPostBodySchema.safeParse(req.body ?? {})
   if (!parsed.success) {
-    sendZodError(res, parsed.error)
-    return
+    sendZodError(parsed.error)
   }
 
   const { product_id: productId, ...body } = parsed.data

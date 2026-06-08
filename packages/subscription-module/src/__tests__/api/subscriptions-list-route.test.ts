@@ -94,11 +94,8 @@ describe("GET /admin/subscriptions route", (): void => {
     const status = vi.fn().mockReturnValue({ json })
     const res = { status, json } as unknown as MedusaResponse
 
-    await GET(req, res)
-
-    expect(status).toHaveBeenCalledWith(400)
-    expect(json).toHaveBeenCalled()
-    const payload = json.mock.calls[0]?.[0] as { message?: unknown }
-    expect(payload).toHaveProperty("message")
+    await expect(GET(req, res)).rejects.toMatchObject({
+      type: "invalid_data",
+    })
   })
 })

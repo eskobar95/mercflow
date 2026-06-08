@@ -63,16 +63,11 @@ describe("PATCH /admin/connectors/gtm", () => {
     const status = vi.fn().mockReturnValue({ json })
     const res = { status, json } as unknown as MedusaResponse
 
-    await PATCH(req, res)
+    await expect(PATCH(req, res)).rejects.toMatchObject({
+      type: "invalid_data",
+    })
 
     expect(gtmMock).not.toHaveBeenCalled()
-    expect(status).toHaveBeenCalledWith(400)
-    expect(json).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: "Invalid request",
-        issues: expect.any(Object),
-      })
-    )
   })
 
   it("normalizes casing, saves via service, echoes stored id", async () => {

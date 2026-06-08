@@ -5,40 +5,48 @@ import InventoryModuleService from "./service"
 const STORE_A = "store_01KG0VBTT0714XV2CCTEBRVC47"
 
 describe("InventoryModuleService suppliers", (): void => {
-  it("listSuppliers filters by store_id inside withTenant", async (): Promise<void> => {
+  it("listSuppliers passes pagination to listAndCountMercflowSuppliers", async (): Promise<void> => {
     const withTenant = vi.fn(
       async <T>(
         _storeId: string,
         fn: (context: { transactionManager: unknown }) => Promise<T>
       ): Promise<T> => fn({ transactionManager: {} })
     )
-    const listMercflowSuppliers = vi.fn().mockResolvedValue([
-      {
-        id: "sup_1",
-        store_id: STORE_A,
-        name: "Acme",
-        contact_person: null,
-        email: null,
-        country: "DK",
-        currency: "DKK",
-        created_at: new Date(),
-        updated_at: new Date(),
-        deleted_at: null,
-      },
-    ])
+    const listAndCountMercflowSuppliers = vi.fn(async () => [
+      [
+        {
+          id: "sup_1",
+          store_id: STORE_A,
+          name: "Acme",
+          contact_person: null,
+          email: null,
+          country: "DK",
+          currency: "DKK",
+          created_at: new Date(),
+          updated_at: new Date(),
+          deleted_at: null,
+        },
+      ],
+      1,
+    ] as [unknown[], number])
+
+    vi.spyOn(InventoryModuleService.prototype, "listAndCountMercflowSuppliers").mockImplementation(
+      listAndCountMercflowSuppliers as InventoryModuleService["listAndCountMercflowSuppliers"]
+    )
 
     const svc = Object.create(InventoryModuleService.prototype) as InventoryModuleService
-    Object.assign(svc, { withTenant, listMercflowSuppliers })
+    Object.assign(svc, { withTenant })
 
-    const rows = await svc.listSuppliers(STORE_A)
+    const result = await svc.listSuppliers(STORE_A, { limit: 50, offset: 0 })
 
     expect(withTenant).toHaveBeenCalledWith(STORE_A, expect.any(Function))
-    expect(listMercflowSuppliers).toHaveBeenCalledWith(
+    expect(listAndCountMercflowSuppliers).toHaveBeenCalledWith(
       { store_id: STORE_A },
-      { order: { name: "ASC" } },
+      { order: { name: "ASC" }, skip: 0, take: 50 },
       expect.any(Object)
     )
-    expect(rows).toHaveLength(1)
-    expect(rows[0]?.name).toBe("Acme")
+    expect(result.suppliers).toHaveLength(1)
+    expect(result.count).toBe(1)
+    expect(result.suppliers[0]?.name).toBe("Acme")
   })
 })

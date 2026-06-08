@@ -24,8 +24,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
 
   const query = localeQuerySchema.safeParse(req.query)
   if (!query.success) {
-    sendZodError(res, query.error)
-    return
+    sendZodError(query.error)
   }
   const locale = query.data.locale
 

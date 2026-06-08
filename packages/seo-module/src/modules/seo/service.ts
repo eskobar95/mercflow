@@ -218,14 +218,26 @@ class SeoModuleService extends MedusaService({
     })
   }
 
-  async listRedirects(storeId: string): Promise<MercflowRedirectRecord[]> {
+  async listRedirects(
+    storeId: string,
+    options?: { limit?: number; offset?: number }
+  ): Promise<{ redirects: MercflowRedirectRecord[]; count: number }> {
     return this.withTenant(storeId, async (context) => {
-      const rows = await this.listMercflowRedirects(
+      const [rows, count] = await this.listAndCountMercflowRedirects(
         { store_id: storeId },
-        { order: { created_at: "DESC" } },
+        {
+          order: { created_at: "DESC" },
+          skip: options?.offset ?? 0,
+          take: options?.limit ?? 50,
+        },
         context
       )
-      return rows.map((row) => this.toRedirectRecord(row as Record<string, unknown>))
+      return {
+        redirects: rows.map((row) =>
+          this.toRedirectRecord(row as Record<string, unknown>)
+        ),
+        count,
+      }
     })
   }
 

@@ -36,6 +36,13 @@ export const storeIdQuerySchema = z.object({
     .optional(),
 })
 
+export const adminListQuerySchema = z
+  .object({
+    limit: z.coerce.number().int().min(1).optional(),
+    offset: z.coerce.number().int().min(0).optional(),
+  })
+  .strict()
+
 const sitemapPageTypeSettingSchema = z.object({
   priority: z.number().min(0).max(1),
   changefreq: z.string().min(1).max(32),

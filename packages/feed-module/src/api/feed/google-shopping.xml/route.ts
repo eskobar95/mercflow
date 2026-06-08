@@ -26,8 +26,10 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
 
   const query = localeQuerySchema.safeParse(req.query)
   if (!query.success) {
-    res.status(400).json({ message: "Invalid locale query parameter" })
-    return
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      "Invalid locale query parameter"
+    )
   }
   const locale = query.data.locale ?? "en"
 

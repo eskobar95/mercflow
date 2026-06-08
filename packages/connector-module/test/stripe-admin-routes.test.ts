@@ -76,15 +76,11 @@ describe("Stripe connector HTTP routes", (): void => {
 
     const { status, json } = mockRes()
 
-    await stripePatch(req, { status, json } as unknown as MedusaResponse)
+    await expect(stripePatch(req, { status, json } as unknown as MedusaResponse)).rejects.toMatchObject({
+      type: "invalid_data",
+    })
 
     expect(patchStripeConnector).not.toHaveBeenCalled()
-    expect(status).toHaveBeenCalledWith(400)
-    expect(json).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: "Invalid request",
-      })
-    )
   })
 
   it("POST /admin/connectors/stripe/test returns ok", async (): Promise<void> => {
@@ -137,7 +133,7 @@ describe("Stripe connector HTTP routes", (): void => {
 
     await stripePaymentsGet(req, { status, json } as unknown as MedusaResponse)
 
-    expect(stripeListPaymentsAdmin).toHaveBeenCalledWith(20)
+    expect(stripeListPaymentsAdmin).toHaveBeenCalledWith(50)
     expect(status).toHaveBeenCalledWith(200)
     expect(json).toHaveBeenCalledWith({
       data: {
@@ -151,6 +147,9 @@ describe("Stripe connector HTTP routes", (): void => {
             createdEpoch: 1_700_000_000,
           },
         ],
+        count: 1,
+        limit: 50,
+        offset: 0,
       },
     })
   })

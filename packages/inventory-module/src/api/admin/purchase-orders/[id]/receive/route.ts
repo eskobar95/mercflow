@@ -16,8 +16,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse): Promise<voi
 
   const parsed = purchaseOrderReceiveBodySchema.safeParse(req.body ?? {})
   if (!parsed.success) {
-    sendZodError(res, parsed.error)
-    return
+    sendZodError(parsed.error)
   }
 
   const storeId = resolveMercflowStoreId(req)

@@ -51,10 +51,10 @@ describe("Plunk admin routes", (): void => {
     const status = vi.fn().mockReturnValue({ json })
     const res = { status, json } as unknown as MedusaResponse
 
-    await PATCH(req, res)
+    await expect(PATCH(req, res)).rejects.toMatchObject({
+      type: "invalid_data",
+    })
 
-    expect(status).toHaveBeenCalledWith(400)
-    expect(json.mock.calls[0]?.[0]).toMatchObject({ message: "Invalid request" })
     expect(upsert).not.toHaveBeenCalled()
   })
 

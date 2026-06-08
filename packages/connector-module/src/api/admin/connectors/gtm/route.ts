@@ -14,8 +14,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
 export const PATCH = async (req: MedusaRequest, res: MedusaResponse): Promise<void> => {
   const body = gtmPatchBodySchema.safeParse(req.body ?? {})
   if (!body.success) {
-    sendZodError(res, body.error)
-    return
+    sendZodError(body.error)
   }
 
   const service = req.scope.resolve(CONNECTOR_MODULE) as ConnectorModuleService

@@ -28,8 +28,7 @@ export const PUT = async (req: MedusaRequest, res: MedusaResponse): Promise<void
   const storeId = resolveAdminStoreId(req)
   const body = feedConfigPutBodySchema.safeParse(req.body ?? {})
   if (!body.success) {
-    sendZodError(res, body.error)
-    return
+    sendZodError(body.error)
   }
 
   const feedConfigService = req.scope.resolve(FEED_MODULE) as FeedConfigService

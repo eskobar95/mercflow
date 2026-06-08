@@ -22,8 +22,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
 export const PATCH = async (req: MedusaRequest, res: MedusaResponse): Promise<void> => {
   const parsed = inventoryConfigPatchBodySchema.safeParse(req.body ?? {})
   if (!parsed.success) {
-    sendZodError(res, parsed.error)
-    return
+    sendZodError(parsed.error)
   }
 
   const storeId = resolveMercflowStoreId(req)

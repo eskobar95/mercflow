@@ -1,8 +1,15 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
+import {
+  resolveAdminListLimit,
+  resolveAdminListOffset,
+} from "../../../http/admin-list-limit"
 import { sendZodError } from "../../../http/zod-error"
-import { pickListQuerySchema } from "../../../../modules/inventory/http-schemas"
+import {
+  adminListQuerySchema,
+  pickListQuerySchema,
+} from "../../../../modules/inventory/http-schemas"
 import {
   buildPickListFromOrders,
   resolvePickListDayIso,
@@ -16,9 +23,20 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void> => {
   const parsed = pickListQuerySchema.safeParse(req.query ?? {})
   if (!parsed.success) {
-    sendZodError(res, parsed.error)
-    return
+    sendZodError(parsed.error)
   }
+
+  const listQuery = req.query ?? {}
+  const listParsed = adminListQuerySchema.safeParse({
+    limit: listQuery.limit,
+    offset: listQuery.offset,
+  })
+  if (!listParsed.success) {
+    sendZodError(listParsed.error)
+  }
+
+  const limit = Math.min(resolveAdminListLimit(listParsed.data.limit), 100)
+  const offset = resolveAdminListOffset(listParsed.data.offset)
 
   const storeId = resolveMercflowStoreId(req)
   const dayIso = resolvePickListDayIso(parsed.data.date)
@@ -64,11 +82,15 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
 
   const orders = data.filter(isRecord)
   const groups = buildPickListFromOrders(orders, dayIso)
+  const pagedOrders = groups.slice(offset, offset + limit)
 
   res.status(200).json({
     store_id: storeId,
     date: parsed.data.date,
     day: dayIso,
-    orders: groups,
+    orders: pagedOrders,
+    count: groups.length,
+    limit,
+    offset,
   })
 }
