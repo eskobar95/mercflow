@@ -26,6 +26,7 @@
     "@mercflow/inventory-module": "workspace:*",
     "@mercflow/seo-module": "workspace:*",
     "@mercflow/subscription-module": "workspace:*",
+    "@sentry/node": "^10.56.0",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },

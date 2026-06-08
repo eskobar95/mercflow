@@ -13,6 +13,7 @@
     "./mercflow-admin-redirects-id-api": "./src/integrations/mercflow-admin-redirects-id-api.ts",
     "./mercflow-redirect-middleware": "./src/integrations/mercflow-redirect-middleware.ts",
     "./mercflow-public-tenant-middleware": "./src/integrations/mercflow-public-tenant-middleware.ts",
+    "./resolve-store-id-from-publishable-key": "./src/api/http/resolve-store-id-from-publishable-key.ts",
     "./mercflow-tenant-resolver": "./src/integrations/mercflow-tenant-resolver.ts",
     "./mercflow-sitemap-route": "./src/integrations/mercflow-sitemap-route.ts",
     "./mercflow-robots-route": "./src/integrations/mercflow-robots-route.ts",

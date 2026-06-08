@@ -1,0 +1,15 @@
+services:
+  medusa-backend:
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "tcp+tls://in.logs.betterstack.com:6514"
+        syslog-format: "rfc5424"
+        tag: "medusa-backend"
+  medusa-worker:
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "tcp+tls://in.logs.betterstack.com:6514"
+        syslog-format: "rfc5424"
+        tag: "medusa-worker"

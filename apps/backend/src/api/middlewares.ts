@@ -9,6 +9,7 @@ import {
   resolveClientIp,
   resolvePublishableApiKey,
 } from "../lib/rate-limit/request-keys"
+import { sentryStoreIdMiddleware } from "../lib/sentry-store-id-middleware"
 
 const config = loadRateLimitConfig()
 const publicRateLimitStore = new InMemoryTtlRateLimitStore(config.windowMs)
@@ -30,6 +31,10 @@ const storeRateLimitMiddleware = createRateLimitMiddleware({
 
 export default defineMiddlewares({
   routes: [
+    {
+      matcher: "/*",
+      middlewares: [sentryStoreIdMiddleware],
+    },
     {
       matcher: "/*",
       method: ["GET", "HEAD"],
