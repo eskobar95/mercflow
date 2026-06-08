@@ -9,6 +9,22 @@ The Tech Lead never writes production code. The Tech Lead designs the work.
 
 ---
 
+## Stage + Assignee (v2.3)
+
+Tasks use **Stage** (pipeline) and **Assignee** (cloud vs human). Do not set Status directly.
+
+| Action | Set on task |
+|--------|-------------|
+| Approve draft for cloud implementation | Assignee = MercFlow Orchestrator bot, Stage = Ready for Implementation |
+| Nick takes task manually | Assignee = Nick (Worker noop) |
+| Blocked by dependencies | Stage = Fix or Status Blocked via gate |
+
+Stage values: Planning → Ready for Implementation → Implementing → Review → Fix → Bugbot → Ready for Merge → Merged
+
+See `mercflow-os/docs/stage-assignee-setup.md` for Notion automation.
+
+---
+
 ## The full orchestration cycle (read this first)
 
 ```

@@ -141,6 +141,42 @@ Rules:
 
 ---
 
+## Design Research Protocol
+
+Every UI task follows this three-step hierarchy. Do not skip steps.
+
+### Step 1 — Reuse existing MercFlow components
+
+Before writing any new component, check:
+- `packages/admin-ui/src/components/ui/` — base components (Button, Input, Badge, Card, Dialog, …)
+- `packages/admin-ui/src/components/` — feature components (ProductContentTab, SEOPreview, …)
+
+Extend or compose from what exists. Do not recreate components that already exist in a slightly different form.
+
+### Step 2 — New UI pattern? Use Refero Design before coding
+
+When the task requires a UI pattern that does not exist in the MercFlow component library, use the `refero-design` skill and the `user-refero` MCP tools to ground the design in real product references before writing code.
+
+**Trigger Refero when:**
+- Building a new page type with no existing template in the admin (e.g., analytics dashboard, bulk editor, multi-step wizard)
+- Designing a new component pattern with no existing equivalent (e.g., drag-and-drop list, activity timeline, split panel, Kanban column)
+- A task explicitly asks for visual polish, redesign, or improved design quality on an existing surface
+- You are unsure how a real SaaS product handles a specific UI problem
+
+**Do NOT trigger Refero for:**
+- Adding a new entity to an existing list/detail page that follows the standard `ListPage → DataTable → DetailPage` pattern
+- Adding a new field to an existing form
+- Bug fixes, accessibility fixes, loading/error state additions
+
+**Research → Token translation rule:**
+All inspiration from Refero must be translated into MercFlow design tokens before implementation. Never introduce hardcoded hex values, external spacing values, or third-party component libraries based on Refero findings. Refero informs *what* to build and *how it should feel* — MercFlow tokens define *how it is expressed in code*.
+
+### Step 3 — Stay within MercFlow tokens
+
+All visual values come from `packages/design-tokens`, regardless of research findings. If a Refero reference suggests a visual direction that requires a new token (e.g., a new surface shade), add that token to `packages/design-tokens` first and reference it — do not work around the token system.
+
+---
+
 ## TipTap Rich Text Editor
 
 MercFlow uses TipTap v2 as the rich text editor for content fields.

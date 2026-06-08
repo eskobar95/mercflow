@@ -27,7 +27,7 @@ Not Started → [Setup] → In Progress → [Code Review] → In Review → [Bug
 
 ### Worktrees
 - Every task gets its own git worktree at `../mercflow-worktrees/{task-id}/`
-- Never work directly on `main` or `develop`
+- Never work directly on `main` or `development`
 - Branch naming: `feature/{package}/{task-slug}`
 - Maximum one task per worktree
 
