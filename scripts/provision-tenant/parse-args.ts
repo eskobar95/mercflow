@@ -13,11 +13,16 @@ export function printProvisionTenantUsage(): void {
   process.stdout.write(`Usage:
   pnpm provision-tenant --name "Salon Maria" --domain shop.example.com --email admin@example.com [--currency dkk]
 
-Environment (operator workstation):
+Environment (auto-loaded from apps/backend/.env and .env.provision.local if present):
   MEDUSA_BACKEND_URL          Medusa origin (e.g. https://api.mercflow.shop)
   MEDUSA_ADMIN_API_TOKEN      Secret admin API token (Authorization: Basic)
   DATABASE_URL                Neon URL — required to create a new Medusa store (medusa exec)
   TRAEFIK_DYNAMIC_DIR         Optional; default infra/traefik/dynamic/tenants
+
+Quick start — add to apps/backend/.env:
+  MEDUSA_BACKEND_URL=https://api.mercflow.shop
+  MEDUSA_ADMIN_API_TOKEN=<secret-admin-api-key>
+  DATABASE_URL=<neon-pooler-url>   # often already set for local migrations
 
 Notes:
   - Medusa v2.14 has no POST /admin/stores; store creation uses medusa exec against DATABASE_URL.

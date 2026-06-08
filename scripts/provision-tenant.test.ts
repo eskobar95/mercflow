@@ -11,6 +11,7 @@ import {
   TraefikRouteConflictError,
   writeTenantTraefikRoute,
 } from "./provision-tenant/traefik-routes"
+import { loadEnvFile } from "./provision-tenant/load-dotenv"
 import { generateTenantAdminPassword } from "./provision-tenant/password"
 import { parseProvisionTenantArgs, ProvisionTenantCliError } from "./provision-tenant/parse-args"
 
@@ -84,6 +85,40 @@ describe("traefik tenant routes", () => {
     expect(() => writeTenantTraefikRoute(dir, "shop.example.com")).toThrow(
       TraefikRouteConflictError,
     )
+  })
+})
+
+describe("loadEnvFile", () => {
+  it("loads variables without overriding existing env", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "mercflow-dotenv-"))
+    const envPath = path.join(dir, ".env")
+    fs.writeFileSync(
+      envPath,
+      "MEDUSA_BACKEND_URL=https://api.example.com\nPROVISION_TENANT_TEST_URL=postgres://example\n",
+      "utf8",
+    )
+
+    const previousBackend = process.env.MEDUSA_BACKEND_URL
+    const previousTestUrl = process.env.PROVISION_TENANT_TEST_URL
+    process.env.MEDUSA_BACKEND_URL = "https://already-set.test"
+    delete process.env.PROVISION_TENANT_TEST_URL
+
+    loadEnvFile(envPath)
+
+    expect(process.env.MEDUSA_BACKEND_URL).toBe("https://already-set.test")
+    expect(process.env.PROVISION_TENANT_TEST_URL).toBe("postgres://example")
+
+    if (previousBackend === undefined) {
+      delete process.env.MEDUSA_BACKEND_URL
+    } else {
+      process.env.MEDUSA_BACKEND_URL = previousBackend
+    }
+    if (previousTestUrl === undefined) {
+      delete process.env.PROVISION_TENANT_TEST_URL
+    } else {
+      process.env.PROVISION_TENANT_TEST_URL = previousTestUrl
+    }
+    fs.rmSync(dir, { recursive: true, force: true })
   })
 })
 

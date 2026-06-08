@@ -1,12 +1,16 @@
 import path from "path"
 
+import { loadProvisionTenantDotenv } from "./load-dotenv"
 import type { ProvisionTenantEnv } from "./types"
 import { ProvisionTenantCliError } from "./parse-args"
 
-function readRequiredEnv(name: string): string {
+function readRequiredEnv(name: string, hint?: string): string {
   const value = process.env[name]?.trim()
   if (value === undefined || value === "") {
-    throw new ProvisionTenantCliError(`Missing required environment variable: ${name}`)
+    const suffix = hint === undefined ? "" : ` ${hint}`
+    throw new ProvisionTenantCliError(
+      `Missing required environment variable: ${name}.${suffix}`,
+    )
   }
   return value
 }
@@ -20,7 +24,12 @@ function readOptionalEnv(name: string): string | null {
 }
 
 export function loadProvisionTenantEnv(repoRoot: string): ProvisionTenantEnv {
-  const backendUrl = readRequiredEnv("MEDUSA_BACKEND_URL").replace(/\/$/, "")
+  loadProvisionTenantDotenv(repoRoot)
+
+  const backendUrl = readRequiredEnv(
+    "MEDUSA_BACKEND_URL",
+    "Add it to apps/backend/.env (see apps/backend/.env.example).",
+  ).replace(/\/$/, "")
   const adminApiToken =
     readOptionalEnv("MEDUSA_ADMIN_API_TOKEN") ??
     readOptionalEnv("MEDUSA_ADMIN_API_KEY") ??
