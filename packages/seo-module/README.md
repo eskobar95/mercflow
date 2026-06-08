@@ -5,8 +5,8 @@ MercFlow Medusa v2 module for Batch 2 SEO infrastructure: per-tenant SEO config,
 ## Responsibility
 
 - Owns `mercflow_seo_config`, `mercflow_redirect`, `mercflow_sitemap_config`, and `mercflow_robots_config` (tenant-scoped via `store_id` + PostgreSQL RLS).
-- Public routes: `GET /sitemap.xml`, `GET /robots.txt` (tenant from `Host` → `mercflow_seo_config.storefront_url`, 60s resolver cache).
-- Shared middleware: `mercflow-public-tenant-middleware` for `/sitemap.xml`, `/robots.txt`, `/feed/*`.
+- Public routes: `GET /v1/sitemap.xml`, `GET /v1/robots.txt` (tenant from `Host` → `mercflow_seo_config.storefront_url`, 60s resolver cache).
+- Shared middleware: `mercflow-public-tenant-middleware` for `/v1/sitemap.xml`, `/v1/robots.txt`, `/v1/feed/*`.
 - Exports pure slug utility (`@mercflow/seo-module/slug`) for admin preview and other packages.
 - Admin routes: `GET|PUT /admin/seo-config`, `GET|POST /admin/redirects`, `DELETE /admin/redirects/:id`.
 - Redirect middleware (`mercflow-redirect-middleware`) for storefront path 301 responses.
@@ -58,13 +58,15 @@ Store SEO (tenant via `store_id` query, `X-Store-Id`, or `MERCFLOW_DEFAULT_STORE
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/store/seo/json-ld/product/:id` | Product + Offer JSON-LD (`?locale=`) |
-| GET | `/store/seo/json-ld/category/:id` | Category `BreadcrumbList` JSON-LD |
-| GET | `/store/seo/json-ld/global` | `WebSite` + optional `Organization` |
-| GET | `/store/seo/og/product/:id` | Open Graph + Twitter Card tags |
-| GET | `/store/seo/og/category/:id` | OG tags for category pages |
-| GET | `/store/seo/canonical/product/:id` | Canonical URL (+ override / conflict hint) |
-| GET | `/store/seo/canonical/category/:id` | Canonical URL for categories |
+| GET | `/v1/store/seo/json-ld/product/:id` | Product + Offer JSON-LD (`?locale=`) |
+| GET | `/v1/store/seo/json-ld/category/:id` | Category `BreadcrumbList` JSON-LD |
+| GET | `/v1/store/seo/json-ld/global` | `WebSite` + optional `Organization` |
+| GET | `/v1/store/seo/og/product/:id` | Open Graph + Twitter Card tags |
+| GET | `/v1/store/seo/og/category/:id` | OG tags for category pages |
+| GET | `/v1/store/seo/canonical/product/:id` | Canonical URL (+ override / conflict hint) |
+| GET | `/v1/store/seo/canonical/category/:id` | Canonical URL for categories |
+
+Unversioned `/store/seo/*` paths return **301** to `/v1/` equivalents.
 
 Canonical overrides are stored on `product_content` / `category_content` in `@mercflow/content-module`.
 

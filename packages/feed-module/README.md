@@ -6,7 +6,7 @@ MercFlow Medusa v2 module for shopping feed configuration and XML generation (Go
 
 - Own `mercflow_feed_config` per tenant (`store_id`): storefront base URL, excluded products/categories, default item condition.
 - Expose `FeedConfigService.get(storeId)` and `FeedConfigService.update(storeId, config)` for admin and feed generation slices.
-- Serve `GET /feed/google-shopping.xml` (Google Shopping RSS/XML, tenant-scoped by Host, cached with catalogue invalidation).
+- Serve `GET /v1/feed/google-shopping.xml` (Google Shopping RSS/XML, tenant-scoped by Host, cached with catalogue invalidation).
 
 ## Does not belong here
 
@@ -38,7 +38,7 @@ Registered as `mercflow_feed` in `apps/backend/medusa-config.ts`.
 
 | Route | Content-Type | Tenancy |
 | --- | --- | --- |
-| `GET /feed/google-shopping.xml` | `application/xml` | `Host` → `store_id` via `mercflow_feed_config.storefront_url` (see `tenant-resolver.ts`). Optional `X-Store-Id` for local testing. Fail closed → `404`. |
+| `GET /v1/feed/google-shopping.xml` | `application/xml` | `Host` → `store_id` via `mercflow_feed_config.storefront_url` (see `tenant-resolver.ts`). Optional `X-Store-Id` for local testing. Fail closed → `404`. |
 
 Feed field mapping (T018): `id` = variant SKU; `title` = product title; `description` = `seo_description` → product description; `link` = `storefront_url` + handle; `image_link` = content gallery / OG / thumbnail; `price` = variant price + currency; `availability` from inventory; `brand` from `brand` tables when present.
 

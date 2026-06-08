@@ -7,7 +7,7 @@ MercFlow Medusa v2 module that persists **per-store connector credentials** (`co
 - DML models and migrations for `connector_config` + `connector_log`.
 - AES-256-GCM encryption for stored credentials (`MERCFLOW_CONNECTOR_ENCRYPTION_KEY`), `mf1:`-prefixed ciphertext.
 - Module service helpers for summarising connector availability, activation, last connection tests, **Shipmondo** persistence and connectivity probes, **Stripe-specific** behaviours (credential save, Stripe API test, catalogue sync to Stripe Prices, payment-intent summaries, storefront VAT hint), **Plunk-specific** credential storage and connectivity probes, and **GTM-specific** container ID persistence for storefront injection.
-- Admin and store HTTP handlers (`/admin/connectors`, `/admin/connectors/shipmondo/*`, `/admin/connectors/stripe/*`, `/admin/connectors/plunk/*`, `/admin/connectors/gtm`, `/store/connectors/shipmondo/active`, `/store/connectors/shipmondo/rules`, `/store/connectors/stripe/vat`, `/store/connectors/gtm`), re-exported from `apps/backend` for Medusa route discovery.
+- Admin and store HTTP handlers (`/admin/connectors`, `/admin/connectors/shipmondo/*`, `/admin/connectors/stripe/*`, `/admin/connectors/plunk/*`, `/admin/connectors/gtm`, `/v1/store/connectors/shipmondo/active`, `/v1/store/connectors/shipmondo/rules`, `/v1/store/connectors/stripe/vat`, `/v1/store/connectors/gtm`), re-exported from `apps/backend` for Medusa route discovery.
 
 ## Field definitions (`connector_config`)
 
@@ -18,7 +18,7 @@ MercFlow Medusa v2 module that persists **per-store connector credentials** (`co
 | `credentials_encrypted`    | text        | `mf1:`-prefixed AES-GCM payload at rest (e.g. `{ "container_id": "GTM-…" }` for `gtm`); never returned decrypted from admin overview routes except server-side connector calls |
 | `active`                   | boolean     | Whether the integration is switched on — storefront Shipmondo gate reads this together with configured credentials |
 | `last_tested_at`           | timestamptz | Nullable — timestamp of last connectivity probe run |
-| `vat_mode`                 | text        | Stripe storefront hint: `inclusive` \| `exclusive` — exposed at `GET /store/connectors/stripe/vat` |
+| `vat_mode`                 | text        | Stripe storefront hint: `inclusive` \| `exclusive` — exposed at `GET /v1/store/connectors/stripe/vat` |
 | `secret_key_last4`         | text        | Nullable — last four chars of Stripe secret key for masked admin previews only |
 | `publishable_key_last4`    | text        | Nullable — last four chars of publishable key preview |
 | `webhook_secret_last4`     | text        | Nullable — last four chars of webhook secret preview |
@@ -63,8 +63,8 @@ MercFlow Medusa v2 module that persists **per-store connector credentials** (`co
 
 | Method | Path                                 | Purpose |
 |--------|--------------------------------------|---------|
-| `GET`  | `/store/connectors/shipmondo/active` | `{ data: { active } }` — Shipmondo is only advertised when ciphertext exists **and** the operator toggle stays on. |
-| `GET`  | `/store/connectors/shipmondo/rules` | `{ data: { active, markupAmountMinor, freeShippingThresholdMinor, enabledCarrierCodes } }` — public read model so storefront checkout calculators can honour connector pricing without ENV secrets. Duplicate `active` guard mirrors the activation endpoint for defensive consumers. |
+| `GET`  | `/v1/store/connectors/shipmondo/active` | `{ data: { active } }` — Shipmondo is only advertised when ciphertext exists **and** the operator toggle stays on. |
+| `GET`  | `/v1/store/connectors/shipmondo/rules` | `{ data: { active, markupAmountMinor, freeShippingThresholdMinor, enabledCarrierCodes } }` — public read model so storefront checkout calculators can honour connector pricing without ENV secrets. Duplicate `active` guard mirrors the activation endpoint for defensive consumers. |
 
 > **Checkout integration:** register `@mercflow/connector-module/mercflow-shipmondo-fulfillment-provider` under the Fulfillment module `providers` option (see `apps/backend/medusa-config.ts`). Create **calculated** shipping options whose `data` includes:
 > - `mercflow_shipmondo_product_code` — Shipmondo `product_code` from the carrier catalogue
@@ -90,7 +90,7 @@ Storefront VAT hint (unauthenticated catalog/checkout integrations may read this
 
 | Method | Path                                  | Purpose |
 |--------|---------------------------------------|---------|
-| `GET`  | `/store/connectors/stripe/vat`        | `{ data: { vat_mode } }` where `vat_mode` is `inclusive` or `exclusive` |
+| `GET`  | `/v1/store/connectors/stripe/vat`        | `{ data: { vat_mode } }` where `vat_mode` is `inclusive` or `exclusive` |
 
 ### Plunk (`type = plunk`)
 
@@ -106,7 +106,7 @@ Storefront VAT hint (unauthenticated catalog/checkout integrations may read this
 |--------|---------------------------|---------|
 | `GET`  | `/admin/connectors/gtm`   | `{ container_id: string \| null }` for the storefront GTM container identifier |
 | `PATCH`| `/admin/connectors/gtm`   | Persists `{ container_id }` (`GTM-` + alphanumeric; case-insensitive input, stored uppercase) encrypted like other connectors |
-| `GET`  | `/store/connectors/gtm`   | Public read of `{ container_id }` for storefront injection (`AUTHENTICATE=false` route flag) |
+| `GET`  | `/v1/store/connectors/gtm`   | Public read of `{ container_id }` for storefront injection (`AUTHENTICATE=false` route flag) |
 
 ### Runtime Stripe secret resolution (payment providers)
 
