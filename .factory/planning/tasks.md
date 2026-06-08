@@ -1492,7 +1492,7 @@ Daily automated pg_dump from Neon runs via a cron container. Backup uploaded to 
 
 **Sprint:** S009
 **Milestone:** M006
-**Status:** todo
+**Status:** in-progress
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** none (T027 done; T029 cancelled)

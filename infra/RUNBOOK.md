@@ -159,6 +159,46 @@ Use when the server is broken, compromised, or needs full rollback; database is 
 3. SSH in, verify containers: `docker compose -f /opt/mercflow/infra/docker-compose.yml ps`
 4. Verify health and admin login; Neon connection requires allowlist still includes VPS IP
 
+## Tenant provisioning (T030)
+
+Provision a new MercFlow tenant (Medusa store, sales channel, publishable API key, admin user, Traefik route).
+
+### Prerequisites
+
+- Secret **admin API token** for an existing super-admin (`MEDUSA_ADMIN_API_TOKEN`)
+- **Neon `DATABASE_URL`** on the operator machine (store creation uses `medusa exec` — Medusa v2.14 has no `POST /admin/stores`)
+- DNS for the tenant domain will point to the Hetzner VPS **after** provisioning
+
+### Command
+
+From repo root (copy vars into your shell or `apps/backend/.env`):
+
+```bash
+export MEDUSA_BACKEND_URL=https://api.mercflow.shop
+export MEDUSA_ADMIN_API_TOKEN=<secret-admin-api-token>
+export DATABASE_URL=<neon-pooler-url>
+
+pnpm provision-tenant \
+  --name "Salon Maria" \
+  --domain shop.salon-maria.dk \
+  --email maria@salon-maria.dk \
+  --currency dkk
+```
+
+Output includes **store ID**, **publishable API key**, **admin password** (stdout only — not written to disk), and the Traefik file path under `infra/traefik/dynamic/tenants/`.
+
+### After provisioning
+
+1. Create DNS **A record** for the tenant domain → `46.225.226.143`
+2. Deploy Traefik config to the VPS (`git pull` in `/opt/mercflow` or rsync `infra/traefik/dynamic/tenants/`)
+3. Wait for Let's Encrypt (first request to `https://<domain>/health`)
+4. Confirm admin login at `https://<domain>/app`
+5. Copy credentials to the customer through a secure channel
+
+### Idempotency
+
+Re-running with the same `--domain` fails if a Traefik route file already contains `Host(\`<domain>\`)`.
+
 ### Re-open T029 (Object Storage pg_dump) only if
 
 - You need vendor-independent SQL dumps outside Neon, or

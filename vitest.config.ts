@@ -8,6 +8,7 @@ export default defineConfig({
   test: {
     passWithNoTests: true,
     projects: [
+      "scripts",
       "packages/design-tokens",
       "packages/content-module",
       "packages/feed-module",

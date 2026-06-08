@@ -354,3 +354,9 @@ Sprint 1 (Foundation, 17 maj – 7 juni) er funktionelt færdig. Tasks fra Sprin
 **Rationale:** Hetzner Object Storage + pg_dump cron is overkill for MVP when Neon daily snapshots + PITR and Hetzner Server Backup on `mercflow` VPS cover database and infrastructure respectively.
 **Documentation:** `infra/RUNBOOK.md` § Backup & restore; `tasks.md` T029 → cancelled.
 **Next:** T030 tenant provisioning script on `feature/S009/T030-provision-tenant`.
+
+## T030 implementation started — 2026-06-08
+
+**Branch:** `feature/S009/T030-provision-tenant`
+**Delivered:** `pnpm provision-tenant` CLI — store via `medusa exec`, sales channel / API key / admin user via Admin API, Traefik file per tenant in `infra/traefik/dynamic/tenants/`.
+**Gate:** Unit tests green; backend typecheck green.
