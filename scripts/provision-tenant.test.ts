@@ -106,7 +106,7 @@ describe("loadEnvFile", () => {
     const envPath = path.join(dir, ".env")
     fs.writeFileSync(
       envPath,
-      "MEDUSA_BACKEND_URL=https://api.example.com\nPROVISION_TENANT_TEST_URL=postgres://example\n",
+      "MEDUSA_BACKEND_URL=https://api.example.com\nPROVISION_TENANT_TEST_URL=loaded-from-file\n",
       "utf8",
     )
 
@@ -118,7 +118,7 @@ describe("loadEnvFile", () => {
     loadEnvFile(envPath)
 
     expect(process.env.MEDUSA_BACKEND_URL).toBe("https://already-set.test")
-    expect(process.env.PROVISION_TENANT_TEST_URL).toBe("postgres://example")
+    expect(process.env.PROVISION_TENANT_TEST_URL).toBe("loaded-from-file")
 
     if (previousBackend === undefined) {
       delete process.env.MEDUSA_BACKEND_URL
