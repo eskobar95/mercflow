@@ -18,8 +18,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
 
   const query = localeQuerySchema.safeParse(req.query)
   if (!query.success) {
-    sendZodError(res, query.error)
-    return
+    sendZodError(query.error)
   }
   const locale = query.data.locale
 
@@ -54,15 +53,13 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse): Promise<voi
 
   const query = localeQuerySchema.safeParse(req.query)
   if (!query.success) {
-    sendZodError(res, query.error)
-    return
+    sendZodError(query.error)
   }
   const locale = query.data.locale
 
   const body = categoryContentBodySchema.safeParse(req.body ?? {})
   if (!body.success) {
-    sendZodError(res, body.error)
-    return
+    sendZodError(body.error)
   }
 
   const category = await refetchEntity({

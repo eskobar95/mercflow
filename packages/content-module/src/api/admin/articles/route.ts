@@ -1,5 +1,9 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 
+import {
+  resolveAdminListLimit,
+  resolveAdminListOffset,
+} from "../../http/admin-list-limit"
 import { sendZodError } from "../../http/zod-error"
 import { CONTENT_MODULE } from "../../../modules/content"
 import {
@@ -25,31 +29,33 @@ function parsePublishedAtInput(
   return d
 }
 
-/**
- * GET /admin/articles — list articles (optionally filtered by `locale`).
- */
 export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void> => {
   const query = articleAdminListQuerySchema.safeParse(req.query ?? {})
   if (!query.success) {
-    sendZodError(res, query.error)
-    return
+    sendZodError(query.error)
   }
 
+  const limit = Math.min(resolveAdminListLimit(query.data.limit), 100)
+  const offset = resolveAdminListOffset(query.data.offset)
+
   const contentService = req.scope.resolve(CONTENT_MODULE) as ContentModuleService
-  const rows = await contentService.listArticlesForAdmin(query.data.locale)
+  const { articles, count } = await contentService.listArticlesForAdmin({
+    locale: query.data.locale,
+    limit,
+    offset,
+  })
   res.status(200).json({
-    articles: rows.map((row) => articleRecordToAdminJson(row)),
+    articles: articles.map((row) => articleRecordToAdminJson(row)),
+    count,
+    limit,
+    offset,
   })
 }
 
-/**
- * POST /admin/articles — create article.
- */
 export const POST = async (req: MedusaRequest, res: MedusaResponse): Promise<void> => {
   const parsed = articlePostBodySchema.safeParse(req.body ?? {})
   if (!parsed.success) {
-    sendZodError(res, parsed.error)
-    return
+    sendZodError(parsed.error)
   }
 
   const publishedAt = parsePublishedAtInput(parsed.data.published_at)

@@ -66,9 +66,9 @@ describe("POST /admin/pages", () => {
       scope: { resolve: vi.fn() },
     } as unknown as MedusaRequest
 
-    await listPost(req, res)
-
-    expect(res.status).toHaveBeenCalledWith(400)
+    await expect(listPost(req, res)).rejects.toMatchObject({
+      type: "invalid_data",
+    })
   })
 })
 

@@ -479,12 +479,21 @@ class ContentModuleService extends MedusaService({
     await this.softDeleteArticles(existing.id)
   }
 
-  async listArticlesForAdmin(locale?: string): Promise<ArticleRecord[]> {
-    const filters = locale ? { locale } : {}
-    const rows = await this.listArticles(filters, {
+  async listArticlesForAdmin(options?: {
+    locale?: string
+    limit?: number
+    offset?: number
+  }): Promise<{ articles: ArticleRecord[]; count: number }> {
+    const filters = options?.locale ? { locale: options.locale } : {}
+    const [rows, count] = await this.listAndCountArticles(filters, {
       order: { created_at: "DESC" },
+      skip: options?.offset ?? 0,
+      take: options?.limit ?? 50,
     })
-    return rows.map((row) => this.toArticleRecord(row))
+    return {
+      articles: rows.map((row) => this.toArticleRecord(row)),
+      count,
+    }
   }
 
   async retrieveArticleById(articleId: string): Promise<ArticleRecord | null> {

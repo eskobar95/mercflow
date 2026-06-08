@@ -1,6 +1,7 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
+import { resolveAdminListLimit } from "../../http/admin-list-limit"
 import { sendZodError } from "../../http/zod-error"
 import { INVENTORY_MODULE } from "../../../modules/inventory"
 import {
@@ -16,9 +17,10 @@ const VARIANT_PAGE_SIZE = 100
 export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void> => {
   const parsed = inventoryOverviewQuerySchema.safeParse(req.query ?? {})
   if (!parsed.success) {
-    sendZodError(res, parsed.error)
-    return
+    sendZodError(parsed.error)
   }
+
+  const limit = Math.min(resolveAdminListLimit(parsed.data.limit), 100)
 
   const storeId = resolveMercflowStoreId(req)
   const service = req.scope.resolve(INVENTORY_MODULE) as unknown as InventoryModuleService
@@ -75,7 +77,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
     sort_by: parsed.data.sort_by,
     sort_dir: parsed.data.sort_dir,
     page: parsed.data.page,
-    limit: parsed.data.limit,
+    limit,
   })
 
   res.status(200).json({
@@ -83,7 +85,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
     low_stock_threshold: lowStockThreshold,
     count: paged.count,
     page: parsed.data.page,
-    limit: parsed.data.limit,
+    limit,
     sort_by: parsed.data.sort_by,
     sort_dir: parsed.data.sort_dir,
     rows: paged.rows,

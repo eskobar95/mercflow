@@ -2,6 +2,10 @@ import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { refetchEntity } from "@medusajs/framework/http"
 import { MedusaError } from "@medusajs/utils"
 
+import {
+  resolveAdminListLimit,
+  resolveAdminListOffset,
+} from "../../../../http/admin-list-limit"
 import { sendZodError } from "../../../../http/zod-error"
 import { enrichSubscriptionsForAdmin } from "../../../enrich-subscriptions"
 import { listSubscriptionsQuerySchema } from "../../../../../modules/subscription/http-schemas"
@@ -19,9 +23,11 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
     customer_id: customerId,
   })
   if (!parsed.success) {
-    sendZodError(res, parsed.error)
-    return
+    sendZodError(parsed.error)
   }
+
+  const limit = Math.min(resolveAdminListLimit(parsed.data.limit), 100)
+  const offset = resolveAdminListOffset(parsed.data.offset)
 
   const customer = await refetchEntity({
     entity: "customer",
@@ -40,13 +46,11 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
     SUBSCRIPTION_MODULE
   ) as SubscriptionModuleService
 
-  const filters: Record<string, unknown> = { customer_id: customerId }
-
   const [subscriptions, count] = await service.listAndCountSubscriptions(
-    filters,
+    { customer_id: customerId },
     {
-      skip: parsed.data.offset,
-      take: parsed.data.limit,
+      skip: offset,
+      take: limit,
       order: { next_renewal_at: "ASC" },
     }
   )
@@ -56,7 +60,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
   res.status(200).json({
     data,
     count,
-    limit: parsed.data.limit,
-    offset: parsed.data.offset,
+    limit,
+    offset,
   })
 }

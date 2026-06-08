@@ -8,8 +8,7 @@ import type ConnectorModuleService from "../../../../../modules/connector/servic
 export const POST = async (req: MedusaRequest, res: MedusaResponse): Promise<void> => {
   const parsed = postPlunkConnectorTestSchema.safeParse(req.body ?? {})
   if (!parsed.success) {
-    sendZodError(res, parsed.error)
-    return
+    sendZodError(parsed.error)
   }
 
   const service = req.scope.resolve(CONNECTOR_MODULE) as ConnectorModuleService

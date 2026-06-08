@@ -52,6 +52,9 @@ describe("Shipmondo carriers + rules admin routes", (): void => {
           basePriceMinor: 4900,
         },
       ],
+      count: 1,
+      limit: 50,
+      offset: 0,
     })
   })
 
@@ -110,10 +113,11 @@ describe("Shipmondo carriers + rules admin routes", (): void => {
     const status = vi.fn().mockReturnValue({ json })
     const res = { json, status } as unknown as MedusaResponse
 
-    await PATCHRules(req, res)
+    await expect(PATCHRules(req, res)).rejects.toMatchObject({
+      type: "invalid_data",
+    })
 
     expect(patchShipmondoShippingRules).not.toHaveBeenCalled()
-    expect(status).toHaveBeenCalledWith(400)
   })
 })
 

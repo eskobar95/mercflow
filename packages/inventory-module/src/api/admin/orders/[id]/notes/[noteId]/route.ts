@@ -1,4 +1,5 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { MedusaError } from "@medusajs/utils"
 
 import { INVENTORY_MODULE } from "../../../../../../modules/inventory"
 import { resolveMercflowStoreId } from "../../../../../../modules/inventory/resolve-store-id"
@@ -18,8 +19,10 @@ export const DELETE = async (req: MedusaRequest, res: MedusaResponse): Promise<v
   const orderId = readOrderId(req)
   const noteId = readNoteId(req)
   if (orderId === null || noteId === null) {
-    res.status(400).json({ message: "order id and note id are required" })
-    return
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      "order id and note id are required"
+    )
   }
 
   const storeId = resolveMercflowStoreId(req)

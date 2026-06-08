@@ -103,18 +103,26 @@ class InventoryModuleService extends MedusaService({
 
   async listOrderNotes(
     storeId: string,
-    orderId: string
-  ): Promise<MercflowOrderNoteRecord[]> {
+    orderId: string,
+    options?: { limit?: number; offset?: number }
+  ): Promise<{ notes: MercflowOrderNoteRecord[]; count: number }> {
     return this.withTenant(storeId, async (context) => {
-      const rows = await this.listMercflowOrderNotes(
+      const [rows, count] = await this.listAndCountMercflowOrderNotes(
         {
           store_id: storeId,
           order_id: orderId,
         },
-        { order: { created_at: "DESC" } },
+        {
+          order: { created_at: "DESC" },
+          skip: options?.offset ?? 0,
+          take: options?.limit ?? 50,
+        },
         context
       )
-      return rows.map((row) => this.toNoteRecord(row as MercflowOrderNoteRecord))
+      return {
+        notes: rows.map((row) => this.toNoteRecord(row as MercflowOrderNoteRecord)),
+        count,
+      }
     })
   }
 
@@ -181,14 +189,24 @@ class InventoryModuleService extends MedusaService({
 
   // --- Suppliers (S006 T021) ---
 
-  async listSuppliers(storeId: string): Promise<MercflowSupplierRecord[]> {
+  async listSuppliers(
+    storeId: string,
+    options?: { limit?: number; offset?: number }
+  ): Promise<{ suppliers: MercflowSupplierRecord[]; count: number }> {
     return this.withTenant(storeId, async (context) => {
-      const rows = await this.listMercflowSuppliers(
+      const [rows, count] = await this.listAndCountMercflowSuppliers(
         { store_id: storeId },
-        { order: { name: "ASC" } },
+        {
+          order: { name: "ASC" },
+          skip: options?.offset ?? 0,
+          take: options?.limit ?? 50,
+        },
         context
       )
-      return rows.map((row) => this.toSupplierRecord(row as MercflowSupplierRecord))
+      return {
+        suppliers: rows.map((row) => this.toSupplierRecord(row as MercflowSupplierRecord)),
+        count,
+      }
     })
   }
 
@@ -301,14 +319,26 @@ class InventoryModuleService extends MedusaService({
 
   // --- Purchase orders (S006 T022) ---
 
-  async listPurchaseOrders(storeId: string): Promise<MercflowPurchaseOrderRecord[]> {
+  async listPurchaseOrders(
+    storeId: string,
+    options?: { limit?: number; offset?: number }
+  ): Promise<{ purchase_orders: MercflowPurchaseOrderRecord[]; count: number }> {
     return this.withTenant(storeId, async (context) => {
-      const rows = await this.listMercflowPurchaseOrders(
+      const [rows, count] = await this.listAndCountMercflowPurchaseOrders(
         { store_id: storeId },
-        { order: { created_at: "DESC" } },
+        {
+          order: { created_at: "DESC" },
+          skip: options?.offset ?? 0,
+          take: options?.limit ?? 50,
+        },
         context
       )
-      return rows.map((row) => this.toPurchaseOrderRecord(row as MercflowPurchaseOrderRecord))
+      return {
+        purchase_orders: rows.map((row) =>
+          this.toPurchaseOrderRecord(row as MercflowPurchaseOrderRecord)
+        ),
+        count,
+      }
     })
   }
 
@@ -690,8 +720,9 @@ class InventoryModuleService extends MedusaService({
 
   async listVariantMovements(
     storeId: string,
-    variantId: string
-  ): Promise<InventoryMovementRow[]> {
+    variantId: string,
+    options?: { limit?: number; offset?: number }
+  ): Promise<{ movements: InventoryMovementRow[]; count: number }> {
     return this.withTenant(storeId, async (context) => {
       const lines = await this.listMercflowPurchaseOrderLines(
         { store_id: storeId, variant_id: variantId },
@@ -699,7 +730,7 @@ class InventoryModuleService extends MedusaService({
         context
       )
       if (lines.length === 0) {
-        return []
+        return { movements: [], count: 0 }
       }
 
       const lineIds = lines.map((row) => (row as MercflowPurchaseOrderLineRecord).id)
@@ -736,7 +767,12 @@ class InventoryModuleService extends MedusaService({
         })
       }
 
-      return movements
+      const offset = options?.offset ?? 0
+      const limit = options?.limit ?? 50
+      return {
+        movements: movements.slice(offset, offset + limit),
+        count: movements.length,
+      }
     })
   }
 

@@ -18,8 +18,7 @@ export const PUT = async (req: MedusaRequest, res: MedusaResponse): Promise<void
   const storeId = resolveAdminStoreId(req)
   const body = sitemapConfigBodySchema.safeParse(req.body ?? {})
   if (!body.success) {
-    sendZodError(res, body.error)
-    return
+    sendZodError(body.error)
   }
   const seoService = req.scope.resolve(SEO_MODULE) as SeoModuleService
   const config = await seoService.upsertSitemapConfig(storeId, body.data)

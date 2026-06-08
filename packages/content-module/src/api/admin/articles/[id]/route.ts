@@ -51,8 +51,7 @@ export const PATCH = async (req: MedusaRequest, res: MedusaResponse): Promise<vo
 
   const parsed = articlePatchBodySchema.safeParse(req.body ?? {})
   if (!parsed.success) {
-    sendZodError(res, parsed.error)
-    return
+    sendZodError(parsed.error)
   }
 
   const publishedAt = parsePublishedAtInput(parsed.data.published_at)

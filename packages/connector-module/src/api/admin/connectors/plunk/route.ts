@@ -14,8 +14,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
 export const PATCH = async (req: MedusaRequest, res: MedusaResponse): Promise<void> => {
   const parsed = patchPlunkConnectorSchema.safeParse(req.body ?? {})
   if (!parsed.success) {
-    sendZodError(res, parsed.error)
-    return
+    sendZodError(parsed.error)
   }
 
   const service = req.scope.resolve(CONNECTOR_MODULE) as ConnectorModuleService

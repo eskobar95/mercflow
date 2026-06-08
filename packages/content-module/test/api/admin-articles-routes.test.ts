@@ -7,18 +7,21 @@ import { CONTENT_MODULE } from "../../src/modules/content"
 import type ContentModuleService from "../../src/modules/content/service"
 
 describe("GET /admin/articles", () => {
-  it("returns articles array", async () => {
-    const listArticlesForAdmin = vi.fn(async () => [
-      {
-        id: "art_1",
-        slug: "hello",
-        title: "Hello",
-        body_json: null,
-        locale: "en",
-        status: "draft" as const,
-        published_at: null,
-      },
-    ])
+  it("returns paginated articles array", async () => {
+    const listArticlesForAdmin = vi.fn(async () => ({
+      articles: [
+        {
+          id: "art_1",
+          slug: "hello",
+          title: "Hello",
+          body_json: null,
+          locale: "en",
+          status: "draft" as const,
+          published_at: null,
+        },
+      ],
+      count: 1,
+    }))
 
     const resJson = vi.fn()
     const res = {
@@ -26,7 +29,7 @@ describe("GET /admin/articles", () => {
     } as unknown as MedusaResponse
 
     const req = {
-      query: {},
+      query: { limit: "25", offset: "0" },
       scope: {
         resolve: vi.fn((key: string) => {
           if (key === CONTENT_MODULE) {
@@ -42,7 +45,11 @@ describe("GET /admin/articles", () => {
 
     await adminArticlesList(req, res)
 
-    expect(listArticlesForAdmin).toHaveBeenCalledWith(undefined)
+    expect(listArticlesForAdmin).toHaveBeenCalledWith({
+      locale: undefined,
+      limit: 25,
+      offset: 0,
+    })
     expect(res.status).toHaveBeenCalledWith(200)
     expect(resJson.mock.calls[0]?.[0]).toEqual({
       articles: [
@@ -55,6 +62,9 @@ describe("GET /admin/articles", () => {
           published_at: null,
         }),
       ],
+      count: 1,
+      limit: 25,
+      offset: 0,
     })
   })
 })

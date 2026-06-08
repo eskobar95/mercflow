@@ -20,8 +20,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
 
   const query = seoLocaleQuerySchema.safeParse(req.query)
   if (!query.success) {
-    sendZodError(res, query.error)
-    return
+    sendZodError(query.error)
   }
 
   const storeId = await resolveStoreSeoTenant(req)
