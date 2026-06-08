@@ -1,0 +1,40 @@
+---
+description: Infrastructure conventions — Hetzner server access, SSH keys, deployment targets
+alwaysApply: true
+---
+
+# Infrastructure — Hetzner Server
+
+## Server
+
+| Field | Value |
+|-------|-------|
+| Provider | Hetzner Cloud |
+| Project | Mercflow |
+| Server name | eskobar |
+| Type | CPX32 |
+| IPv4 | 46.225.226.143 |
+| IPv6 | 2a01:4f8:1c19:2861::/64 |
+
+## SSH keys
+
+Local key pair lives in `~/Documents/`:
+
+```bash
+~~/Documents/hetzner_key      # private key
+~/Documents/hetzner_key.pub   # public key
+```
+
+Connect with:
+
+```bash
+ssh -i ~/Documents/hetzner_key root@46.225.226.143
+```
+
+## Rules for agents
+
+- **Never hardcode** the server IP, SSH key paths, or credentials in MercFlow packages or `apps/backend`.
+- **Never commit** `hetzner_key` or any private key — they live in `~/Documents/` outside the repo.
+- All infra files (`docker-compose.yml`, `traefik/`, `infra/`) go under `infra/` in the monorepo root and are **config only** — no secrets.
+- Secrets for the server (Neon connection string, Sentry DSN, BetterStack token) go in `infra/.env` on the server itself — never committed. Document variable **names** in `infra/.env.example`.
+- **See:** ADR-006 for full infra stack decisions.
