@@ -1561,11 +1561,12 @@ pnpm provision-tenant \
 
 **Sprint:** S009
 **Milestone:** M006
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S009/T031-pagination-error-shape
+**PR:** https://github.com/eskobar95/mercflow/pull/67
 **PRD journey:** J002
 **ADRs:** PRD-api-hardening
 
@@ -1583,11 +1584,11 @@ Every MercFlow list endpoint enforces `limit = Math.min(query.limit ?? 50, 100)`
 
 ### Acceptance criteria
 
-- [ ] `rg "Math.min" packages/*/src/api` matches every list handler
-- [ ] `rg "new Error" packages/*/src/api` returns zero matches (all replaced with `MedusaError`)
-- [ ] `GET /admin/redirects?limit=500` returns `count` ≤ 100
-- [ ] `pnpm typecheck` passes
-- [ ] `pnpm lint` passes
+- [x] `rg "Math.min" packages/*/src/api` matches every list handler
+- [x] `rg "new Error" packages/*/src/api` returns zero matches (all replaced with `MedusaError`)
+- [x] `GET /admin/redirects?limit=500` returns `count` ≤ 100
+- [x] `pnpm typecheck` passes
+- [x] `pnpm lint` passes
 
 ### Out of scope
 
@@ -1608,11 +1609,12 @@ Every MercFlow list endpoint enforces `limit = Math.min(query.limit ?? 50, 100)`
 
 **Sprint:** S009
 **Milestone:** M006
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S009/T032-store-route-versioning
+**PR:** https://github.com/eskobar95/mercflow/pull/66
 **PRD journey:** J001
 **ADRs:** PRD-api-hardening
 
@@ -1640,12 +1642,12 @@ All routes under `apps/backend/src/api/store/` registered by MercFlow modules:
 
 ### Acceptance criteria
 
-- [ ] `GET /v1/store/seo/json-ld/product/:id` returns same response as `GET /store/seo/json-ld/product/:id` did before
-- [ ] `GET /store/seo/json-ld/product/:id` returns 301 → `/v1/store/seo/json-ld/product/:id`
-- [ ] All other MercFlow store routes follow same pattern (verified with smoke test list)
+- [x] `GET /v1/store/seo/json-ld/product/:id` returns same response as `GET /store/seo/json-ld/product/:id` did before
+- [x] `GET /store/seo/json-ld/product/:id` returns 301 → `/v1/store/seo/json-ld/product/:id`
+- [x] All other MercFlow store routes follow same pattern (verified with smoke test list)
 - [ ] Guapo storefront smoke test: no broken store API calls after deploy
-- [ ] `pnpm typecheck` passes
-- [ ] `pnpm lint` passes
+- [x] `pnpm typecheck` passes
+- [x] `pnpm lint` passes
 
 ### Out of scope
 
