@@ -1497,6 +1497,7 @@ Daily automated pg_dump from Neon runs via a cron container. Backup uploaded to 
 **Parallel group:** B
 **Blocked by:** none (T027 done; T029 cancelled)
 **Branch:** feature/S009/T030-provision-tenant
+**PR:** https://github.com/eskobar95/mercflow/pull/69
 **Note:** 2026-06-08 — Dry-run tenant "Salon Maria" provisioned (no owned domain; script + Medusa resources verified). Live DNS/health HITL deferred to first real customer domain.
 **PRD journey:** J002
 **ADRs:** ADR-004, ADR-006

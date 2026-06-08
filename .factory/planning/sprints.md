@@ -18,7 +18,7 @@
 | S006 | M004 | inventory-module + supplier register + PO create | T020, T021, T022 | done |
 | S007 | M004 | PO receive flow + inventory dashboard | T023, T024 | done |
 | S008 | M005 | Improved order list + order detail + pick list | T025, T026 | done |
-| S009 | M006 | Hetzner infra + observability + provisioning + API hardening | T027, T028, T030, T031, T032 (T029 cancelled — Neon snapshots + Hetzner VPS backup) | active |
+| S009 | M006 | Hetzner infra + observability + provisioning + API hardening | T027, T028, T030, T031, T032 (T029 cancelled — Neon snapshots + Hetzner VPS backup) | done |
 
 ---
 
