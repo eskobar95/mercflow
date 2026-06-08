@@ -3,19 +3,19 @@
   "hooks": {
     "afterFileEdit": [
       {
-        "command": "sh .cursor/hooks/run-typecheck.sh",
-        "failClosed": false,
+        "command": ".cursor/hooks/run-typecheck.sh",
+        "failClosed": true,
         "timeout": 120
       },
       {
-        "command": "sh .cursor/hooks/run-security-audit.sh",
+        "command": ".cursor/hooks/run-security-audit.sh",
         "failClosed": false,
         "timeout": 180
       }
     ],
     "stop": [
       {
-        "command": "sh .cursor/hooks/run-stop-checks.sh",
+        "command": ".cursor/hooks/run-stop-checks.sh",
         "failClosed": false,
         "loop_limit": 3,
         "timeout": 60
@@ -23,12 +23,12 @@
     ],
     "beforeShellExecution": [
       {
-        "command": "sh .cursor/hooks/guard-branches.sh",
+        "command": ".cursor/hooks/guard-branches.sh",
         "failClosed": true,
         "timeout": 10
       },
       {
-        "command": "sh .cursor/hooks/guard-secrets.sh",
+        "command": ".cursor/hooks/guard-secrets.sh",
         "failClosed": true,
         "timeout": 10
       }
