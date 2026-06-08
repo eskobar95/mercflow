@@ -29,6 +29,9 @@
 - **SaaS multi-tenancy (ADR-004):** Shared Neon DB, one Medusa instance, `store_id` column on every MercFlow module table. All service methods filter by `store_id`. Tenant resolved from JWT (admin) or `Host` header (public routes). Batch 1 tables require backfill migration before any Batch 2 feature ships. Verify with `rg "store_id" packages/*/src/models/` — every model must match.
 - Guapo-specific production config/credentials stay out of MercFlow packages.
 - Batch 2 public routes must return correct status, `Content-Type`, and cache behavior; test XML/text as output.
+- **List endpoints (PRD-api-hardening, T031):** Every `GET /admin/[resource]` handler in MercFlow modules must apply `limit = Math.min(query.limit ?? 50, 100)`. No unbounded queries.
+- **Error shape (PRD-api-hardening, T031):** All MercFlow route error paths must use `MedusaError` — never raw `Error` or plain JSON objects. Shape: `{ message, type, code }`.
+- **Store route versioning (PRD-api-hardening, T032):** All MercFlow store-facing routes (`/store/seo/*`, `/store/feed/*`, `/store/sitemap*`, etc.) must be mounted under `/v1/` **before the first non-Guapo tenant is provisioned**. Old paths must 301-redirect to `/v1/` equivalents during transition.
 
 ---
 
@@ -131,6 +134,7 @@ BDD: optional under `.factory/specs/` — link to PRD journeys when used.
 | [ADR-004](ADR/ADR-004-shared-instance-multi-tenancy.md) | 2026-06-04 | SaaS multi-tenancy — shared Neon DB, `store_id` row isolation | accepted |
 | [ADR-005](ADR/ADR-005-security-rls-rate-limiting.md) | 2026-06-04 | Security: RLS on MercFlow tables + rate limiting + Neon IP policy | accepted |
 | [ADR-006](ADR/ADR-006-hetzner-infra-stack.md) | 2026-06-08 | Production infra: Hetzner + Docker Compose + Traefik + Redis + Portainer | accepted |
+| PRD-api-hardening | 2026-06-08 | API hardening: pagination max, error shape, /v1/ store route versioning — see PRD-api-hardening.md | accepted |
 
 ---
 
