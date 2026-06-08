@@ -1,35 +1,43 @@
 import { type ReactNode, useMemo } from "react"
 import { Link, useParams, useSearchParams } from "react-router-dom"
 
-import { ProductContentTab } from "@/components/product-content/ProductContentTab"
-import { ProductGalleryStrip } from "@/components/products/ProductGalleryStrip"
-import { ProductVariantsTable } from "@/components/products/ProductVariantsTable"
+import { usePageChrome } from "@/components/layout/pageChrome"
+import { ProductContentSeoTab } from "@/components/products/content/ProductContentSeoTab"
+import { ProductDetailActions } from "@/components/products/ProductDetailActions"
+import { ProductSaveBar } from "@/components/products/editor/ProductSaveBar"
+import { useProductEditor } from "@/components/products/editor/useProductEditor"
+import { ProductOverviewTab } from "@/components/products/overview/ProductOverviewTab"
+import { ProductRelationsTab } from "@/components/products/relations/ProductRelationsTab"
+import { ProductVariantsTab } from "@/components/products/variants/ProductVariantsTab"
 import { Badge } from "@/components/ui/Badge"
 import { Card } from "@/components/ui/Card"
-
-import type { ProductListRow } from "@/data/mockProducts"
-import { MOCK_PRODUCTS } from "@/data/mockProducts"
-
-import type { DetailVariantRow } from "@/hooks/products/useAdminProductDetail"
-import { buildVariantRows, useAdminProductDetail } from "@/hooks/products/useAdminProductDetail"
-
-import { resolveMedusaAssetUrl } from "@/lib/products/resolveMedusaAssetUrl"
-import { previewPlainText } from "@/lib/text/previewPlainText"
-
+import { Spinner } from "@/components/ui/Spinner"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs"
+import { useAdminProductDetail } from "@/hooks/products/useAdminProductDetail"
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
-type DetailTabId = "overview" | "variants" | "content"
+type DetailTab = "overview" | "variants" | "content" | "relations"
 
-function mockVariantFallback(row: ProductListRow): DetailVariantRow[] {
-  return [
-    {
-      id: `${row.id}-mock-variant`,
-      name: `${row.title} · default variant`,
-      skuLabel: row.sku,
-      priceLabel: row.priceRangeLabel,
-      stockLabel: row.stockTotal === null ? "–" : String(row.stockTotal),
-    },
-  ]
+const TAB_IDS: DetailTab[] = ["overview", "variants", "content", "relations"]
+
+function resolveTab(raw: string | null): DetailTab {
+  return raw !== null && (TAB_IDS as string[]).includes(raw) ? (raw as DetailTab) : "overview"
+}
+
+function statusBadge(status: string | undefined): ReactNode {
+  const variant =
+    status === "published"
+      ? "success"
+      : status === "proposed"
+        ? "warning"
+        : status === "rejected"
+          ? "danger"
+          : "neutral"
+  return (
+    <Badge variant={variant} dot className="capitalize">
+      {status ?? "draft"}
+    </Badge>
+  )
 }
 
 export function ProductDetailPage(): ReactNode {
@@ -37,290 +45,117 @@ export function ProductDetailPage(): ReactNode {
   const [searchParams, setSearchParams] = useSearchParams()
   const hasBackend = resolveMedusaAdminBackendUrl() !== null
 
-  const tab: DetailTabId =
-    searchParams.get("tab") === "variants"
-      ? "variants"
-      : searchParams.get("tab") === "content"
-        ? "content"
-        : "overview"
-
+  const tab = resolveTab(searchParams.get("tab"))
   const detailQuery = useAdminProductDetail(hasBackend ? productId : undefined)
+  const product = detailQuery.data
+  const editor = useProductEditor({ product, productId: productId ?? "" })
 
-  const mockFallback = useMemo(() => {
-    if (productId === undefined) {
-      return undefined
+  const title = product?.title?.trim() ? product.title : (productId ?? "Product")
+
+  const setTab = (next: string): void => {
+    if (next === "overview") {
+      setSearchParams({}, { replace: true })
+    } else {
+      setSearchParams({ tab: next }, { replace: true })
     }
-    return MOCK_PRODUCTS.find((row) => row.id === productId)
-  }, [productId])
+  }
 
-  const title =
-    detailQuery.data?.title?.trim()
-      ? detailQuery.data.title
-      : mockFallback?.title ?? productId ?? "Product"
-
-  const variantRows = detailQuery.data
-    ? buildVariantRows(detailQuery.data)
-    : mockFallback
-      ? mockVariantFallback(mockFallback)
-      : []
-
-  const overviewDescription =
-    previewPlainText(
-      typeof detailQuery.data?.description === "string" ? detailQuery.data.description : "",
-      400,
-    ) ?? "MercFlow renders the Medusa `description` field here once your catalogue fills it."
-
-  const galleryAssets = useMemo(() => {
-    if (!detailQuery.data) {
-      return [] as Array<{ alt: string; src: string }>
-    }
-
-    type GalleryWire = {
-      url?: string | null
-      alt?: string | null
-    }
-
-    const entries: Array<{ alt: string; src: string }> = []
-
-    const pushImage = (rawUrl: unknown, altFallback: string): void => {
-      if (typeof rawUrl !== "string" || rawUrl.trim() === "") {
-        return
-      }
-      const resolved = resolveMedusaAssetUrl(rawUrl.trim())
-      if (resolved !== null) {
-        entries.push({ alt: `${title}: ${altFallback}`, src: resolved })
-      }
-    }
-
-    pushImage(detailQuery.data.thumbnail, "Thumbnail")
-
-    const gallery = detailQuery.data.images
-    const images = Array.isArray(gallery)
-      ? (gallery as GalleryWire[])
-      : []
-    for (const img of images) {
-      const raw = img.url
-      if (typeof raw !== "string") {
-        continue
-      }
-      pushImage(raw, typeof img.alt === "string" && img.alt.trim() !== "" ? img.alt.trim() : "Gallery asset")
-    }
-
-    const dedup = new Map<string, { alt: string; src: string }>()
-    for (const item of entries) {
-      dedup.set(item.src, item)
-    }
-    return [...dedup.values()]
-  }, [detailQuery.data, title])
+  const chrome = useMemo(
+    () => ({
+      titleOverride: title,
+      titleBadge: product !== undefined ? statusBadge(product.status) : null,
+      actions:
+        productId !== undefined && hasBackend ? (
+          <ProductDetailActions productId={productId} productTitle={title} />
+        ) : null,
+    }),
+    [title, product, productId, hasBackend],
+  )
+  usePageChrome(chrome)
 
   if (productId === undefined) {
     return (
       <div className="p-6">
-        <p className="text-sm text-content-secondary">Missing product identifier.</p>
-        <Link
-          to="/products"
-          className="mt-2 inline-block text-sm font-medium text-interactive-primary hover:text-interactive-primary-hover"
-        >
-          Back to products
+        <Link to="/products" className="text-sm font-medium text-interactive-primary">
+          ← Back to products
         </Link>
       </div>
     )
   }
 
-  const overviewTabId = "product-tab-overview"
-  const variantsTabId = "product-tab-variants"
-  const contentTabId = "product-tab-content"
-
-  const statusLabel = mockFallback?.status ?? detailQuery.data?.status ?? "draft"
-
   return (
-    <div className="p-4 md:p-6">
-      <div className="mb-6">
-        <Link
-          to="/products"
-          className="text-sm font-medium text-interactive-primary hover:text-interactive-primary-hover"
-        >
-          ← Products
-        </Link>
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight text-content-primary">{title}</h1>
-          <Badge variant="neutral" className="capitalize">
-            {statusLabel}
-          </Badge>
-          {hasBackend ? (
-            <Link
-              to={`/products/${productId}/edit`}
-              className="rounded-md border border-border-subtle bg-surface-raised px-3 py-1.5 text-sm font-medium text-content-primary hover:border-border-strong"
-            >
-              Edit product
-            </Link>
-          ) : null}
-        </div>
-        <p className="mt-2 text-xs text-content-tertiary">
-          {hasBackend
-            ? "Detail view reads GET /admin/products/:id plus variant inventory summaries."
-            : "Mock catalogue — content editing debuts in Sprint 3; routing already matches canonical `/products/:id` IDs."}
-        </p>
-
-        {!hasBackend ? (
-          <p className="mt-3 rounded-md border border-border-subtle bg-surface-subtle px-4 py-2 text-xs text-content-secondary">
-            Connect `VITE_MEDUSA_ADMIN_BACKEND_URL` locally to hydrate real variants, thumbnails, and
-            inventory quantities.
-          </p>
-        ) : null}
-
-        {detailQuery.isNotAuthenticatedHint ? (
-          <p className="mt-3 text-sm font-medium text-feedback-danger-content">
-            Session missing — authenticate against Medusa Admin (cookie or bearer token) to load catalogue
-            data.
-          </p>
-        ) : null}
-
-        {detailQuery.errorMessage !== null &&
-        !(detailQuery.isNotAuthenticatedHint) ? (
-          <p className="mt-3 text-sm text-feedback-danger-content">{detailQuery.errorMessage}</p>
-        ) : null}
-      </div>
-
-      <div
-        role="tablist"
-        aria-label="Product read views"
-        className="mb-4 flex flex-wrap gap-1 border-b border-border-subtle"
+    <div className="p-4 pb-2 md:p-6 md:pb-2">
+      <Link
+        to="/products"
+        className="mb-3 inline-flex items-center gap-1 text-xs text-content-tertiary transition-colors duration-150 hover:text-content-secondary"
       >
-        <button
-          type="button"
-          role="tab"
-          id={`${overviewTabId}-tab`}
-          aria-selected={tab === "overview"}
-          aria-controls={overviewTabId}
-          tabIndex={tab === "overview" ? 0 : -1}
-          className={`border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
-            tab === "overview"
-              ? "border-interactive-primary text-content-primary"
-              : "border-transparent text-content-secondary hover:text-content-primary"
-          }`}
-          onClick={() => {
-            setSearchParams({}, { replace: true })
-          }}
-        >
-          Overview
-        </button>
+        ← Products
+      </Link>
 
-        <button
-          type="button"
-          role="tab"
-          id={`${variantsTabId}-tab`}
-          aria-selected={tab === "variants"}
-          aria-controls={variantsTabId}
-          tabIndex={tab === "variants" ? 0 : -1}
-          className={`border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
-            tab === "variants"
-              ? "border-interactive-primary text-content-primary"
-              : "border-transparent text-content-secondary hover:text-content-primary"
-          }`}
-          onClick={() => {
-            setSearchParams({ tab: "variants" }, { replace: true })
-          }}
-        >
-          Variants
-        </button>
-
-        <button
-          type="button"
-          role="tab"
-          id={`${contentTabId}-tab`}
-          aria-selected={tab === "content"}
-          aria-controls={contentTabId}
-          tabIndex={tab === "content" ? 0 : -1}
-          className={`border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
-            tab === "content"
-              ? "border-interactive-primary text-content-primary"
-              : "border-transparent text-content-secondary hover:text-content-primary"
-          }`}
-          onClick={() => {
-            setSearchParams({ tab: "content" }, { replace: true })
-          }}
-        >
-          Content
-        </button>
-      </div>
-
-      {detailQuery.isLoading && hasBackend ? (
-        <Card>
-          <p className="text-sm text-content-tertiary">Loading catalogue details…</p>
-        </Card>
+      {!hasBackend ? (
+        <p className="mb-4 rounded-md border border-border-subtle bg-surface-subtle px-4 py-2 text-xs text-content-secondary">
+          Connect <code className="font-mono">VITE_MEDUSA_ADMIN_BACKEND_URL</code> to edit live catalogue data.
+        </p>
       ) : null}
 
-      <div
-        role="tabpanel"
-        id={overviewTabId}
-        aria-labelledby={`${overviewTabId}-tab`}
-        hidden={tab !== "overview"}
-      >
-        {tab === "overview" ? (
-          <Card>
-            <div className="space-y-2">
-              <div>
-                <h2 className="text-lg font-semibold text-content-primary">Overview</h2>
-                <p className="text-xs text-content-tertiary">
-                  Operators stay oriented with description + media thumbnails on the same MercFlow shell.
-                </p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-wide text-content-tertiary">Summary</p>
-                <p className="mt-1 text-sm text-content-secondary">{overviewDescription}</p>
-              </div>
+      {detailQuery.isNotAuthenticatedHint ? (
+        <p className="mb-4 rounded-md border border-feedback-danger-border bg-feedback-danger-subtle px-4 py-2 text-xs font-medium text-feedback-danger-content">
+          Session expired — authenticate against Medusa Admin to load catalogue data.
+        </p>
+      ) : null}
 
-              <div>
-                <p className="text-xs uppercase tracking-wide text-content-tertiary">Media previews</p>
-                <div className="mt-3">
-                  <ProductGalleryStrip thumbnails={galleryAssets} />
-                </div>
-              </div>
+      <Tabs value={tab} onValueChange={setTab} baseId="product-detail" className="mb-5">
+        <TabsList aria-label="Product sections" className="mb-5">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="variants">Variants</TabsTrigger>
+          <TabsTrigger value="content">Content &amp; SEO</TabsTrigger>
+          <TabsTrigger value="relations">Relations</TabsTrigger>
+        </TabsList>
+
+        {detailQuery.isLoading && hasBackend ? (
+          <Card compact>
+            <div className="flex items-center gap-2 text-sm text-content-tertiary">
+              <Spinner size="sm" /> Loading product…
             </div>
           </Card>
-        ) : null}
-      </div>
-
-      <div
-        role="tabpanel"
-        id={contentTabId}
-        aria-labelledby={`${contentTabId}-tab`}
-        hidden={tab !== "content"}
-      >
-        {tab === "content" ? (
-          hasBackend ? (
-            <ProductContentTab productId={productId} productTitleFallback={title} />
-          ) : (
-            <Card>
-              <p className="text-sm text-content-secondary">
-                Connect <code className="text-xs">VITE_MEDUSA_ADMIN_BACKEND_URL</code> to load MercFlow CMS
-                content for this product.
-              </p>
-            </Card>
-          )
-        ) : null}
-      </div>
-
-      <div
-        role="tabpanel"
-        id={variantsTabId}
-        aria-labelledby={`${variantsTabId}-tab`}
-        hidden={tab !== "variants"}
-      >
-        {tab === "variants" ? (
-          <Card>
-            <div className="space-y-2 pb-4">
-              <h2 className="text-lg font-semibold text-content-primary">Variants &amp; inventory</h2>
-              <p className="text-xs text-content-tertiary">
-                Each row combines Medusa variant pricing plus `inventory_quantity` so fulfilment telemetry lives
-                next to SKU context.
-              </p>
-            </div>
-            <ProductVariantsTable variants={variantRows} />
+        ) : product === undefined ? (
+          <Card compact>
+            <p className="text-sm text-content-secondary">
+              {detailQuery.errorMessage ?? "Connect to the Medusa backend to load this product."}
+            </p>
           </Card>
-        ) : null}
-      </div>
+        ) : (
+          <>
+            <TabsContent value="overview">
+              <ProductOverviewTab
+                product={product}
+                productId={productId}
+                editor={editor}
+                onManageVariants={() => setTab("variants")}
+              />
+            </TabsContent>
+            <TabsContent value="variants">
+              <ProductVariantsTab product={product} productId={productId} />
+            </TabsContent>
+            <TabsContent value="content">
+              <ProductContentSeoTab product={product} productId={productId} title={title} />
+            </TabsContent>
+            <TabsContent value="relations">
+              <ProductRelationsTab metadata={editor.draft.metadata} onChange={editor.setMetadata} />
+            </TabsContent>
+          </>
+        )}
+      </Tabs>
+
+      <ProductSaveBar
+        visible={editor.isDirty && tab !== "content"}
+        saving={editor.isSaving}
+        canSave={editor.canSave}
+        onSave={() => {
+          void editor.save()
+        }}
+        onDiscard={editor.discard}
+      />
     </div>
   )
 }

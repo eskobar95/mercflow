@@ -1,8 +1,10 @@
 import type { ReactNode } from "react"
 import { Navigate, useParams } from "react-router-dom"
 
-import { UnifiedProductForm } from "@/components/products/UnifiedProductForm"
-
+/**
+ * Legacy `/products/:id/edit` alias. Editing is now inline on the unified product
+ * page, so this route permanently redirects to the detail page.
+ */
 export function ProductEditPage(): ReactNode {
   const { productId } = useParams<{ productId: string }>()
 
@@ -10,5 +12,5 @@ export function ProductEditPage(): ReactNode {
     return <Navigate replace to="/products" />
   }
 
-  return <UnifiedProductForm mode="edit" productId={productId} />
+  return <Navigate replace to={`/products/${encodeURIComponent(productId)}`} />
 }
