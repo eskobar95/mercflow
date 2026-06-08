@@ -1,4 +1,9 @@
 import { defineMiddlewares } from "@medusajs/framework/http"
+import type {
+  MedusaNextFunction,
+  MedusaRequest,
+  MedusaResponse,
+} from "@medusajs/framework/http"
 import { mercflowPublicTenantMiddleware } from "@mercflow/seo-module/mercflow-public-tenant-middleware"
 import { mercflowRedirectMiddleware } from "@mercflow/seo-module/mercflow-redirect-middleware"
 
@@ -9,6 +14,20 @@ import {
   resolveClientIp,
   resolvePublishableApiKey,
 } from "../lib/rate-limit/request-keys"
+import { storeRouteVersionRedirectMiddleware } from "../lib/store-route-versioning/store-route-version-redirect"
+
+async function mercflowRedirectUnlessVersioned(
+  req: MedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+): Promise<void> {
+  if (req.path?.startsWith("/v1/")) {
+    next()
+    return
+  }
+
+  await mercflowRedirectMiddleware(req, res, next)
+}
 
 const config = loadRateLimitConfig()
 const publicRateLimitStore = new InMemoryTtlRateLimitStore(config.windowMs)
@@ -33,7 +52,7 @@ export default defineMiddlewares({
     {
       matcher: "/*",
       method: ["GET", "HEAD"],
-      middlewares: [mercflowRedirectMiddleware],
+      middlewares: [storeRouteVersionRedirectMiddleware, mercflowRedirectUnlessVersioned],
     },
     {
       matcher: "/sitemap.xml",
@@ -51,7 +70,27 @@ export default defineMiddlewares({
       middlewares: [mercflowPublicTenantMiddleware, publicRateLimitMiddleware],
     },
     {
+      matcher: "/v1/sitemap.xml",
+      method: ["GET"],
+      middlewares: [mercflowPublicTenantMiddleware, publicRateLimitMiddleware],
+    },
+    {
+      matcher: "/v1/robots.txt",
+      method: ["GET"],
+      middlewares: [mercflowPublicTenantMiddleware, publicRateLimitMiddleware],
+    },
+    {
+      matcher: "/v1/feed*",
+      method: ["GET"],
+      middlewares: [mercflowPublicTenantMiddleware, publicRateLimitMiddleware],
+    },
+    {
       matcher: "/store*",
+      method: ["GET"],
+      middlewares: [storeRateLimitMiddleware],
+    },
+    {
+      matcher: "/v1/store*",
       method: ["GET"],
       middlewares: [storeRateLimitMiddleware],
     },

@@ -31,10 +31,17 @@ From the **repository root** after `pnpm install`:
 | `ADMIN_CORS` | Optional; default `http://localhost:7001` |
 | `AUTH_CORS` | Optional; default `http://localhost:7001` |
 | `MERCFLOW_CONNECTOR_ENCRYPTION_KEY` | **64 hex chars (32 bytes)** — required so `@mercflow/connector-module` can encrypt connector credentials at rest (backend will fail at runtime when the module is used if unset). Generate with e.g. `openssl rand -hex 32`. |
-| `RATE_LIMIT_PUBLIC_RPM` | Optional; default `60`. Per-IP limit for `GET /sitemap.xml`, `/robots.txt`, `/feed/*`. |
-| `RATE_LIMIT_STORE_RPM` | Optional; default `300`. Per-`x-publishable-api-key` limit for `GET /store/*`. |
+| `RATE_LIMIT_PUBLIC_RPM` | Optional; default `60`. Per-IP limit for `GET /v1/sitemap.xml`, `/v1/robots.txt`, `/v1/feed/*` (and legacy unversioned paths before redirect). |
+| `RATE_LIMIT_STORE_RPM` | Optional; default `300`. Per-`x-publishable-api-key` limit for `GET /v1/store/*` MercFlow routes (and legacy unversioned paths before redirect). |
+| `SENTRY_DSN` | Optional locally; required in production. Enables Sentry error tracking (see `infra/RUNBOOK.md`). |
+| `SENTRY_ENVIRONMENT` | Optional; defaults to `NODE_ENV`. |
+| `SENTRY_ENABLED` | Optional; set to `false` to disable Sentry without removing `SENTRY_DSN`. |
 
 Never commit `.env` or production secrets.
+
+## Observability
+
+Sentry initializes from `src/instrumentation.ts` when `SENTRY_DSN` is set. Request middleware tags errors with `store_id` when tenant context is available. Production setup (BetterStack logs, uptime checks) is documented in `infra/RUNBOOK.md`.
 
 ## Registered modules
 
@@ -69,9 +76,15 @@ With the server running, an authenticated admin request (session cookie, API key
 
 should return JSON `{ "content": ... }` (or `content: null` if no row). Replace `product_id` with a real id from your database.
 
+## Store route versioning
+
+MercFlow-owned store and public routes are mounted under `/v1/`. Unversioned paths return **301** to `/v1/` equivalents. Medusa core routes (`/store/products`, `/store/carts`, etc.) are unchanged.
+
+Canonical route files live under `src/api/v1/`.
+
 Public **published** articles (when at least one row exists):
 
-`GET http://localhost:9000/store/articles?locale=en`
+`GET http://localhost:9000/v1/store/articles?locale=en`
 
 ## What belongs here
 
