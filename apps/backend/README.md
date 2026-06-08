@@ -37,6 +37,8 @@ From the **repository root** after `pnpm install`:
 | `SENTRY_ENVIRONMENT` | Optional; defaults to `NODE_ENV`. |
 | `SENTRY_ENABLED` | Optional; set to `false` to disable Sentry without removing `SENTRY_DSN`. |
 
+| `SENTRY_DSN` | Optional locally; required in production (see `infra/RUNBOOK.md`). |
+
 Never commit `.env` or production secrets.
 
 ## Observability

@@ -1344,11 +1344,12 @@ Full MercFlow stack runs on Hetzner via Docker Compose. Traefik routes configure
 
 **Sprint:** S009
 **Milestone:** M006
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none (code); T027 deployed for uptime check config
 **Branch:** feature/S009/T028-observability
+**PR:** https://github.com/eskobar95/mercflow/pull/65
 **PRD journey:** J003
 **ADRs:** ADR-006
 
@@ -1379,10 +1380,10 @@ Sentry.setTag("store_id", resolvedStoreId)
 
 ### Acceptance criteria
 
-- [ ] Unhandled error in Medusa backend appears in Sentry with `store_id` tag
-- [ ] Container logs visible in BetterStack log explorer
-- [ ] Uptime check for Guapo domain active; alert fires on simulated downtime
-- [ ] No `SENTRY_DSN` or BetterStack tokens committed to repo
+- [x] Unhandled error in Medusa backend appears in Sentry with `store_id` tag
+- [x] Container logs visible in BetterStack log explorer
+- [x] Uptime check for Guapo domain active; alert fires on simulated downtime
+- [x] No `SENTRY_DSN` or BetterStack tokens committed to repo
 
 ### Out of scope
 
@@ -1392,11 +1393,11 @@ Sentry.setTag("store_id", resolvedStoreId)
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes
-- [ ] `pnpm lint` passes
-- [ ] Sentry init documented in `infra/RUNBOOK.md`
-- [ ] `infra/.env.example` updated
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes
+- [x] `pnpm lint` passes
+- [x] Sentry init documented in `infra/RUNBOOK.md`
+- [x] `infra/.env.example` updated
+- [x] PR description filled in
 
 ---
 

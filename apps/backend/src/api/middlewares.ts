@@ -14,6 +14,7 @@ import {
   resolveClientIp,
   resolvePublishableApiKey,
 } from "../lib/rate-limit/request-keys"
+import { sentryStoreIdMiddleware } from "../lib/sentry-store-id-middleware"
 import { storeRouteVersionRedirectMiddleware } from "../lib/store-route-versioning/store-route-version-redirect"
 
 async function mercflowRedirectUnlessVersioned(
@@ -49,6 +50,10 @@ const storeRateLimitMiddleware = createRateLimitMiddleware({
 
 export default defineMiddlewares({
   routes: [
+    {
+      matcher: "/*",
+      middlewares: [sentryStoreIdMiddleware],
+    },
     {
       matcher: "/*",
       method: ["GET", "HEAD"],
