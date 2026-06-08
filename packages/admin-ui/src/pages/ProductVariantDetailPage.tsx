@@ -23,7 +23,7 @@ export function ProductVariantDetailPage(): ReactNode {
   const navigate = useNavigate()
   const sdk = useMemo(() => createMercflowMedusaSdk(), [])
 
-  const productQuery = useQuery({
+  const { data: productData, isLoading: productLoading } = useQuery({
     enabled: sdk !== null && productId !== undefined,
     queryKey: ["variant-detail", productId, variantId],
     queryFn: async (): Promise<AdminProduct | null> => {
@@ -35,7 +35,7 @@ export function ProductVariantDetailPage(): ReactNode {
     },
   })
 
-  const prereqQuery = useQuery({
+  const { data: prereqData } = useQuery({
     enabled: sdk !== null,
     queryKey: ["catalog-product-form-prereq"],
     queryFn: async () => {
@@ -46,14 +46,14 @@ export function ProductVariantDetailPage(): ReactNode {
     },
   })
 
-  const product = productQuery.data ?? undefined
+  const product = productData ?? undefined
   const variant = product?.variants?.find((row) => row.id === variantId)
 
   const editor = useVariantEditor({
     variant,
     productId: productId ?? "",
     variantId: variantId ?? "",
-    primaryStockLocationId: prereqQuery.data?.primaryStockLocationId,
+    primaryStockLocationId: prereqData?.primaryStockLocationId,
   })
 
   const backHref = `/products/${encodeURIComponent(productId ?? "")}?tab=variants`
@@ -89,7 +89,7 @@ export function ProductVariantDetailPage(): ReactNode {
         {product?.title?.trim() !== "" ? product?.title : "Product"}
       </Link>
 
-      {productQuery.isLoading ? (
+      {productLoading ? (
         <Card compact>
           <div className="flex items-center gap-2 text-sm text-content-tertiary">
             <Spinner size="sm" /> Loading variant…
