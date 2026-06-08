@@ -15,6 +15,9 @@ paths = [
   '''\.github/workflows/''',
   # Env templates — variable names only, no real credentials
   '''\.env\.example$''',
+  # Provision-tenant CLI docs and password alphabet (no real secrets)
+  '''scripts/provision-tenant/''',
+  '''infra/RUNBOOK\.md''',
   # Package README migration examples (documented env var names, not real values)
   '''packages/subscription-module/README\.md''',
 ]
