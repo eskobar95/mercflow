@@ -194,15 +194,15 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 
 | Sprint | Goal | Tasks |
 |--------|------|-------|
-| S009 | Full infra stack + observability + backup + provisioning + API hardening | T027, T028, T029, T030, T031, T032 |
+| S009 | Full infra stack + observability + provisioning + API hardening | T027, T028, T030, T031, T032 (T029 cancelled) |
 
 **Dependencies:** Batch 2 modules stable on `development` (M000–M005 done)
 
 **Definition of done:**
-- [ ] Docker Compose stack running on Hetzner (Traefik + Medusa backend + worker + Redis + Portainer + backup-cron)
+- [ ] Docker Compose stack running on Hetzner (Traefik + Medusa backend + worker + Redis + Portainer)
+- [ ] Backup: Neon daily snapshots + Hetzner Server Backup enabled (see `infra/RUNBOOK.md`)
 - [ ] SSL cert auto-provisioned for configured domain via Let's Encrypt
 - [ ] Sentry errors tagged with `store_id`; BetterStack uptime checks active per tenant domain
-- [ ] Daily pg_dump backup reaching Hetzner Object Storage S3; restore tested
 - [ ] `pnpm provision-tenant` creates Store + Sales Channel + Publishable Key + Admin user in < 5 min
 - [ ] Neon allowed-IP updated to Hetzner VPS egress IP (closes T003 HITL from M000)
 - [ ] `infra/RUNBOOK.md` complete — second person can operate without the original author

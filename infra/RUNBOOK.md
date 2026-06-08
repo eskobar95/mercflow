@@ -109,6 +109,61 @@ Or use API with `BETTERSTACK_UPTIME_API_TOKEN` (see `infra/observability/uptime-
 Sentry initializes via `apps/backend/src/instrumentation.ts` when `SENTRY_DSN` is set.
 `sentryStoreIdMiddleware` tags errors with `store_id`.
 
+## Backup & restore
+
+MercFlow production does **not** use Hetzner Object Storage or a pg_dump cron (T029 cancelled).
+Two managed layers cover database and VPS separately.
+
+### What each layer protects
+
+| Layer | Protects | Does not protect |
+| --- | --- | --- |
+| **Neon** (snapshots + PITR) | PostgreSQL data — products, orders, content, modules | VPS files, Docker, Traefik certs |
+| **Hetzner Server Backup** | Whole VPS disk — Compose, `infra/.env`, `acme.json`, Portainer/Grafana data | Neon database (external) |
+
+### Enable (one-time)
+
+**Neon — database**
+
+1. [Neon console](https://console.neon.tech/app/projects/withered-salad-42833300) → branch `production` → **Backup & Restore**
+2. **Edit schedule** → daily snapshot (retention per your Neon plan)
+3. PITR window (e.g. 6 hours on Scale) is already available under **Restore from history**
+
+**Hetzner — VPS**
+
+1. [Hetzner Cloud](https://console.hetzner.cloud/) → server `mercflow` (Nuremberg, `46.225.226.143`)
+2. **Backups** → **Enable** (~20% of server price; automatic disk snapshots)
+
+### Restore — database (Neon)
+
+Use when data was corrupted or deleted; VPS is fine.
+
+1. Neon → `production` → **Backup & Restore**
+2. **Restore from history** — pick timestamp within PITR window → **Preview data** → **Restore**
+3. Or **Restore from a snapshot** — pick a daily snapshot → restore to same branch or a new branch for testing
+4. If you restored to a **new branch**, update `NEON_DATABASE_URL` in server `infra/.env` and restart Medusa:
+
+```bash
+cd /opt/mercflow
+docker compose -f infra/docker-compose.yml --env-file infra/.env restart medusa-backend medusa-worker
+```
+
+5. Verify: `curl -sf https://api.mercflow.shop/health` and spot-check admin data.
+
+### Restore — VPS (Hetzner)
+
+Use when the server is broken, compromised, or needs full rollback; database is in Neon and survives VPS loss.
+
+1. Hetzner → `mercflow` → **Backups** → select snapshot → **Restore**
+2. Confirm DNS still points to `46.225.226.143` (IP unchanged after restore)
+3. SSH in, verify containers: `docker compose -f /opt/mercflow/infra/docker-compose.yml ps`
+4. Verify health and admin login; Neon connection requires allowlist still includes VPS IP
+
+### Re-open T029 (Object Storage pg_dump) only if
+
+- You need vendor-independent SQL dumps outside Neon, or
+- Compliance requires off-platform backup files you control directly.
+
 ## Troubleshooting
 
 | Symptom | Action |

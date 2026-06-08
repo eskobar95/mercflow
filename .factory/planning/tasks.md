@@ -1272,7 +1272,7 @@ Order detail page shows all info without modal navigation. Internal notes sectio
 
 **Sprint:** S009
 **Milestone:** M006
-**Status:** in-review
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
@@ -1344,7 +1344,7 @@ Full MercFlow stack runs on Hetzner via Docker Compose. Traefik routes configure
 ### Out of scope
 
 - CI/CD auto-deploy (post-MVP)
-- Backup cron (T029)
+- Backup cron (T029 — cancelled; Neon snapshots + Hetzner VPS backup)
 - Multi-tenant domain routing beyond first domain (T030)
 - Horizontal scaling
 
@@ -1424,13 +1424,15 @@ Sentry.setTag("store_id", resolvedStoreId)
 
 **Sprint:** S009
 **Milestone:** M006
-**Status:** todo
+**Status:** cancelled
 **Mode:** HITL
 **Parallel group:** B
-**Blocked by:** T027
-**Branch:** feature/S009/T029-backup-restore
+**Blocked by:** n/a
+**Branch:** feature/S009/T029-backup-restore (not started)
 **PRD journey:** J004
 **ADRs:** ADR-006
+
+**Cancelled:** 2026-06-08 — Operator decision: Hetzner Object Storage + pg_dump cron is redundant for MVP. Production backup uses **Neon daily snapshots + PITR** (database) and **Hetzner Server Backup** on `mercflow` VPS (infrastructure). Restore procedures documented in `infra/RUNBOOK.md` § Backup & restore. Re-open only if vendor-independent pg_dump exports become a requirement.
 
 **HITL reason:** Requires Hetzner Object Storage bucket + credentials to be provisioned by human. Restore must be tested manually on a real backup to verify it works.
 
@@ -1493,7 +1495,7 @@ Daily automated pg_dump from Neon runs via a cron container. Backup uploaded to 
 **Status:** todo
 **Mode:** AFK
 **Parallel group:** B
-**Blocked by:** T027
+**Blocked by:** none (T027 done; T029 cancelled)
 **Branch:** feature/S009/T030-provision-tenant
 **PRD journey:** J002
 **ADRs:** ADR-004, ADR-006
@@ -1660,5 +1662,5 @@ All routes under `apps/backend/src/api/store/` registered by MercFlow modules:
 
 ---
 
-<!-- Total: T001–T032 | AFK: 26 | HITL: 6 (T003, T008, T013, T023, T027, T029) -->
+<!-- Total: T001–T032 | AFK: 26 | HITL: 5 (T003, T008, T013, T023, T027) | Cancelled: T029 -->
 <!-- Sprints: S001–S009 | Milestones: M000–M006 -->
