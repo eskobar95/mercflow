@@ -13,6 +13,7 @@ import {
   updateStoreDefaultSalesChannel,
 } from "./medusa-admin-client"
 import { generateTenantAdminPassword } from "./password"
+import { resolvePlatformAdminUrl } from "./platform-url"
 import { writeTenantTraefikRoute } from "./traefik-routes"
 import type {
   ProvisionTenantArgs,
@@ -109,7 +110,11 @@ export async function provisionTenant(
     )
   }
 
-  const traefikRouteFile = writeTenantTraefikRoute(env.traefikDynamicDir, args.domain)
+  const traefikRouteFile = writeTenantTraefikRoute(
+    env.traefikDynamicDir,
+    args.domain,
+    env.backendUrl,
+  )
 
   return {
     storeId,
@@ -118,7 +123,8 @@ export async function provisionTenant(
     publishableApiKeyToken,
     adminUserId,
     adminPassword,
-    adminUrl: `https://${args.domain}/app`,
+    adminUrl: resolvePlatformAdminUrl(env.backendUrl),
+    tenantUrl: `https://${args.domain}`,
     healthUrl: `https://${args.domain}/health`,
     traefikRouteFile: path.relative(repoRoot, traefikRouteFile),
   }
@@ -138,13 +144,15 @@ export function formatProvisionTenantOutput(
     `Admin email:           ${email}`,
     `Admin password:        ${output.adminPassword}`,
     `Admin URL:             ${output.adminUrl}`,
+    `Tenant URL:            ${output.tenantUrl}`,
     `Health URL:            ${output.healthUrl}`,
     `Traefik route file:    ${output.traefikRouteFile}`,
     "",
     "Next steps:",
     "1. Point DNS A record for the tenant domain to the Hetzner VPS IP.",
     "2. Sync infra/traefik/dynamic/tenants to the server (git pull or rsync).",
-    "3. Verify GET /health after DNS + ACME propagate.",
-    "4. Copy credentials to the customer securely — password is not stored anywhere else.",
+    "3. Verify GET /health on the tenant URL after DNS + ACME propagate.",
+    "4. Tenant admin logs in at the Admin URL above (not on the tenant domain).",
+    "5. Copy credentials to the customer securely — password is not stored anywhere else.",
   ].join("\n")
 }

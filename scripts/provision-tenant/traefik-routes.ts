@@ -1,6 +1,8 @@
 import fs from "fs"
 import path from "path"
 
+import { resolvePlatformHost } from "./platform-url"
+
 export class TraefikRouteConflictError extends Error {
   readonly name = "TraefikRouteConflictError"
 }
@@ -13,13 +15,39 @@ export function buildTenantTraefikFilename(domain: string): string {
   return `tenant-${slugifyDomainForTraefik(domain)}.yml`
 }
 
-export function buildTenantTraefikYaml(domain: string): string {
+function escapeRegexDots(value: string): string {
+  return value.replace(/\./g, "\\.")
+}
+
+export function buildTenantTraefikYaml(domain: string, platformBackendUrl: string): string {
   const routerName = `tenant-${slugifyDomainForTraefik(domain)}`
+  const middlewareName = `${routerName}-redirect-admin`
+  const platformHost = resolvePlatformHost(platformBackendUrl)
+  const domainEscaped = escapeRegexDots(domain)
+
   return `# MercFlow tenant route (T030). Domain: ${domain}
+# Storefront + public APIs on tenant host. /app and /admin redirect to platform admin (${platformHost}).
 http:
+  middlewares:
+    ${middlewareName}:
+      redirectRegex:
+        permanent: true
+        regex: "^https://${domainEscaped}/(app|admin).*"
+        replacement: "https://${platformHost}/app"
   routers:
+    ${routerName}-admin:
+      rule: Host(\`${domain}\`) && (PathPrefix(\`/app\`) || PathPrefix(\`/admin\`))
+      priority: 200
+      entryPoints:
+        - websecure
+      middlewares:
+        - ${middlewareName}
+      service: ${routerName}
+      tls:
+        certResolver: letsencrypt
     ${routerName}:
       rule: Host(\`${domain}\`)
+      priority: 1
       entryPoints:
         - websecure
       service: ${routerName}
@@ -52,7 +80,11 @@ export function domainAlreadyProvisioned(dynamicDir: string, domain: string): bo
   return false
 }
 
-export function writeTenantTraefikRoute(dynamicDir: string, domain: string): string {
+export function writeTenantTraefikRoute(
+  dynamicDir: string,
+  domain: string,
+  platformBackendUrl: string,
+): string {
   if (domainAlreadyProvisioned(dynamicDir, domain)) {
     throw new TraefikRouteConflictError(
       `Traefik route for domain "${domain}" already exists in ${dynamicDir}`,
@@ -62,6 +94,6 @@ export function writeTenantTraefikRoute(dynamicDir: string, domain: string): str
   fs.mkdirSync(dynamicDir, { recursive: true })
   const filename = buildTenantTraefikFilename(domain)
   const filePath = path.join(dynamicDir, filename)
-  fs.writeFileSync(filePath, buildTenantTraefikYaml(domain), "utf8")
+  fs.writeFileSync(filePath, buildTenantTraefikYaml(domain, platformBackendUrl), "utf8")
   return filePath
 }

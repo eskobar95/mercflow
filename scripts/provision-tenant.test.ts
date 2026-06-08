@@ -71,18 +71,30 @@ describe("traefik tenant routes", () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "mercflow-traefik-"))
     tempDirs.push(dir)
 
-    const filePath = writeTenantTraefikRoute(dir, "shop.example.com")
+    const filePath = writeTenantTraefikRoute(
+      dir,
+      "shop.example.com",
+      "https://api.mercflow.shop",
+    )
     expect(fs.existsSync(filePath)).toBe(true)
-    expect(buildTenantTraefikYaml("shop.example.com")).toContain("Host(`shop.example.com`)")
+    const yaml = buildTenantTraefikYaml(
+      "shop.example.com",
+      "https://api.mercflow.shop",
+    )
+    expect(yaml).toContain("Host(`shop.example.com`)")
+    expect(yaml).toContain("api.mercflow.shop/app")
+    expect(yaml).toContain("PathPrefix(`/app`)")
     expect(domainAlreadyProvisioned(dir, "shop.example.com")).toBe(true)
   })
 
   it("throws on duplicate domain", () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "mercflow-traefik-dup-"))
     tempDirs.push(dir)
-    writeTenantTraefikRoute(dir, "shop.example.com")
+    writeTenantTraefikRoute(dir, "shop.example.com", "https://api.mercflow.shop")
 
-    expect(() => writeTenantTraefikRoute(dir, "shop.example.com")).toThrow(
+    expect(() =>
+      writeTenantTraefikRoute(dir, "shop.example.com", "https://api.mercflow.shop"),
+    ).toThrow(
       TraefikRouteConflictError,
     )
   })

@@ -22,7 +22,10 @@ export type ProvisionTenantMedusaResult = {
 }
 
 export type ProvisionTenantOutput = ProvisionTenantMedusaResult & {
+  /** Shared MercFlow admin (MEDUSA_BACKEND_URL) — all tenants log in here. */
   readonly adminUrl: string
+  /** Tenant host for storefront, store API, and public MercFlow routes. */
+  readonly tenantUrl: string
   readonly healthUrl: string
   readonly traefikRouteFile: string
 }

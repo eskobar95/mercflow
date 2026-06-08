@@ -187,12 +187,14 @@ pnpm provision-tenant \
 
 Output includes **store ID**, **publishable API key**, **admin password** (stdout only — not written to disk), and the Traefik file path under `infra/traefik/dynamic/tenants/`.
 
+**URL model:** All tenants use the **shared platform admin** at `https://api.mercflow.shop/app` (`MEDUSA_BACKEND_URL` + `/app`). The tenant domain is for **storefront**, **store API**, and **public MercFlow routes** (`/health`, feeds, sitemap). Traefik redirects `/app` and `/admin` on tenant hosts to the platform admin.
+
 ### After provisioning
 
 1. Create DNS **A record** for the tenant domain → `46.225.226.143`
 2. Deploy Traefik config to the VPS (`git pull` in `/opt/mercflow` or rsync `infra/traefik/dynamic/tenants/`)
-3. Wait for Let's Encrypt (first request to `https://<domain>/health`)
-4. Confirm admin login at `https://<domain>/app`
+3. Wait for Let's Encrypt (first request to `https://<tenant-domain>/health`)
+4. Confirm tenant admin login at `https://api.mercflow.shop/app` (not on the tenant domain)
 5. Copy credentials to the customer through a secure channel
 
 ### Idempotency
