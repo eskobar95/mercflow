@@ -175,7 +175,7 @@ From repo root (copy vars into your shell or `apps/backend/.env`):
 
 ```bash
 export MEDUSA_BACKEND_URL=https://api.mercflow.shop
-export MEDUSA_ADMIN_API_TOKEN=<secret-admin-api-token>
+export MEDUSA_ADMIN_API_TOKEN=...paste from Medusa admin settings...
 export DATABASE_URL=<neon-pooler-url>
 
 pnpm provision-tenant \

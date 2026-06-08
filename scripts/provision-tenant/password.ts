@@ -1,10 +1,13 @@
 import { randomBytes } from "crypto"
 
-const PASSWORD_ALPHABET = [
-  "ABCDEFGHJKLMNPQRSTUVWXYZ",
-  "abcdefghijkmnopqrstuvwxyz",
-  "23456789",
-].join("")
+function buildPasswordAlphabet(): string {
+  const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ"
+  const lower = "abcdefghijkmnopqrstuvwxyz"
+  const digits = "23456789"
+  return upper + lower + digits
+}
+
+const PASSWORD_ALPHABET = buildPasswordAlphabet()
 
 export function generateTenantAdminPassword(length = 16): string {
   const bytes = randomBytes(length)

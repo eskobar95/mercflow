@@ -21,8 +21,8 @@ Environment (auto-loaded from apps/backend/.env and .env.provision.local if pres
 
 Quick start — add to apps/backend/.env:
   MEDUSA_BACKEND_URL=https://api.mercflow.shop
-  MEDUSA_ADMIN_API_TOKEN=<secret-admin-api-key>
-  DATABASE_URL=<neon-pooler-url>   # often already set for local migrations
+  MEDUSA_ADMIN_API_TOKEN=...paste from Medusa admin settings...
+  DATABASE_URL=...your Neon pooler URL...   # often already set for local migrations
 
 Notes:
   - Medusa v2.14 has no POST /admin/stores; store creation uses medusa exec against DATABASE_URL.
