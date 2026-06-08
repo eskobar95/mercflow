@@ -226,7 +226,7 @@ Public routes (`/sitemap.xml`, `/robots.txt`, `/feed/*`) return `429` after 60 r
 
 ### HITL checkpoint
 
-Before merging: human adds Railway static egress IPs to Neon project `allowed_ips` in [Neon console](https://console.neon.tech/app/projects/young-waterfall-54245022) → Settings → Allowed IPs.
+Before merging: human adds Railway static egress IPs to Neon project `allowed_ips` in [Neon console](https://console.neon.tech/app/projects/withered-salad-42833300) → Settings → Allowed IPs.
 
 ### Out of scope
 
@@ -1272,27 +1272,32 @@ Order detail page shows all info without modal navigation. Internal notes sectio
 
 **Sprint:** S009
 **Milestone:** M006
-**Status:** todo
-**Mode:** HITL
+**Status:** in-review
+**Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S009/T027-hetzner-docker-compose
+**PR:** https://github.com/eskobar95/mercflow/pull/68
 **PRD journey:** J001
 **ADRs:** ADR-006
+**HITL approved:** 2026-06-08 — User delegated full T027 implementation + Hetzner deploy; DNS and Neon Frankfurt ready.
+**HITL post-deploy:** 2026-06-08 — Uptime monitor `https://api.mercflow.shop/health` (60s); Neon allowlist `46.225.226.143` confirmed.
 
 **HITL reason:** Requires SSH access to Hetzner VPS to deploy and verify. Domain DNS must be configured before SSL provisioning can be tested. Human must confirm all containers are healthy in Portainer and admin URL is accessible. Neon IP allowlist must be updated to Hetzner egress IP (closes open HITL from T003/M000).
 
 ### Slice objective
 
-Full MercFlow stack runs on Hetzner via Docker Compose. Traefik routes configured domain with automatic SSL (Let's Encrypt). Medusa backend + worker start cleanly, connect to Neon. Redis available. Portainer accessible. Neon IP allowlist updated to Hetzner egress IP.
+Full MercFlow stack runs on Hetzner via Docker Compose. Traefik routes configured domain with automatic SSL (Let's Encrypt). Medusa backend + worker start cleanly, connect to Neon. Redis available. Portainer accessible. **Prometheus + Grafana** provide VPS and container metrics dashboards. Neon IP allowlist updated to Hetzner egress IP.
 
 ### Layers in scope
 
-- Infra: `infra/docker-compose.yml` — services: `traefik`, `medusa-backend`, `medusa-worker`, `redis`, `portainer`
+- Infra: `infra/docker-compose.yml` — services: `traefik`, `medusa-backend`, `medusa-worker`, `redis`, `portainer`, `prometheus`, `grafana`, `node-exporter`, `cadvisor`
 - Config: `infra/traefik/traefik.yml` (static), `infra/traefik/dynamic/` (routing rules), `infra/traefik/acme.json` (gitignored)
-- Env: `infra/.env.example` — all required vars documented (`NEON_DATABASE_URL`, `REDIS_URL`, `SENTRY_DSN`, `DOMAIN`, etc.)
-- Runbook: `infra/RUNBOOK.md` — deploy, restart, add domain, update cert
-- Ops: Neon project `young-waterfall-54245022` allowed-IP updated to Hetzner VPS static/floating IP
+- Config: `infra/prometheus/prometheus.yml` — scrape targets (node-exporter, cadvisor, redis exporter if added)
+- Config: `infra/grafana/provisioning/` — datasource (Prometheus) + starter dashboards (VPS + containers)
+- Env: `infra/.env.example` — all required vars documented (`NEON_DATABASE_URL`, `REDIS_URL`, `SENTRY_DSN`, `DOMAIN`, `GRAFANA_ADMIN_PASSWORD`, etc.)
+- Runbook: `infra/RUNBOOK.md` — deploy, restart, add domain, update cert, Grafana access
+- Ops: Neon project `withered-salad-42833300` allowed-IP updated to Hetzner VPS static/floating IP
 
 ### Services
 
@@ -1303,24 +1308,38 @@ Full MercFlow stack runs on Hetzner via Docker Compose. Traefik routes configure
 | `medusa-worker` | Same image, worker mode | No external exposure |
 | `redis` | `redis:7-alpine` | Internal only |
 | `portainer` | `portainer/portainer-ce:latest` | Exposed via Traefik on `portainer.<domain>` |
+| `prometheus` | `prom/prometheus:latest` | Internal; scraped by Grafana |
+| `grafana` | `grafana/grafana:latest` | Exposed via Traefik on `grafana.<domain>`; basic auth or Grafana login |
+| `node-exporter` | `prom/node-exporter:latest` | Host CPU/RAM/disk metrics |
+| `cadvisor` | `gcr.io/cadvisor/cadvisor:latest` | Per-container CPU/RAM metrics |
+
+### Metrics scope (MVP)
+
+- VPS: CPU, memory, disk, network (node-exporter)
+- Containers: CPU/memory per service (cAdvisor)
+- Redis: up/down + memory (redis_exporter optional in follow-up)
+- Medusa HTTP metrics: deferred — add `/metrics` or Traefik metrics in follow-up slice
 
 ### Acceptance criteria
 
-- [ ] `docker compose up -d` starts all containers without errors
-- [ ] `GET https://<configured-domain>/health` returns 200 with valid SSL cert
-- [ ] Portainer UI accessible at `portainer.<configured-domain>`
-- [ ] Medusa admin login works end-to-end
-- [ ] Redis connectivity verified (Medusa logs no event bus errors)
-- [ ] Neon allowed-IP updated; connection string unreachable from other IPs (verify)
-- [ ] `infra/.env.example` documents all required vars without real values
+- [x] `docker compose up -d` starts all containers without errors
+- [x] `GET https://<configured-domain>/health` returns 200 with valid SSL cert
+- [x] Portainer UI accessible at `portainer.<configured-domain>`
+- [x] Grafana UI accessible at `grafana.<configured-domain>` with pre-provisioned Prometheus datasource
+- [x] Starter dashboard shows VPS + container metrics within 2 min of deploy
+- [x] Medusa admin login works end-to-end
+- [x] Redis connectivity verified (Medusa logs no event bus errors)
+- [x] Neon allowed-IP updated; connection string unreachable from other IPs (verify)
+- [x] `infra/.env.example` documents all required vars without real values
 
 ### HITL checkpoint
 
-1. Human configures DNS (A record or CNAME for configured domain → Hetzner IP)
+1. Human configures DNS (A record or CNAME for configured domain → Hetzner IP; include `grafana.<domain>` and `portainer.<domain>`)
 2. Human SSHes to Hetzner, runs `docker compose up -d`
 3. Human verifies all containers green in Portainer
-4. Human updates Neon `allowed_ips` with Hetzner egress IP in [Neon console](https://console.neon.tech/app/projects/young-waterfall-54245022)
-5. Human confirms admin URL accessible → approves PR
+4. Human opens Grafana → confirms Prometheus datasource + starter dashboards render data
+5. Human updates Neon `allowed_ips` with Hetzner egress IP in [Neon console](https://console.neon.tech/app/projects/withered-salad-42833300)
+6. Human confirms admin URL accessible → approves PR
 
 ### Out of scope
 
@@ -1331,12 +1350,12 @@ Full MercFlow stack runs on Hetzner via Docker Compose. Traefik routes configure
 
 ### Definition of done
 
-- [ ] `infra/docker-compose.yml` committed and reviewed
-- [ ] `infra/.env.example` complete — no real values
-- [ ] `infra/RUNBOOK.md` covers deploy + restart + cert renewal
-- [ ] HITL: human confirms stack running on Hetzner
-- [ ] HITL: Neon IP allowlist updated (closes T003/M000 HITL)
-- [ ] PR description filled in
+- [x] `infra/docker-compose.yml` committed and reviewed
+- [x] `infra/.env.example` complete — no real values
+- [x] `infra/RUNBOOK.md` covers deploy + restart + cert renewal
+- [x] HITL: human confirms stack running on Hetzner
+- [x] HITL: Neon IP allowlist updated (closes T003/M000 HITL)
+- [x] PR description filled in
 
 ---
 

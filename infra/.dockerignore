@@ -1,0 +1,15 @@
+node_modules
+.git
+.github
+.cursor
+.factory
+**/.env
+**/.env.*
+**/dist
+apps/backend/.medusa
+packages/admin-ui/dist
+coverage
+playwright-report
+test-results
+**/.DS_Store
+scripts/guapo-import

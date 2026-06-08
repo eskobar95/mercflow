@@ -1,3 +1,6 @@
+# Ships Medusa container stdout/stderr to Better Stack via Docker syslog driver.
+# Requires BETTERSTACK_SOURCE_TOKEN in infra/.env (compose substitutes ${BETTERSTACK_SOURCE_TOKEN}).
+# Apply: docker compose -f infra/docker-compose.yml -f infra/observability/docker-logging.override.yml --env-file infra/.env up -d medusa-backend medusa-worker
 services:
   medusa-backend:
     logging:
@@ -5,11 +8,11 @@ services:
       options:
         syslog-address: "tcp+tls://in.logs.betterstack.com:6514"
         syslog-format: "rfc5424"
-        tag: "medusa-backend"
+        tag: '[logtail@11993 source_token="${BETTERSTACK_SOURCE_TOKEN}"] medusa-backend'
   medusa-worker:
     logging:
       driver: syslog
       options:
         syslog-address: "tcp+tls://in.logs.betterstack.com:6514"
         syslog-format: "rfc5424"
-        tag: "medusa-worker"
+        tag: '[logtail@11993 source_token="${BETTERSTACK_SOURCE_TOKEN}"] medusa-worker'

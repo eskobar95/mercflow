@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: mercflow
+    orgId: 1
+    folder: MercFlow
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/json
