@@ -4,9 +4,16 @@ import "./src/instrumentation"
 
 loadEnv(process.env.NODE_ENV || "development", process.cwd())
 
+const workerMode = process.env.MEDUSA_WORKER_MODE
+
 export default defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
+    redisUrl: process.env.REDIS_URL,
+    workerMode:
+      workerMode === "server" || workerMode === "worker" || workerMode === "shared"
+        ? workerMode
+        : "shared",
     http: {
       storeCors: process.env.STORE_CORS ?? "http://localhost:3000",
       adminCors: process.env.ADMIN_CORS ?? "http://localhost:7001",

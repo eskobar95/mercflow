@@ -332,3 +332,11 @@ Sprint 1 (Foundation, 17 maj – 7 juni) er funktionelt færdig. Tasks fra Sprin
 **Næste skill/command:**
 - `/to-prd` hvis nye features skal planlægges
 - `/to-backlog` for at triage tech-debt tasks ind i et sprint
+
+---
+
+## HITL approved — T027 — 2026-06-08
+
+**Approver:** human (delegated full implementation + deploy to agent)
+**Note:** Docker Compose stack on Hetzner — Traefik, Medusa server/worker, Redis, Portainer, Prometheus, Grafana. DNS + Neon Frankfurt + local admin smoke test confirmed.
+**Next:** Deploy `feature/S009/T027-hetzner-docker-compose` to VPS; verify `/health` + Grafana; open PR.
