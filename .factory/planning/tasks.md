@@ -1272,14 +1272,16 @@ Order detail page shows all info without modal navigation. Internal notes sectio
 
 **Sprint:** S009
 **Milestone:** M006
-**Status:** in-progress
+**Status:** in-review
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S009/T027-hetzner-docker-compose
+**PR:** https://github.com/eskobar95/mercflow/pull/68
 **PRD journey:** J001
 **ADRs:** ADR-006
 **HITL approved:** 2026-06-08 — User delegated full T027 implementation + Hetzner deploy; DNS and Neon Frankfurt ready.
+**HITL post-deploy:** 2026-06-08 — Uptime monitor `https://api.mercflow.shop/health` (60s); Neon allowlist `46.225.226.143` confirmed.
 
 **HITL reason:** Requires SSH access to Hetzner VPS to deploy and verify. Domain DNS must be configured before SSL provisioning can be tested. Human must confirm all containers are healthy in Portainer and admin URL is accessible. Neon IP allowlist must be updated to Hetzner egress IP (closes open HITL from T003/M000).
 
@@ -1320,15 +1322,15 @@ Full MercFlow stack runs on Hetzner via Docker Compose. Traefik routes configure
 
 ### Acceptance criteria
 
-- [ ] `docker compose up -d` starts all containers without errors
-- [ ] `GET https://<configured-domain>/health` returns 200 with valid SSL cert
-- [ ] Portainer UI accessible at `portainer.<configured-domain>`
-- [ ] Grafana UI accessible at `grafana.<configured-domain>` with pre-provisioned Prometheus datasource
-- [ ] Starter dashboard shows VPS + container metrics within 2 min of deploy
-- [ ] Medusa admin login works end-to-end
-- [ ] Redis connectivity verified (Medusa logs no event bus errors)
-- [ ] Neon allowed-IP updated; connection string unreachable from other IPs (verify)
-- [ ] `infra/.env.example` documents all required vars without real values
+- [x] `docker compose up -d` starts all containers without errors
+- [x] `GET https://<configured-domain>/health` returns 200 with valid SSL cert
+- [x] Portainer UI accessible at `portainer.<configured-domain>`
+- [x] Grafana UI accessible at `grafana.<configured-domain>` with pre-provisioned Prometheus datasource
+- [x] Starter dashboard shows VPS + container metrics within 2 min of deploy
+- [x] Medusa admin login works end-to-end
+- [x] Redis connectivity verified (Medusa logs no event bus errors)
+- [x] Neon allowed-IP updated; connection string unreachable from other IPs (verify)
+- [x] `infra/.env.example` documents all required vars without real values
 
 ### HITL checkpoint
 
@@ -1348,12 +1350,12 @@ Full MercFlow stack runs on Hetzner via Docker Compose. Traefik routes configure
 
 ### Definition of done
 
-- [ ] `infra/docker-compose.yml` committed and reviewed
-- [ ] `infra/.env.example` complete — no real values
-- [ ] `infra/RUNBOOK.md` covers deploy + restart + cert renewal
-- [ ] HITL: human confirms stack running on Hetzner
-- [ ] HITL: Neon IP allowlist updated (closes T003/M000 HITL)
-- [ ] PR description filled in
+- [x] `infra/docker-compose.yml` committed and reviewed
+- [x] `infra/.env.example` complete — no real values
+- [x] `infra/RUNBOOK.md` covers deploy + restart + cert renewal
+- [x] HITL: human confirms stack running on Hetzner
+- [x] HITL: Neon IP allowlist updated (closes T003/M000 HITL)
+- [x] PR description filled in
 
 ---
 

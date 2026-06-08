@@ -340,3 +340,10 @@ Sprint 1 (Foundation, 17 maj – 7 juni) er funktionelt færdig. Tasks fra Sprin
 **Approver:** human (delegated full implementation + deploy to agent)
 **Note:** Docker Compose stack on Hetzner — Traefik, Medusa server/worker, Redis, Portainer, Prometheus, Grafana. DNS + Neon Frankfurt + local admin smoke test confirmed.
 **Next:** Deploy `feature/S009/T027-hetzner-docker-compose` to VPS; verify `/health` + Grafana; open PR.
+
+## HITL post-deploy — T027 — 2026-06-08
+
+**Approver:** human
+**Verified:** Better Stack uptime monitor on `https://api.mercflow.shop/health` (60s); Neon IP allowlist includes Hetzner `46.225.226.143`.
+**PR:** https://github.com/eskobar95/mercflow/pull/68 — awaiting CI + merge.
+**Unblocks:** T029 (backup), T030 (provision tenant).

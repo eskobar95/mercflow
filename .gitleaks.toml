@@ -13,6 +13,8 @@ paths = [
   # Never scan these paths for secrets
   '''pnpm-lock.yaml''',
   '''\.github/workflows/''',
+  # Env templates — variable names only, no real credentials
+  '''\.env\.example$''',
   # Package README migration examples (documented env var names, not real values)
   '''packages/subscription-module/README\.md''',
 ]
