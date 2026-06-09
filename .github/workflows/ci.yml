@@ -40,6 +40,9 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Build Medusa fork
+        run: pnpm build:medusa-fork
+
       - name: Unit tests
         run: pnpm test
 
@@ -92,6 +95,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build Medusa fork
+        run: pnpm build:medusa-fork
 
       - name: Run Medusa migrations
         env:

@@ -17,9 +17,9 @@
     "@medusajs/admin-shared": "2.14.1",
     "@medusajs/dashboard": "2.14.1",
     "@medusajs/draft-order": "2.14.1",
-    "@medusajs/framework": "2.14.1",
-    "@medusajs/medusa": "2.14.1",
-    "@medusajs/utils": "2.14.1",
+    "@medusajs/framework": "workspace:*",
+    "@medusajs/medusa": "workspace:*",
+    "@medusajs/utils": "workspace:*",
     "@mercflow/connector-module": "workspace:*",
     "@mercflow/content-module": "workspace:*",
     "@mercflow/feed-module": "workspace:*",
@@ -31,7 +31,7 @@
     "react-dom": "18.3.1"
   },
   "devDependencies": {
-    "@medusajs/cli": "2.14.1",
+    "@medusajs/cli": "workspace:*",
     "@types/node": "^22.10.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",

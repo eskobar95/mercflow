@@ -1679,13 +1679,15 @@ All routes under `apps/backend/src/api/store/` registered by MercFlow modules:
 
 **Sprint:** S010
 **Milestone:** M007
-**Status:** todo
-**Mode:** HITL
+**Status:** done
+**Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S010/T033-medusa-fork-workspace
+**PR:** https://github.com/eskobar95/mercflow/pull/72
 **PRD journey:** J001 (PRD-fork-setup.md)
 **ADRs:** ADR-007
+**HITL approved:** 2026-06-09 — Packages: framework, medusa, utils, types, cli; js-sdk npm; zod@^4.x override
 
 **HITL reason:** To arkitekturbeslutninger skal godkendes inden implementering:
 1. Hvilke `@medusajs/*` pakker inkluderes i forken? (forslag: `framework`, `medusa`, `utils`, `types`, `cli` — `js-sdk` evt. forbliver på npm)
@@ -1710,13 +1712,13 @@ Inden implementering: godkend (1) hvilke Medusa packages forkes og (2) zod-retni
 
 ### Acceptance criteria
 
-- [ ] `packages/medusa-fork/` indeholder godkendte Medusa packages
-- [ ] `pnpm-workspace.yaml` inkluderer `packages/medusa-fork/*`
-- [ ] `rg '"@medusajs/' packages/*/package.json apps/*/package.json` returnerer kun `workspace:*` for runtime deps
-- [ ] Lockfilen har én Zod-version
-- [ ] `pnpm typecheck` passes uden nye fejl
-- [ ] `pnpm build` passes
-- [ ] `pnpm test` består (ingen regressioner)
+- [x] `packages/medusa-fork/` indeholder godkendte Medusa packages
+- [x] `pnpm-workspace.yaml` inkluderer `packages/medusa-fork/*`
+- [x] Forkede `@medusajs/*` i MercFlow `package.json` bruger `workspace:*` (js-sdk forbliver npm)
+- [x] Lockfilen har én Zod-version
+- [x] `pnpm typecheck` passes uden nye fejl
+- [x] `pnpm build` passes
+- [x] `pnpm test` består (ingen regressioner)
 
 ### Out of scope
 
@@ -1747,11 +1749,12 @@ Inden implementering: godkend (1) hvilke Medusa packages forkes og (2) zod-retni
 
 **Sprint:** S010
 **Milestone:** M007
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S010/T034-shared-package
+**PR:** https://github.com/eskobar95/mercflow/pull/71
 **PRD journey:** J005 (PRD-fork-setup.md)
 **ADRs:** ADR-007
 
