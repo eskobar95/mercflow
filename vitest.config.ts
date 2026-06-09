@@ -10,6 +10,7 @@ export default defineConfig({
     projects: [
       "scripts",
       "packages/design-tokens",
+      "packages/shared",
       "packages/content-module",
       "packages/feed-module",
       "packages/inventory-module",

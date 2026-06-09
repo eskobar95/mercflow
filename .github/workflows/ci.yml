@@ -142,8 +142,8 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm --filter @mercflow/admin-ui exec playwright install --with-deps
 
-      - name: Build design tokens (E2E)
-        run: pnpm --filter @mercflow/design-tokens build
+      - name: Build design tokens and shared (E2E)
+        run: pnpm --filter @mercflow/design-tokens build && pnpm --filter @mercflow/shared build
 
       - name: Start Vite (background)
         run: |

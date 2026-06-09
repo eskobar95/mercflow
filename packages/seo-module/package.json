@@ -43,6 +43,7 @@
     "@medusajs/types": "2.14.1",
     "@medusajs/utils": "2.14.1",
     "@mercflow/content-module": "workspace:*",
+    "@mercflow/shared": "workspace:*",
     "zod": "^3.25.0"
   },
   "devDependencies": {

@@ -18,6 +18,7 @@ export default tseslint.config(
       "**/dist/**",
       "packages/admin-ui/dist/**",
       "packages/design-tokens/dist/**",
+      "packages/shared/dist/**",
       "packages/content-module/**/migrations/**",
       "packages/connector-module/**/migrations/**",
       "packages/feed-module/**/migrations/**",
@@ -25,8 +26,9 @@ export default tseslint.config(
       "packages/seo-module/**/migrations/**",
       // Medusa build output (generated; not hand-authored TS)
       "**/.medusa/**",
-      // Not part of the default TS project; Vitest config is tooling-only
+      // Not part of the default TS project; Vitest/tsup config is tooling-only
       "**/vitest.config.ts",
+      "**/tsup.config.ts",
     ],
   },
   eslint.configs.recommended,
@@ -45,6 +47,7 @@ export default tseslint.config(
       "packages/seo-module/**/migrations/**",
       // Linted in `mercflow/design-tokens-test` without the TS project service
       "packages/design-tokens/test/**",
+      "packages/shared/test/**",
     ],
     extends: [...tseslint.configs.recommended],
     languageOptions: {
@@ -63,6 +66,17 @@ export default tseslint.config(
         // `packages/design-tokens/tsconfig.json` only includes `src/**`; tests use
         // `tsconfig.test.json` so the parser must resolve a project that includes them.
         project: ["packages/design-tokens/tsconfig.test.json"],
+        tsconfigRootDir: monorepoRoot,
+      },
+    },
+  },
+  {
+    name: "mercflow/shared-test",
+    files: ["packages/shared/test/**/*.ts"],
+    extends: [...tseslint.configs.recommended],
+    languageOptions: {
+      parserOptions: {
+        project: ["packages/shared/tsconfig.test.json"],
         tsconfigRootDir: monorepoRoot,
       },
     },
