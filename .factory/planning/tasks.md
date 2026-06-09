@@ -1809,11 +1809,12 @@ Ny `@mercflow/shared` pakke oprettet i `packages/shared/`. `slugifyForStrategy` 
 
 **Sprint:** S011
 **Milestone:** M007
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T033
 **Branch:** feature/S011/T035-remove-medusa-dashboard
+**PR:** https://github.com/eskobar95/mercflow/pull/73
 **PRD journey:** J004 (PRD-fork-setup.md)
 **ADRs:** ADR-007
 
