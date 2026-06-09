@@ -243,4 +243,66 @@
 
 ---
 
+## Metafields
+
+**Meaning:** Dynamic, tenant-defined custom fields on MercFlow entities (initially categories and products). A tenant-admin creates definitions (name, type, namespace) in their admin. MercFlow ships pre-defined "standard definitions" per industry vertical (skincare, fashion, etc.) that a tenant can activate as a starting point — identical to Shopify's metafield standard definitions model.
+
+**Types to support (initial):** text, number, boolean, date, list (of text), reference (to product/category). Rich text as a separate type once base is stable.
+
+**Not:** Fixed fields hardcoded by MercFlow per entity. Not content-module's `description_rich` / `seo_title` (those are MercFlow-owned structural fields, not tenant-defined). Not a full CMS schema builder — definitions are flat key-value extensions, not nested content types.
+
+**Entities in scope (initial):** `product_category`, `product`. Customer/order metafields deferred.
+
+**Guapo legacy note:** The `brand` and `product_product_brand_brand` tables in Neon are Guapo-specific legacy tables copied from an old Medusa extension — not a MercFlow module. They will be superseded by the metafield system (brand as a single-select or reference metafield on products). Do not model brand as a first-class MercFlow entity.
+
+**Standard definitions:** MercFlow maintains a curated library of definitions per vertical (skincare: `skin_type`, `active_ingredients`, `spf`; fashion: `material`, `fit_type`, `wash_instructions`). Tenant can activate, ignore, or extend with own definitions.
+
+**Storage:** Definitions table (per tenant) + values table (per entity instance). Both scoped by `store_id` with RLS.
+
+**See:** ADR-007 (fork), content-module (structural fields are separate)
+
+---
+
+## Notification system (MercFlow-owned)
+
+**Meaning:** MercFlow replaces Medusa's default notification module with its own event-driven notification layer. Order confirmation, shipping updates, and other transactional emails are orchestrated by MercFlow workflows — not Medusa's built-in notification providers.
+
+**Not:** Medusa's `notification-module` or `notification-provider` pattern. Not just a new notification provider registered in Medusa config.
+
+**Architecture direction:** MercFlow emits typed domain events via BullMQ (or similar reliable MQ). A notification worker picks them up per tenant, resolves the correct template and channel (email, SMS), and dispatches. Per-tenant template config lives in the connector-module or a dedicated notification-module.
+
+**Why:** Medusa's notification flow is single-instance and not natively multi-tenant. Reliable order confirmation requires guaranteed delivery with retry — not fire-and-forget event bus subscribers.
+
+---
+
+## Subscription system (two types)
+
+**Meaning:** MercFlow manages two distinct subscription models:
+
+1. **Product subscriptions** — recurring purchase of a specific product on a schedule (weekly, monthly). Customer signs up on storefront, MercFlow handles renewal scheduling and triggers Stripe charges.
+
+2. **Membership club** — subscription to a tier that grants member-specific prices, exclusive products, or perks. Separate from product repeat-purchase. Closer to Shopify's "selling plans" / membership apps.
+
+**Not:** Medusa's built-in "subscription" concept (does not exist in v2 meaningfully). Not the current `subscription-module` read-only admin view (that is v1 scaffolding — will be expanded).
+
+**Current state:** `@mercflow/subscription-module` exists with `subscription` table — read-only admin view. Full subscription logic (scheduling, renewal, member pricing) is not yet implemented.
+
+---
+
+## Discount system (MercFlow-rebuilt)
+
+**Meaning:** MercFlow rebuilds the discount admin UI and extends the underlying discount logic on top of Medusa's promotion primitives. The goal is a discount system that makes sense to a non-technical merchant: clear rule builder, visible priority/stacking rules, coupon management.
+
+**Not:** Medusa's default promotion admin (described as "totally incomprehensible"). Not a from-scratch discount engine — Medusa's promotion data model is reused, the UI and rule-application logic is wrapped and extended.
+
+---
+
+## Shipping abstraction layer
+
+**Meaning:** MercFlow provides a unified shipping provider interface in `connector-module`. Shipmondo is the current implementation. New carriers (GLS, PostNord, etc.) implement the same interface. Tenant-admin configures which carrier is active per store.
+
+**Not:** A direct Medusa fulfillment-provider-per-carrier pattern where each carrier is registered separately in `medusa-config.ts`. MercFlow wraps this behind a single `mercflow-shipping` provider that delegates to the configured carrier.
+
+---
+
 <!-- Add terms below during /align sessions -->
