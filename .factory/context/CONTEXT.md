@@ -122,7 +122,9 @@
 
 **Not:** A Medusa distribution that wraps an unmodified upstream. Not a Guapo-specific product — Guapo is the first internal tenant only.
 
-**Why fork (ADR-007):** Multi-tenant RLS requires `store_id` on Medusa core tables (`product`, `order`, `customer`, etc.). This is impossible without owning the schema. A June 2026 POC confirmed that MikroORM `EventSubscriber.afterTransactionStart` + `set_config('app.tenant_id', …, true)` correctly propagates tenant context through all module transactions.
+**Why fork (ADR-007):** Multi-tenant RLS requires `store_id` on Medusa core tables (`product`, `order`, `customer`, etc.), and we want direct access to modify Medusa's workflows, services, and notification layer for multi-tenant reliability. A June 2026 POC confirmed the RLS mechanism works end-to-end.
+
+**Fork structure:** Medusa source packages added as pnpm workspace packages inside the existing MercFlow monorepo (`packages/medusa-core/` or similar). `apps/backend` points to local workspace packages instead of npm. No separate repository.
 
 **Example scenario:** When a new connector (Stripe, Shipmondo) is added, it belongs in `packages/connector-module`, not in `apps/backend`.
 
