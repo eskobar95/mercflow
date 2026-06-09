@@ -12,6 +12,7 @@ export default defineConfig({
       "packages/design-tokens",
       "packages/shared",
       "packages/content-module",
+      "packages/medusa-fork/tenancy-core",
       "packages/feed-module",
       "packages/inventory-module",
       "packages/seo-module",

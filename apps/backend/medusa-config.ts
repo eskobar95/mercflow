@@ -24,6 +24,9 @@ export default defineConfig({
   },
   modules: [
     {
+      resolve: "@medusajs/tenancy-core",
+    },
+    {
       resolve: "@mercflow/content-module",
     },
     {
