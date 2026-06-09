@@ -72,7 +72,7 @@ mercflow/
 
 These are non-negotiable. Stop and ask the user before proceeding if any of these applies.
 
-1. **Never modify Medusa core packages directly.** All changes go into MercFlow packages. If a core behavior needs to change, extend or override it — never edit files inside `node_modules` or Medusa's own source files.
+1. **Medusa lives in `packages/medusa-fork/` — never in `node_modules`.** After M0 (fork-setup), all Medusa changes go into `packages/medusa-fork/`. Do not edit `node_modules`. Do not add npm version strings for `@medusajs/*` runtime deps — use `workspace:*`. See `.cursor/rules/medusa-fork.mdc` for full fork rules.
 
 2. **Never create a database migration without an explicit instruction.** Migrations are irreversible in production. Always confirm the field definitions are final before generating a migration file.
 

@@ -1,0 +1,63 @@
+---
+description: Rules for working with the forked Medusa source in packages/medusa-fork/
+alwaysApply: true
+---
+
+# Medusa Fork — Core Rules
+
+`packages/medusa-fork/` is the canonical Medusa v2.14.1 source. MercFlow owns this codebase.
+
+## Where to make changes
+
+- **Medusa behaviour or entity changes** → edit in `packages/medusa-fork/`
+- **MercFlow module behaviour** → edit in `packages/*/src/`
+- **`node_modules/`** → never touch, ever
+
+## Dependency rules (post-M0)
+
+After fork-setup (M0) is complete, `@medusajs/*` runtime dependencies must always be `workspace:*` — never an npm version string.
+
+```json
+// ✅ After M0
+"@medusajs/framework": "workspace:*"
+
+// ❌ Never after M0
+"@medusajs/framework": "2.14.1"
+```
+
+## Every new entity in the fork needs `store_id`
+
+Any new DML model or MikroORM entity added to `packages/medusa-fork/` that represents tenant-scoped data **must** include `store_id` from day one:
+
+```ts
+// ✅
+const MyEntity = model.define("my_entity", {
+  id: model.id(),
+  store_id: model.text(),   // required — tenant discriminator
+  // ...
+})
+
+// ❌ Missing store_id on tenant-scoped entity
+const MyEntity = model.define("my_entity", {
+  id: model.id(),
+  name: model.text(),
+})
+```
+
+## Upstream cherry-picks
+
+Never apply Medusa upstream commits to `packages/medusa-fork/` without explicit written instruction from the user. Each cherry-pick is a deliberate decision, not routine maintenance.
+
+## Subpath exports
+
+`packages/medusa-fork/medusa/package.json` exports must preserve all subpaths used across the codebase:
+
+- `@medusajs/medusa/fulfillment`
+- `@medusajs/medusa/fulfillment-manual`
+- `@medusajs/framework/mikro-orm/core`
+- `@medusajs/framework/mikro-orm/migrations`
+- `@medusajs/framework/http`
+- `@medusajs/framework/utils`
+- `@medusajs/framework/types`
+
+Verify with `pnpm typecheck` before committing any `package.json` change in the fork.

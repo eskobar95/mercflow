@@ -1,8 +1,9 @@
-# Milestones — MercFlow Batch 2
+# Milestones — MercFlow
 
 > Ordered deliveries. Each milestone groups one or more sprints.
 > Updated: 2026-06-04 (S003 merged — PR #60; see `.factory/logs/sprints/S003-closeout-2026-06-04.md`)
 > Updated: 2026-06-04 (synced with `development`; see `.factory/logs/milestone-reviews/M000-2026-06-04.md`)
+> Updated: 2026-06-09 (M007 added — Medusa Fork Setup; ADR-007 accepted)
 
 ---
 
@@ -22,6 +23,8 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 | M003 | Shopping Feed | Google/Meta/TikTok feed live and validated | M000 | done |
 | M004 | Inventory & Purchase Orders | Full PO lifecycle + inventory dashboard | M000 | done |
 | M005 | Improved Order Flow | Faster order processing + pick list | M000 | done |
+| M006 | Production Infrastructure | MercFlow kører på Hetzner; Traefik, Redis, Sentry, provisioning | M005 | done |
+| M007 | Medusa Fork Setup | Medusa som lokale workspace packages; `store_id` på core tables; tenant wiring; dashboard fjernet | M006 | todo |
 
 ---
 
@@ -212,6 +215,39 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 
 ---
 
+---
+
+## M007 — Medusa Fork Setup
+
+**Outcome:** Medusa v2.14.1 kildekode lever som lokale pnpm workspace packages i monorepoet. Alle MercFlow-pakker resolver `@medusajs/*` fra forken — ikke npm. `store_id NOT NULL` tilføjet til Medusa core tables med RLS policies. `TenantIsolationSubscriber` registreret på alle module EMs ved startup. Medusa dashboard fjernet; `admin-ui` er den eneste admin-grænseflade. Zod harmoniseret til én version. `pnpm typecheck`, `pnpm build`, `pnpm test` grønne.
+
+**PRD:** `.factory/context/PRD-fork-setup.md`
+**ADR:** ADR-007
+
+**Sprints i dette milestone:**
+
+| Sprint | Goal | Tasks |
+|--------|------|-------|
+| S010 | Fork workspace + shared package | T033, T034 |
+| S011 | Dashboard removal + core table store_id | T035, T036 |
+| S012 | Startup tenant wiring | T037 |
+
+**Dependencies:** M006 (done)
+
+**Definition of done:**
+- [ ] `pnpm install` — nul npm fetches for `@medusajs/*` (runtime)
+- [ ] `pnpm typecheck` passes med nul nye fejl
+- [ ] `pnpm build` passes
+- [ ] `pnpm test` passes inkl. `test-rls-medusa.ts`
+- [ ] `admin-ui → seo-module` afhængighed fjernet (`pnpm why @mercflow/seo-module --filter @mercflow/admin-ui` = 0)
+- [ ] Zod: én version i lockfile
+- [ ] `store_id NOT NULL` + RLS på alle 6 M0 core tables
+- [ ] `TenantIsolationSubscriber` registreret og verificeret via integration test
+- [ ] `@medusajs/dashboard` fjernet fra `apps/backend`
+- [ ] `/milestone-review M007` grøn
+
+---
+
 ## Dependency graph
 
 ```mermaid
@@ -222,4 +258,5 @@ flowchart LR
   M000 --> M005
   M001 --> M002
   M005 --> M006
+  M006 --> M007
 ```

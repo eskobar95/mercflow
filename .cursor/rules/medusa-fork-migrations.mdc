@@ -1,0 +1,64 @@
+---
+description: Migration conventions for Medusa fork core table migrations
+globs: packages/medusa-fork/**/migrations/**/*.ts
+alwaysApply: false
+---
+
+# Medusa Fork — Migration Conventions
+
+## MIGRATION DECISION LOG (required)
+
+Every migration file must start with this comment block:
+
+```ts
+/**
+ * MIGRATION DECISION LOG
+ * Reason: <why — reference PRD-fork-setup.md section or task ID>
+ * Changes: <list of tables/columns added, modified, or removed>
+ * Reversible: Yes — down() <describe what it does>
+ * Fields derived from: <DML model file or PRD task>
+ */
+```
+
+## `store_id` + RLS always together
+
+When a migration adds `store_id` to a table, it must also enable RLS and create the `tenant_isolation` policy in the same migration:
+
+```ts
+// ✅ Complete pattern
+await queryRunner.query(`ALTER TABLE medusa.product ADD COLUMN IF NOT EXISTS store_id text DEFAULT ''`)
+await queryRunner.query(`UPDATE medusa.product SET store_id = 'store_01KG0VBTT0714XV2CCTEBRVC47' WHERE store_id = ''`)
+await queryRunner.query(`ALTER TABLE medusa.product ALTER COLUMN store_id SET NOT NULL`)
+await queryRunner.query(`ALTER TABLE medusa.product ALTER COLUMN store_id DROP DEFAULT`)
+await queryRunner.query(`CREATE INDEX IF NOT EXISTS idx_product_store_id ON medusa.product (store_id)`)
+await queryRunner.query(`ALTER TABLE medusa.product ENABLE ROW LEVEL SECURITY`)
+await queryRunner.query(`ALTER TABLE medusa.product FORCE ROW LEVEL SECURITY`)
+await queryRunner.query(`
+  CREATE POLICY tenant_isolation ON medusa.product
+    USING (store_id = current_setting('app.tenant_id', true))
+`)
+
+// ❌ Adding store_id without RLS leaves the table unprotected
+await queryRunner.query(`ALTER TABLE medusa.product ADD COLUMN store_id text NOT NULL`)
+```
+
+## `down()` is not optional
+
+Every migration must implement a complete `down()`:
+
+```ts
+// ✅
+async down(queryRunner: QueryRunner): Promise<void> {
+  await queryRunner.query(`DROP POLICY IF EXISTS tenant_isolation ON medusa.product`)
+  await queryRunner.query(`ALTER TABLE medusa.product DISABLE ROW LEVEL SECURITY`)
+  await queryRunner.query(`DROP INDEX IF EXISTS idx_product_store_id`)
+  await queryRunner.query(`ALTER TABLE medusa.product DROP COLUMN IF EXISTS store_id`)
+}
+
+// ❌ Empty down() silently breaks rollback
+async down(): Promise<void> {}
+```
+
+## Never target production
+
+Migrations are only run locally (`pnpm migration:run`) unless the user gives explicit written instruction to target staging or production.

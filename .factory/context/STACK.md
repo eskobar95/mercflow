@@ -39,12 +39,14 @@
 
 | Package | Role |
 |---------|------|
+| `medusa-fork/*` | **M0** — Medusa v2.14.1 source as workspace packages (replaces npm) |
+| `shared` | **M0** — Cross-package utilities: slug, string helpers, type predicates |
 | `content-module` | CMS, product/category content, pages, articles, redirects (Batch 1+) |
 | `connector-module` | Encrypted third-party credentials |
 | `subscription-module` | Subscription records (read-only admin v1) |
-| `admin-ui` | Forked Medusa admin |
+| `admin-ui` | MercFlow admin (replaces Medusa dashboard) |
 | `design-tokens` | Shared tokens |
-| `seo-module` | **Planned Batch 2** — redirects, sitemap, robots, slug utility |
+| `seo-module` | **Planned Batch 2** — redirects, sitemap, robots (slug → shared) |
 | `feed-module` | **Planned Batch 2** — Google Shopping XML |
 | `inventory-module` | **Planned Batch 2** — POs, suppliers, inventory dashboard |
 

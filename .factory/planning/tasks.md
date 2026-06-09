@@ -1668,3 +1668,326 @@ All routes under `apps/backend/src/api/store/` registered by MercFlow modules:
 
 <!-- Total: T001–T032 | AFK: 26 | HITL: 5 (T003, T008, T013, T023, T027) | Cancelled: T029 -->
 <!-- Sprints: S001–S009 | Milestones: M000–M006 -->
+
+---
+
+## M007 — Medusa Fork Setup / S010
+
+---
+
+## T033 — Fork workspace — Medusa v2.14.1 source som pnpm workspace packages + zod harmonisering
+
+**Sprint:** S010
+**Milestone:** M007
+**Status:** todo
+**Mode:** HITL
+**Parallel group:** A
+**Blocked by:** none
+**Branch:** feature/S010/T033-medusa-fork-workspace
+**PRD journey:** J001 (PRD-fork-setup.md)
+**ADRs:** ADR-007
+
+**HITL reason:** To arkitekturbeslutninger skal godkendes inden implementering:
+1. Hvilke `@medusajs/*` pakker inkluderes i forken? (forslag: `framework`, `medusa`, `utils`, `types`, `cli` — `js-sdk` evt. forbliver på npm)
+2. Zod-retning: force `zod@3` (nuværende MercFlow modules bruger det) eller `zod@4` (Medusa framework-graf)? Tjek hvilke features hver side bruger — foretrækkes den version der undgår rewrite af validering.
+
+### Slice objective
+
+Medusa v2.14.1 kildekode kopieret ind i `packages/medusa-fork/` som pnpm workspace packages. `pnpm-workspace.yaml` udvidet. Alle `@medusajs/*` i alle `package.json` opdateret til `workspace:*`. Zod harmoniseret via `pnpm.overrides`. `pnpm install`, `pnpm typecheck`, `pnpm build` alle grønne.
+
+### Layers in scope
+
+- Infra: `packages/medusa-fork/` oprettet med Medusa v2.14.1 source (godkendte packages)
+- Config: `pnpm-workspace.yaml` udvidet med `packages/medusa-fork/*`
+- Config: root `package.json` — `pnpm.overrides` med Zod-version
+- Deps: alle `package.json` i monorepo — `@medusajs/*` → `workspace:*`
+- Verify: `pnpm install` → ingen npm fetch for `@medusajs/*`; `pnpm typecheck` og `pnpm build` grønne
+- Tests: ingen nye tests — eksisterende suite skal bestå
+
+### HITL checkpoint
+
+Inden implementering: godkend (1) hvilke Medusa packages forkes og (2) zod-retningen. Derefter kører agenten AFK.
+
+### Acceptance criteria
+
+- [ ] `packages/medusa-fork/` indeholder godkendte Medusa packages
+- [ ] `pnpm-workspace.yaml` inkluderer `packages/medusa-fork/*`
+- [ ] `rg '"@medusajs/' packages/*/package.json apps/*/package.json` returnerer kun `workspace:*` for runtime deps
+- [ ] Lockfilen har én Zod-version
+- [ ] `pnpm typecheck` passes uden nye fejl
+- [ ] `pnpm build` passes
+- [ ] `pnpm test` består (ingen regressioner)
+
+### Out of scope
+
+- Modificering af Medusa source (det er T035 og T036)
+- Dashboard removal (T035)
+- `store_id` på core tables (T036)
+
+### Context for implementing agent
+
+- Medusa v2.14.1 source: `https://github.com/medusajs/medusa/tree/v2.14.1`
+- Kopieringsmetode: git subtree eller manuel kopi — ikke submodule (monorepo-first)
+- Subpath exports skal bevares: `@medusajs/medusa/fulfillment`, `@medusajs/framework/mikro-orm/core` m.fl.
+- Eksisterende imports i MercFlow bruger `@medusajs/framework/utils`, `@medusajs/framework/http`, `@medusajs/framework/types`, `@medusajs/framework/mikro-orm/migrations`, `@medusajs/framework/mikro-orm/core`, `@medusajs/types`, `@medusajs/utils`
+- `apps/backend/src/lib/tenant-isolation/` bruger `@medusajs/framework/mikro-orm/core` til `EntityManager` og `TransactionEventArgs`
+
+### Definition of done
+
+- [ ] `pnpm typecheck` passes
+- [ ] `pnpm lint` passes
+- [ ] `pnpm build` passes
+- [ ] `pnpm test` passes
+- [ ] HITL: package-valg + zod-retning godkendt inden PR åbnes
+- [ ] PR description filled in
+
+---
+
+## T034 — `@mercflow/shared` pakke — udtræk slug utility + afkobl `admin-ui → seo-module`
+
+**Sprint:** S010
+**Milestone:** M007
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none
+**Branch:** feature/S010/T034-shared-package
+**PRD journey:** J005 (PRD-fork-setup.md)
+**ADRs:** ADR-007
+
+### Slice objective
+
+Ny `@mercflow/shared` pakke oprettet i `packages/shared/`. `slugifyForStrategy` og relaterede utilities flyttes hertil. `@mercflow/admin-ui` importerer fra `@mercflow/shared` — ikke fra `@mercflow/seo-module`. `@mercflow/seo-module` importerer fra `@mercflow/shared`. Ingen frontend→backend-modul kobling.
+
+### Layers in scope
+
+- Pakke: `packages/shared/` oprettet med `package.json`, `tsconfig.json`, `src/index.ts`
+- Kode: `slugifyForStrategy` + evt. andre cross-boundary utilities flyttet fra `seo-module` til `shared/src/slug.ts`
+- Deps: `packages/admin-ui/package.json` — `@mercflow/seo-module` erstattes af `@mercflow/shared`
+- Deps: `packages/seo-module/package.json` — tilføj `@mercflow/shared` afhængighed
+- Imports: alle `import ... from "@mercflow/seo-module/..."` i `admin-ui` opdateres
+- `pnpm-workspace.yaml`: `packages/*` glob dækker allerede `packages/shared`
+- Tests: enhedstest for slug utility i `shared` (bevares fra `seo-module`)
+
+### Acceptance criteria
+
+- [ ] `@mercflow/shared` pakke typechecks rent
+- [ ] `pnpm why @mercflow/seo-module --filter @mercflow/admin-ui` returnerer ingen afhængighed
+- [ ] `slugifyForStrategy` virker korrekt importeret fra `@mercflow/shared` i admin-ui og seo-module
+- [ ] `pnpm typecheck` passes
+- [ ] `pnpm test` passes (slug tests grønne)
+
+### Out of scope
+
+- Andre shared utilities end slug (tilføjes efter behov i later tasks)
+- Design tokens (forbliver i `@mercflow/design-tokens`)
+
+### Context for implementing agent
+
+- `slugifyForStrategy` er i dag i `packages/seo-module/src/` og importeres i `packages/admin-ui/src/`
+- Brug `packages/design-tokens` som strukturelt forbillede for en ren frontend-kompatibel pakke
+- `packages/shared` skal have `"type": "module"` eller være CJS-kompatibel med begge forbrugere (seo-module er CJS, admin-ui er ESM) — overvej dual-output med `tsup`
+
+### Definition of done
+
+- [ ] `pnpm typecheck` passes
+- [ ] `pnpm lint` passes
+- [ ] `pnpm test` passes
+- [ ] `packages/shared/README.md` oprettet
+- [ ] PR description filled in
+
+---
+
+## M007 — Medusa Fork Setup / S011
+
+---
+
+## T035 — Fjern Medusa dashboard fra backend — `admin-ui` som eneste admin interface
+
+**Sprint:** S011
+**Milestone:** M007
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** B
+**Blocked by:** T033
+**Branch:** feature/S011/T035-remove-medusa-dashboard
+**PRD journey:** J004 (PRD-fork-setup.md)
+**ADRs:** ADR-007
+
+### Slice objective
+
+`@medusajs/dashboard` og tilknyttede pakker (`admin-sdk`, `admin-shared`, `admin-bundler`, `admin-vite-plugin`) fjernes fra `apps/backend`. `pnpm build` producerer ingen dashboard-bundle fra Medusa. `admin-ui` bekræftes som den eneste admin-grænseflade.
+
+### Layers in scope
+
+- Deps: `apps/backend/package.json` — fjern `@medusajs/dashboard`, `@medusajs/admin-sdk`, `@medusajs/admin-shared`, `@medusajs/admin-bundler`, `@medusajs/admin-vite-plugin`
+- Config: `apps/backend/medusa-config.ts` — fjern eventuel `admin` / dashboard-konfiguration
+- Build: verificer `pnpm build` i `apps/backend` fuldføres uden dashboard-bundle
+- Dev: verificer `pnpm dev` starter backend uden dashboard-fejl; `admin-ui` Vite dev server kører uafhængigt
+- Tests: ingen nye tests — eksisterende suite skal bestå
+
+### Acceptance criteria
+
+- [ ] `@medusajs/dashboard` ikke i `apps/backend/package.json` eller lockfile (som direkte dep)
+- [ ] `pnpm build` i `apps/backend` gennemføres uden dashboard-relaterede fejl
+- [ ] `pnpm dev` starter backend korrekt
+- [ ] MercFlow admin-ui tilgængelig og funktionel (Vite dev server / separate port)
+- [ ] Ingen Medusa admin-UI routes serveres af backend
+
+### Out of scope
+
+- Admin-ui feature-ændringer
+- Nye admin-routes
+- Ændringer i `packages/admin-ui` struktur
+
+### Context for implementing agent
+
+- `apps/backend/package.json` har i dag: `@medusajs/dashboard`, `@medusajs/admin-sdk`, `@medusajs/admin-shared` som deps
+- Medusa bygger dashboard via `medusa build` CLI — efter fjernelse vil `medusa build` kun bundle backend
+- `packages/admin-ui` kører som selvstændig Vite app på separat port — ingen ændringer her
+- Tjek `apps/backend/medusa-config.ts` for eventuel `admin: { disable: false }` config
+
+### Definition of done
+
+- [ ] `pnpm typecheck` passes
+- [ ] `pnpm lint` passes
+- [ ] `pnpm build` passes (backend)
+- [ ] `apps/backend/README.md` opdateret — developer setup beskriver admin-ui som separat Vite app
+- [ ] PR description filled in
+
+---
+
+## T036 — `store_id NOT NULL` + RLS på Medusa core tables (product, order, customer, variant, category, line_item)
+
+**Sprint:** S011
+**Milestone:** M007
+**Status:** todo
+**Mode:** HITL
+**Parallel group:** C
+**Blocked by:** T033
+**Branch:** feature/S011/T036-core-tables-store-id-rls
+**PRD journey:** J003 (PRD-fork-setup.md)
+**ADRs:** ADR-004, ADR-005, ADR-007
+
+**HITL reason:** Scope og migrationsstrategi for Medusa core tables skal godkendes:
+1. Bekræft de 6 M0 tabeller: `product`, `product_variant`, `product_category`, `order`, `customer`, `line_item`
+2. Migrationsstrategi: `ALTER TABLE ... ADD COLUMN store_id text DEFAULT ''` → backfill Guapo store_id → `SET NOT NULL` → index → RLS policy
+3. Decide om Medusa DML entiteter modificeres direkte i forken, eller om `store_id` tilføjes via ren migrationsscript uden DML-ændring (sidstnævnte er simplere for M0)
+
+### Slice objective
+
+`store_id text NOT NULL` tilføjet til alle 6 M0 core tables i Neon. RLS policies aktiveret per table med `tenant_isolation` policy på `app.tenant_id`. Guapo rows backfillet med `store_01KG0VBTT0714XV2CCTEBRVC47`. Alle migrations er reversible via `down()`.
+
+### Layers in scope
+
+- DB: migrations for `product`, `product_variant`, `product_category`, `order`, `customer`, `line_item`
+  - `ADD COLUMN store_id text DEFAULT ''`
+  - Backfill: `UPDATE ... SET store_id = 'store_01KG0VBTT0714XV2CCTEBRVC47'`
+  - `ALTER COLUMN store_id SET NOT NULL; ALTER COLUMN store_id DROP DEFAULT`
+  - `CREATE INDEX ON ... (store_id)`
+  - `ALTER TABLE ... ENABLE ROW LEVEL SECURITY; FORCE ROW LEVEL SECURITY`
+  - `CREATE POLICY tenant_isolation ON ... USING (store_id = current_setting('app.tenant_id', true))`
+- Fork (hvis DML-vej godkendes): tilføj `store_id` field til relevante DML-modeller i `packages/medusa-fork/medusa/`
+- Tests: `SET LOCAL app.tenant_id = 'probe'` → query returnerer 0 rækker; med korrekt store_id → returnerer egne rækker
+
+### HITL checkpoint
+
+Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML vs. ren migration), (3) om Guapo backfill kan køres lokalt mod dev DB. Derefter kører agenten AFK.
+
+### Acceptance criteria
+
+- [ ] `store_id text NOT NULL` på alle 6 core tables
+- [ ] RLS aktiveret og `tenant_isolation` policy tilstede på alle 6 tables
+- [ ] `SELECT count(*) FROM medusa.product WHERE store_id IS NULL` = 0 (efter backfill)
+- [ ] Samme check for alle 6 tables
+- [ ] `pnpm migration:run` kører rent på local dev DB
+- [ ] Integration test: query med `SET LOCAL app.tenant_id = 'probe'` → 0 rækker; med Guapo ID → egne rækker
+
+### Out of scope
+
+- `cart`, `fulfillment` og andre M1+ tabeller
+- `payload.*` tabeller
+- Startup wiring af subscriber (T037)
+
+### Context for implementing agent
+
+- Guapo store_id: `store_01KG0VBTT0714XV2CCTEBRVC47`
+- RLS policy mønster: brug `current_setting('app.tenant_id', true)` — matcher `TenantIsolationSubscriber`
+- Eksisterende test til reference: `apps/backend/src/scripts/test-rls-medusa.ts`
+- Migrations bor i den forked Medusa package — følg MIGRATION DECISION LOG format
+
+### Definition of done
+
+- [ ] `pnpm typecheck` passes
+- [ ] `pnpm lint` passes
+- [ ] `pnpm migration:run` passes lokalt
+- [ ] Integration test grøn
+- [ ] HITL: scope + strategi godkendt inden PR åbnes
+- [ ] Alle migrations har MIGRATION DECISION LOG + `down()`
+- [ ] PR description filled in
+
+---
+
+## M007 — Medusa Fork Setup / S012
+
+---
+
+## T037 — Startup tenant wiring — `TenantIsolationSubscriber` på alle module EMs + `tenantIsolationMiddleware` på alle routes
+
+**Sprint:** S012
+**Milestone:** M007
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T036
+**Branch:** feature/S012/T037-tenant-startup-wiring
+**PRD journey:** J002 (PRD-fork-setup.md)
+**ADRs:** ADR-004, ADR-005, ADR-007
+
+### Slice objective
+
+`TenantIsolationSubscriber` registreres automatisk på alle modul-EMs ved Medusa bootstrap. `tenantIsolationMiddleware` wires på alle admin og store routes. Enhver database-transaktion under en request med tenant-kontekst får `SET LOCAL app.tenant_id` injekteret. Integration test (`test-rls-medusa.ts`) består.
+
+### Layers in scope
+
+- Code: `apps/backend/src/subscribers/tenant-bootstrap.ts` — `onApplicationBootstrap` hook der itererer alle registrerede moduler, resolver `service.__container__["manager"]` og kalder `registerTenantSubscriber(em)`
+- Config: `apps/backend/src/api/middlewares.ts` — `tenantIsolationMiddleware` tilføjet på alle admin og store route-matchers
+- Tests: verificer subscriber registreret og `SET LOCAL` injekteret — brug `test-rls-medusa.ts` (allerede implementeret, verificer den stadig består mod core tables fra T036)
+- Docs: `apps/backend/README.md` — tilføj sektion om tenant isolation architecture
+
+### Acceptance criteria
+
+- [ ] `tenantIsolationMiddleware` wired og aktivt på `/admin/**` og `/store/**`
+- [ ] `TenantIsolationSubscriber` registreret på mindst `ProductModule` og `OrderModule` EMs ved bootstrap
+- [ ] `test-rls-medusa.ts` består — `current_setting('app.tenant_id', true)` returnerer korrekt store_id inde i transaktion
+- [ ] Request uden tenant-kontekst: subscriber skips `SET LOCAL` (ingen fejl)
+- [ ] `pnpm typecheck` passes
+
+### Out of scope
+
+- BullMQ / notification worker (separat milestone)
+- Per-module `withTenant` wrapper i service layer (de eksisterende MercFlow modules har allerede `store_id` filtre)
+
+### Context for implementing agent
+
+- `apps/backend/src/lib/tenant-isolation/` indeholder allerede:
+  - `tenant-context.ts` — `AsyncLocalStorage` med `TenantContext.run()` og `TenantContext.getStoreId()`
+  - `tenant-subscriber.ts` — `TenantIsolationSubscriber` med `afterTransactionStart`
+  - `register-tenant-subscriber.ts` — `registerTenantSubscriber(em)` helper
+  - `tenant-middleware.ts` — `tenantIsolationMiddleware`
+- Medusa module iteration: brug `container.resolve(Modules.PRODUCT)` etc. for at få services; access EM via `service.__container__["manager"]`
+- `onApplicationBootstrap` i Medusa: registreres som en subscriber i `apps/backend/src/subscribers/`
+- Verificer at bootstrap hook kører FØR første HTTP request behandles
+
+### Definition of done
+
+- [ ] `pnpm typecheck` passes
+- [ ] `pnpm lint` passes
+- [ ] `pnpm test` passes (`test-rls-medusa.ts` grøn)
+- [ ] `apps/backend/README.md` opdateret med tenant isolation sektion
+- [ ] PR description filled in
+
+---
+
+<!-- Total: T001–T037 | AFK: 29 | HITL: 7 (T003, T008, T013, T023, T027, T033, T036) | Cancelled: T029 -->
+<!-- Sprints: S001–S012 | Milestones: M000–M007 -->
