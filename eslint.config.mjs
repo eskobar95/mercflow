@@ -24,6 +24,7 @@ export default tseslint.config(
       "packages/connector-module/**/migrations/**",
       "packages/feed-module/**/migrations/**",
       "packages/inventory-module/**/migrations/**",
+      "packages/metafield-module/**/migrations/**",
       "packages/seo-module/**/migrations/**",
       // Medusa build output (generated; not hand-authored TS)
       "**/.medusa/**",
@@ -45,6 +46,7 @@ export default tseslint.config(
       "packages/connector-module/**/migrations/**",
       "packages/feed-module/**/migrations/**",
       "packages/inventory-module/**/migrations/**",
+      "packages/metafield-module/**/migrations/**",
       "packages/seo-module/**/migrations/**",
       // Linted in `mercflow/design-tokens-test` without the TS project service
       "packages/design-tokens/test/**",

@@ -62,5 +62,8 @@ export default defineConfig({
     {
       resolve: "@mercflow/seo-module",
     },
+    {
+      resolve: "@mercflow/metafield-module",
+    },
   ],
 })
