@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useMemo, useState, type FormEvent } from "react"
-import { slugifyForStrategy } from "@mercflow/seo-module/slug"
+import { slugifyForStrategy } from "@mercflow/shared/slug"
 
 import { Button } from "@/components/ui/Button"
 import { Card } from "@/components/ui/Card"

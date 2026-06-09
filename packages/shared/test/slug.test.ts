@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { slugifyForStrategy } from "../src/modules/seo/utils/slug"
+import { slugifyForStrategy } from "../src/slug.js"
 
 describe("slugifyForStrategy", (): void => {
   it("transliterates Nordic characters with nordic strategy", (): void => {

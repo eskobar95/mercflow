@@ -1,6 +1,7 @@
 import type { JsonLdSettings } from "./json-ld-types"
 
-export type SlugStrategy = "nordic" | "omit"
+export type { SlugStrategy } from "@mercflow/shared/slug"
+import type { SlugStrategy } from "@mercflow/shared/slug"
 
 export type RedirectType = "auto" | "manual"
 

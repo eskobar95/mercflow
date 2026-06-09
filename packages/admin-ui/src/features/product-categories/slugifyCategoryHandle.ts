@@ -1,4 +1,4 @@
-import { slugifyForStrategy } from "@mercflow/seo-module/slug"
+import { slugifyForStrategy } from "@mercflow/shared/slug"
 
 import type { SlugStrategy } from "@/features/seo/types"
 
