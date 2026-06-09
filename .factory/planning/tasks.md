@@ -1679,11 +1679,12 @@ All routes under `apps/backend/src/api/store/` registered by MercFlow modules:
 
 **Sprint:** S010
 **Milestone:** M007
-**Status:** in-progress
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S010/T033-medusa-fork-workspace
+**PR:** https://github.com/eskobar95/mercflow/pull/72
 **PRD journey:** J001 (PRD-fork-setup.md)
 **ADRs:** ADR-007
 **HITL approved:** 2026-06-09 — Packages: framework, medusa, utils, types, cli; js-sdk npm; zod@^4.x override

@@ -20,6 +20,9 @@ paths = [
   '''infra/RUNBOOK\.md''',
   # Package README migration examples (documented env var names, not real values)
   '''packages/subscription-module/README\.md''',
+  # Upstream Medusa test fixtures (placeholder DATABASE_URL strings, not real credentials)
+  '''packages/medusa-fork/.*/__tests__/''',
+  '''packages/medusa-fork/.*\.spec\.ts$''',
 ]
 regexes = [
   # Medusa's placeholder secrets used in docs and test fixtures
