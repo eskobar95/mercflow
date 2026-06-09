@@ -14,11 +14,16 @@ From the **repository root** after `pnpm install`:
 1. Copy `.env.example` to `.env` in this directory and set `JWT_SECRET` / `COOKIE_SECRET` to non-default values for local use.
 2. Start Postgres if needed, then run migrations:  
    `pnpm --filter @mercflow/backend db:migrate`
-3. Start the server:  
+3. Start the API server:  
    `pnpm --filter @mercflow/backend dev`  
    or from the root:  
    `pnpm dev:backend`  
    Default Medusa port is **9000** unless your env overrides it.
+4. Start the MercFlow admin UI (separate Vite app):  
+   `pnpm --filter @mercflow/admin-ui dev`  
+   Open the URL Vite prints (default **5173**). Set `VITE_MEDUSA_ADMIN_BACKEND_URL=http://localhost:9000` in `packages/admin-ui/.env` (or equivalent) so the UI talks to this backend. Ensure `ADMIN_CORS` / `AUTH_CORS` in this app's `.env` include the admin-ui origin (default `http://localhost:7001` in `medusa-config.ts` — adjust to match your Vite port if needed).
+
+MercFlow does **not** serve Medusa's bundled dashboard from this process. `@mercflow/admin-ui` is the only admin interface.
 
 ## Environment
 
@@ -68,7 +73,7 @@ pnpm --filter @mercflow/backend typecheck
 
 ## Production build
 
-`medusa build` compiles the server and bundles the Medusa admin client. The app declares the usual admin UI client dependencies (`@medusajs/dashboard`, `@medusajs/draft-order`, `react`, and related packages) in `package.json` so bundling can resolve the generated `.medusa/client/entry.jsx` graph in CI. Generated output (for example `apps/backend/.medusa/`) is gitignored.
+`medusa build` compiles the backend server only. Admin UI is disabled in `medusa-config.ts` (`admin.disable: true`), so no Medusa dashboard bundle is produced. Build the admin separately with `pnpm --filter @mercflow/admin-ui build` and deploy it as a static Vite app pointing at this API.
 
 ## Smoke check (content API)
 

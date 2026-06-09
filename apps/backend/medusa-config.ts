@@ -7,6 +7,9 @@ loadEnv(process.env.NODE_ENV || "development", process.cwd())
 const workerMode = process.env.MEDUSA_WORKER_MODE
 
 export default defineConfig({
+  admin: {
+    disable: true,
+  },
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     redisUrl: process.env.REDIS_URL,
