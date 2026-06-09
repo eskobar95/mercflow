@@ -13,9 +13,6 @@
     "db:revert": "medusa db:revert"
   },
   "dependencies": {
-    "@medusajs/admin-sdk": "2.14.1",
-    "@medusajs/admin-shared": "2.14.1",
-    "@medusajs/dashboard": "2.14.1",
     "@medusajs/draft-order": "2.14.1",
     "@medusajs/framework": "workspace:*",
     "@medusajs/medusa": "workspace:*",
@@ -26,9 +23,7 @@
     "@mercflow/inventory-module": "workspace:*",
     "@mercflow/seo-module": "workspace:*",
     "@mercflow/subscription-module": "workspace:*",
-    "@sentry/node": "^10.56.0",
-    "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "@sentry/node": "^10.56.0"
   },
   "devDependencies": {
     "@medusajs/cli": "workspace:*",
