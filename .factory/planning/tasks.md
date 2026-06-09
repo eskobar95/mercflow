@@ -1712,13 +1712,13 @@ Inden implementering: godkend (1) hvilke Medusa packages forkes og (2) zod-retni
 
 ### Acceptance criteria
 
-- [ ] `packages/medusa-fork/` indeholder godkendte Medusa packages
-- [ ] `pnpm-workspace.yaml` inkluderer `packages/medusa-fork/*`
-- [ ] `rg '"@medusajs/' packages/*/package.json apps/*/package.json` returnerer kun `workspace:*` for runtime deps
-- [ ] Lockfilen har én Zod-version
-- [ ] `pnpm typecheck` passes uden nye fejl
-- [ ] `pnpm build` passes
-- [ ] `pnpm test` består (ingen regressioner)
+- [x] `packages/medusa-fork/` indeholder godkendte Medusa packages
+- [x] `pnpm-workspace.yaml` inkluderer `packages/medusa-fork/*`
+- [x] Forkede `@medusajs/*` i MercFlow `package.json` bruger `workspace:*` (js-sdk forbliver npm)
+- [x] Lockfilen har én Zod-version
+- [x] `pnpm typecheck` passes uden nye fejl
+- [x] `pnpm build` passes
+- [x] `pnpm test` består (ingen regressioner)
 
 ### Out of scope
 

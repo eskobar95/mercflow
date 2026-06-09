@@ -567,3 +567,28 @@ none
 **Approver:** human
 **Note:** Packages: framework, medusa, utils, types, cli; js-sdk npm; zod@^4.x override
 **Next:** T033 worker dispatched (supersedes S010 retro blocked state for T033)
+
+---
+
+## Task T033 — Fork workspace — 2026-06-09
+
+**Sprint:** S010 | **Milestone:** M007 | **Status:** done
+**Branch:** `feature/S010/T033-medusa-fork-workspace`
+**PR:** https://github.com/eskobar95/mercflow/pull/72
+**Mode:** AFK (post-HITL) | **Parallel group:** A
+
+### Outcome
+Medusa v2.14.1 source in `packages/medusa-fork/` (framework, medusa, utils, types, cli); workspace deps; zod@^4 override; module zod-error migrated.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI (main check) | pass |
+| CI iterations | 4 |
+| Revision cycles | 0 |
+
+### Unblocked
+T035, T036
