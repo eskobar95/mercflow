@@ -16,6 +16,7 @@
     "@medusajs/draft-order": "2.14.1",
     "@medusajs/framework": "workspace:*",
     "@medusajs/medusa": "workspace:*",
+    "@medusajs/tenancy-core": "workspace:*",
     "@medusajs/utils": "workspace:*",
     "@mercflow/connector-module": "workspace:*",
     "@mercflow/content-module": "workspace:*",

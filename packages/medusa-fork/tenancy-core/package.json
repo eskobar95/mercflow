@@ -1,0 +1,26 @@
+{
+  "name": "@medusajs/tenancy-core",
+  "version": "2.14.1",
+  "private": true,
+  "description": "Medusa fork module: hand-written migrations for store_id + RLS on M0 core tables.",
+  "main": "src/modules/tenancy-core/index.ts",
+  "exports": {
+    ".": "./src/modules/tenancy-core/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@medusajs/framework": "workspace:*",
+    "@medusajs/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

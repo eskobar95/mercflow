@@ -64,6 +64,9 @@ importers:
       '@medusajs/medusa':
         specifier: workspace:*
         version: link:../../packages/medusa-fork/medusa
+      '@medusajs/tenancy-core':
+        specifier: workspace:*
+        version: link:../../packages/medusa-fork/tenancy-core
       '@medusajs/utils':
         specifier: workspace:*
         version: link:../../packages/medusa-fork/utils
@@ -789,6 +792,25 @@ importers:
       zod:
         specifier: ^4.0.0
         version: 4.2.0
+
+  packages/medusa-fork/tenancy-core:
+    dependencies:
+      '@medusajs/framework':
+        specifier: workspace:*
+        version: link:../framework
+      '@medusajs/utils':
+        specifier: workspace:*
+        version: link:../utils
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.1
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.0
+        version: 3.2.6(@types/node@22.19.17)(jsdom@25.0.1)
 
   packages/medusa-fork/types:
     dependencies:
