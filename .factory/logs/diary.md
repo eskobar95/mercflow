@@ -490,3 +490,80 @@ none
 - [ ] `/milestone-review M006`
 - [ ] Human: dismiss GitGuardian false positive on PR #69 in dashboard (optional)
 - [ ] First real customer domain: verify `GET https://<domain>/health` via Traefik
+
+---
+
+## Task T034 — @mercflow/shared pakke — 2026-06-09
+
+**Sprint:** S010 | **Milestone:** M007 | **Status:** done
+**Branch:** `feature/S010/T034-shared-package`
+**PR:** https://github.com/eskobar95/mercflow/pull/71
+**Mode:** AFK | **Parallel group:** A
+
+### Outcome
+Created `@mercflow/shared` with `slugifyForStrategy`; admin-ui decoupled from seo-module; slug tests moved; dual CJS/ESM dist.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+none
+
+---
+
+## Sprint retro — S010 — 2026-06-09
+
+**Milestone:** M007
+**Duration:** session
+**Tasks:** 1/2 done, 1 blocked (T033)
+
+### What went well
+- T034 shipped cleanly: `@mercflow/shared` decouples admin-ui from seo-module with dual CJS/ESM build
+- CI green on PR #71 after dist artifacts + lint fix for unused `productModule` in RLS test script
+- Parallel dispatch worked; T034 completed independently of T033 fork work
+
+### What failed or slowed down
+- T033 blocked at HITL gate at sprint start; fork workspace (medusa-fork) not merged in this run
+- T034 WIP stashed when branch switched to T033 — required stash pop to resume
+- First CI run failed on pre-existing lint error in `test-rls-medusa.ts` on `development` base
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T033 | blocked (HITL/todo) | — (not dispatched this run) |
+| T034 | done | Task T034 — 2026-06-09 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T034 | 1 | dist commit + CI build step for shared |
+
+### Harness notes
+- Parallel group A: only T034 runnable (T033 HITL skipped at preflight)
+- Base branch is `development` (not `dev`)
+- Subagent 657f4e44 incomplete; lead fork resumed from stash
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Document `development` as base branch in implement/close skills | skills/harness/implement/SKILL.md |
+| harness | Warn when parallel tasks stash-switch branches lose untracked package dirs | skills/harness/harness/SKILL.md |
+
+### Next actions
+- [ ] `/hitl-checkpoint T033` or confirm HITL approval → `/run-task T033`
+- [ ] Merge PR #71 to `development`
+- [ ] `/run-sprint S010` again after T033 completes
+
+---
+
+## HITL approved — T033 — 2026-06-09
+
+**Approver:** human
+**Note:** Packages: framework, medusa, utils, types, cli; js-sdk npm; zod@^4.x override
+**Next:** T033 worker dispatched (supersedes S010 retro blocked state for T033)

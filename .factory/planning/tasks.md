@@ -1679,13 +1679,14 @@ All routes under `apps/backend/src/api/store/` registered by MercFlow modules:
 
 **Sprint:** S010
 **Milestone:** M007
-**Status:** todo
-**Mode:** HITL
+**Status:** in-progress
+**Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S010/T033-medusa-fork-workspace
 **PRD journey:** J001 (PRD-fork-setup.md)
 **ADRs:** ADR-007
+**HITL approved:** 2026-06-09 — Packages: framework, medusa, utils, types, cli; js-sdk npm; zod@^4.x override
 
 **HITL reason:** To arkitekturbeslutninger skal godkendes inden implementering:
 1. Hvilke `@medusajs/*` pakker inkluderes i forken? (forslag: `framework`, `medusa`, `utils`, `types`, `cli` — `js-sdk` evt. forbliver på npm)
@@ -1747,11 +1748,12 @@ Inden implementering: godkend (1) hvilke Medusa packages forkes og (2) zod-retni
 
 **Sprint:** S010
 **Milestone:** M007
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S010/T034-shared-package
+**PR:** https://github.com/eskobar95/mercflow/pull/71
 **PRD journey:** J005 (PRD-fork-setup.md)
 **ADRs:** ADR-007
 

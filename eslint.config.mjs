@@ -19,6 +19,7 @@ export default tseslint.config(
       "packages/admin-ui/dist/**",
       "packages/design-tokens/dist/**",
       "packages/shared/dist/**",
+      "packages/medusa-fork/**",
       "packages/content-module/**/migrations/**",
       "packages/connector-module/**/migrations/**",
       "packages/feed-module/**/migrations/**",

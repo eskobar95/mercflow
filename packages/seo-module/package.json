@@ -38,16 +38,16 @@
     "db:rollback": "medusa db:rollback --modules mercflow_seo"
   },
   "dependencies": {
-    "@medusajs/framework": "2.14.1",
-    "@medusajs/medusa": "2.14.1",
-    "@medusajs/types": "2.14.1",
-    "@medusajs/utils": "2.14.1",
+    "@medusajs/framework": "workspace:*",
+    "@medusajs/medusa": "workspace:*",
+    "@medusajs/types": "workspace:*",
+    "@medusajs/utils": "workspace:*",
     "@mercflow/content-module": "workspace:*",
     "@mercflow/shared": "workspace:*",
-    "zod": "^3.25.0"
+    "zod": "^4.0.0"
   },
   "devDependencies": {
-    "@medusajs/cli": "2.14.1",
+    "@medusajs/cli": "workspace:*",
     "@types/node": "^22.10.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
