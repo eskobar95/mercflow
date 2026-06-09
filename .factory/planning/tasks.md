@@ -1815,6 +1815,7 @@ Ny `@mercflow/shared` pakke oprettet i `packages/shared/`. `slugifyForStrategy` 
 **Blocked by:** T033
 **Branch:** feature/S011/T035-remove-medusa-dashboard
 **PR:** https://github.com/eskobar95/mercflow/pull/73
+**Merge:** `e5cf6ea`
 **PRD journey:** J004 (PRD-fork-setup.md)
 **ADRs:** ADR-007
 
@@ -1865,18 +1866,23 @@ Ny `@mercflow/shared` pakke oprettet i `packages/shared/`. `slugifyForStrategy` 
 
 **Sprint:** S011
 **Milestone:** M007
-**Status:** todo
-**Mode:** HITL
+**Status:** done
+**Mode:** AFK
 **Parallel group:** C
 **Blocked by:** T033
 **Branch:** feature/S011/T036-core-tables-store-id-rls
+**PR:** https://github.com/eskobar95/mercflow/pull/74
+**Merge:** `6001fa3`
 **PRD journey:** J003 (PRD-fork-setup.md)
 **ADRs:** ADR-004, ADR-005, ADR-007
+**HITL approved:** 2026-06-09 — Migration + RLS + triggers; 6 M0 tables; Guapo backfill local dev; WITH CHECK; merge T037 before prod deploy
 
-**HITL reason:** Scope og migrationsstrategi for Medusa core tables skal godkendes:
-1. Bekræft de 6 M0 tabeller: `product`, `product_variant`, `product_category`, `order`, `customer`, `line_item`
-2. Migrationsstrategi: `ALTER TABLE ... ADD COLUMN store_id text DEFAULT ''` → backfill Guapo store_id → `SET NOT NULL` → index → RLS policy
-3. Decide om Medusa DML entiteter modificeres direkte i forken, eller om `store_id` tilføjes via ren migrationsscript uden DML-ændring (sidstnævnte er simplere for M0)
+**HITL decision (locked):**
+1. **Scope:** 6 M0 tables — physical name `order_line_item` (not `line_item`).
+2. **Strategy:** SQL migration in `packages/medusa-fork/tenancy-core/` + RLS + shared INSERT/UPDATE triggers; no DML fork of npm product/order modules.
+3. **RLS:** `tenant_isolation` with `USING` + `WITH CHECK` on `app.tenant_id`.
+4. **Backfill:** Guapo `store_01KG0VBTT0714XV2CCTEBRVC47`; local dev only.
+5. **Deploy:** Ship T037 before prod.
 
 ### Slice objective
 
@@ -1884,7 +1890,7 @@ Ny `@mercflow/shared` pakke oprettet i `packages/shared/`. `slugifyForStrategy` 
 
 ### Layers in scope
 
-- DB: migrations for `product`, `product_variant`, `product_category`, `order`, `customer`, `line_item`
+- DB: migrations for `product`, `product_variant`, `product_category`, `order`, `customer`, `order_line_item`
   - `ADD COLUMN store_id text DEFAULT ''`
   - Backfill: `UPDATE ... SET store_id = 'store_01KG0VBTT0714XV2CCTEBRVC47'`
   - `ALTER COLUMN store_id SET NOT NULL; ALTER COLUMN store_id DROP DEFAULT`
@@ -1900,12 +1906,12 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 
 ### Acceptance criteria
 
-- [ ] `store_id text NOT NULL` på alle 6 core tables
-- [ ] RLS aktiveret og `tenant_isolation` policy tilstede på alle 6 tables
-- [ ] `SELECT count(*) FROM medusa.product WHERE store_id IS NULL` = 0 (efter backfill)
-- [ ] Samme check for alle 6 tables
-- [ ] `pnpm migration:run` kører rent på local dev DB
-- [ ] Integration test: query med `SET LOCAL app.tenant_id = 'probe'` → 0 rækker; med Guapo ID → egne rækker
+- [x] `store_id text NOT NULL` på alle 6 core tables
+- [x] RLS aktiveret og `tenant_isolation` policy tilstede på alle 6 tables
+- [x] `SELECT count(*) FROM product WHERE store_id IS NULL` = 0 (efter backfill)
+- [x] Samme check for alle 6 tables
+- [x] `pnpm migration:run` kører rent på local dev DB
+- [x] Integration test: query med probe tenant → 0 rækker; med Guapo ID → egne rækker (test-rls-medusa.ts)
 
 ### Out of scope
 
@@ -1922,13 +1928,13 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes
-- [ ] `pnpm lint` passes
-- [ ] `pnpm migration:run` passes lokalt
-- [ ] Integration test grøn
-- [ ] HITL: scope + strategi godkendt inden PR åbnes
-- [ ] Alle migrations har MIGRATION DECISION LOG + `down()`
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes
+- [x] `pnpm lint` passes
+- [x] `pnpm migration:run` passes lokalt
+- [x] Integration test grøn
+- [x] HITL: scope + strategi godkendt inden PR åbnes
+- [x] Alle migrations har MIGRATION DECISION LOG + `down()`
+- [x] PR description filled in
 
 ---
 
@@ -1940,11 +1946,13 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 
 **Sprint:** S012
 **Milestone:** M007
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T036
 **Branch:** feature/S012/T037-tenant-startup-wiring
+**PR:** https://github.com/eskobar95/mercflow/pull/75
+**Merge:** `4bfc586`
 **PRD journey:** J002 (PRD-fork-setup.md)
 **ADRs:** ADR-004, ADR-005, ADR-007
 
@@ -1961,11 +1969,11 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 
 ### Acceptance criteria
 
-- [ ] `tenantIsolationMiddleware` wired og aktivt på `/admin/**` og `/store/**`
-- [ ] `TenantIsolationSubscriber` registreret på mindst `ProductModule` og `OrderModule` EMs ved bootstrap
-- [ ] `test-rls-medusa.ts` består — `current_setting('app.tenant_id', true)` returnerer korrekt store_id inde i transaktion
-- [ ] Request uden tenant-kontekst: subscriber skips `SET LOCAL` (ingen fejl)
-- [ ] `pnpm typecheck` passes
+- [x] `tenantIsolationMiddleware` wired og aktivt på `/admin/**` og `/store/**`
+- [x] `TenantIsolationSubscriber` registreret på mindst `ProductModule` og `OrderModule` EMs ved bootstrap
+- [x] `test-rls-medusa.ts` består — `current_setting('app.tenant_id', true)` returnerer korrekt store_id inde i transaktion
+- [x] Request uden tenant-kontekst: subscriber skips `SET LOCAL` (ingen fejl)
+- [x] `pnpm typecheck` passes
 
 ### Out of scope
 
@@ -1985,11 +1993,11 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 
 ### Definition of done
 
-- [ ] `pnpm typecheck` passes
-- [ ] `pnpm lint` passes
-- [ ] `pnpm test` passes (`test-rls-medusa.ts` grøn)
-- [ ] `apps/backend/README.md` opdateret med tenant isolation sektion
-- [ ] PR description filled in
+- [x] `pnpm typecheck` passes
+- [x] `pnpm lint` passes
+- [x] `pnpm test` passes (`test-rls-medusa.ts` grøn)
+- [x] `apps/backend/README.md` opdateret med tenant isolation sektion
+- [x] PR description filled in
 
 ---
 

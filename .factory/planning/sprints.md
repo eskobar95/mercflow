@@ -20,9 +20,9 @@
 | S007 | M004 | PO receive flow + inventory dashboard | T023, T024 | done |
 | S008 | M005 | Improved order list + order detail + pick list | T025, T026 | done |
 | S009 | M006 | Hetzner infra + observability + provisioning + API hardening | T027, T028, T030, T031, T032 (T029 cancelled — Neon snapshots + Hetzner VPS backup) | done |
-| S010 | M007 | Fork workspace + shared package (parallel A: T033, T034) | T033, T034 | active |
-| S011 | M007 | Dashboard removal + core table store_id (parallel B/C: T035, T036) | T035, T036 | planned |
-| S012 | M007 | Startup tenant wiring | T037 | planned |
+| S010 | M007 | Fork workspace + shared package (parallel A: T033, T034) | T033, T034 | done |
+| S011 | M007 | Dashboard removal + core table store_id (parallel B/C: T035, T036) | T035, T036 | done |
+| S012 | M007 | Startup tenant wiring | T037 | done |
 
 ---
 

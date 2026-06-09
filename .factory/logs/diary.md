@@ -592,3 +592,78 @@ Medusa v2.14.1 source in `packages/medusa-fork/` (framework, medusa, utils, type
 
 ### Unblocked
 T035, T036
+
+---
+
+## Task T036 — core table store_id + RLS — 2026-06-09
+
+**Sprint:** S011 | **Milestone:** M007 | **Status:** done
+**Branch:** `feature/S011/T036-core-tables-store-id-rls`
+**PR:** https://github.com/eskobar95/mercflow/pull/74
+**Mode:** AFK | **Parallel group:** C
+
+### Outcome
+`store_id` + RLS + triggers on 6 M0 core tables via `tenancy-core` module; `order_line_item` confirmed; `test-rls-medusa.ts` updated.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+T037
+
+---
+
+## Merged to development — S011 — 2026-06-09
+
+| PR | Task | Merge |
+|----|------|-------|
+| #73 | T035 dashboard removal | `e5cf6ea` |
+| #74 | T036 core store_id + RLS | `6001fa3` |
+
+**Next:** `/run-task T037`
+
+---
+
+## Task T037 — started — 2026-06-09
+
+**Sprint:** S012 | **Group:** A | **Branch:** `feature/S012/T037-tenant-startup-wiring`
+
+---
+
+## Task T037 — tenant startup wiring — 2026-06-09
+
+**Sprint:** S012 | **Milestone:** M007 | **Status:** done
+**Branch:** `feature/S012/T037-tenant-startup-wiring`
+**PR:** https://github.com/eskobar95/mercflow/pull/75
+**Mode:** AFK | **Parallel group:** A
+
+### Outcome
+TenantIsolationSubscriber registered on module EMs at bootstrap; tenantIsolationMiddleware wired on admin/store routes; README updated.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none (M007 fork setup complete)
+
+---
+
+## Merged to development — S012 / T037 — 2026-06-09
+
+| PR | Task | Merge |
+|----|------|-------|
+| #75 | T037 tenant startup wiring | `4bfc586` |
+
+**M007 Medusa Fork Setup:** complete on `development` (T033–T037).
