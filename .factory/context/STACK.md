@@ -12,9 +12,11 @@
 
 ## Backend & data
 
-- Medusa v2 (`apps/backend`)
+- **Forked Medusa v2.14.1** (`apps/backend`) — MercFlow owns the codebase (ADR-007)
 - PostgreSQL via Medusa DML / MikroORM (module migrations)
 - Module services extend `MedusaService`
+- RLS via `mercflow_app` role (NOBYPASSRLS) + `set_config('app.tenant_id', …, true)` injected by `TenantIsolationSubscriber` on every MikroORM transaction start
+- `AsyncLocalStorage` (TenantContext) propagates `store_id` per request without manual threading
 
 ## Admin UI
 

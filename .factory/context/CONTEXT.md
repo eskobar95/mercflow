@@ -28,9 +28,9 @@
 
 ## Multi-tenant model (MercFlow)
 
-**Meaning:** SaaS platform — one shared Medusa instance + one Neon database. Multiple shops (tenants) share the same backend. Row-level isolation via `store_id` on every MercFlow module table. Each tenant has their own admin access and their own storefront frontend (built with a MercFlow starter template).
+**Meaning:** SaaS platform — one shared Medusa instance + one Neon database. Multiple shops (tenants) share the same backend. Row-level isolation via `store_id` on **all tables** — both MercFlow module tables and Medusa core tables (via the fork). Each tenant has their own admin access and their own storefront frontend.
 
-**Not:** One Medusa instance per shop. Not Neon branching per tenant. Not Medusa core tables being isolated by MercFlow (Medusa uses its own sales-channel/region model for core entities).
+**Not:** One Medusa instance per shop. Not Neon branching per tenant.
 
 **Tenant discriminator:** Medusa `store` entity ID (`store_id`). Every MercFlow-owned table has `store_id NOT NULL` + index. Every service method filters by `store_id`. Public routes (`/sitemap.xml`, `/robots.txt`, `/feed/*`) scope by `Host` header → store mapping.
 
@@ -118,9 +118,11 @@
 
 ## MercFlow
 
-**Meaning:** An opinionated Medusa v2 distribution built from MercFlow-owned packages and app-level integration points. Not a fork of Medusa — it wraps it.
+**Meaning:** A commerce platform built on a **fork of Medusa v2.14.1**. MercFlow owns the full codebase — core tables, migrations, module services, admin UI. MercFlow-specific logic lives in `packages/` (modules) and `apps/backend`. Medusa upstream updates are cherry-picked manually.
 
-**Not:** A standalone e-commerce platform or a Guapo-specific product. Guapo is the first internal validation case only.
+**Not:** A Medusa distribution that wraps an unmodified upstream. Not a Guapo-specific product — Guapo is the first internal tenant only.
+
+**Why fork (ADR-007):** Multi-tenant RLS requires `store_id` on Medusa core tables (`product`, `order`, `customer`, etc.). This is impossible without owning the schema. A June 2026 POC confirmed that MikroORM `EventSubscriber.afterTransactionStart` + `set_config('app.tenant_id', …, true)` correctly propagates tenant context through all module transactions.
 
 **Example scenario:** When a new connector (Stripe, Shipmondo) is added, it belongs in `packages/connector-module`, not in `apps/backend`.
 
