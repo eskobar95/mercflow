@@ -328,6 +328,17 @@ export function IconPurchaseOrders({ size = 18, ...rest }: IconProps): ReactNode
   )
 }
 
+/** Custom data / metafields — tag with key glyph. */
+export function IconCustomData({ size = 18, ...rest }: IconProps): ReactNode {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <path d="M4 6.5h9l3 3v10H4z" />
+      <path d="M13 6.5V9.5h3" />
+      <path d="M8 13h5M8 16h3" />
+    </svg>
+  )
+}
+
 /** Google Shopping / product feed — broadcast waves. */
 export function IconFeed({ size = 18, ...rest }: IconProps): ReactNode {
   return (

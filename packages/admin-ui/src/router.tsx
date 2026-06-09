@@ -260,6 +260,14 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "settings/custom-data",
+        handle: { title: "Custom data" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { CustomDataSettingsPage } = await import("@/pages/CustomDataSettingsPage")
+          return { Component: CustomDataSettingsPage }
+        },
+      },
+      {
         path: "settings/seo/organisation",
         handle: { title: "SEO — Organisation" } satisfies AppRouteHandle,
         lazy: async () => {
