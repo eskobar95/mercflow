@@ -16,6 +16,8 @@ import {
 } from "../lib/rate-limit/request-keys"
 import { sentryStoreIdMiddleware } from "../lib/sentry-store-id-middleware"
 import { storeRouteVersionRedirectMiddleware } from "../lib/store-route-versioning/store-route-version-redirect"
+import { tenantBootstrapMiddleware } from "../lib/tenant-isolation/tenant-bootstrap-middleware"
+import { tenantIsolationMiddleware } from "../lib/tenant-isolation/tenant-middleware"
 
 async function mercflowRedirectUnlessVersioned(
   req: MedusaRequest,
@@ -52,7 +54,19 @@ export default defineMiddlewares({
   routes: [
     {
       matcher: "/*",
-      middlewares: [sentryStoreIdMiddleware],
+      middlewares: [tenantBootstrapMiddleware, sentryStoreIdMiddleware],
+    },
+    {
+      matcher: "/admin*",
+      middlewares: [tenantIsolationMiddleware],
+    },
+    {
+      matcher: "/store*",
+      middlewares: [tenantIsolationMiddleware],
+    },
+    {
+      matcher: "/v1/store*",
+      middlewares: [tenantIsolationMiddleware],
     },
     {
       matcher: "/*",

@@ -58,11 +58,12 @@ function resolveModuleEm(container: MedusaContainer, moduleKey: string): EntityM
 async function countProductsInTransaction(
   em: EntityManager,
   txEm: EntityManager,
+  productTable: string,
 ): Promise<number> {
   const rows: Array<{ count: string }> = await txEm
     .getConnection()
     .execute(
-      "SELECT COUNT(*) as count FROM product",
+      `SELECT COUNT(*) as count FROM ${productTable}`,
       [],
       "all",
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -70,6 +71,21 @@ async function countProductsInTransaction(
     )
   void em
   return parseInt(rows[0]?.count ?? "0", 10)
+}
+
+async function resolveProductTableName(em: EntityManager): Promise<string | null> {
+  const candidates = ["medusa.product", "product"] as const
+
+  for (const table of candidates) {
+    try {
+      await em.getConnection().execute(`SELECT 1 FROM ${table} LIMIT 1`)
+      return table
+    } catch {
+      // try next candidate
+    }
+  }
+
+  return null
 }
 
 // ─── Main ───────────────────────────────────────────────────────────────────
@@ -129,33 +145,45 @@ export default async function testRlsMedusa({ container }: ExecArgs): Promise<vo
   let guapoCount = -1
   let probeCount = -1
   let noContextCount = -1
-  let tableExists = false
+  let productTable: string | null = null
 
-  try {
-    const rawCounts: Array<{ count: string }> = await productEm
-      .getConnection()
-      .execute("SELECT COUNT(*) as count FROM product")
-    noContextCount = parseInt(rawCounts[0]?.count ?? "0", 10)
-    tableExists = true
-  } catch {
+  productTable = await resolveProductTableName(productEm)
+
+  if (!productTable) {
     report(
       "Product table RLS isolation",
       false,
-      "product table not accessible or does not exist — run medusa migrations first",
+      "product table not accessible — run medusa migrations first (tried medusa.product and product)",
     )
   }
 
-  if (tableExists) {
+  if (productTable) {
+    try {
+      const rawCounts: Array<{ count: string }> = await productEm
+        .getConnection()
+        .execute(`SELECT COUNT(*) as count FROM ${productTable}`)
+      noContextCount = parseInt(rawCounts[0]?.count ?? "0", 10)
+    } catch {
+      report(
+        "Product table RLS isolation",
+        false,
+        `${productTable} not accessible — run medusa migrations first`,
+      )
+      productTable = null
+    }
+  }
+
+  if (productTable) {
     try {
       await TenantContext.run(GUAPO_STORE_ID, async () => {
         await productEm.transactional(async (txEm: EntityManager) => {
-          guapoCount = await countProductsInTransaction(productEm, txEm)
+          guapoCount = await countProductsInTransaction(productEm, txEm, productTable!)
         })
       })
 
       await TenantContext.run(PROBE_STORE_ID, async () => {
         await productEm.transactional(async (txEm: EntityManager) => {
-          probeCount = await countProductsInTransaction(productEm, txEm)
+          probeCount = await countProductsInTransaction(productEm, txEm, productTable!)
         })
       })
 
