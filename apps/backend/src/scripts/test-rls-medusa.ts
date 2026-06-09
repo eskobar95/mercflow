@@ -78,8 +78,6 @@ export default async function testRlsMedusa({ container }: ExecArgs): Promise<vo
     return
   }
 
-  const productModule = container.resolve(Modules.PRODUCT)
-
   // ── Step 2: Verify subscriber fires and injects SET LOCAL ──
   console.log("\n2. Testing subscriber fires and injects SET LOCAL...")
 
