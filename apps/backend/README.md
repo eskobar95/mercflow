@@ -89,6 +89,39 @@ MercFlow-owned store and public routes are mounted under `/v1/`. Unversioned pat
 
 Canonical route files live under `src/api/v1/`.
 
+## Tenant isolation architecture
+
+MercFlow isolates tenant data at the PostgreSQL layer using Row Level Security (RLS) on MercFlow-owned tables and M0 Medusa core tables (`product`, `order`, `customer`, etc.). Policies read `current_setting('app.tenant_id', true)` — set per transaction by `TenantIsolationSubscriber`.
+
+### Request flow
+
+1. **`tenantBootstrapMiddleware`** (`src/lib/tenant-isolation/tenant-bootstrap-middleware.ts`) runs on the first HTTP request and calls `onApplicationBootstrap` from `src/subscribers/tenant-bootstrap.ts`, registering `TenantIsolationSubscriber` on every loaded module EntityManager.
+2. **`tenantIsolationMiddleware`** resolves `store_id` from the publishable API key, `Host` (via seo-module tenant middleware on public routes), `x-store-id`, or `MERCFLOW_DEFAULT_STORE_ID`, then wraps the request in `TenantContext.run(storeId, ...)`.
+3. **`TenantIsolationSubscriber`** injects `SELECT set_config('app.tenant_id', ?, true)` at transaction start when a tenant context is active. Requests without a resolved tenant skip `SET LOCAL` (no error); RLS then returns empty result sets.
+
+Admin routes: `/admin/**`. Store routes: `/store/**` and `/v1/store/**`.
+
+### Integration test
+
+With migrations applied and a DB role without `BYPASSRLS`:
+
+```bash
+cd apps/backend
+npx medusa exec src/scripts/test-rls-medusa.ts
+```
+
+Verifies subscriber registration, `SET LOCAL` injection, and RLS isolation on the core `product` table (schema-qualified as `medusa.product` when present).
+
+### Related code
+
+| File | Role |
+| --- | --- |
+| `src/lib/tenant-isolation/tenant-context.ts` | Per-request `AsyncLocalStorage` for `store_id` |
+| `src/lib/tenant-isolation/tenant-subscriber.ts` | MikroORM `afterTransactionStart` → `set_config` |
+| `src/lib/tenant-isolation/register-tenant-subscriber.ts` | One-time subscriber registration on module EM |
+| `src/lib/tenant-isolation/tenant-middleware.ts` | Resolves tenant and activates context |
+| `src/subscribers/tenant-bootstrap.ts` | Bootstrap hook — registers subscriber on all module EMs |
+
 Public **published** articles (when at least one row exists):
 
 `GET http://localhost:9000/v1/store/articles?locale=en`
