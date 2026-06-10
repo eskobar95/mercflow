@@ -2003,3 +2003,126 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 
 <!-- Total: T001–T037 | AFK: 29 | HITL: 7 (T003, T008, T013, T023, T027, T033, T036) | Cancelled: T029 -->
 <!-- Sprints: S001–S012 | Milestones: M000–M007 -->
+
+---
+
+## M008 — Metafields
+
+---
+
+## T038 — `metafield-module` definitions: model, migration, RLS, service (definition CRUD), admin API routes
+
+**Sprint:** S013
+**Milestone:** M008
+**Status:** done
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none
+**PRD journeys:** J001
+**Branch:** `feature/S013/T038-metafield-definitions-engine`
+**PR:** https://github.com/eskobar95/mercflow/pull/77
+**Merge:** `f64238a`
+
+---
+
+## T039 — `metafield-module` values: model, migration, RLS, service (upsert/list), admin batch API
+
+**Sprint:** S013
+**Milestone:** M008
+**Status:** done
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none
+**PRD journeys:** J002
+**Branch:** `feature/S013/T039-metafield-values-engine`
+**PR:** https://github.com/eskobar95/mercflow/pull/76
+**Merge:** `8df5999`
+
+---
+
+## T040 — Standard library seeds (skincare + fashion) + activation service + admin library routes
+
+**Sprint:** S014
+**Milestone:** M008
+**Status:** done
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T038
+**PRD journeys:** J003
+**Branch:** `feature/S014/T040-metafield-standard-library`
+**PR:** https://github.com/eskobar95/mercflow/pull/78
+**Merge:** `0c9a02c`
+
+---
+
+## T041 — Admin UI — Custom Data settings page (`/settings/custom-data`)
+
+**Sprint:** S015
+**Milestone:** M008
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T038
+**PRD journeys:** J001
+**Branch:** `feature/S015/T041-custom-data-settings-ui`
+
+---
+
+## T042 — Admin UI — Product form: "Product metafields" + "Category metafields" sections
+
+**Sprint:** S015
+**Milestone:** M008
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** B
+**Blocked by:** T039, T041
+**PRD journeys:** J002, J004
+**Branch:** `feature/S015/T042-product-form-metafields`
+
+---
+
+## T043 — Admin UI — Category form metafields section + category-constraint filter in API
+
+**Sprint:** S014
+**Milestone:** M008
+**Status:** done
+**Mode:** AFK
+**Parallel group:** B
+**Blocked by:** T039
+**PRD journeys:** J004, J006
+**Branch:** `feature/S014/T043-category-form-metafields`
+**PR:** https://github.com/eskobar95/mercflow/pull/81
+**Merge:** `43d3cb4`
+
+---
+
+## T044 — Store API — `GET /store/v1/metafields` with publishable_api_key auth + cross-tenant isolation test
+
+**Sprint:** S014
+**Milestone:** M008
+**Status:** done
+**Mode:** AFK
+**Parallel group:** B
+**Blocked by:** T039
+**PRD journeys:** J005
+**Branch:** `feature/S014/T044-store-api-metafields`
+**PR:** https://github.com/eskobar95/mercflow/pull/80
+**Merge:** `e6d6eb8`
+
+---
+
+## T045 — Admin UI — Standard library browse dialog in Custom Data settings
+
+**Sprint:** S016
+**Milestone:** M008
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T040, T041
+**PRD journeys:** J003
+**Branch:** `feature/S016/T045-standard-library-browse-ui`
+
+---
+
+<!-- Total: T001–T045 | AFK: 37 | HITL: 7 | Cancelled: T029 -->
+<!-- Sprints: S001–S016 | Milestones: M000–M008 -->

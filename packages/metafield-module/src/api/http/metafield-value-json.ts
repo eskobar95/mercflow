@@ -1,7 +1,27 @@
-import type { MetafieldValueListItem, MetafieldValueRecord } from "../../modules/metafield/types"
+import type {
+  MetafieldValueListItem,
+  MetafieldValueRecord,
+  ValueType,
+} from "../../modules/metafield/types"
+
+export type StoreMetafieldJson = {
+  namespace: string
+  key: string
+  value: unknown
+  type: ValueType
+}
 
 export function metafieldValueListItemToAdminJson(item: MetafieldValueListItem): MetafieldValueListItem {
   return item
+}
+
+export function metafieldValueListItemToStoreJson(item: MetafieldValueListItem): StoreMetafieldJson {
+  return {
+    namespace: item.namespace,
+    key: item.key,
+    value: item.value,
+    type: item.type,
+  }
 }
 
 export function metafieldValueRecordToAdminJson(row: MetafieldValueRecord): {

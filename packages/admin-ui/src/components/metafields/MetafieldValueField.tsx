@@ -137,7 +137,9 @@ export function MetafieldValueField({
       <Label htmlFor={fieldId} required={required}>
         {name}
       </Label>
-      {description ? <p className="text-xs text-content-tertiary">{description}</p> : null}
+      {description ? (
+        <p className="text-xs text-content-tertiary">{description}</p>
+      ) : null}
       {control}
       {hasError ? (
         <p className="text-xs text-status-error" role="alert">

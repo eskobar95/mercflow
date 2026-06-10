@@ -3,6 +3,7 @@ import { useMemo } from "react"
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 
 import { CategoryContentTab } from "@/components/category-content/CategoryContentTab"
+import { CategoryMetafieldsSection } from "@/components/metafields/CategoryMetafieldsSection"
 import { CategoryOverviewSummary } from "@/components/product-categories/CategoryOverviewSummary"
 import { ProductCategoryCrudForm } from "@/components/product-categories/ProductCategoryCrudForm"
 import { Card } from "@/components/ui/Card"
@@ -220,6 +221,17 @@ export function ProductCategoryDetailPage(): ReactNode {
                     navigate("/product-categories")
                   }}
                 />
+                {hasBackend ? (
+                  <CategoryMetafieldsSection categoryId={categoryId} />
+                ) : (
+                  <Card>
+                    <p className="text-sm text-content-secondary">
+                      Connect{" "}
+                      <code className="text-xs">VITE_MEDUSA_ADMIN_BACKEND_URL</code> to edit category
+                      metafields.
+                    </p>
+                  </Card>
+                )}
                 <CategoryOverviewSummary category={state.category} categoryId={categoryId} />
               </div>
             ) : null}

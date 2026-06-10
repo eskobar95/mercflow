@@ -84,9 +84,28 @@ export type UpdateDefinitionInput = {
 export type ListDefinitionsFilters = {
   ownerType: MetafieldOwnerType
   storeId: string
-  categoryConstraintId?: string
+  /** When set, only definitions whose `category_constraint_id` is in this list are returned. */
+  categoryConstraintIds?: string[]
   limit?: number
   offset?: number
+}
+
+export type ListStandardLibraryFilters = {
+  vertical: string
+  storeId: string
+  ownerType?: MetafieldOwnerType
+  limit?: number
+  offset?: number
+}
+
+export type ActivateStandardDefinitionsInput = {
+  vertical: string
+  definitionIds?: string[]
+}
+
+export type ActivateStandardDefinitionsResult = {
+  activated: MetafieldDefinitionRecord[]
+  skipped_keys: string[]
 }
 
 export type UpsertValueInput = {

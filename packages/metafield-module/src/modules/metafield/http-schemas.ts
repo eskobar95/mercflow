@@ -1,5 +1,6 @@
 import { z } from "zod"
 
+import { METAFIELD_LIBRARY_VERTICALS } from "./standard-library-seeds"
 import { METAFIELD_OWNER_TYPES, VALUE_TYPES } from "./types"
 
 export const metafieldDefinitionsListQuerySchema = z.object({
@@ -42,6 +43,12 @@ export const metafieldValuesListQuerySchema = z.object({
   store_id: z.string().trim().min(1).optional(),
 })
 
+export const metafieldStoreListQuerySchema = z.object({
+  owner_type: z.enum(METAFIELD_OWNER_TYPES),
+  owner_id: z.string().trim().min(1),
+  locale: z.string().trim().min(1).optional(),
+})
+
 export const metafieldValueUpsertItemSchema = z.object({
   definition_id: z.string().trim().min(1),
   owner_id: z.string().trim().min(1),
@@ -55,3 +62,17 @@ export const metafieldValuesBatchBodySchema = z.object({
 })
 
 export const createDefinitionBodySchema = metafieldDefinitionPostBodySchema
+
+export const metafieldStandardLibraryQuerySchema = z.object({
+  vertical: z.enum(METAFIELD_LIBRARY_VERTICALS),
+  owner_type: z.enum(METAFIELD_OWNER_TYPES).optional(),
+  limit: z.coerce.number().int().min(1).optional(),
+  offset: z.coerce.number().int().min(0).optional(),
+  store_id: z.string().trim().min(1).optional(),
+})
+
+export const metafieldActivateStandardBodySchema = z.object({
+  vertical: z.enum(METAFIELD_LIBRARY_VERTICALS),
+  definition_ids: z.array(z.string().trim().min(1)).min(1).optional(),
+  store_id: z.string().trim().min(1).optional(),
+})

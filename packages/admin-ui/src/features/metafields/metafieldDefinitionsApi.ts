@@ -102,7 +102,7 @@ export async function listMetafieldDefinitions(params: {
 
   const json = await parseMedusaAdminJsonResponse(response)
   if (!isRecord(json) || !Array.isArray(json.metafield_definitions)) {
-    throw new TypeError('Invalid API response: expected { metafield_definitions: array }')
+    throw new TypeError("Invalid API response: expected { metafield_definitions: array }")
   }
 
   return json.metafield_definitions
@@ -127,11 +127,11 @@ export async function createMetafieldDefinition(
 
   const json = await parseMedusaAdminJsonResponse(response)
   if (!isRecord(json)) {
-    throw new TypeError('Invalid API response: expected { metafield_definition: object }')
+    throw new TypeError("Invalid API response: expected { metafield_definition: object }")
   }
   const parsed = parseMetafieldDefinitionRow(json.metafield_definition)
   if (parsed === null) {
-    throw new TypeError('Invalid API response: expected { metafield_definition: object }')
+    throw new TypeError("Invalid API response: expected { metafield_definition: object }")
   }
   return parsed
 }
@@ -154,11 +154,11 @@ export async function updateMetafieldDefinition(
 
   const json = await parseMedusaAdminJsonResponse(response)
   if (!isRecord(json)) {
-    throw new TypeError('Invalid API response: expected { metafield_definition: object }')
+    throw new TypeError("Invalid API response: expected { metafield_definition: object }")
   }
   const parsed = parseMetafieldDefinitionRow(json.metafield_definition)
   if (parsed === null) {
-    throw new TypeError('Invalid API response: expected { metafield_definition: object }')
+    throw new TypeError("Invalid API response: expected { metafield_definition: object }")
   }
   return parsed
 }
