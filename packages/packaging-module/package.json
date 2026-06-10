@@ -1,0 +1,38 @@
+{
+  "name": "@mercflow/packaging-module",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "description": "MercFlow Medusa v2 module: tenant packaging catalog and order packaging suggestions.",
+  "main": "src/modules/packaging/index.ts",
+  "exports": {
+    ".": "./src/modules/packaging/index.ts",
+    "./mercflow-admin-packaging-types-api": "./src/integrations/mercflow-admin-packaging-types-api.ts",
+    "./mercflow-admin-packaging-types-id-api": "./src/integrations/mercflow-admin-packaging-types-id-api.ts",
+    "./mercflow-admin-packaging-types-suggest-api": "./src/integrations/mercflow-admin-packaging-types-suggest-api.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "db:generate": "medusa db:generate packaging",
+    "db:migrate": "medusa db:migrate",
+    "db:rollback": "medusa db:rollback --modules packaging"
+  },
+  "dependencies": {
+    "@medusajs/framework": "workspace:*",
+    "@medusajs/medusa": "workspace:*",
+    "@medusajs/types": "workspace:*",
+    "@medusajs/utils": "workspace:*",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@medusajs/cli": "workspace:*",
+    "@types/node": "^22.10.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
