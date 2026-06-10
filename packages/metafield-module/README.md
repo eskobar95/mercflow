@@ -74,6 +74,12 @@ Unique: `(store_id, definition_id, owner_id, locale)`.
 
 Typed column mapping follows ADR-008 — exactly one column populated per row.
 
+## Admin API — definitions filter (T043)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/admin/metafield-definitions?owner_type=&category_id=` | List tenant definitions. When `category_id` is set (product listings), returns only definitions whose `category_constraint_id` matches the category or an ancestor. |
+
 ## Admin API — values (T039)
 
 All routes require Medusa admin JWT. Pass `?store_id=` or set `MERCFLOW_DEFAULT_STORE_ID` in dev.
