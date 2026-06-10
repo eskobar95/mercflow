@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { metafieldValuesBatchBodySchema, metafieldValuesListQuerySchema } from "../src/modules/metafield/http-schemas"
+import { metafieldStoreListQuerySchema, metafieldValuesBatchBodySchema, metafieldValuesListQuerySchema } from "../src/modules/metafield/http-schemas"
 
 describe("metafield values http schemas", (): void => {
   it("rejects batch upsert over 50 items", (): void => {
@@ -20,5 +20,17 @@ describe("metafield values http schemas", (): void => {
       owner_id: "prod_1",
     })
     expect(parsed.success).toBe(true)
+  })
+
+  it("accepts store list query without store_id", (): void => {
+    const parsed = metafieldStoreListQuerySchema.safeParse({
+      owner_type: "category",
+      owner_id: "pcat_1",
+      locale: "da",
+    })
+    expect(parsed.success).toBe(true)
+    if (parsed.success) {
+      expect(parsed.data).not.toHaveProperty("store_id")
+    }
   })
 })

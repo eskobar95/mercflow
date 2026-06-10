@@ -42,6 +42,12 @@ export const metafieldValuesListQuerySchema = z.object({
   store_id: z.string().trim().min(1).optional(),
 })
 
+export const metafieldStoreListQuerySchema = z.object({
+  owner_type: z.enum(METAFIELD_OWNER_TYPES),
+  owner_id: z.string().trim().min(1),
+  locale: z.string().trim().min(1).optional(),
+})
+
 export const metafieldValueUpsertItemSchema = z.object({
   definition_id: z.string().trim().min(1),
   owner_id: z.string().trim().min(1),

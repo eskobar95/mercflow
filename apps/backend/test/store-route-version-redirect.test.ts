@@ -13,6 +13,7 @@ describe("mercflow-owned-store-paths", (): void => {
   it("matches MercFlow store prefixes", (): void => {
     expect(isMercflowOwnedStorePath("/store/seo/json-ld/product/prod_01")).toBe(true)
     expect(isMercflowOwnedStorePath("/store/articles")).toBe(true)
+    expect(isMercflowOwnedStorePath("/store/metafields")).toBe(true)
   })
 
   it("does not match Medusa core store routes", (): void => {
