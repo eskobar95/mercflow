@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import type { AdminProduct } from "@medusajs/types"
-import { useCallback, useMemo, useRef, useState, type MutableRefObject } from "react"
+import { useCallback, useMemo, useRef, useState } from "react"
 
 import { ADMIN_PRODUCT_EDITOR_FIELDS } from "@/lib/products/adminProductEditorFields"
 import { hydrateEditorModelsFromAdminProduct } from "@/lib/products/productFormHydration"
@@ -14,9 +14,7 @@ import {
   fetchProductFormPrerequisites,
   persistUnifiedProductCreate,
   persistUnifiedProductUpdate,
-  resolvePersistVariantShipping,
   type PersistVariantEconomics,
-  type PersistVariantShipping,
 } from "@/lib/products/productUnifiedPersistence"
 import type { ProductFormPrerequisites } from "@/lib/products/productUnifiedPersistence"
 import { createMercflowMedusaSdk } from "@/medusa-admin/createMercflowMedusaSdk"
@@ -26,11 +24,6 @@ import {
   unifiedCatalogFormSnapshotsEqual,
 } from "@/lib/products/unifiedProductFormSnapshot"
 import { useAdjustStateWhenKeyChanges } from "@/lib/react/useAdjustStateWhenKeyChanges"
-
-export type UnifiedCatalogProductShippingContext = {
-  requiresShipping: boolean
-  resolveShippingForCombo: (comboKey: string) => PersistVariantShipping
-}
 
 export type UnifiedCatalogProductFormErrors = Record<string, string>
 
@@ -99,7 +92,6 @@ export function useUnifiedCatalogProductForm(params: {
   mode: ProductFormMode
   productId?: string
   onSuccessfulCreateNavigate?: (productId: string) => void
-  shippingContextRef?: MutableRefObject<UnifiedCatalogProductShippingContext | null>
 }): {
   sdkReturned: ReturnType<typeof createMercflowMedusaSdk>
   prerequisites: ProductFormPrerequisites | undefined
@@ -157,13 +149,11 @@ export function useUnifiedCatalogProductForm(params: {
     if (params.mode !== "create") {
       return null
     }
-
     const combosBootstrap = buildVariantRowsFromOptionMatrix([{ title: "", values: [] }])
     const initialEconomics: Partial<Record<string, VariantEconomics>> = {}
     for (const combo of combosBootstrap) {
       initialEconomics[combo.comboKey] = emptyEconomicsSnapshot()
     }
-
     return captureUnifiedCatalogFormSnapshot({
       title: "",
       description: "",
@@ -486,9 +476,6 @@ export function useUnifiedCatalogProductForm(params: {
           priceMinorUnits: priceResolved.minorUnits,
           stockQuantity: stockResolved.quantity,
           existingVariantId: econ?.medusaVariantId,
-          shipping:
-            params.shippingContextRef?.current?.resolveShippingForCombo(combo.comboKey) ??
-            resolvePersistVariantShipping(undefined),
         }
       })
 
@@ -523,7 +510,6 @@ export function useUnifiedCatalogProductForm(params: {
           categoryIds,
           optionRows: trimmedOptionRows,
           variants: cleanPayload,
-          requiresShipping: params.shippingContextRef?.current?.requiresShipping ?? true,
         })
 
         await Promise.all([
@@ -549,7 +535,6 @@ export function useUnifiedCatalogProductForm(params: {
           categoryIds,
           optionRows: trimmedOptionRows,
           variants: cleanPayload,
-          requiresShipping: params.shippingContextRef?.current?.requiresShipping ?? true,
         })
 
         await Promise.all([

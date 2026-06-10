@@ -1,4 +1,4 @@
-import { type ReactNode, type FormEvent, useId, useMemo, useRef } from "react"
+import { type ReactNode, type FormEvent, useId, useMemo } from "react"
 import { Link } from "react-router-dom"
 
 import { useUnsavedFormGuard } from "@/lib/react/useUnsavedFormGuard"
@@ -13,14 +13,11 @@ import {
   UnifiedFormValidationError,
   useUnifiedCatalogProductForm,
 } from "@/hooks/products/useUnifiedCatalogProductForm"
-import type { UnifiedCatalogProductShippingContext } from "@/hooks/products/useUnifiedCatalogProductForm"
-import { useUnifiedCatalogProductShipping } from "@/hooks/products/useUnifiedCatalogProductShipping"
 
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
 import { UnifiedProductDetailsSection } from "./UnifiedProductDetailsSection"
 import { UnifiedProductPricingSection } from "./UnifiedProductPricingSection"
-import { UnifiedProductShippingSection } from "./UnifiedProductShippingSection"
 import { UnifiedProductVariantMatrixSection } from "./UnifiedProductVariantMatrixSection"
 import { formatFieldErrorsIntoMessage } from "./unifiedProductFormUtils"
 
@@ -34,13 +31,10 @@ export function UnifiedProductForm({ mode, productId }: Props): ReactNode {
   const { toast } = useToast()
   const hasBackend = resolveMedusaAdminBackendUrl() !== null
 
-  const shippingContextRef = useRef<UnifiedCatalogProductShippingContext | null>(null)
-
   const controller = useUnifiedCatalogProductForm({
     mode,
     productId,
     onSuccessfulCreateNavigate: undefined,
-    shippingContextRef,
   })
 
   const {
@@ -48,9 +42,7 @@ export function UnifiedProductForm({ mode, productId }: Props): ReactNode {
     description,
     isPublished,
     optionRows,
-    derivedCombos,
     variantRowsPreview,
-    hydratedProduct,
     categories,
     selectedCategoryIds,
     fieldErrors,
@@ -70,20 +62,6 @@ export function UnifiedProductForm({ mode, productId }: Props): ReactNode {
     updateEconomicsRow,
     submit,
   } = controller
-
-  const shipping = useUnifiedCatalogProductShipping({
-    derivedCombos,
-    productHydrationKey:
-      mode === "edit" && hydratedProduct !== undefined
-        ? `${hydratedProduct.id}:${hydratedProduct.updated_at ?? ""}`
-        : null,
-    productEntity: hydratedProduct,
-  })
-
-  shippingContextRef.current = {
-    requiresShipping: shipping.requiresShipping,
-    resolveShippingForCombo: shipping.resolveShippingForCombo,
-  }
 
   const metafields = useProductFormMetafields({
     productId: mode === "edit" ? productId : undefined,
@@ -260,16 +238,6 @@ export function UnifiedProductForm({ mode, productId }: Props): ReactNode {
             variantRowsPreview={variantRowsPreview}
             fieldErrors={fieldErrors}
             updateEconomicsRow={updateEconomicsRow}
-          />
-
-          <UnifiedProductShippingSection
-            baseId={baseId}
-            isPhysicalProduct={shipping.isPhysicalProduct}
-            variantRowsPreview={shipping.shippingVariantRowsPreview}
-            shippingMap={shipping.shippingMap}
-            onPhysicalProductChange={shipping.setIsPhysicalProduct}
-            onShippingRowChange={shipping.updateShippingRow}
-            onApplyShippingToAllVariants={shipping.applyShippingToAllVariants}
           />
 
           <ProductMetafieldsSection
