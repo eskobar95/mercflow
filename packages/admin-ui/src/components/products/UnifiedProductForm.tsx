@@ -1,6 +1,8 @@
 import { type ReactNode, type FormEvent, useId, useMemo } from "react"
 import { Link } from "react-router-dom"
 
+import { useUnsavedFormGuard } from "@/lib/react/useUnsavedFormGuard"
+
 import { ProductCategoryMetafieldsSection } from "@/components/metafields/ProductCategoryMetafieldsSection"
 import { ProductMetafieldsSection } from "@/components/metafields/ProductMetafieldsSection"
 import { useProductFormMetafields } from "@/components/metafields/useProductFormMetafields"
@@ -47,6 +49,7 @@ export function UnifiedProductForm({ mode, productId }: Props): ReactNode {
     formError,
     isSubmitting,
     isLoadingProductDetail,
+    isDirty: isCatalogDirty,
     prerequisitesError,
     categoriesError,
     setTitle,
@@ -70,6 +73,22 @@ export function UnifiedProductForm({ mode, productId }: Props): ReactNode {
     () => categories.filter((category) => selectedCategoryIds.has(category.id)),
     [categories, selectedCategoryIds]
   )
+
+  const titleTrimmed = title.trim()
+  const documentTitle =
+    titleTrimmed !== ""
+      ? titleTrimmed
+      : mode === "create"
+        ? "Create product"
+        : "Edit product"
+
+  const isFormDirty = isCatalogDirty || metafields.isDirty
+
+  useUnsavedFormGuard({
+    isDirty: isFormDirty,
+    baseTitle: documentTitle,
+    enabled: !isLoadingProductDetail,
+  })
 
   const metafieldsLoadState =
     metafields.state.status === "loading" || metafields.state.status === "idle"

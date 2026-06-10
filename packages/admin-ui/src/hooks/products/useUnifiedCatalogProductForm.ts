@@ -18,6 +18,11 @@ import {
 } from "@/lib/products/productUnifiedPersistence"
 import type { ProductFormPrerequisites } from "@/lib/products/productUnifiedPersistence"
 import { createMercflowMedusaSdk } from "@/medusa-admin/createMercflowMedusaSdk"
+import {
+  captureUnifiedCatalogFormSnapshot,
+  type UnifiedCatalogFormSnapshot,
+  unifiedCatalogFormSnapshotsEqual,
+} from "@/lib/products/unifiedProductFormSnapshot"
 import { useAdjustStateWhenKeyChanges } from "@/lib/react/useAdjustStateWhenKeyChanges"
 
 export type UnifiedCatalogProductFormErrors = Record<string, string>
@@ -106,6 +111,7 @@ export function useUnifiedCatalogProductForm(params: {
   fieldErrors: UnifiedCatalogProductFormErrors
   formError: string | null
   isSubmitting: boolean
+  isDirty: boolean
   setTitle: (value: string) => void
   setDescription: (value: string) => void
   setIsPublished: (value: boolean) => void
@@ -139,6 +145,24 @@ export function useUnifiedCatalogProductForm(params: {
 
   const [fieldErrors, setFieldErrors] = useState<UnifiedCatalogProductFormErrors>(() => ({}))
   const [formError, setFormError] = useState<string | null>(null)
+  const [savedSnapshot, setSavedSnapshot] = useState<UnifiedCatalogFormSnapshot | null>(() => {
+    if (params.mode !== "create") {
+      return null
+    }
+    const combosBootstrap = buildVariantRowsFromOptionMatrix([{ title: "", values: [] }])
+    const initialEconomics: Partial<Record<string, VariantEconomics>> = {}
+    for (const combo of combosBootstrap) {
+      initialEconomics[combo.comboKey] = emptyEconomicsSnapshot()
+    }
+    return captureUnifiedCatalogFormSnapshot({
+      title: "",
+      description: "",
+      isPublished: false,
+      optionRows: [{ title: "", values: [] }],
+      economicsMap: initialEconomics,
+      selectedCategoryIds: new Set(),
+    })
+  })
 
   const createBootstrapped = useRef(params.mode !== "create")
 
@@ -272,6 +296,35 @@ export function useUnifiedCatalogProductForm(params: {
     }
 
     setEconomicsMap(economicsHydrated)
+
+    setSavedSnapshot(
+      captureUnifiedCatalogFormSnapshot({
+        title: productEntity.title?.trim() ?? "",
+        description:
+          typeof productEntity.description === "string" &&
+          productEntity.description.trim() !== ""
+            ? productEntity.description
+            : "",
+        isPublished: productEntity.status === "published",
+        optionRows:
+          hydrated.optionRows.length > 0
+            ? hydrated.optionRows
+            : [{ title: "", values: [] }],
+        economicsMap: economicsHydrated,
+        selectedCategoryIds: (() => {
+          const categoryIds = new Set<string>()
+          if (Array.isArray(productEntity.categories)) {
+            for (const category of productEntity.categories) {
+              const candidate = category?.id ?? ""
+              if (candidate !== "") {
+                categoryIds.add(candidate)
+              }
+            }
+          }
+          return categoryIds
+        })(),
+      }),
+    )
   })
 
   if (params.mode === "create" && !createBootstrapped.current) {
@@ -294,6 +347,32 @@ export function useUnifiedCatalogProductForm(params: {
       medusaVariantId: economicsMap[combo.comboKey]?.medusaVariantId ?? undefined,
     }))
   }, [derivedCombos, economicsMap])
+
+  const currentSnapshot = useMemo(
+    () =>
+      captureUnifiedCatalogFormSnapshot({
+        title,
+        description,
+        isPublished,
+        optionRows,
+        economicsMap,
+        selectedCategoryIds,
+      }),
+    [description, economicsMap, isPublished, optionRows, selectedCategoryIds, title],
+  )
+
+  const currentSnapshotRef = useRef(currentSnapshot)
+  currentSnapshotRef.current = currentSnapshot
+
+  const isLoadingProductDetail =
+    params.mode === "edit" && (isProductQueryLoading || isProductQueryFetching)
+
+  const isDirty = useMemo((): boolean => {
+    if (savedSnapshot === null || isLoadingProductDetail) {
+      return false
+    }
+    return !unifiedCatalogFormSnapshotsEqual(currentSnapshot, savedSnapshot)
+  }, [currentSnapshot, isLoadingProductDetail, savedSnapshot])
 
   const toggleCategory = useCallback((categoryId: string, enabled: boolean): void => {
     setSelectedCategoryIds((previous) => {
@@ -475,6 +554,9 @@ export function useUnifiedCatalogProductForm(params: {
         throw new Error("Missing product id for edit flows.")
       }
     },
+    onSuccess: () => {
+      setSavedSnapshot(currentSnapshotRef.current)
+    },
     onError: (errorCandidate: unknown) => {
       if (errorCandidate instanceof UnifiedFormValidationError) {
         setFormError(null)
@@ -504,8 +586,7 @@ export function useUnifiedCatalogProductForm(params: {
     categoriesError,
     hydratedProduct: productPayload?.product ?? undefined,
     productHydrationError,
-    isLoadingProductDetail:
-      params.mode === "edit" && (isProductQueryLoading || isProductQueryFetching),
+    isLoadingProductDetail,
 
     title,
     description,
@@ -517,6 +598,7 @@ export function useUnifiedCatalogProductForm(params: {
     fieldErrors,
     formError,
     isSubmitting: saveMutation.isPending,
+    isDirty,
 
     setTitle,
     setDescription,

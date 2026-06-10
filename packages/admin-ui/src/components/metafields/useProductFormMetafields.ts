@@ -38,6 +38,7 @@ type ProductFormMetafieldsLoadState =
 
 export type UseProductFormMetafieldsResult = {
   state: ProductFormMetafieldsLoadState
+  isDirty: boolean
   categoryMetafieldCounts: ReadonlyMap<string, number>
   expandedSecondaryIds: ReadonlySet<string>
   fieldErrors: Record<string, string>
@@ -208,6 +209,21 @@ export function useProductFormMetafields(params: {
     return data?.categoryMetafieldCountsAll ?? new Map()
   }, [data])
 
+  const isDirty = useMemo((): boolean => {
+    if (state.status !== "ready") {
+      return false
+    }
+
+    const draftKeys = new Set([...Object.keys(drafts), ...Object.keys(initialDrafts)])
+    for (const key of draftKeys) {
+      if ((drafts[key] ?? "") !== (initialDrafts[key] ?? "")) {
+        return true
+      }
+    }
+
+    return false
+  }, [drafts, initialDrafts, state.status])
+
   const toggleSecondaryExpanded = useCallback((definitionId: string): void => {
     setExpandedSecondaryIds((previous) => {
       const next = new Set(previous)
@@ -342,6 +358,7 @@ export function useProductFormMetafields(params: {
 
   return {
     state,
+    isDirty,
     categoryMetafieldCounts,
     expandedSecondaryIds,
     fieldErrors,
