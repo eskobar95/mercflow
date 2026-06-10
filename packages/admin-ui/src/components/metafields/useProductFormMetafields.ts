@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
+import { useCallback, useMemo, useState } from "react"
 
 import { listMetafieldDefinitions } from "@/features/metafields/metafieldDefinitionsApi"
 import {
@@ -14,6 +15,13 @@ import type { MetafieldDefinitionDto, MetafieldValueUpsertPayload } from "@/feat
 import { useAdjustStateWhenKeyChanges } from "@/lib/react/useAdjustStateWhenKeyChanges"
 
 const DEFAULT_LOCALE = "en"
+
+type ProductFormMetafieldsData = {
+  productDefinitions: MetafieldDefinitionDto[]
+  categoryDefinitions: MetafieldDefinitionDto[]
+  categoryMetafieldCountsAll: ReadonlyMap<string, number>
+  initialDrafts: Record<string, string>
+}
 
 type ProductFormMetafieldsLoadState =
   | { status: "idle" }
@@ -73,112 +81,132 @@ function countDefinitionsByCategory(
   return counts
 }
 
+async function fetchProductFormMetafieldsData(params: {
+  productId?: string
+  selectedCategoryIds: readonly string[]
+}): Promise<ProductFormMetafieldsData> {
+  const allDefinitions = sortMetafieldDefinitionsByPinned(
+    await listMetafieldDefinitions({ ownerType: "product" })
+  )
+
+  const categoryMetafieldCountsAll = countDefinitionsByCategory(allDefinitions)
+
+  const productDefinitions = allDefinitions.filter(
+    (definition) => definition.category_constraint_id === null
+  )
+
+  const categoryDefinitionLists = await Promise.all(
+    params.selectedCategoryIds.map(async (categoryId) =>
+      listMetafieldDefinitions({ ownerType: "product", categoryId })
+    )
+  )
+  const categoryDefinitions = dedupeDefinitionsById(
+    sortMetafieldDefinitionsByPinned(categoryDefinitionLists.flat())
+  )
+
+  const allApplicable = dedupeDefinitionsById([...productDefinitions, ...categoryDefinitions])
+
+  let values: Awaited<ReturnType<typeof listMetafieldValues>> = []
+  if (typeof params.productId === "string" && params.productId.trim() !== "") {
+    values = await listMetafieldValues({
+      ownerType: "product",
+      ownerId: params.productId,
+      locale: DEFAULT_LOCALE,
+    })
+  }
+
+  const initialDrafts = buildMetafieldDraftsForDefinitions(allApplicable, values)
+
+  return {
+    productDefinitions,
+    categoryDefinitions,
+    categoryMetafieldCountsAll,
+    initialDrafts,
+  }
+}
+
 export function useProductFormMetafields(params: {
   productId?: string
   selectedCategoryIds: ReadonlySet<string>
   enabled: boolean
 }): UseProductFormMetafieldsResult {
-  const selectedCategoryKey = [...params.selectedCategoryIds].sort().join(",")
+  const selectedCategoryIds = useMemo(
+    () => [...params.selectedCategoryIds].sort(),
+    [params.selectedCategoryIds]
+  )
+  const selectedCategoryKey = selectedCategoryIds.join(",")
   const hydrationKey =
-    params.enabled === true
-      ? `${params.productId ?? "new"}:${selectedCategoryKey}`
-      : null
+    params.enabled === true ? `${params.productId ?? "new"}:${selectedCategoryKey}` : null
 
-  const [loadToken, setLoadToken] = useState(0)
-  const [state, setState] = useState<ProductFormMetafieldsLoadState>({ status: "idle" })
+  const {
+    data,
+    error,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useQuery({
+    enabled: params.enabled,
+    queryKey: ["product-form-metafields", params.productId ?? "new", selectedCategoryKey],
+    queryFn: async (): Promise<ProductFormMetafieldsData> =>
+      fetchProductFormMetafieldsData({
+        productId: params.productId,
+        selectedCategoryIds,
+      }),
+  })
+
+  const [drafts, setDrafts] = useState<Record<string, string>>({})
+  const [initialDrafts, setInitialDrafts] = useState<Record<string, string>>({})
   const [expandedSecondaryIds, setExpandedSecondaryIds] = useState<Set<string>>(() => new Set())
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
-
-  const reload = useCallback((): void => {
-    setLoadToken((token) => token + 1)
-  }, [])
-
-  useEffect(() => {
-    if (!params.enabled) {
-      setState({ status: "idle" })
-      return
-    }
-
-    let cancelled = false
-    setState({ status: "loading" })
-    setFieldErrors({})
-
-    void (async (): Promise<void> => {
-      try {
-        const allDefinitions = sortMetafieldDefinitionsByPinned(
-          await listMetafieldDefinitions({ ownerType: "product" })
-        )
-
-        const categoryMetafieldCountsAll = countDefinitionsByCategory(allDefinitions)
-
-        const productDefinitions = allDefinitions.filter(
-          (definition) => definition.category_constraint_id === null
-        )
-
-        const selectedIds = [...params.selectedCategoryIds]
-        const categoryDefinitionLists = await Promise.all(
-          selectedIds.map(async (categoryId) =>
-            listMetafieldDefinitions({ ownerType: "product", categoryId })
-          )
-        )
-        const categoryDefinitions = dedupeDefinitionsById(
-          sortMetafieldDefinitionsByPinned(categoryDefinitionLists.flat())
-        )
-
-        const allApplicable = dedupeDefinitionsById([
-          ...productDefinitions,
-          ...categoryDefinitions,
-        ])
-
-        let values: Awaited<ReturnType<typeof listMetafieldValues>> = []
-        if (typeof params.productId === "string" && params.productId.trim() !== "") {
-          values = await listMetafieldValues({
-            ownerType: "product",
-            ownerId: params.productId,
-            locale: DEFAULT_LOCALE,
-          })
-        }
-
-        if (cancelled) {
-          return
-        }
-
-        const drafts = buildMetafieldDraftsForDefinitions(allApplicable, values)
-
-        setState({
-          status: "ready",
-          productDefinitions,
-          categoryDefinitions,
-          categoryMetafieldCountsAll,
-          drafts,
-          initialDrafts: { ...drafts },
-        })
-      } catch (error: unknown) {
-        if (cancelled) {
-          return
-        }
-        const message =
-          error instanceof Error ? error.message : "Failed to load product metafields"
-        setState({ status: "error", message })
-      }
-    })()
-
-    return () => {
-      cancelled = true
-    }
-  }, [params.enabled, params.productId, selectedCategoryKey, loadToken])
 
   useAdjustStateWhenKeyChanges(hydrationKey, () => {
     setExpandedSecondaryIds(new Set())
     setFieldErrors({})
   })
 
-  const categoryMetafieldCounts = useMemo((): ReadonlyMap<string, number> => {
-    if (state.status !== "ready") {
-      return new Map()
+  const draftSyncKey =
+    data === undefined ? null : `${hydrationKey}:${JSON.stringify(data.initialDrafts)}`
+
+  useAdjustStateWhenKeyChanges(draftSyncKey, () => {
+    if (data !== undefined) {
+      setDrafts(data.initialDrafts)
+      setInitialDrafts(data.initialDrafts)
     }
-    return state.categoryMetafieldCountsAll
-  }, [state])
+  })
+
+  const reload = useCallback((): void => {
+    void refetch()
+  }, [refetch])
+
+  const state = useMemo((): ProductFormMetafieldsLoadState => {
+    if (!params.enabled) {
+      return { status: "idle" }
+    }
+    if (isLoading || isFetching) {
+      return { status: "loading" }
+    }
+    if (error instanceof Error) {
+      return { status: "error", message: error.message }
+    }
+    if (error !== null && error !== undefined) {
+      return { status: "error", message: "Failed to load product metafields" }
+    }
+    if (data === undefined) {
+      return { status: "loading" }
+    }
+    return {
+      status: "ready",
+      productDefinitions: data.productDefinitions,
+      categoryDefinitions: data.categoryDefinitions,
+      categoryMetafieldCountsAll: data.categoryMetafieldCountsAll,
+      drafts,
+      initialDrafts,
+    }
+  }, [data, drafts, error, initialDrafts, isFetching, isLoading, params.enabled])
+
+  const categoryMetafieldCounts = useMemo((): ReadonlyMap<string, number> => {
+    return data?.categoryMetafieldCountsAll ?? new Map()
+  }, [data])
 
   const toggleSecondaryExpanded = useCallback((definitionId: string): void => {
     setExpandedSecondaryIds((previous) => {
@@ -193,18 +221,10 @@ export function useProductFormMetafields(params: {
   }, [])
 
   const setDraft = useCallback((definitionId: string, draft: string): void => {
-    setState((current) => {
-      if (current.status !== "ready") {
-        return current
-      }
-      return {
-        ...current,
-        drafts: {
-          ...current.drafts,
-          [definitionId]: draft,
-        },
-      }
-    })
+    setDrafts((previous) => ({
+      ...previous,
+      [definitionId]: draft,
+    }))
     setFieldErrors((previous) => {
       if (!(definitionId in previous)) {
         return previous
@@ -216,16 +236,16 @@ export function useProductFormMetafields(params: {
   }, [])
 
   const getApplicableDefinitions = useCallback((): MetafieldDefinitionDto[] => {
-    if (state.status !== "ready") {
+    if (data === undefined) {
       return []
     }
-    return dedupeDefinitionsById([...state.productDefinitions, ...state.categoryDefinitions])
-  }, [state])
+    return dedupeDefinitionsById([...data.productDefinitions, ...data.categoryDefinitions])
+  }, [data])
 
   const validateDrafts = useCallback(():
     | { ok: true }
     | { ok: false; fieldErrors: Record<string, string>; message: string } => {
-    if (state.status !== "ready") {
+    if (data === undefined) {
       return { ok: true }
     }
 
@@ -233,8 +253,8 @@ export function useProductFormMetafields(params: {
     const nextFieldErrors: Record<string, string> = {}
 
     for (const definition of definitions) {
-      const draft = state.drafts[definition.id] ?? ""
-      const initial = state.initialDrafts[definition.id] ?? ""
+      const draft = drafts[definition.id] ?? ""
+      const initial = initialDrafts[definition.id] ?? ""
       if (draft === initial) {
         continue
       }
@@ -264,11 +284,11 @@ export function useProductFormMetafields(params: {
     }
 
     return { ok: true }
-  }, [getApplicableDefinitions, state])
+  }, [data, drafts, getApplicableDefinitions, initialDrafts])
 
   const buildPayloads = useCallback(
     (productId: string): MetafieldValueUpsertPayload[] => {
-      if (state.status !== "ready") {
+      if (data === undefined) {
         return []
       }
 
@@ -276,8 +296,8 @@ export function useProductFormMetafields(params: {
       const payloads: MetafieldValueUpsertPayload[] = []
 
       for (const definition of definitions) {
-        const draft = state.drafts[definition.id] ?? ""
-        const initial = state.initialDrafts[definition.id] ?? ""
+        const draft = drafts[definition.id] ?? ""
+        const initial = initialDrafts[definition.id] ?? ""
         if (draft === initial || draft.trim() === "") {
           continue
         }
@@ -298,19 +318,11 @@ export function useProductFormMetafields(params: {
 
       return payloads
     },
-    [getApplicableDefinitions, state]
+    [data, drafts, getApplicableDefinitions, initialDrafts]
   )
 
-  const markSaved = useCallback((drafts: Record<string, string>): void => {
-    setState((current) => {
-      if (current.status !== "ready") {
-        return current
-      }
-      return {
-        ...current,
-        initialDrafts: { ...drafts },
-      }
-    })
+  const markSaved = useCallback((nextDrafts: Record<string, string>): void => {
+    setInitialDrafts({ ...nextDrafts })
     setFieldErrors({})
   }, [])
 
@@ -323,12 +335,9 @@ export function useProductFormMetafields(params: {
 
       const payloads = buildPayloads(productId)
       await batchUpsertMetafieldValues(payloads)
-
-      if (state.status === "ready") {
-        markSaved(state.drafts)
-      }
+      markSaved(drafts)
     },
-    [buildPayloads, markSaved, state, validateDrafts]
+    [buildPayloads, drafts, markSaved, validateDrafts]
   )
 
   return {
