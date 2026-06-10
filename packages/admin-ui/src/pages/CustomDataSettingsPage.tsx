@@ -1,7 +1,8 @@
-import type { ReactNode } from "react"
+import { type ReactNode, useState } from "react"
 
 import { CustomDataEntitySidebar } from "@/components/metafields/CustomDataEntitySidebar"
 import { MetafieldDefinitionFormSheet } from "@/components/metafields/MetafieldDefinitionFormSheet"
+import { StandardLibraryBrowseDialog } from "@/components/metafields/StandardLibraryBrowseDialog"
 import { Button } from "@/components/ui/Button"
 import { DataTable } from "@/components/ui/list/DataTable"
 import { ListEmptyState } from "@/components/ui/list/ListEmptyState"
@@ -20,6 +21,7 @@ function listTabButtonClass(isActive: boolean): string {
 }
 
 export function CustomDataSettingsPage(): ReactNode {
+  const [libraryDialogOpen, setLibraryDialogOpen] = useState(false)
   const {
     hasBackend,
     state,
@@ -77,7 +79,19 @@ export function CustomDataSettingsPage(): ReactNode {
         description="Define structured fields for products and categories — no code required."
         actions={
           <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="secondary" disabled title="Available in a future release">
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={entity === "variant" || entity === "order" || entity === "customer"}
+              title={
+                entity === "variant" || entity === "order" || entity === "customer"
+                  ? "Coming soon for this entity"
+                  : undefined
+              }
+              onClick={() => {
+                setLibraryDialogOpen(true)
+              }}
+            >
               Browse standard library
             </Button>
             <Button
@@ -208,6 +222,15 @@ export function CustomDataSettingsPage(): ReactNode {
           )}
         </section>
       </div>
+
+      {entity === "product" || entity === "category" ? (
+        <StandardLibraryBrowseDialog
+          open={libraryDialogOpen}
+          onOpenChange={setLibraryDialogOpen}
+          ownerType={ownerType}
+          onActivated={reload}
+        />
+      ) : null}
 
       <MetafieldDefinitionFormSheet
         open={sheetOpen}
