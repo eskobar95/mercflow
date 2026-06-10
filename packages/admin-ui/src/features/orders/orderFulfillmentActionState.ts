@@ -133,7 +133,7 @@ function resolveUnshippedFulfillmentShipment(
         if (!isRecord(row)) {
           continue
         }
-        const lineId = readString(row, "id") ?? readString(row, "line_item_id")
+        const lineId = readString(row, "line_item_id") ?? readString(row, "id")
         const qty = readPositiveNumber(row, "quantity") ?? 0
         if (lineId !== undefined && lineId.trim() !== "" && qty > 0) {
           shipmentItems.push({ id: lineId, quantity: qty })

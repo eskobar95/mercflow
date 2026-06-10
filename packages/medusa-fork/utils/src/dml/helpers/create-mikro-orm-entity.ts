@@ -22,6 +22,36 @@ import { parseEntityName } from "./entity-builder/parse-entity-name"
 import { applyChecks } from "./mikro-orm/apply-checks"
 import { applyEntityIndexes, applyIndexes } from "./mikro-orm/apply-indexes"
 
+type MikroOrmEntityBuilderState = {
+  MANY_TO_MANY_TRACKED_RELATIONS: Record<string, boolean>
+  ENTITIES: Record<string, Constructor<any>>
+}
+
+const MIKRO_ORM_ENTITY_BUILDER_STATE_KEY = Symbol.for(
+  "@medusajs/utils.mikroORMEntityBuilder.state"
+)
+
+/**
+ * Share entity builder caches across duplicate @medusajs/utils installs
+ * (e.g. workspace link + npm 2.14.0 via @medusajs/modules-sdk). Without
+ * this, MikroORM metadata hooks and prototype methods diverge and hydration
+ * throws "Cannot read properties of undefined (reading 'bind')".
+ */
+function getMikroOrmEntityBuilderState(): MikroOrmEntityBuilderState {
+  const globalScope = globalThis as typeof globalThis & {
+    [MIKRO_ORM_ENTITY_BUILDER_STATE_KEY]?: MikroOrmEntityBuilderState
+  }
+
+  if (globalScope[MIKRO_ORM_ENTITY_BUILDER_STATE_KEY] === undefined) {
+    globalScope[MIKRO_ORM_ENTITY_BUILDER_STATE_KEY] = {
+      MANY_TO_MANY_TRACKED_RELATIONS: {},
+      ENTITIES: {},
+    }
+  }
+
+  return globalScope[MIKRO_ORM_ENTITY_BUILDER_STATE_KEY]
+}
+
 /**
  * Factory function to create the mikro orm entity builder. The return
  * value is a function that can be used to convert DML entities
@@ -29,26 +59,13 @@ import { applyEntityIndexes, applyIndexes } from "./mikro-orm/apply-indexes"
  */
 function createMikrORMEntity() {
   /**
-   * The following property is used to track many to many relationship
-   * between two entities. It is needed because we have to mark one
-   * of them as the owner of the relationship without exposing
-   * any user land APIs to explicitly define an owner.
-   *
-   * The object contains values as follows.
-   * - [modelName.relationship]: true // true means, it is already marked as owner
-   *
-   * Example:
-   * - [user.teams]: true // the teams relationship on user is an owner
-   * - [team.users] // cannot be an owner
-   */
-  let MANY_TO_MANY_TRACKED_RELATIONS: Record<string, boolean> = {}
-  let ENTITIES: Record<string, Constructor<any>> = {}
-
-  /**
    * A helper function to define a Mikro ORM entity from a
    * DML entity.
    */
   function createEntity<T extends DmlEntity<any, any>>(entity: T): Infer<T> {
+    const { ENTITIES, MANY_TO_MANY_TRACKED_RELATIONS } =
+      getMikroOrmEntityBuilderState()
+
     class MikroORMEntity {}
 
     const {
@@ -132,8 +149,9 @@ function createMikrORMEntity() {
    * Clear the internally tracked entities and relationships
    */
   createEntity.clear = function () {
-    MANY_TO_MANY_TRACKED_RELATIONS = {}
-    ENTITIES = {}
+    const state = getMikroOrmEntityBuilderState()
+    state.MANY_TO_MANY_TRACKED_RELATIONS = {}
+    state.ENTITIES = {}
   }
   return createEntity
 }

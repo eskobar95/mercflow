@@ -1,0 +1,7 @@
+# GitGuardian path ignores for MercFlow CI.
+# Gitleaks remains the authoritative secret scan; these paths only reference
+# env var names or local E2E orchestration — no committed credentials.
+paths-ignore:
+  - "scripts/shipmondo-e2e-dev.sh"
+  - "apps/backend/src/scripts/seed-shipmondo-e2e.ts"
+  - "apps/backend/src/scripts/seed-shipmondo-order.ts"

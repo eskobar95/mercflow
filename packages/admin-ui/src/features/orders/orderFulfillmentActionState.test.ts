@@ -106,7 +106,7 @@ describe("getOrderFulfillmentActionVisibility", () => {
     expect(v.shipmentItemsPayload).toEqual([])
   })
 
-  it("builds shipmentItemsPayload from fulfillment line rows (id or line_item_id)", () => {
+  it("builds shipmentItemsPayload from fulfillment line rows (prefers line_item_id)", () => {
     const v = visibilityFrom({
       ...baseOrderPayload,
       payment_status: "captured",
@@ -116,8 +116,8 @@ describe("getOrderFulfillmentActionVisibility", () => {
           id: "ful_1",
           created_at: "2026-05-10T11:00:00.000Z",
           items: [
-            { id: "fli_1", quantity: 1 },
-            { line_item_id: "oli_1", quantity: 1 },
+            { id: "fli_1", line_item_id: "oli_1", quantity: 1 },
+            { line_item_id: "oli_2", quantity: 1 },
           ],
         },
       ],
@@ -129,8 +129,8 @@ describe("getOrderFulfillmentActionVisibility", () => {
     })
     expect(v.showMarkShipped).toBe(true)
     expect(v.shipmentItemsPayload).toEqual([
-      { id: "fli_1", quantity: 1 },
       { id: "oli_1", quantity: 1 },
+      { id: "oli_2", quantity: 1 },
     ])
   })
 

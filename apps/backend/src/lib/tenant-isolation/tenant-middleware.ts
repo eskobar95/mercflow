@@ -33,9 +33,13 @@ export async function tenantIsolationMiddleware(
   const storeId = await resolveSentryStoreId(req)
 
   if (!storeId) {
-    next()
+    await Promise.resolve(next())
     return
   }
 
-  TenantContext.run(storeId, () => next())
+  await new Promise<void>((resolve, reject) => {
+    TenantContext.run(storeId, () => {
+      Promise.resolve(next()).then(resolve).catch(reject)
+    })
+  })
 }

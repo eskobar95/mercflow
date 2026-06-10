@@ -68,6 +68,7 @@ Open the Vite dev URL printed in the terminal. The app loads the **admin shell**
 - **Routes:** `/orders` → `OrdersListPage`, `/orders/pick-list` → `OrdersPickListPage`, `/orders/:orderId` → `OrderDetailPage`. Static `pick-list` is registered before `:orderId` in `src/router.tsx`.
 - **Medusa HTTP:** `ordersAdminApi.ts` — `GET /admin/orders`, `GET /admin/orders/:id`; fulfillment actions use Medusa payment/fulfillment routes via `orderFulfillmentAdminApi.ts`.
 - **MercFlow HTTP:** `orderNotesAdminApi.ts` — internal notes and pick list on `@mercflow/inventory-module` (`GET/POST/DELETE /admin/orders/:id/notes`, `GET /admin/orders/pick-list`). Requires `VITE_MERCFLOW_DEFAULT_STORE_ID` (see `.env.example`) or `?store_id=` on each request.
+- **Local dev auth:** There is no admin login screen. Copy `.env.example` to `.env.local` or run `pnpm shipmondo:e2e-setup` from the repo root (backend on `:9000`) to refresh `VITE_MEDUSA_ADMIN_BEARER_TOKEN` and store id. Restart Vite after `.env.local` changes.
 - **List UX (S008):** Status + payment filters, search, date range, sortable columns, row selection, bulk **Mark fulfillment-ready** (creates Medusa fulfillments for paid, unfulfilled orders), link to printable pick list.
 - **Detail UX:** Page-based layout (no modal), Medusa workflow actions, status timeline, **internal notes** panel (MercFlow-only, not customer-facing).
 - **Tests:** `test/OrdersPages.test.tsx`, `orderPaymentFilter.test.ts`, `orderListBulkFulfillment.test.ts`, `@mercflow/inventory-module` pick-list unit tests.

@@ -30,6 +30,7 @@ import {
   probeShipmondoShipments,
 } from "./shipmondo-http-client"
 import { loadShipmondoShipmentContext } from "./load-shipmondo-shipment-context"
+import { shouldAutoSelectShipmondoServicePoint } from "./shipmondo-service-point"
 import {
   assertShipmondoSenderConfigured,
   mergeShipmondoLabelSettingsPatch,
@@ -480,6 +481,7 @@ export default class ConnectorModuleService extends MedusaService({
     storeId: string
     fulfillmentId: string
     packagingTypeId: string | null
+    scope: MedusaContainer
     fetchImpl?: typeof fetch
   }): Promise<ShipmondoCreateLabelResultDto> {
     const row = await this.retrieveShipmondoRow()
@@ -512,8 +514,7 @@ export default class ConnectorModuleService extends MedusaService({
       )
     }
 
-    const self = this as unknown as ServiceContainerAware
-    const remoteQuery = self.__container__.resolve(
+    const remoteQuery = input.scope.resolve(
       ContainerRegistrationKeys.QUERY
     ) as unknown as RemoteQueryFunction
 
@@ -546,7 +547,7 @@ export default class ConnectorModuleService extends MedusaService({
         } | null>
       }
       try {
-        packagingService = self.__container__.resolve(packagingModuleKey) as {
+        packagingService = input.scope.resolve(packagingModuleKey) as {
           retrievePackagingType: (
             storeId: string,
             packagingTypeId: string
@@ -591,7 +592,9 @@ export default class ConnectorModuleService extends MedusaService({
       productCode: context.productCode,
       serviceCodes: "EMAIL_NT,SMS_NT",
       servicePointId: context.servicePointId,
-      automaticSelectServicePoint: false,
+      automaticSelectServicePoint: shouldAutoSelectShipmondoServicePoint(
+        context.servicePointId
+      ),
       labelSettings: senderSettings,
       reference,
       sender: {

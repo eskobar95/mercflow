@@ -115,8 +115,6 @@ export async function loadShipmondoShipmentContext(input: {
       "order.shipping_address.phone",
       "order.shipping_methods.id",
       "order.shipping_methods.data",
-      "order.shipping_methods.shipping_option_id",
-      "order.shipping_methods.shipping_option.data",
     ],
     filters: { id: input.fulfillmentId },
   })

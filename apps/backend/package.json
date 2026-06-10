@@ -10,9 +10,11 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "db:migrate": "medusa db:migrate",
-    "db:revert": "medusa db:revert"
+    "db:revert": "medusa db:revert",
+    "seed:shipmondo-e2e": "medusa exec ./src/scripts/seed-shipmondo-e2e.ts"
   },
   "dependencies": {
+    "@medusajs/core-flows": "2.14.0",
     "@medusajs/draft-order": "2.14.1",
     "@medusajs/framework": "workspace:*",
     "@medusajs/medusa": "workspace:*",

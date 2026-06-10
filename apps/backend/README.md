@@ -11,15 +11,17 @@ Medusa v2 application for the MercFlow monorepo. It registers MercFlow packages 
 
 From the **repository root** after `pnpm install`:
 
-1. Copy `.env.example` to `.env` in this directory and set `JWT_SECRET` / `COOKIE_SECRET` to non-default values for local use.
-2. Start Postgres if needed, then run migrations:  
+1. Copy `.env.example` to `.env` in this directory and set `JWT_SECRET` / `COOKIE_SECRET` to non-default values for local use. Point `DATABASE_URL` at the local Docker Postgres from `docker-compose.yml` (not Neon) for day-to-day dev.
+2. Build the Medusa fork (required before migrate/dev — same as CI):  
+   `pnpm build:medusa-fork`
+3. Start Postgres if needed (`docker compose up -d`), then run migrations:  
    `pnpm --filter @mercflow/backend db:migrate`
-3. Start the API server:  
+4. Start the API server:  
    `pnpm --filter @mercflow/backend dev`  
    or from the root:  
    `pnpm dev:backend`  
-   Default Medusa port is **9000** unless your env overrides it.
-4. Start the MercFlow admin UI (separate Vite app):  
+   Default Medusa port is **9000** unless your env overrides it. Verify with `curl http://localhost:9000/health` (expect `200 OK`).
+5. Start the MercFlow admin UI (separate Vite app):  
    `pnpm --filter @mercflow/admin-ui dev`  
    Open the URL Vite prints (default **5173**). Set `VITE_MEDUSA_ADMIN_BACKEND_URL=http://localhost:9000` in `packages/admin-ui/.env` (or equivalent) so the UI talks to this backend. Ensure `ADMIN_CORS` / `AUTH_CORS` in this app's `.env` include the admin-ui origin (default `http://localhost:7001` in `medusa-config.ts` — adjust to match your Vite port if needed).
 
@@ -74,6 +76,30 @@ pnpm --filter @mercflow/backend typecheck
 ## Production build
 
 `medusa build` compiles the backend server only. Admin UI is disabled in `medusa-config.ts` (`admin.disable: true`), so no Medusa dashboard bundle is produced. Build the admin separately with `pnpm --filter @mercflow/admin-ui build` and deploy it as a static Vite app pointing at this API.
+
+## Shipmondo label E2E (local)
+
+Prerequisites in `apps/backend/.env`:
+
+| Variable | Purpose |
+| --- | --- |
+| `MERCFLOW_DEFAULT_STORE_ID` | Same store id as admin-ui `VITE_MERCFLOW_DEFAULT_STORE_ID` |
+| `MERCFLOW_CONNECTOR_ENCRYPTION_KEY` | 64 hex chars — connector credential encryption |
+| `SHIPMONDO_SANDBOX=true` | Use Shipmondo sandbox API |
+| `SHIPMONDO_API_USER` / `SHIPMONDO_API_KEY` | Sandbox credentials |
+
+From the **repo root** (backend running on `:9000`):
+
+```bash
+pnpm shipmondo:e2e-setup      # writes packages/admin-ui/.env.local (JWT + store id)
+pnpm shipmondo:e2e-seed       # above + seed E2E product, order, fulfillment, connector sender
+```
+
+Or seed only: `pnpm --filter @mercflow/backend seed:shipmondo-e2e`.
+
+E2E orders include `shipmondo_service_point_id` in metadata (required for GLS pakkeshop / `GLSDK_SD`). Open the seeded order in admin-ui → **Generate label**.
+
+Set `E2E_ADMIN_EMAIL` and `E2E_ADMIN_PASSWORD` in `apps/backend/.env` (or export) before `pnpm shipmondo:e2e-setup`. Use your local Medusa admin user credentials.
 
 ## Smoke check (content API)
 
