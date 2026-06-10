@@ -89,6 +89,24 @@ export type ListDefinitionsFilters = {
   offset?: number
 }
 
+export type ListStandardLibraryFilters = {
+  vertical: string
+  storeId: string
+  ownerType?: MetafieldOwnerType
+  limit?: number
+  offset?: number
+}
+
+export type ActivateStandardDefinitionsInput = {
+  vertical: string
+  definitionIds?: string[]
+}
+
+export type ActivateStandardDefinitionsResult = {
+  activated: MetafieldDefinitionRecord[]
+  skipped_keys: string[]
+}
+
 export type UpsertValueInput = {
   definition_id: string
   owner_id: string
