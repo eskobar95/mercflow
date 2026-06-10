@@ -1,5 +1,8 @@
 import type { OrderLineItemRow } from "@/features/orders/orderTypes"
-import type { OrderSuggestedPackagingLoadState } from "@/features/packaging/useOrderSuggestedPackaging"
+import type {
+  OrderSuggestedPackagingLoadState,
+  OrderSuggestedPackagingSaveState,
+} from "@/features/packaging/orderSuggestedPackagingTypes"
 import type { SuggestPackagingResult } from "@/features/packaging/packagingTypes"
 
 function hasSuggestableLineItems(lineItems: OrderLineItemRow[]): boolean {
@@ -14,6 +17,7 @@ export function resolveShipmondoLabelBlockReason(input: {
   packagingLoadState: OrderSuggestedPackagingLoadState
   packagingErrorMessage: string | null
   suggestion: SuggestPackagingResult | null
+  saveState: OrderSuggestedPackagingSaveState
 }): string | null {
   if (!hasSuggestableLineItems(input.lineItems)) {
     return "Add variant IDs to line items before generating a Shipmondo label."
@@ -21,6 +25,14 @@ export function resolveShipmondoLabelBlockReason(input: {
 
   if (input.packagingLoadState === "loading") {
     return "Calculating order weight from line items…"
+  }
+
+  if (input.saveState === "saving") {
+    return "Saving packaging choice…"
+  }
+
+  if (input.saveState === "error") {
+    return "Fix the packaging save error before generating a label."
   }
 
   if (input.packagingLoadState === "error") {

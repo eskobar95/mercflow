@@ -1,5 +1,6 @@
-import { type ReactNode, useCallback, useState } from "react"
+import { type ReactNode, useMemo } from "react"
 
+import { getOrderFulfillmentActionVisibility } from "@/features/orders/orderFulfillmentActionState"
 import type { OrderDetail } from "@/features/orders/orderTypes"
 import { useOrderSuggestedPackaging } from "@/features/packaging/useOrderSuggestedPackaging"
 
@@ -11,26 +12,24 @@ export function OrderFulfillmentSection(props: {
   onDidMutate: () => void
 }): ReactNode {
   const { order, onDidMutate } = props
-  const [confirmedPackagingTypeId, setConfirmedPackagingTypeId] = useState<string | null>(null)
-  const handleConfirmedPackagingChange = useCallback((packagingTypeId: string | null): void => {
-    setConfirmedPackagingTypeId(packagingTypeId)
-  }, [])
+  const visibility = useMemo(() => getOrderFulfillmentActionVisibility(order), [order])
+  const fulfillmentId = visibility.labelFulfillmentId
 
   const packagingModel = useOrderSuggestedPackaging({
     lineItems: order.lineItems,
-    onConfirmedPackagingChange: handleConfirmedPackagingChange,
+    fulfillmentId,
   })
 
   return (
     <section
       aria-label="Order fulfillment"
       className="space-y-4"
-      data-confirmed-packaging-type-id={confirmedPackagingTypeId ?? undefined}
+      data-confirmed-packaging-type-id={packagingModel.confirmedPackagingId ?? undefined}
     >
       <OrderSuggestedPackagingWidget model={packagingModel} />
       <OrderFulfillmentActionBar
         order={order}
-        confirmedPackagingTypeId={confirmedPackagingTypeId}
+        confirmedPackagingTypeId={packagingModel.confirmedPackagingId}
         shipmondoLabelBlockReason={packagingModel.shipmondoLabelBlockReason}
         onDidMutate={onDidMutate}
       />

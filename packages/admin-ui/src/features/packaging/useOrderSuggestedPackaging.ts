@@ -2,13 +2,20 @@ import { useCallback, useEffect, useMemo, useReducer } from "react"
 
 import { resolveShipmondoLabelBlockReason } from "@/features/orders/resolveShipmondoLabelBlockReason"
 import type { OrderLineItemRow } from "@/features/orders/orderTypes"
+import type {
+  OrderSuggestedPackagingLoadState,
+  OrderSuggestedPackagingSaveState,
+} from "@/features/packaging/orderSuggestedPackagingTypes"
 import {
   fetchActivePackagingTypes,
+  fetchShipmentPackaging,
+  packagingTypeFromShipmentPackaging,
   suggestPackagingForOrderItems,
+  upsertShipmentPackaging,
 } from "@/features/packaging/packagingAdminApi"
 import type { PackagingTypeDto, SuggestPackagingResult } from "@/features/packaging/packagingTypes"
 
-export type OrderSuggestedPackagingLoadState = "loading" | "error" | "ready"
+export type { OrderSuggestedPackagingLoadState, OrderSuggestedPackagingSaveState } from "@/features/packaging/orderSuggestedPackagingTypes"
 
 type CatalogLoadState = "idle" | "loading" | "error" | "ready"
 
@@ -17,6 +24,8 @@ type SuggestedPackagingState = {
   errorMessage: string | null
   suggestion: SuggestPackagingResult | null
   selectedPackaging: PackagingTypeDto | null
+  saveState: OrderSuggestedPackagingSaveState
+  saveErrorMessage: string | null
   isOverrideOpen: boolean
   catalogLoadState: CatalogLoadState
   catalogErrorMessage: string | null
@@ -25,9 +34,13 @@ type SuggestedPackagingState = {
 }
 
 type SuggestedPackagingAction =
-  | { type: "suggestStart" }
-  | { type: "suggestSuccess"; suggestion: SuggestPackagingResult }
-  | { type: "suggestError"; message: string }
+  | { type: "loadStart" }
+  | {
+      type: "loadSuccess"
+      suggestion: SuggestPackagingResult
+      selectedPackaging: PackagingTypeDto | null
+    }
+  | { type: "loadError"; message: string }
   | { type: "suggestSkipped" }
   | { type: "openOverride" }
   | { type: "closeOverride" }
@@ -36,6 +49,9 @@ type SuggestedPackagingAction =
   | { type: "catalogError"; message: string }
   | { type: "catalogReset" }
   | { type: "selectPackaging"; packaging: PackagingTypeDto }
+  | { type: "saveStart" }
+  | { type: "saveSuccess"; packaging: PackagingTypeDto }
+  | { type: "saveError"; message: string }
   | { type: "retry" }
 
 const INITIAL_SUGGESTED_PACKAGING_STATE: SuggestedPackagingState = {
@@ -43,6 +59,8 @@ const INITIAL_SUGGESTED_PACKAGING_STATE: SuggestedPackagingState = {
   errorMessage: null,
   suggestion: null,
   selectedPackaging: null,
+  saveState: "idle",
+  saveErrorMessage: null,
   isOverrideOpen: false,
   catalogLoadState: "idle",
   catalogErrorMessage: null,
@@ -55,25 +73,27 @@ function suggestedPackagingReducer(
   action: SuggestedPackagingAction,
 ): SuggestedPackagingState {
   switch (action.type) {
-    case "suggestStart":
+    case "loadStart":
       return {
         ...state,
         loadState: "loading",
         errorMessage: null,
         suggestion: null,
         selectedPackaging: null,
+        saveState: "idle",
+        saveErrorMessage: null,
         isOverrideOpen: false,
         catalogLoadState: "idle",
         catalogErrorMessage: null,
       }
-    case "suggestSuccess":
+    case "loadSuccess":
       return {
         ...state,
         loadState: "ready",
         suggestion: action.suggestion,
-        selectedPackaging: action.suggestion.suggested,
+        selectedPackaging: action.selectedPackaging,
       }
-    case "suggestError":
+    case "loadError":
       return {
         ...state,
         loadState: "error",
@@ -86,10 +106,12 @@ function suggestedPackagingReducer(
         errorMessage: null,
         suggestion: null,
         selectedPackaging: null,
+        saveState: "idle",
+        saveErrorMessage: null,
         isOverrideOpen: false,
       }
     case "openOverride":
-      return { ...state, isOverrideOpen: true }
+      return { ...state, isOverrideOpen: true, saveErrorMessage: null }
     case "closeOverride":
       return {
         ...state,
@@ -126,6 +148,28 @@ function suggestedPackagingReducer(
         ...state,
         selectedPackaging: action.packaging,
         isOverrideOpen: false,
+        saveState: "idle",
+        saveErrorMessage: null,
+      }
+    case "saveStart":
+      return {
+        ...state,
+        saveState: "saving",
+        saveErrorMessage: null,
+      }
+    case "saveSuccess":
+      return {
+        ...state,
+        selectedPackaging: action.packaging,
+        isOverrideOpen: false,
+        saveState: "idle",
+        saveErrorMessage: null,
+      }
+    case "saveError":
+      return {
+        ...state,
+        saveState: "error",
+        saveErrorMessage: action.message,
       }
     case "retry":
       return {
@@ -152,17 +196,35 @@ function buildSuggestItems(
   return items
 }
 
+function resolvePackagingSelection(
+  packagingTypeId: string,
+  suggestion: SuggestPackagingResult | null,
+  activeCatalog: PackagingTypeDto[],
+): PackagingTypeDto | null {
+  if (
+    suggestion?.suggested !== null &&
+    suggestion?.suggested !== undefined &&
+    suggestion.suggested.id === packagingTypeId
+  ) {
+    return suggestion.suggested
+  }
+  return activeCatalog.find((row) => row.id === packagingTypeId) ?? null
+}
+
 export type OrderSuggestedPackagingModel = {
   loadState: OrderSuggestedPackagingLoadState
   errorMessage: string | null
   suggestion: SuggestPackagingResult | null
   selectedPackaging: PackagingTypeDto | null
   confirmedPackagingId: string | null
+  saveState: OrderSuggestedPackagingSaveState
+  saveErrorMessage: string | null
   isOverrideOpen: boolean
   catalogLoadState: CatalogLoadState
   catalogErrorMessage: string | null
   activeCatalog: PackagingTypeDto[]
   canSuggest: boolean
+  canPersist: boolean
   shipmondoLabelBlockReason: string | null
   openOverride: () => void
   closeOverride: () => void
@@ -172,12 +234,14 @@ export type OrderSuggestedPackagingModel = {
 
 export function useOrderSuggestedPackaging(props: {
   lineItems: OrderLineItemRow[]
-  onConfirmedPackagingChange: (packagingTypeId: string | null) => void
+  fulfillmentId: string | null
 }): OrderSuggestedPackagingModel {
-  const { lineItems, onConfirmedPackagingChange } = props
+  const { lineItems, fulfillmentId } = props
   const suggestItems = useMemo(() => buildSuggestItems(lineItems), [lineItems])
   const canSuggest = suggestItems.length > 0
+  const canPersist = fulfillmentId !== null
   const suggestItemsKey = useMemo(() => JSON.stringify(suggestItems), [suggestItems])
+  const fulfillmentKey = fulfillmentId ?? ""
 
   const [state, dispatch] = useReducer(
     suggestedPackagingReducer,
@@ -187,10 +251,6 @@ export function useOrderSuggestedPackaging(props: {
   const confirmedPackagingId = state.selectedPackaging?.id ?? null
 
   useEffect(() => {
-    onConfirmedPackagingChange(confirmedPackagingId)
-  }, [confirmedPackagingId, onConfirmedPackagingChange])
-
-  useEffect(() => {
     if (!canSuggest) {
       dispatch({ type: "suggestSkipped" })
       return
@@ -198,16 +258,47 @@ export function useOrderSuggestedPackaging(props: {
 
     let cancelled = false
     const run = async (): Promise<void> => {
-      dispatch({ type: "suggestStart" })
+      dispatch({ type: "loadStart" })
       try {
+        const persisted =
+          fulfillmentId !== null ? await fetchShipmentPackaging(fulfillmentId) : null
         const result = await suggestPackagingForOrderItems(suggestItems)
-        if (!cancelled) {
-          dispatch({ type: "suggestSuccess", suggestion: result })
+        if (cancelled) {
+          return
+        }
+
+        const selectedFromPersisted =
+          persisted !== null ? packagingTypeFromShipmentPackaging(persisted) : null
+        const selectedPackaging =
+          selectedFromPersisted ?? result.suggested
+
+        dispatch({
+          type: "loadSuccess",
+          suggestion: result,
+          selectedPackaging,
+        })
+
+        if (fulfillmentId !== null && persisted === null && result.suggested !== null) {
+          dispatch({ type: "saveStart" })
+          try {
+            const saved = await upsertShipmentPackaging(fulfillmentId, result.suggested.id)
+            if (!cancelled) {
+              dispatch({
+                type: "saveSuccess",
+                packaging: packagingTypeFromShipmentPackaging(saved),
+              })
+            }
+          } catch (e) {
+            if (!cancelled) {
+              const msg = e instanceof Error ? e.message : "Failed to save packaging choice"
+              dispatch({ type: "saveError", message: msg })
+            }
+          }
         }
       } catch (e) {
         if (!cancelled) {
-          const msg = e instanceof Error ? e.message : "Failed to suggest packaging"
-          dispatch({ type: "suggestError", message: msg })
+          const msg = e instanceof Error ? e.message : "Failed to load packaging suggestion"
+          dispatch({ type: "loadError", message: msg })
         }
       }
     }
@@ -215,7 +306,7 @@ export function useOrderSuggestedPackaging(props: {
     return (): void => {
       cancelled = true
     }
-  }, [canSuggest, suggestItemsKey, state.reloadToken, suggestItems])
+  }, [canSuggest, fulfillmentKey, suggestItemsKey, state.reloadToken, suggestItems, fulfillmentId])
 
   useEffect(() => {
     if (!state.isOverrideOpen || state.catalogLoadState !== "idle") {
@@ -253,22 +344,34 @@ export function useOrderSuggestedPackaging(props: {
 
   const selectPackaging = useCallback(
     (packagingTypeId: string): void => {
-      const fromSuggestion =
-        state.suggestion?.suggested !== null &&
-        state.suggestion?.suggested !== undefined &&
-        state.suggestion.suggested.id === packagingTypeId
-          ? state.suggestion.suggested
-          : null
-      if (fromSuggestion !== null) {
-        dispatch({ type: "selectPackaging", packaging: fromSuggestion })
+      const next = resolvePackagingSelection(
+        packagingTypeId,
+        state.suggestion,
+        state.activeCatalog,
+      )
+      if (next === null) {
         return
       }
-      const fromCatalog = state.activeCatalog.find((row) => row.id === packagingTypeId) ?? null
-      if (fromCatalog !== null) {
-        dispatch({ type: "selectPackaging", packaging: fromCatalog })
+
+      if (fulfillmentId === null) {
+        dispatch({ type: "selectPackaging", packaging: next })
+        return
       }
+
+      dispatch({ type: "saveStart" })
+      void upsertShipmentPackaging(fulfillmentId, packagingTypeId)
+        .then((saved) => {
+          dispatch({
+            type: "saveSuccess",
+            packaging: packagingTypeFromShipmentPackaging(saved),
+          })
+        })
+        .catch((e: unknown) => {
+          const msg = e instanceof Error ? e.message : "Failed to save packaging choice"
+          dispatch({ type: "saveError", message: msg })
+        })
     },
-    [state.activeCatalog, state.suggestion?.suggested],
+    [fulfillmentId, state.activeCatalog, state.suggestion],
   )
 
   const retry = useCallback((): void => {
@@ -282,8 +385,9 @@ export function useOrderSuggestedPackaging(props: {
         packagingLoadState: state.loadState,
         packagingErrorMessage: state.errorMessage,
         suggestion: state.suggestion,
+        saveState: state.saveState,
       }),
-    [lineItems, state.errorMessage, state.loadState, state.suggestion],
+    [lineItems, state.errorMessage, state.loadState, state.saveState, state.suggestion],
   )
 
   return {
@@ -292,11 +396,14 @@ export function useOrderSuggestedPackaging(props: {
     suggestion: state.suggestion,
     selectedPackaging: state.selectedPackaging,
     confirmedPackagingId,
+    saveState: state.saveState,
+    saveErrorMessage: state.saveErrorMessage,
     isOverrideOpen: state.isOverrideOpen,
     catalogLoadState: state.catalogLoadState,
     catalogErrorMessage: state.catalogErrorMessage,
     activeCatalog: state.activeCatalog,
     canSuggest,
+    canPersist,
     shipmondoLabelBlockReason,
     openOverride,
     closeOverride,
