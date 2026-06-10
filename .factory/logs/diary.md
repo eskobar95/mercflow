@@ -975,3 +975,86 @@ none (M008 feature-complete pending milestone review)
 - [x] Merge PR #83 to `development` (`93bc552` — 2026-06-10)
 - [ ] `/milestone-review M008`
 - [ ] `/run-sprint S017` — T046, T048
+
+---
+
+## Task T046 — Unsaved state indicator + `beforeunload` guard — 2026-06-10
+
+**Sprint:** S017 | **Milestone:** M009 | **Status:** done
+**Branch:** `feature/S017/T046-unsaved-state-indicator`
+**PR:** https://github.com/eskobar95/mercflow/pull/85
+**Merge:** `f71c460`
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Product form shows `•` in document.title when dirty; beforeunload guard with cleanup on save/unmount.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+none
+
+---
+
+## Task T048 — SEO section: lazy preview + character counter — 2026-06-10
+
+**Sprint:** S017 | **Milestone:** M009 | **Status:** done
+**Branch:** `feature/S017/T048-seo-lazy-preview`
+**PR:** https://github.com/eskobar95/mercflow/pull/84
+**Merge:** `622ad70`
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+SEO section empty-state instructions, debounced Google snippet preview, inline character counters with red overflow state.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none
+
+---
+
+## Sprint retro — S017 — 2026-06-10
+
+**Milestone:** M009
+**Duration:** session
+**Tasks:** 2/2 done, 0 blocked
+
+### What went well
+- T046 og T048 kørte parallelt uden konflikter
+- Begge PR'er grønne CI på første merge-kandidat
+
+### What failed or slowed down
+- none
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T046 | done | Task T046 — 2026-06-10 |
+| T048 | done | Task T048 — 2026-06-10 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T046 | 1 | scope fix commit `f21191b` |
+| T048 | 0 | — |
+
+### Next actions
+- [x] Merge PR #84 + #85 to `development` (`622ad70`, `f71c460` — 2026-06-10)
+- [ ] `/run-sprint S018` — T047, T049

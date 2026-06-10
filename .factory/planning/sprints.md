@@ -8,7 +8,7 @@
 > Updated: 2026-06-04 (S003 done on feature branch; merged with development planning hygiene)
 > Updated: 2026-06-04 (merged `origin/development` + S006 branch)
 > Updated: 2026-06-09 (S010–S012 added — M007 Medusa Fork Setup)
-> Updated: 2026-06-10 (S013–S016 M008; S014 done — PRs #78, #80, #81; S015 done — PRs #79, #82)
+> Updated: 2026-06-10 (S017 merged to `development` — PRs #84 `622ad70`, #85 `f71c460`)
 
 | ID | Milestone | Goal | Tasks | Status |
 |----|-----------|------|-------|--------|
@@ -28,7 +28,7 @@
 | S014 | M008 | Standard library seeds + activation + store API + category constraints | T040, T043, T044 | done |
 | S015 | M008 | Admin UI: Custom Data settings + product form metafields | T041, T042 | done |
 | S016 | M008 | Polish: standard library browse dialog | T045 | done |
-| S017 | M009 | Unsaved state indicator + SEO lazy preview polish | T046, T048 | planned |
+| S017 | M009 | Unsaved state indicator + SEO lazy preview polish | T046, T048 | done |
 | S018 | M009 | Variant UX progressive CTA + physical product toggle + dimension fields | T047, T049 | planned |
 | S019 | M010 | packaging-module: model, migration, RLS, service, admin API | T050 | planned |
 | S020 | M010 | Settings → Packaging UI + Order fulfillment suggestion widget | T051, T052 | planned |
@@ -57,7 +57,7 @@
 
 ## S017–S018 — M009 Product Form Polish
 
-- **S017:** T046 (unsaved state) og T048 (SEO preview) kører parallelt — begge isolerede admin-ui ændringer.
+- **S017:** T046 (unsaved state) og T048 (SEO preview) — done (PR #84 `622ad70`, PR #85 `f71c460`).
 - **S018:** T047 (variant UX) og T049 (physical toggle + dimensioner) kører parallelt — rører kun produktformularen, ingen indbyrdes afhængighed.
 
 ---

@@ -4,7 +4,7 @@
 > Updated: 2026-06-04 (S003 merged — PR #60; see `.factory/logs/sprints/S003-closeout-2026-06-04.md`)
 > Updated: 2026-06-04 (synced with `development`; see `.factory/logs/milestone-reviews/M000-2026-06-04.md`)
 > Updated: 2026-06-09 (M007 added — Medusa Fork Setup; ADR-007 accepted)
-> Updated: 2026-06-10 (M008 added — Metafields; S013–S015 merged to `development`)
+> Updated: 2026-06-10 (S017 merged to `development` — PRs #84 `622ad70`, #85 `f71c460`; M009 S017 done)
 
 ---
 
@@ -306,16 +306,30 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 
 **Sprints i dette milestone:** S017, S018
 
+**Sprints in this milestone:**
+
+| Sprint | Goal | Tasks | Status |
+|--------|------|-------|--------|
+| S017 | Unsaved state indicator + SEO lazy preview | T046, T048 | done |
+| S018 | Variant UX + physical product toggle + dimensions | T047, T049 | planned |
+
 **Dependencies:** M008
 
 **Definition of done:**
-- [ ] Unsaved state indicator på page title + `beforeunload` guard
+- [x] Unsaved state indicator på page title + `beforeunload` guard (T046 / S017 — PR #85)
 - [ ] Varianter: enkelt CTA → grid vises kun efter option er tilføjet
-- [ ] SEO preview: tom tilstand = hjælpetekst; fyldt tilstand = live snippet
+- [x] SEO preview: tom tilstand = hjælpetekst; fyldt tilstand = live snippet (T048 / S017 — PR #84)
 - [ ] "Physical product" toggle kollapser shipping-felter
 - [ ] Dimension-felter (L/W/H/weight) synlige og persisterede per variant
 - [ ] `pnpm react-doctor:admin-ui` 0 issues
 - [ ] `/milestone-review M009` grøn
+
+**Merged to `development` (2026-06-10, S017):**
+
+| PR | Task | Merge |
+|----|------|-------|
+| #84 | T048 SEO lazy preview + character counters | `622ad70` |
+| #85 | T046 unsaved state indicator + beforeunload guard | `f71c460` |
 
 ---
 

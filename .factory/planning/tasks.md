@@ -2394,7 +2394,9 @@ A merchant-admin can open the standard library from Settings → Custom Data, fi
 
 **Sprint:** S017
 **Milestone:** M009
-**Status:** todo
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/85
+**Merge:** `f71c460`
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
@@ -2420,11 +2422,11 @@ Merchant ser tydeligt når produktformularen har ændringer der ikke er gemt. Na
 
 ### Definition of done
 
-- [ ] `document.title` viser `• Produktnavn` ved dirty state
-- [ ] Browser-dialog vises ved navigation med unsaved changes
-- [ ] Dialog vises IKKE når formularen er ren (ingen falske positiver)
-- [ ] `pnpm react-doctor:admin-ui` 0 issues
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] `document.title` viser `• Produktnavn` ved dirty state
+- [x] Browser-dialog vises ved navigation med unsaved changes
+- [x] Dialog vises IKKE når formularen er ren (ingen falske positiver)
+- [x] `pnpm react-doctor:admin-ui` 0 issues
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 
@@ -2432,7 +2434,9 @@ Merchant ser tydeligt når produktformularen har ændringer der ikke er gemt. Na
 
 **Sprint:** S017
 **Milestone:** M009
-**Status:** todo
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/84
+**Merge:** `622ad70`
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
@@ -2453,11 +2457,11 @@ SEO-sektionen viser instruktionstekst når ingen data er udfyldt, og et live Goo
 
 ### Definition of done
 
-- [ ] Tom tilstand: instruktionstekst (ikke blank box)
-- [ ] Udfyldt tilstand: Google snippet preview live
-- [ ] Character counters med rød fejltilstand ved overskridelse
-- [ ] `pnpm react-doctor:admin-ui` 0 issues
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] Tom tilstand: instruktionstekst (ikke blank box)
+- [x] Udfyldt tilstand: Google snippet preview live
+- [x] Character counters med rød fejltilstand ved overskridelse
+- [x] `pnpm react-doctor:admin-ui` 0 issues
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 
