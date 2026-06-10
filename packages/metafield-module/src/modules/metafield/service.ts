@@ -186,13 +186,20 @@ class MetafieldModuleService extends MedusaService({
   async listDefinitions(
     filters: ListDefinitionsFilters
   ): Promise<{ definitions: MetafieldDefinitionRecord[]; count: number }> {
+    if (
+      filters.categoryConstraintIds !== undefined &&
+      filters.categoryConstraintIds.length === 0
+    ) {
+      return { definitions: [], count: 0 }
+    }
+
     return this.withTenant(filters.storeId, async (context) => {
       const query: Record<string, unknown> = {
         store_id: filters.storeId,
         owner_type: filters.ownerType,
       }
-      if (filters.categoryConstraintId) {
-        query.category_constraint_id = filters.categoryConstraintId
+      if (filters.categoryConstraintIds !== undefined) {
+        query.category_constraint_id = { $in: filters.categoryConstraintIds }
       }
 
       const [rows, count] = await this.listAndCountMetafieldDefinitions(

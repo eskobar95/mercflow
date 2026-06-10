@@ -84,7 +84,8 @@ export type UpdateDefinitionInput = {
 export type ListDefinitionsFilters = {
   ownerType: MetafieldOwnerType
   storeId: string
-  categoryConstraintId?: string
+  /** When set, only definitions whose `category_constraint_id` is in this list are returned. */
+  categoryConstraintIds?: string[]
   limit?: number
   offset?: number
 }
