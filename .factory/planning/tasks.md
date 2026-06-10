@@ -2667,7 +2667,8 @@ Order detail-siden viser et "Suggested packaging" widget i fulfillment-sektionen
 
 **Sprint:** S021
 **Milestone:** M010
-**Status:** todo
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/91
 **Mode:** HITL
 **HITL reason:** Kræver live Shipmondo API-verifikation — label-generering kan ikke mockes fuldt ud; menneskelig bekræftelse af korrekt dimension-payload er nødvendig
 **Parallel group:** A

@@ -1128,3 +1128,68 @@ none
 ### Next actions
 - [x] Merge PR #84 + #85 to `development` (`622ad70`, `f71c460` — 2026-06-10)
 - [ ] `/run-sprint S018` — T047, T049
+
+---
+
+## Task T053 — Shipmondo connector: packaging dimensions auto-fill — 2026-06-10
+
+**Sprint:** S021 | **Milestone:** M010 | **Status:** done
+**Branch:** `feature/S021/T053-shipmondo-packaging-autofill`
+**PR:** https://github.com/eskobar95/mercflow/pull/91
+**Mode:** HITL
+**Parallel group:** A
+
+### Outcome
+Shipmondo POST /shipments label flow med packaging autofill (mm→cm, gram), sender settings i rules_json, og Generate label UI på order detail.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none
+
+---
+
+## Sprint retro — S021 — 2026-06-10
+
+**Milestone:** M010
+**Duration:** session
+**Tasks:** 1/1 done, 0 blocked
+
+### What went well
+- HITL checkpoint godkendt; T053 implementeret og PR #91 grøn CI på første kandidat
+- Fuldt pipeline: implement → verify → review → close → fix-ci uden revision loops
+
+### What failed or slowed down
+- none
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T053 | done | Task T053 — 2026-06-10 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T053 | 0 | — |
+
+### Harness notes
+- Parallel groups used: A (1 task)
+- Subagent issues: none
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Align implement skill base branch med `development` | skills/harness/implement/SKILL.md |
+
+### Next actions
+- [ ] Human: review and merge PR #91 to `development`
+- [x] HITL post-merge: sandbox POST /shipments PASS — shipment `58028292`, parcels `weight:2000g, 30×20×10cm` (300×200×100mm input)
+- [ ] Deploy PR #91 to `api.mercflow.shop` + fix local backend MikroORM startup for fuld Admin UI E2E
+- [ ] `/run-sprint S022` — M011 Shipping Settings (T054, T055)

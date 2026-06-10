@@ -8,6 +8,7 @@
 > Updated: 2026-06-04 (S003 done on feature branch; merged with development planning hygiene)
 > Updated: 2026-06-04 (merged `origin/development` + S006 branch)
 > Updated: 2026-06-09 (S010–S012 added — M007 Medusa Fork Setup)
+> Updated: 2026-06-10 (S021 done — PR #91 T053 Shipmondo label + packaging autofill)
 > Updated: 2026-06-10 (S018 merged to `development` — PRs #86 `6d89f1b`, #87 `b0ade41`)
 
 | ID | Milestone | Goal | Tasks | Status |
@@ -32,7 +33,7 @@
 | S018 | M009 | Variant UX progressive CTA + physical product toggle + dimension fields | T047, T049 | done |
 | S019 | M010 | packaging-module: model, migration, RLS, service, admin API | T050 | planned |
 | S020 | M010 | Settings → Packaging UI + Order fulfillment suggestion widget | T051, T052 | planned |
-| S021 | M010 | Shipmondo connector: packaging dimensions auto-fill (HITL) | T053 | planned |
+| S021 | M010 | Shipmondo connector: packaging dimensions auto-fill (HITL) | T053 | done |
 
 ---
 
@@ -67,7 +68,7 @@
 - **S019:** T050 (packaging-module) — solo prerequisite for alt i M010.
 - **S020:**
   - Group A: T051 (Settings UI) og T052 (fulfillment widget) kører parallelt — begge blokkeret af T050, uafhængige af hinanden.
-- **S021:** T053 (Shipmondo pre-fill) — **HITL**; blokkeret af T052; kræver manuel Shipmondo API-verifikation.
+- **S021:** T053 (Shipmondo pre-fill) — done (PR #91).
 
 ---
 
