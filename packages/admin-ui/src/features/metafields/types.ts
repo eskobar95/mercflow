@@ -39,6 +39,35 @@ export type MetafieldDefinitionDto = {
   updated_at: string
 }
 
+export type CreateMetafieldDefinitionPayload = {
+  owner_type: MetafieldOwnerType
+  namespace: string
+  key: string
+  name: string
+  description?: string | null
+  type: MetafieldValueType
+  validations?: Record<string, unknown> | null
+  pinned_position?: number | null
+  is_required?: boolean
+  is_primary?: boolean
+  category_constraint_id?: string | null
+}
+
+export type UpdateMetafieldDefinitionPayload = {
+  name?: string
+  description?: string | null
+  type?: MetafieldValueType
+  validations?: Record<string, unknown> | null
+  pinned_position?: number | null
+  is_required?: boolean
+  is_primary?: boolean
+  category_constraint_id?: string | null
+}
+
+export type CustomDataEntityKey = "product" | "category" | "variant" | "order" | "customer"
+
+export type CustomDataListTab = "all" | "by_category"
+
 export type MetafieldValueDto = {
   id: string
   namespace: string

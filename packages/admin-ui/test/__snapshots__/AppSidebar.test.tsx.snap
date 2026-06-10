@@ -640,6 +640,39 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
         </a>
         <a
           class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
+          href="/settings/custom-data"
+        >
+          <svg
+            aria-hidden="true"
+            class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
+            fill="none"
+            focusable="false"
+            height="18"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.75"
+            viewBox="0 0 24 24"
+            width="18"
+          >
+            <path
+              d="M4 6.5h9l3 3v10H4z"
+            />
+            <path
+              d="M13 6.5V9.5h3"
+            />
+            <path
+              d="M8 13h5M8 16h3"
+            />
+          </svg>
+          <span
+            class="truncate"
+          >
+            Custom data
+          </span>
+        </a>
+        <a
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
           href="/settings/seo/organisation"
         >
           <svg

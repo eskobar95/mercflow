@@ -5,7 +5,13 @@ import {
   resolveMedusaAdminBackendUrl,
 } from "@/medusa-admin/medusaAdminFetch"
 
-import type { MetafieldDefinitionDto, MetafieldOwnerType, MetafieldValueType } from "./types"
+import type {
+  CreateMetafieldDefinitionPayload,
+  MetafieldDefinitionDto,
+  MetafieldOwnerType,
+  MetafieldValueType,
+  UpdateMetafieldDefinitionPayload,
+} from "./types"
 import { METAFIELD_OWNER_TYPES, METAFIELD_VALUE_TYPES } from "./types"
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -102,4 +108,70 @@ export async function listMetafieldDefinitions(params: {
   return json.metafield_definitions
     .map((row) => parseMetafieldDefinitionRow(row))
     .filter((row): row is MetafieldDefinitionDto => row !== null)
+}
+
+export async function createMetafieldDefinition(
+  payload: CreateMetafieldDefinitionPayload
+): Promise<MetafieldDefinitionDto> {
+  const base = requireBackendUrl()
+  const response = await fetch(`${base}/admin/metafield-definitions`, {
+    method: "POST",
+    headers: buildMedusaAdminJsonHeaders(),
+    credentials: "include",
+    body: JSON.stringify(payload),
+  })
+
+  if (!response.ok) {
+    throw new Error(await readMedusaAdminHttpErrorMessage(response))
+  }
+
+  const json = await parseMedusaAdminJsonResponse(response)
+  if (!isRecord(json)) {
+    throw new TypeError("Invalid API response: expected { metafield_definition: object }")
+  }
+  const parsed = parseMetafieldDefinitionRow(json.metafield_definition)
+  if (parsed === null) {
+    throw new TypeError("Invalid API response: expected { metafield_definition: object }")
+  }
+  return parsed
+}
+
+export async function updateMetafieldDefinition(
+  id: string,
+  payload: UpdateMetafieldDefinitionPayload
+): Promise<MetafieldDefinitionDto> {
+  const base = requireBackendUrl()
+  const response = await fetch(`${base}/admin/metafield-definitions/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    headers: buildMedusaAdminJsonHeaders(),
+    credentials: "include",
+    body: JSON.stringify(payload),
+  })
+
+  if (!response.ok) {
+    throw new Error(await readMedusaAdminHttpErrorMessage(response))
+  }
+
+  const json = await parseMedusaAdminJsonResponse(response)
+  if (!isRecord(json)) {
+    throw new TypeError("Invalid API response: expected { metafield_definition: object }")
+  }
+  const parsed = parseMetafieldDefinitionRow(json.metafield_definition)
+  if (parsed === null) {
+    throw new TypeError("Invalid API response: expected { metafield_definition: object }")
+  }
+  return parsed
+}
+
+export async function deleteMetafieldDefinition(id: string): Promise<void> {
+  const base = requireBackendUrl()
+  const response = await fetch(`${base}/admin/metafield-definitions/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    headers: buildMedusaAdminJsonHeaders(),
+    credentials: "include",
+  })
+
+  if (!response.ok) {
+    throw new Error(await readMedusaAdminHttpErrorMessage(response))
+  }
 }
