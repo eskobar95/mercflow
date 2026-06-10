@@ -125,10 +125,12 @@ function parseLineItems(order: Record<string, unknown>): OrderLineItemRow[] {
     const unit = readNumber(raw, "unit_price") ?? 0
     const total = readNumber(raw, "total") ?? unit * qty
     const thumb = readString(raw, "thumbnail")
+    const variantId = readString(raw, "variant_id") ?? null
     rows.push({
       id,
       title,
       variantLabel,
+      variantId,
       quantity: qty,
       unitPriceMinor: unit,
       rowTotalMinor: total,
