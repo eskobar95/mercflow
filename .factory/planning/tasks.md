@@ -2465,11 +2465,12 @@ SEO-sektionen viser instruktionstekst når ingen data er udfyldt, og et live Goo
 
 **Sprint:** S018
 **Milestone:** M009
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S018/T047-variant-progressive-ux
+**PR:** #86
 **PRD journey:** J001 (PRD-product-form-polish.md)
 
 ### Slice objective

@@ -5,6 +5,7 @@ import {
   buildVariantRowsFromOptionMatrix,
   DEFAULT_SINGLE_OPTION_TITLE,
   DEFAULT_SINGLE_OPTION_VALUE,
+  hasDefinedProductOptions,
   splitOptionValuesCsv,
   type VariantRowModel,
 } from "@/lib/products/productOptionMatrix"
@@ -77,6 +78,13 @@ describe("productOptionMatrix helpers", (): void => {
 
     expect(combos).toHaveLength(1)
     expect(combos[0]?.selections[DEFAULT_SINGLE_OPTION_TITLE]).toBe(DEFAULT_SINGLE_OPTION_VALUE)
+  })
+
+  it("detects defined product options for progressive variant UX", (): void => {
+    expect(hasDefinedProductOptions([])).toBe(false)
+    expect(hasDefinedProductOptions([{ title: "", values: [] }])).toBe(false)
+    expect(hasDefinedProductOptions([{ title: "Size", values: [] }])).toBe(false)
+    expect(hasDefinedProductOptions([{ title: "Size", values: ["S", "M"] }])).toBe(true)
   })
 
   it("preserves economics when combos rotate", (): void => {
