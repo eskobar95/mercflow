@@ -907,5 +907,71 @@ none
 
 ### Next actions
 - [x] Merge PRs #79, #82 to `development` (2026-06-10)
-- [ ] `/run-sprint S016` — T045 standard library browse dialog
-- [ ] `/milestone-review M008` after S016
+- [x] `/run-sprint S016` — T045 standard library browse dialog
+- [ ] `/milestone-review M008` after S016 merge
+
+---
+
+## Task T045 — Standard library browse dialog — 2026-06-10
+
+**Sprint:** S016 | **Milestone:** M008 | **Status:** done
+**Branch:** `feature/S016/T045-standard-library-browse-ui`
+**PR:** https://github.com/eskobar95/mercflow/pull/83
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Standard library browse dialog wired into Custom Data settings — vertical filter, checklist, activate selected via admin API.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none (M008 feature-complete pending milestone review)
+
+---
+
+## Sprint retro — S016 — 2026-06-10
+
+**Milestone:** M008
+**Duration:** session
+**Tasks:** 1/1 done, 0 blocked
+
+### What went well
+- Single-task sprint completed end-to-end with CI green on first PR push
+- Reused T040 backend APIs without module changes
+- React Doctor diff score 91/100 on PR changes
+
+### What failed or slowed down
+- Background subagent transcript lag; lead verified completion via branch/PR state
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T045 | done | Task T045 — 2026-06-10 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T045 | 0 | — |
+
+### Harness notes
+- Parallel groups: A (solo T045)
+- Subagent issues: transcript incomplete; implementation + PR completed successfully
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Note base branch is `development` not `dev` in implement preflight | skills/harness/implement/SKILL.md |
+
+### Next actions
+- [ ] Merge PR #83 to `development`
+- [x] Merge PR #83 to `development` (`93bc552` — 2026-06-10)
+- [ ] `/milestone-review M008`
+- [ ] `/run-sprint S017` — T046, T048

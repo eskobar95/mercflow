@@ -26,7 +26,7 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 | M005 | Improved Order Flow | Faster order processing + pick list | M000 | done |
 | M006 | Production Infrastructure | MercFlow kører på Hetzner; Traefik, Redis, Sentry, provisioning | M005 | done |
 | M007 | Medusa Fork Setup | Medusa som lokale workspace packages; `store_id` på core tables; tenant wiring; dashboard fjernet | M006 | done |
-| M008 | Metafields | Tenant-defined metafield definitions + values; standard library; admin UI; store API | M007 | in-progress (S016 remaining) |
+| M008 | Metafields | Tenant-defined metafield definitions + values; standard library; admin UI; store API | M007 | ready for milestone review |
 | M009 | Product Form Polish | Unsaved state; progressive variant UX; SEO lazy preview; physical/digital toggle; product dimensions | M008 | planned |
 | M010 | Fulfillment Intelligence | Merchant packaging catalog; bin-packing suggestion on order fulfillment; Shipmondo dimensions auto-fill | M009 | planned |
 
@@ -266,7 +266,7 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 | S013 | metafield-module engine: definitions + values | T038, T039 | done |
 | S014 | Standard library + activation + store API + category constraints | T040, T043, T044 | done |
 | S015 | Admin UI: Custom Data settings + product form metafields | T041, T042 | done |
-| S016 | Polish: standard library browse dialog | T045 | planned |
+| S016 | Polish: standard library browse dialog | T045 | done |
 
 **Dependencies:** M007 (done)
 
@@ -278,7 +278,7 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 - [x] Custom Data settings page `/settings/custom-data` (T041 — PR #79)
 - [x] Product form metafields two-tier UI + batch save (T042 — PR #82)
 - [x] `is_primary` always visible; secondary as `+ chip` pattern
-- [ ] Standard library browse dialog in settings (T045 / S016)
+- [x] Standard library browse dialog in settings (T045 / S016 — PR #83)
 - [ ] Zero cross-tenant metafield rows (test-covered on store API; full milestone gate at review)
 - [ ] Guapo brand + ingredients migrated to metafields (deferred — post-M008)
 - [ ] `/milestone-review M008` grøn
@@ -294,6 +294,7 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 | #81 | T043 category form metafields | `43d3cb4` |
 | #79 | T041 Custom Data settings UI | `34bc047` |
 | #82 | T042 product form metafields | `80b4855` |
+| #83 | T045 standard library browse dialog | `93bc552` |
 
 ---
 

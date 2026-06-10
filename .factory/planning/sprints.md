@@ -27,7 +27,7 @@
 | S013 | M008 | metafield-module engine: definitions + values | T038, T039 | done |
 | S014 | M008 | Standard library seeds + activation + store API + category constraints | T040, T043, T044 | done |
 | S015 | M008 | Admin UI: Custom Data settings + product form metafields | T041, T042 | done |
-| S016 | M008 | Polish: standard library browse dialog | T045 | planned |
+| S016 | M008 | Polish: standard library browse dialog | T045 | done |
 | S017 | M009 | Unsaved state indicator + SEO lazy preview polish | T046, T048 | planned |
 | S018 | M009 | Variant UX progressive CTA + physical product toggle + dimension fields | T047, T049 | planned |
 | S019 | M010 | packaging-module: model, migration, RLS, service, admin API | T050 | planned |
@@ -43,7 +43,7 @@
 - **S013:** T038 (definitions) og T039 (values) — done (PR #77, #76).
 - **S014:** T040 group A; T043 + T044 group B parallel — done (PR #78, #81, #80).
 - **S015:** T041 group A → T042 group B — done (PR #79 `34bc047`, PR #82 `80b4855`).
-- **S016:** T045 — planned (T040 + T041 merged — ready to run).
+- **S016:** T045 — done (PR #83).
 
 ---
 

@@ -2119,12 +2119,14 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 
 **Sprint:** S016
 **Milestone:** M008
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T040, T041
 **PRD journeys:** J003
 **Branch:** `feature/S016/T045-standard-library-browse-ui`
+**PR:** https://github.com/eskobar95/mercflow/pull/83
+**Merge:** `93bc552`
 
 ---
 
