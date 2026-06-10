@@ -9,6 +9,7 @@ import {
   feedSidebarSection,
   inventorySidebarSection,
   primarySidebarNav,
+  shippingSidebarSection,
   settingsSidebarSection,
   type SidebarNavItem,
   type SidebarNavSection,
@@ -289,6 +290,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps): ReactNode {
         <Section section={feedSidebarSection} onNavigate={onNavigate} />
         <Section section={inventorySidebarSection} onNavigate={onNavigate} />
         <Section section={contentSidebarSection} onNavigate={onNavigate} />
+        <Section section={shippingSidebarSection} onNavigate={onNavigate} />
         <Section section={settingsSidebarSection} onNavigate={onNavigate} />
       </nav>
 

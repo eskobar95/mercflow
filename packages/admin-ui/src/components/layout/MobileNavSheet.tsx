@@ -11,6 +11,7 @@ import {
   IconContent,
   IconFeed,
   IconInventory,
+  IconPackaging,
   IconSettings,
 } from "@/components/ui/icons"
 import {
@@ -18,6 +19,7 @@ import {
   feedSidebarSection,
   inventorySidebarSection,
   primarySidebarNav,
+  shippingSidebarSection,
   settingsSidebarSection,
   type SidebarNavItem,
   type SidebarSubItem,
@@ -107,6 +109,20 @@ function buildRootTiles(): TileSource[] {
       icon: IconContent,
       drillTo: "content",
       subItems: contentSidebarSection.items.map(
+        (item): SidebarSubItem => ({
+          label: item.label,
+          to: item.to,
+          end: item.end,
+          icon: item.icon,
+        })
+      ),
+    },
+    {
+      key: "shipping-group",
+      label: "Shipping",
+      icon: IconPackaging,
+      drillTo: "shipping",
+      subItems: shippingSidebarSection.items.map(
         (item): SidebarSubItem => ({
           label: item.label,
           to: item.to,

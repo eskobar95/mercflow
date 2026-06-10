@@ -268,6 +268,14 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "settings/packaging",
+        handle: { title: "Packaging" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { PackagingSettingsPage } = await import("@/pages/PackagingSettingsPage")
+          return { Component: PackagingSettingsPage }
+        },
+      },
+      {
         path: "settings/seo/organisation",
         handle: { title: "SEO — Organisation" } satisfies AppRouteHandle,
         lazy: async () => {

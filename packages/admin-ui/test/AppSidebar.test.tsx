@@ -7,6 +7,7 @@ import { AppSidebar } from "@/components/layout/AppSidebar"
 import {
   contentSidebarSection,
   primarySidebarNav,
+  shippingSidebarSection,
   settingsSidebarSection,
 } from "@/config/sidebarNav"
 
@@ -38,11 +39,16 @@ describe("AppSidebar", (): void => {
       }
     }
 
-    // Content + Settings sections render their section labels and leaf links.
+    // Content + Shipping + Settings sections render their section labels and leaf links.
     expect(screen.getByText("Content")).toBeInTheDocument()
+    expect(screen.getByText("Shipping")).toBeInTheDocument()
     expect(screen.getByText("Settings")).toBeInTheDocument()
 
-    for (const item of [...contentSidebarSection.items, ...settingsSidebarSection.items]) {
+    for (const item of [
+      ...contentSidebarSection.items,
+      ...shippingSidebarSection.items,
+      ...settingsSidebarSection.items,
+    ]) {
       const link = screen.getByRole("link", { name: item.label })
       expect(link).toHaveAttribute("href", item.to)
     }

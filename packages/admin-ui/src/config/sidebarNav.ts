@@ -13,6 +13,7 @@ import {
   IconSuppliers,
   IconHome,
   IconOrders,
+  IconPackaging,
   IconPages,
   IconProducts,
   IconSettings,
@@ -109,6 +110,18 @@ export const contentSidebarSection: SidebarNavSection = {
     { label: "Articles", to: "/content/articles", icon: IconArticles },
     { label: "Pages", to: "/content/pages", icon: IconPages },
     { label: "Globals", to: "/content/globals", icon: IconGlobals },
+  ],
+}
+
+export const shippingSidebarSection: SidebarNavSection = {
+  label: "Shipping",
+  items: [
+    {
+      label: "Packaging",
+      to: "/settings/packaging",
+      end: true,
+      icon: IconPackaging,
+    },
   ],
 }
 
