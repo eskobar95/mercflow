@@ -24,6 +24,7 @@ export type OrderLineItemRow = {
   id: string
   title: string
   variantLabel: string
+  variantId: string | null
   quantity: number
   unitPriceMinor: number
   rowTotalMinor: number

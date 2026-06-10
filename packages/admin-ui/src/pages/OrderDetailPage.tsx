@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import { type ReactNode, useCallback, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 
 import { Card } from "@/components/ui/Card"
@@ -9,6 +9,7 @@ import { OrderPaymentSummaryCard } from "@/components/orders/OrderPaymentSummary
 import { OrderAdminBadge } from "@/components/orders/OrderAdminBadge"
 import { OrderShippingAddressCard } from "@/components/orders/OrderShippingAddressCard"
 import { OrderFulfillmentActionBar } from "@/components/orders/OrderFulfillmentActionBar"
+import { OrderSuggestedPackagingWidget } from "@/components/orders/OrderSuggestedPackagingWidget"
 import { OrderInternalNotesPanel } from "@/components/orders/OrderInternalNotesPanel"
 import { OrderStatusTimeline } from "@/components/orders/OrderStatusTimeline"
 import { useOrderDetail } from "@/hooks/useOrderDetail"
@@ -18,6 +19,10 @@ import { buildOrderTimeline } from "@/utils/buildOrderTimeline"
 export function OrderDetailPage(): ReactNode {
   const { orderId } = useParams<{ orderId: string }>()
   const { order, isLoading, errorMessage, refetch } = useOrderDetail(orderId)
+  const [confirmedPackagingTypeId, setConfirmedPackagingTypeId] = useState<string | null>(null)
+  const handleConfirmedPackagingChange = useCallback((packagingTypeId: string | null): void => {
+    setConfirmedPackagingTypeId(packagingTypeId)
+  }, [])
 
   if (isLoading && order === null && errorMessage === null) {
     return (
@@ -123,7 +128,17 @@ export function OrderDetailPage(): ReactNode {
         </div>
       </header>
 
-      <OrderFulfillmentActionBar order={order} onDidMutate={refetch} />
+      <section
+        aria-label="Order fulfillment"
+        className="mb-6 space-y-4"
+        data-confirmed-packaging-type-id={confirmedPackagingTypeId ?? undefined}
+      >
+        <OrderFulfillmentActionBar order={order} onDidMutate={refetch} />
+        <OrderSuggestedPackagingWidget
+          lineItems={order.lineItems}
+          onConfirmedPackagingChange={handleConfirmedPackagingChange}
+        />
+      </section>
 
       <div className="mb-6">
         <OrderInternalNotesPanel orderId={order.id} />
