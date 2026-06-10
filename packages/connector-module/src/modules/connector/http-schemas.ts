@@ -1,6 +1,8 @@
 import { z } from "zod"
 
-/** PATCH /admin/connectors/shipmondo — partial credential + activation updates. */
+import { shipmondoLabelSettingsPatchSchema } from "./shipmondo-label-settings"
+
+/** PATCH /admin/connectors/shipmondo — partial credential + activation + label settings updates. */
 export const shipmondoPatchBodySchema = z
   .object({
     api_user: z.string().min(1).optional(),
@@ -8,6 +10,7 @@ export const shipmondoPatchBodySchema = z
     shipping_module_key: z.union([z.string().min(1), z.literal(""), z.null()]).optional(),
     active: z.boolean().optional(),
   })
+  .merge(shipmondoLabelSettingsPatchSchema)
   .strict()
 
 export type ShipmondoPatchBody = z.infer<typeof shipmondoPatchBodySchema>

@@ -133,10 +133,14 @@ export function OrderDetailPage(): ReactNode {
         className="mb-6 space-y-4"
         data-confirmed-packaging-type-id={confirmedPackagingTypeId ?? undefined}
       >
-        <OrderFulfillmentActionBar order={order} onDidMutate={refetch} />
         <OrderSuggestedPackagingWidget
           lineItems={order.lineItems}
           onConfirmedPackagingChange={handleConfirmedPackagingChange}
+        />
+        <OrderFulfillmentActionBar
+          order={order}
+          confirmedPackagingTypeId={confirmedPackagingTypeId}
+          onDidMutate={refetch}
         />
       </section>
 

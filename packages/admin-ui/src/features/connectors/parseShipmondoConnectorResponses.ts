@@ -74,6 +74,50 @@ function parseLogs(
   return out
 }
 
+function parseLabelSettingsField(raw: unknown): {
+  senderName: string
+  senderAddress1: string
+  senderPostalCode: string
+  senderCity: string
+  senderCountryCode: string
+  senderEmail: string
+  senderPhone: string
+  labelFormat: string
+  ownAgreement: boolean
+} {
+  if (!isRecord(raw)) {
+    return {
+      senderName: "",
+      senderAddress1: "",
+      senderPostalCode: "",
+      senderCity: "",
+      senderCountryCode: "DK",
+      senderEmail: "",
+      senderPhone: "",
+      labelFormat: "10x19_pdf",
+      ownAgreement: false,
+    }
+  }
+
+  return {
+    senderName: typeof raw.senderName === "string" ? raw.senderName : "",
+    senderAddress1: typeof raw.senderAddress1 === "string" ? raw.senderAddress1 : "",
+    senderPostalCode: typeof raw.senderPostalCode === "string" ? raw.senderPostalCode : "",
+    senderCity: typeof raw.senderCity === "string" ? raw.senderCity : "",
+    senderCountryCode:
+      typeof raw.senderCountryCode === "string" && raw.senderCountryCode.trim().length === 2
+        ? raw.senderCountryCode.trim().toUpperCase()
+        : "DK",
+    senderEmail: typeof raw.senderEmail === "string" ? raw.senderEmail : "",
+    senderPhone: typeof raw.senderPhone === "string" ? raw.senderPhone : "",
+    labelFormat:
+      typeof raw.labelFormat === "string" && raw.labelFormat.trim() !== ""
+        ? raw.labelFormat
+        : "10x19_pdf",
+    ownAgreement: raw.ownAgreement === true,
+  }
+}
+
 function parseShippingRulesField(raw: unknown): {
   markupAmountMinor: number
   freeShippingThresholdMinor: number
@@ -143,6 +187,17 @@ export function parseShipmondoConnectorGetEnvelope(json: unknown): {
       freeShippingThresholdMinor: number
       enabledCarrierCodes: string[]
     }
+    labelSettings: {
+      senderName: string
+      senderAddress1: string
+      senderPostalCode: string
+      senderCity: string
+      senderCountryCode: string
+      senderEmail: string
+      senderPhone: string
+      labelFormat: string
+      ownAgreement: boolean
+    }
   }
 } {
   if (!isRecord(json)) {
@@ -174,6 +229,7 @@ export function parseShipmondoConnectorGetEnvelope(json: unknown): {
   const credentials = parseCredentialFlags(data.credentials)
   const recentLogs = parseLogs(data.recentLogs)
   const shippingRules = parseShippingRulesField(data.shippingRules)
+  const labelSettings = parseLabelSettingsField(data.labelSettings)
 
   return {
     ok: true,
@@ -184,6 +240,7 @@ export function parseShipmondoConnectorGetEnvelope(json: unknown): {
       credentials,
       recentLogs,
       shippingRules,
+      labelSettings,
     },
   }
 }

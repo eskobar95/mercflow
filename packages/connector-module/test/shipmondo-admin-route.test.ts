@@ -30,6 +30,17 @@ const samplePayload: ShipmondoAdminGetDto = {
     freeShippingThresholdMinor: 0,
     enabledCarrierCodes: [],
   },
+  labelSettings: {
+    senderName: "",
+    senderAddress1: "",
+    senderPostalCode: "",
+    senderCity: "",
+    senderCountryCode: "DK",
+    senderEmail: "",
+    senderPhone: "",
+    labelFormat: "10x19_pdf",
+    ownAgreement: false,
+  },
 }
 
 describe("Shipmondo connector admin routes", (): void => {

@@ -17,6 +17,26 @@ export type ShipmondoShippingRulesDto = {
   enabledCarrierCodes: string[]
 }
 
+export type ShipmondoLabelSettingsDto = {
+  senderName: string
+  senderAddress1: string
+  senderPostalCode: string
+  senderCity: string
+  senderCountryCode: string
+  senderEmail: string
+  senderPhone: string
+  labelFormat: string
+  ownAgreement: boolean
+}
+
+export type ShipmondoCreateLabelResultDto = {
+  shipmentId: string | number
+  trackingUrl: string | null
+  labelPdfBase64: string | null
+  productCode: string
+  reference: string
+}
+
 export type ShipmondoCarrierProductDto = {
   productCode: string
   carrierCode: string | null
@@ -31,6 +51,7 @@ export type ShipmondoConnectorGetDto = {
   credentials: ShipmondoCredentialFlagsDto
   recentLogs: ShipmondoAdminLogDto[]
   shippingRules: ShipmondoShippingRulesDto
+  labelSettings: ShipmondoLabelSettingsDto
 }
 
 export type ShipmondoTestResultDto = {
