@@ -2023,6 +2023,44 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 **PR:** https://github.com/eskobar95/mercflow/pull/77
 **Merge:** `f64238a`
 
+### Slice objective
+
+A merchant-admin can create, list, update, and delete metafield definitions for products and categories via the admin API. Definitions are tenant-scoped with RLS.
+
+### Layers in scope
+
+- **DB:** `metafield_definitions` table via Medusa DML. Columns: `id`, `store_id NOT NULL`, `owner_type` (enum: `product` | `category`), `namespace TEXT NOT NULL`, `key TEXT NOT NULL`, `name TEXT NOT NULL`, `description TEXT`, `type TEXT NOT NULL` (ValueType), `validations JSONB`, `pinned_position INT`, `is_required BOOLEAN DEFAULT false`, `category_constraint_id TEXT`, `is_standard BOOLEAN DEFAULT false`. Unique constraint: `(store_id, owner_type, namespace, key)`.
+- **RLS:** Two policies — SELECT: `store_id IS NULL OR store_id = current_setting('app.tenant_id', true)` (library seeds readable by all); INSERT/UPDATE/DELETE: `WITH CHECK (store_id = current_setting('app.tenant_id', true))`.
+- **Service:** `createDefinition`, `updateDefinition`, `deleteDefinition`, `getDefinition`, `listDefinitions({ ownerType, storeId, categoryConstraintId? })` — all filter by `store_id`.
+- **Admin API:**
+  - `GET    /admin/metafield-definitions?owner_type=&category_id=`
+  - `POST   /admin/metafield-definitions`
+  - `GET    /admin/metafield-definitions/:id`
+  - `PUT    /admin/metafield-definitions/:id`
+  - `DELETE /admin/metafield-definitions/:id`
+  All protected by Medusa admin JWT. Zod validation on request body.
+- **Tests:** Unit test for service (create, unique-constraint violation, tenant isolation). Integration test: two tenants — definition created by tenant A not returned for tenant B.
+
+### Context / assumptions
+
+- New package `packages/metafield-module/` — `@mercflow/metafield-module`. Register in `apps/backend/medusa-config.ts`.
+- `is_standard = true` rows with `store_id = NULL` are seeded in T040. T038 does NOT seed library data.
+- `ValueType` exported as a TypeScript string-literal union (not a DB enum) to allow extension without migrations.
+- `TenantIsolationSubscriber` is already wired (M007/T037) — no additional startup wiring needed.
+- Pagination: `limit = Math.min(query.limit ?? 50, 100)` (per PRD-api-hardening, T031).
+
+### Definition of done
+
+- [x] `pnpm typecheck` passes
+- [x] `pnpm lint` passes
+- [x] `pnpm test packages/metafield-module` passes
+- [x] `pnpm migration:run` clean locally
+- [x] `POST /admin/metafield-definitions` returns 201 with created definition
+- [x] Two-tenant isolation test: GET for tenant B returns 0 rows when only tenant A has definitions
+- [x] RLS `WITH CHECK` test: API call without `app.tenant_id` set cannot insert `store_id = NULL` row
+- [x] `packages/metafield-module/README.md` created with field definitions + API route reference + migration notes
+- [x] PR description filled in
+
 ---
 
 ## T039 — `metafield-module` values: model, migration, RLS, service (upsert/list), admin batch API
@@ -2037,6 +2075,41 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 **Branch:** `feature/S013/T039-metafield-values-engine`
 **PR:** https://github.com/eskobar95/mercflow/pull/76
 **Merge:** `8df5999`
+
+### Slice objective
+
+A merchant-admin can store and retrieve typed metafield values for a product or category via the admin API. Values are tenant-scoped, typed, and locale-aware from day one.
+
+### Layers in scope
+
+- **DB:** `metafield_values` table. Columns: `id`, `store_id NOT NULL`, `definition_id TEXT NOT NULL` (FK → `metafield_definitions.id`), `owner_id TEXT NOT NULL`, `owner_type TEXT NOT NULL`, `value_text TEXT`, `value_json JSONB`, `value_number NUMERIC`, `value_boolean BOOLEAN`, `locale TEXT NOT NULL DEFAULT 'en'`. Unique constraint: `(store_id, definition_id, owner_id, locale)`.
+- **RLS:** SELECT + INSERT/UPDATE/DELETE: `store_id = current_setting('app.tenant_id', true)`.
+- **Service:** `upsertValue(input, storeId)` — upserts by unique constraint; `deleteValue(id, storeId)`; `listValues({ ownerType, ownerId, storeId, locale? })` — joins with definition to return typed objects including definition metadata.
+- **Admin API:**
+  - `GET    /admin/metafield-values?owner_type=product&owner_id=`
+  - `POST   /admin/metafield-values/batch` — upsert array of values (max 50 per request)
+  - `DELETE /admin/metafield-values/:id`
+  All protected by Medusa admin JWT. Zod validation.
+- **Tests:** Unit: typed column mapping (each ValueType writes the correct column, others NULL). Integration: upsert + list round-trip; tenant isolation.
+
+### Context / assumptions
+
+- T038 must exist (types, module registration) but can be developed in parallel since the model is independent at the DB level. Merge T038 before T039 or develop on same branch with care.
+- Service `listValues` returns shape: `{ id, namespace, key, name, type, value: <typed>, locale }` — frontend never needs to inspect which column was used.
+- Batch upsert is transactional: all-or-nothing per request.
+- `locale` included in unique constraint — same `(definition_id, owner_id)` can have multiple locale values (future i18n).
+
+### Definition of done
+
+- [x] `pnpm typecheck` passes
+- [x] `pnpm lint` passes
+- [x] `pnpm test packages/metafield-module` passes (including value tests)
+- [x] `pnpm migration:run` clean locally
+- [x] Batch upsert of 3 values returns 200 with persisted values
+- [x] `listValues` returns typed output (number as `number`, boolean as `boolean`, not raw strings)
+- [x] Two-tenant isolation test on values
+- [x] `packages/metafield-module/README.md` updated with values section
+- [x] PR description filled in
 
 ---
 
@@ -2053,6 +2126,38 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 **PR:** https://github.com/eskobar95/mercflow/pull/78
 **Merge:** `0c9a02c`
 
+### Slice objective
+
+A merchant-admin can browse MercFlow's curated standard definitions and activate them for their store in one click. Skincare and fashion verticals are available at launch.
+
+### Layers in scope
+
+- **DB migration (seed):** Idempotent migration that inserts `is_standard = true`, `store_id = NULL` definitions for two verticals:
+  - **skincare:** `active_ingredients` (multi_line_text), `spf_level` (number_integer), `skin_type` (list.single_line_text), `cosmetic_function` (list.single_line_text), `target_gender` (list.single_line_text), `age_group` (single_line_text), `scent` (single_line_text), `product_form` (single_line_text)
+  - **fashion:** `material` (list.single_line_text), `fit_type` (single_line_text), `wash_instructions` (multi_line_text), `country_of_origin` (single_line_text), `care_label` (single_line_text), `sustainable_materials` (boolean)
+  Uses `INSERT ... ON CONFLICT DO NOTHING`.
+- **Service:** `listStandardLibrary({ vertical? })` — returns all `is_standard = true` definitions; `activateStandardDefinitions(definitionIds[], storeId)` — creates tenant copies (`store_id = storeId`, `is_standard = false`, same namespace/key/type).
+- **Admin API:**
+  - `GET  /admin/metafield-definitions/standard-library?vertical=skincare`
+  - `POST /admin/metafield-definitions/activate-standard` — body: `{ definition_ids: string[] }`
+- **Tests:** Library query returns seeds for both verticals. Activation creates tenant copies; running twice is idempotent (unique constraint on definitions).
+
+### Context / assumptions
+
+- Library seeds have `namespace = "mercflow_standard"`. Activated copies inherit same namespace/key but get `store_id` of the activating tenant.
+- `vertical` is stored as a tag/attribute on the definition — add `vertical TEXT` column to `metafield_definitions` (requires small addendum to T038 migration, or add here as a separate migration). Coordinate with T038 PR.
+- Activation is all-or-nothing per request. Skip already-existing definitions (idempotent).
+
+### Definition of done
+
+- [x] `pnpm migration:run` seeding both verticals cleanly
+- [x] `GET /admin/metafield-definitions/standard-library` returns 14 definitions (8 skincare + 6 fashion)
+- [x] `POST /admin/metafield-definitions/activate-standard` with 3 IDs creates 3 tenant definitions
+- [x] Calling activate twice is idempotent (no duplicate definitions)
+- [x] Library seeds visible to a tenant even before any activation (RLS SELECT policy allows `store_id IS NULL`)
+- [x] `pnpm typecheck` + `pnpm lint` + `pnpm test` pass
+- [x] PR description filled in
+
 ---
 
 ## T041 — Admin UI — Custom Data settings page (`/settings/custom-data`)
@@ -2067,6 +2172,42 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 **Branch:** `feature/S015/T041-custom-data-settings-ui`
 **PR:** https://github.com/eskobar95/mercflow/pull/79
 **Merge:** `34bc047`
+
+### Slice objective
+
+A merchant-admin can navigate to Settings → Custom Data, see their product and category metafield definitions, and create/edit/delete/pin definitions without touching code.
+
+### Layers in scope
+
+- **UI route:** `/settings/custom-data` — new settings page in admin-ui.
+- **Entity sidebar:** Products, Categories. Variants/Orders/Customers shown greyed out with "Coming soon" badge.
+- **Products entity view:** Two tabs — "All products" | "By category". Definitions table: name, type badge (color-coded), usage count, actions menu (edit, delete, pin/unpin).
+- **Add/edit definition slide-over:** Fields: Name, Namespace (pre-filled "custom", editable), Key (auto-slugified from name, editable), Type picker (list of ValueTypes with icons), Description (optional), Pinned (toggle), Required (toggle). Save → POST/PUT `/admin/metafield-definitions`.
+- **Delete confirmation modal:** "This will also delete all values for this definition."
+- **Empty state:** "No definitions yet. Add your first definition or browse the standard library."
+- **Settings navigation:** Add "Custom data" entry to the settings sidebar nav group.
+- **Tests:** Smoke test — renders without crash; definition list renders correctly; add form validates required fields.
+
+### Context / assumptions
+
+- No drag-to-reorder for pinning in v1; `pinned_position` set via a number input or toggle (see OQ-03 decision).
+- Type picker shows human-readable labels: "Short text", "Long text", "Number", "True/False", "Date", "Color", "URL", "JSON", "List of text", "List of numbers".
+- "By category" tab is visible but can show empty state initially — category-constrained definitions are created the same way but with a category picker field.
+- The "Browse standard library" button is a stub in this task (opens empty modal) — full implementation is T045.
+- No `pnpm react-doctor` issues — 0 violations.
+
+### Definition of done
+
+- [x] `/settings/custom-data` renders with entity sidebar + Products selected by default
+- [x] "Add definition" slide-over opens, validates, posts to API, and shows new definition in list
+- [x] "Edit" updates definition; "Delete" shows confirmation modal then removes from list
+- [x] "Primary field" toggle in definition form sets `is_primary`; shown in definition list as a badge
+- [x] Pin position (integer) field sets `pinned_position`
+- [x] Empty state shown when no definitions
+- [x] Settings sidebar includes "Custom data" link
+- [x] `pnpm react-doctor:admin-ui` = 0 issues
+- [x] `pnpm typecheck` + `pnpm lint` pass
+- [x] PR description filled in
 
 ---
 
@@ -2083,6 +2224,43 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 **PR:** https://github.com/eskobar95/mercflow/pull/82
 **Merge:** `80b4855`
 
+### Slice objective
+
+When editing a product, the merchant-admin sees their metafield definitions as editable fields, fills values, and saves them with the product. Category-constrained definitions appear in a separate section only when the product has a matching category.
+
+### Layers in scope
+
+- **UI — Product page:** Add two sections below the Variants section using the **two-tier presentation pattern**:
+
+  **Tier system (from Shopify browser test 2026-06-10):**
+  - `is_primary = true` definitions → always visible as text/select inputs
+  - `is_primary = false` definitions → rendered as `+ [name]` chips in a row; clicking a chip expands it inline as an input
+  - Category field shows badge `N metafelter` immediately after a category is selected (count of category-constrained definitions)
+
+  1. **"Product metafields"** — primary definitions as always-visible inputs + secondary definitions as `+ chip` row. "Add definition" shortcut link to Settings.
+  2. **"Category metafields"** — injected inline (not a tab) when product has a category assigned. Section header shows category badge (e.g. `Solcreme i Hudpleje`). Shows definitions with `category_constraint_id` matching the product's category. Same two-tier layout. Hidden entirely when no category is set.
+
+- **UI — Value persistence:** On product save, batch-upsert all changed metafield values via `POST /admin/metafield-values/batch`.
+- **Empty state (product metafields):** "No definitions added yet. [Go to Custom Data settings →]"
+- **Tests:** Renders both sections; primary field visible; secondary chip expands on click; batch upsert called with correct payload.
+
+### Context / assumptions
+
+- Read existing values on product load via `GET /admin/metafield-values?owner_type=product&owner_id=:id`.
+- Values are saved as part of the product form submit flow, not independently. If product save fails, value batch is not sent.
+- "See all" toggle shows/hides unpinned definitions inline — no separate page.
+- No `pnpm react-doctor` violations.
+
+### Definition of done
+
+- [x] "Product metafields" section renders pinned definitions as editable inputs
+- [x] "Category metafields" section appears/disappears based on product category
+- [x] Values persist on product save and are visible on page reload
+- [x] Empty state renders with link to settings when no definitions exist
+- [x] `pnpm react-doctor:admin-ui` = 0 issues
+- [x] `pnpm typecheck` + `pnpm lint` pass
+- [x] PR description filled in
+
 ---
 
 ## T043 — Admin UI — Category form metafields section + category-constraint filter in API
@@ -2097,6 +2275,31 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 **Branch:** `feature/S014/T043-category-form-metafields`
 **PR:** https://github.com/eskobar95/mercflow/pull/81
 **Merge:** `43d3cb4`
+
+### Slice objective
+
+When editing a category, the merchant-admin sees category-level metafield definitions as editable fields and can fill values. Category-constrained product definitions work correctly (filter by `category_constraint_id`).
+
+### Layers in scope
+
+- **API:** Ensure `GET /admin/metafield-definitions?owner_type=category` works correctly (covered by T038 but validated here). Add `?category_id=` filter to product definitions query (for the category-constrained section in the product form — also consumed by T042).
+- **UI — Category page:** Add "Category metafields" section. Fetches definitions with `owner_type = 'category'` and values with `owner_type = 'category', owner_id = <categoryId>`. Same input rendering as T042. Saves via batch upsert on category form submit.
+- **Tests:** Category form renders section; value save round-trip works.
+
+### Context / assumptions
+
+- `category_constraint_id` stores the Medusa category ID as plain text; T038 defines the column. This task validates the filter works via the admin API.
+- Category form integration follows the same pattern as the product form (T042) — reuse components where possible.
+- No new DB migrations needed in this task.
+
+### Definition of done
+
+- [x] Category page shows "Category metafields" section with definitions
+- [x] Values save on category form submit and persist on reload
+- [x] `GET /admin/metafield-definitions?owner_type=product&category_id=X` returns correct filtered definitions
+- [x] `pnpm react-doctor:admin-ui` = 0 issues
+- [x] `pnpm typecheck` + `pnpm lint` pass
+- [x] PR description filled in
 
 ---
 
@@ -2113,6 +2316,30 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 **PR:** https://github.com/eskobar95/mercflow/pull/80
 **Merge:** `e6d6eb8`
 
+### Slice objective
+
+A storefront can fetch metafield values for a product or category via the public store API, authenticated by publishable API key. Zero cross-tenant data is returned under any circumstances.
+
+### Layers in scope
+
+- **Store route:** `GET /store/v1/metafields?owner_type=product&owner_id=:id` — protected by standard Medusa publishable_api_key middleware. Returns: `[{ namespace, key, name, type, value, locale }]`. Only returns values where `definition.is_required = false OR value IS NOT NULL` (no empty required fields exposed to storefront).
+- **Tenant resolution:** `Host` header → store → `store_id` (same pattern as seo-module T008 middleware).
+- **Tests:** Integration: two tenants with overlapping product IDs — tenant A store request returns only tenant A values. Unauthenticated request returns 401. Wrong publishable key returns 401/403.
+
+### Context / assumptions
+
+- Mount under `/store/v1/` (per PRD-api-hardening T032 versioning requirement).
+- Response pagination: max 100 values per request.
+- No filtering by namespace/key in v1 — return all values for the owner.
+
+### Definition of done
+
+- [x] `GET /store/v1/metafields?owner_type=product&owner_id=X` returns correct values
+- [x] Cross-tenant isolation integration test: 0 cross-tenant rows
+- [x] Unauthenticated request returns 401
+- [x] `pnpm typecheck` + `pnpm lint` + `pnpm test` pass
+- [x] PR description filled in
+
 ---
 
 ## T045 — Admin UI — Standard library browse dialog in Custom Data settings
@@ -2127,6 +2354,31 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 **Branch:** `feature/S016/T045-standard-library-browse-ui`
 **PR:** https://github.com/eskobar95/mercflow/pull/83
 **Merge:** `93bc552`
+
+### Slice objective
+
+A merchant-admin can open the standard library from Settings → Custom Data, filter by vertical, select definitions, and activate them in one click. The activated definitions immediately appear in their definitions list.
+
+### Layers in scope
+
+- **UI — Library modal:** Triggered by "Browse standard library" button (stub added in T041). Full implementation: fetch `GET /admin/metafield-definitions/standard-library`, show vertical filter tabs (All | Skincare | Fashion), checklist of definitions with type badge and description, "Activate selected (N)" button. On activate: POST `/admin/metafield-definitions/activate-standard` → close modal → refresh definitions list.
+- **UX details:** Already-activated definitions shown as greyed-out with a checkmark. Empty selection disables the activate button.
+- **Tests:** Modal opens; vertical filter changes visible items; activate calls correct API with selected IDs.
+
+### Context / assumptions
+
+- "Already activated" is determined by checking if a definition with matching `namespace + key` already exists in the tenant's definitions list (fetched before opening modal).
+- No new API routes — all endpoints built in T040.
+
+### Definition of done
+
+- [x] "Browse standard library" button opens modal with definitions
+- [x] Vertical filter works (Skincare shows 8, Fashion shows 6, All shows 14)
+- [x] Selecting 3 and clicking "Activate" creates 3 tenant definitions
+- [x] Already-activated definitions appear greyed with checkmark
+- [x] `pnpm react-doctor:admin-ui` = 0 issues
+- [x] `pnpm typecheck` + `pnpm lint` pass
+- [x] PR description filled in
 
 ---
 
