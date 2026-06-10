@@ -117,7 +117,7 @@ export function useUnifiedCatalogProductForm(params: {
     comboKey: string,
     patch: Partial<Pick<VariantRowModel, "priceDkk" | "stock">>,
   ) => void
-  submit: () => Promise<void>
+  submit: () => Promise<string | undefined>
 } {
   const sdk = useMemo(() => createMercflowMedusaSdk(), [])
 
@@ -341,7 +341,7 @@ export function useUnifiedCatalogProductForm(params: {
   )
 
   const saveMutation = useMutation({
-    mutationFn: async (): Promise<void> => {
+    mutationFn: async (): Promise<string | undefined> => {
       if (sdk === null) {
         throw new Error("Medusa Admin backend URL is not configured for this build.")
       }
@@ -443,6 +443,8 @@ export function useUnifiedCatalogProductForm(params: {
         if (typeof params.onSuccessfulCreateNavigate === "function") {
           params.onSuccessfulCreateNavigate(productId)
         }
+
+        return productId
       } else if (typeof params.productId === "string" && params.productId.trim() !== "") {
         await persistUnifiedProductUpdate({
           sdk,
@@ -467,6 +469,8 @@ export function useUnifiedCatalogProductForm(params: {
             queryKey: ["admin-product-detail", params.productId],
           }),
         ])
+
+        return params.productId
       } else {
         throw new Error("Missing product id for edit flows.")
       }
@@ -488,8 +492,8 @@ export function useUnifiedCatalogProductForm(params: {
     },
   })
 
-  const submit = useCallback(async (): Promise<void> => {
-    await saveMutation.mutateAsync()
+  const submit = useCallback(async (): Promise<string | undefined> => {
+    return saveMutation.mutateAsync()
   }, [saveMutation])
 
   return {

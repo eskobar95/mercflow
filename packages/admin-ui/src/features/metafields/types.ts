@@ -64,6 +64,24 @@ export type UpdateMetafieldDefinitionPayload = {
   category_constraint_id?: string | null
 }
 
+export type MetafieldValueDto = {
+  id: string
+  namespace: string
+  key: string
+  name: string
+  type: MetafieldValueType
+  value: unknown
+  locale: string
+}
+
+export type MetafieldValueUpsertPayload = {
+  definition_id: string
+  owner_id: string
+  owner_type: MetafieldOwnerType
+  locale?: string
+  value: unknown
+}
+
 export type CustomDataEntityKey = "product" | "category" | "variant" | "order" | "customer"
 
 export type CustomDataListTab = "all" | "by_category"

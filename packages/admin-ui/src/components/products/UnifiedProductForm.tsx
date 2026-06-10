@@ -1,6 +1,9 @@
-import { type ReactNode, type FormEvent, useId } from "react"
+import { type ReactNode, type FormEvent, useId, useMemo } from "react"
 import { Link } from "react-router-dom"
 
+import { ProductCategoryMetafieldsSection } from "@/components/metafields/ProductCategoryMetafieldsSection"
+import { ProductMetafieldsSection } from "@/components/metafields/ProductMetafieldsSection"
+import { useProductFormMetafields } from "@/components/metafields/useProductFormMetafields"
 import { Button } from "@/components/ui/Button"
 import { useToast } from "@/components/ui/Toast"
 
@@ -57,16 +60,54 @@ export function UnifiedProductForm({ mode, productId }: Props): ReactNode {
     submit,
   } = controller
 
+  const metafields = useProductFormMetafields({
+    productId: mode === "edit" ? productId : undefined,
+    selectedCategoryIds,
+    enabled: hasBackend,
+  })
+
+  const selectedCategories = useMemo(
+    () => categories.filter((category) => selectedCategoryIds.has(category.id)),
+    [categories, selectedCategoryIds]
+  )
+
+  const metafieldsLoadState =
+    metafields.state.status === "loading" || metafields.state.status === "idle"
+      ? "loading"
+      : metafields.state.status === "error"
+        ? "error"
+        : "ready"
+
   const onSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault()
     try {
-      await submit()
+      const metafieldValidation = metafields.validateDrafts()
+      if (!metafieldValidation.ok) {
+        toast({
+          variant: "error",
+          title: "Fix metafield fields",
+          description: metafieldValidation.message,
+        })
+        return
+      }
+
+      const savedProductId = await submit()
+
+      if (typeof savedProductId === "string" && savedProductId.trim() !== "") {
+        const payloads = metafields.buildPayloads(savedProductId)
+        if (payloads.length > 0) {
+          await metafields.persist(savedProductId)
+        } else if (metafields.state.status === "ready") {
+          metafields.markSaved(metafields.state.drafts)
+        }
+      }
+
       toast({
         variant: "success",
         title: mode === "create" ? "Product created" : "Product updated",
         description:
           mode === "create"
-            ? "Your product, variants, and stock levels were saved in Medusa."
+            ? "Your product, variants, stock levels, and metafields were saved in Medusa."
             : "Changes were saved to Medusa.",
       })
     } catch (errorCandidate: unknown) {
@@ -157,6 +198,7 @@ export function UnifiedProductForm({ mode, productId }: Props): ReactNode {
             isPublished={isPublished}
             categories={categories}
             selectedCategoryIds={selectedCategoryIds}
+            categoryMetafieldCounts={metafields.categoryMetafieldCounts}
             fieldErrors={fieldErrors}
             setTitle={setTitle}
             setDescription={setDescription}
@@ -177,6 +219,36 @@ export function UnifiedProductForm({ mode, productId }: Props): ReactNode {
             variantRowsPreview={variantRowsPreview}
             fieldErrors={fieldErrors}
             updateEconomicsRow={updateEconomicsRow}
+          />
+
+          <ProductMetafieldsSection
+            definitions={
+              metafields.state.status === "ready" ? metafields.state.productDefinitions : []
+            }
+            drafts={metafields.state.status === "ready" ? metafields.state.drafts : {}}
+            fieldErrors={metafields.fieldErrors}
+            expandedSecondaryIds={metafields.expandedSecondaryIds}
+            loadState={metafieldsLoadState}
+            errorMessage={
+              metafields.state.status === "error" ? metafields.state.message : undefined
+            }
+            disabled={isSubmitting || isLoadingProductDetail}
+            onDraftChange={metafields.setDraft}
+            onToggleSecondary={metafields.toggleSecondaryExpanded}
+            onRetry={metafields.reload}
+          />
+
+          <ProductCategoryMetafieldsSection
+            selectedCategories={selectedCategories}
+            definitions={
+              metafields.state.status === "ready" ? metafields.state.categoryDefinitions : []
+            }
+            drafts={metafields.state.status === "ready" ? metafields.state.drafts : {}}
+            fieldErrors={metafields.fieldErrors}
+            expandedSecondaryIds={metafields.expandedSecondaryIds}
+            disabled={isSubmitting || isLoadingProductDetail}
+            onDraftChange={metafields.setDraft}
+            onToggleSecondary={metafields.toggleSecondaryExpanded}
           />
 
           <div className="flex flex-wrap gap-3">

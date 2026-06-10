@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 
+import { Badge } from "@/components/ui/Badge"
 import { Card } from "@/components/ui/Card"
 import { Checkbox } from "@/components/ui/Checkbox"
 import { FormField } from "@/components/ui/FormField"
@@ -20,6 +21,7 @@ type UnifiedProductDetailsSectionProps = {
   isPublished: boolean
   categories: CategoryOption[]
   selectedCategoryIds: Set<string>
+  categoryMetafieldCounts?: ReadonlyMap<string, number>
   fieldErrors: UnifiedCatalogProductFormErrors
   setTitle: (value: string) => void
   setDescription: (value: string) => void
@@ -34,6 +36,7 @@ export function UnifiedProductDetailsSection({
   isPublished,
   categories,
   selectedCategoryIds,
+  categoryMetafieldCounts,
   fieldErrors,
   setTitle,
   setDescription,
@@ -108,17 +111,33 @@ export function UnifiedProductDetailsSection({
             </p>
           ) : (
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {categories.map((category) => (
-                <Checkbox
-                  key={category.id}
-                  id={`${baseId}-category-${category.id}`}
-                  label={category.label}
-                  checked={selectedCategoryIds.has(category.id)}
-                  onCheckedChange={(state) => {
-                    toggleCategory(category.id, state === true)
-                  }}
-                />
-              ))}
+              {categories.map((category) => {
+                const metafieldCount = categoryMetafieldCounts?.get(category.id) ?? 0
+                const label =
+                  metafieldCount > 0 ? (
+                    <span className="inline-flex flex-wrap items-center gap-2">
+                      <span>{category.label}</span>
+                      <Badge variant="accent">
+                        {metafieldCount}{" "}
+                        {metafieldCount === 1 ? "metafield" : "metafields"}
+                      </Badge>
+                    </span>
+                  ) : (
+                    category.label
+                  )
+
+                return (
+                  <Checkbox
+                    key={category.id}
+                    id={`${baseId}-category-${category.id}`}
+                    label={label}
+                    checked={selectedCategoryIds.has(category.id)}
+                    onCheckedChange={(state) => {
+                      toggleCategory(category.id, state === true)
+                    }}
+                  />
+                )
+              })}
             </div>
           )}
         </fieldset>
