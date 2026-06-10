@@ -113,29 +113,31 @@ export function UnifiedProductDetailsSection({
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {categories.map((category) => {
                 const metafieldCount = categoryMetafieldCounts?.get(category.id) ?? 0
-                const label =
-                  metafieldCount > 0 ? (
-                    <span className="inline-flex flex-wrap items-center gap-2">
-                      <span>{category.label}</span>
-                      <Badge variant="accent">
-                        {metafieldCount}{" "}
-                        {metafieldCount === 1 ? "metafield" : "metafields"}
-                      </Badge>
-                    </span>
-                  ) : (
-                    category.label
-                  )
+                const checkboxId = `${baseId}-category-${category.id}`
 
                 return (
-                  <Checkbox
+                  <label
                     key={category.id}
-                    id={`${baseId}-category-${category.id}`}
-                    label={label}
-                    checked={selectedCategoryIds.has(category.id)}
-                    onCheckedChange={(state) => {
-                      toggleCategory(category.id, state === true)
-                    }}
-                  />
+                    htmlFor={checkboxId}
+                    className="inline-flex min-h-11 cursor-pointer items-center gap-2.5"
+                  >
+                    <Checkbox
+                      id={checkboxId}
+                      checked={selectedCategoryIds.has(category.id)}
+                      onCheckedChange={(state) => {
+                        toggleCategory(category.id, state === true)
+                      }}
+                    />
+                    <span className="inline-flex flex-wrap items-center gap-2 text-sm text-content-primary">
+                      <span>{category.label}</span>
+                      {metafieldCount > 0 ? (
+                        <Badge variant="accent">
+                          {metafieldCount}{" "}
+                          {metafieldCount === 1 ? "metafield" : "metafields"}
+                        </Badge>
+                      ) : null}
+                    </span>
+                  </label>
                 )
               })}
             </div>

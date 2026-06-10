@@ -11,14 +11,10 @@ import type {
   MetafieldValueType,
   MetafieldValueUpsertPayload,
 } from "./types"
-import { METAFIELD_OWNER_TYPES, METAFIELD_VALUE_TYPES } from "./types"
+import { METAFIELD_VALUE_TYPES } from "./types"
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
-}
-
-function isOwnerType(value: unknown): value is MetafieldOwnerType {
-  return typeof value === "string" && (METAFIELD_OWNER_TYPES as readonly string[]).includes(value)
 }
 
 function isValueType(value: unknown): value is MetafieldValueType {
