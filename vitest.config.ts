@@ -15,6 +15,7 @@ export default defineConfig({
       "packages/medusa-fork/tenancy-core",
       "packages/feed-module",
       "packages/inventory-module",
+      "packages/packaging-module",
       "packages/seo-module",
       "packages/subscription-module",
       "packages/connector-module",

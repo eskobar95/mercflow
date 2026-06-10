@@ -65,5 +65,8 @@ export default defineConfig({
     {
       resolve: "@mercflow/metafield-module",
     },
+    {
+      resolve: "@mercflow/packaging-module",
+    },
   ],
 })
