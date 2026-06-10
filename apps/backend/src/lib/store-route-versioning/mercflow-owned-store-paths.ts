@@ -5,6 +5,7 @@ export const MERCFLOW_STORE_PATH_PREFIXES = [
   "/store/product-content",
   "/store/category-content",
   "/store/connectors",
+  "/store/metafields",
 ] as const
 
 export function isMercflowOwnedStorePath(pathname: string): boolean {

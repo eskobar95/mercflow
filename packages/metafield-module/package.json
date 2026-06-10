@@ -13,7 +13,8 @@
     "./mercflow-admin-metafield-definitions-activate-standard-api": "./src/integrations/mercflow-admin-metafield-definitions-activate-standard-api.ts",
     "./mercflow-admin-metafield-values-api": "./src/integrations/mercflow-admin-metafield-values-api.ts",
     "./mercflow-admin-metafield-values-batch-api": "./src/integrations/mercflow-admin-metafield-values-batch-api.ts",
-    "./mercflow-admin-metafield-values-id-api": "./src/integrations/mercflow-admin-metafield-values-id-api.ts"
+    "./mercflow-admin-metafield-values-id-api": "./src/integrations/mercflow-admin-metafield-values-id-api.ts",
+    "./mercflow-store-metafields-api": "./src/integrations/mercflow-store-metafields-api.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

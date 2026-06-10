@@ -7,9 +7,10 @@ MercFlow Medusa v2 module for tenant-defined metafield **definitions** and typed
 - Store metafield definitions per tenant (`metafield_definition`)
 - Store typed metafield values per entity instance (`metafield_value`)
 - Admin API for reading/writing values (definition CRUD routes are T038)
+- Store API for storefront metafield reads (T044)
 - RLS via `store_id` + `app.tenant_id` (ADR-008)
 
-Does **not** belong here: content-module SEO/rich text, admin UI (T041+), store public API (T044).
+Does **not** belong here: content-module SEO/rich text, admin UI (T041+).
 
 ## Standard library (T040)
 
@@ -82,6 +83,32 @@ All routes require Medusa admin JWT. Pass `?store_id=` or set `MERCFLOW_DEFAULT_
 | GET | `/admin/metafield-values?owner_type=&owner_id=&locale=` | List typed values with definition metadata |
 | POST | `/admin/metafield-values/batch` | Transactional upsert (max 50 values) |
 | DELETE | `/admin/metafield-values/:id` | Delete one value |
+
+## Store API — metafields (T044)
+
+Authenticated via Medusa publishable API key (`x-publishable-api-key`). Tenant is resolved from the key's sales channel → store binding.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/v1/store/metafields?owner_type=product\|category&owner_id=&locale=` | Typed metafield values for the authenticated tenant |
+
+Legacy unversioned `/store/metafields` redirects with **301** to `/v1/store/metafields` (T032).
+
+### Store list response shape
+
+```json
+{
+  "metafields": [
+    {
+      "namespace": "custom",
+      "key": "active_ingredients",
+      "value": "Niacinamide 10%, Zinc 1%",
+      "type": "multi_line_text"
+    }
+  ],
+  "count": 1
+}
+```
 
 ### List response shape
 
