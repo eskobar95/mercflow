@@ -95,11 +95,11 @@ This means every packing decision is made from memory, and Shipmondo labels are 
 
 **Steps:**
 1. After confirming packaging (J002 or J003), click "Generate label"
-2. Shipmondo label request is pre-filled with: length, width, height, weight from confirmed packaging
+2. Shipmondo label request is pre-filled with: length, width, height from confirmed packaging; weight from sum of line item variant weights (grams)
 3. Merchant reviews Shipmondo label preview — dimensions already populated
 4. Confirm → label generated
 
-**Acceptance:** Shipmondo `POST /shipments` payload includes `length`, `width`, `height`, `weight` from confirmed packaging type (converted to Shipmondo's expected units). Merchant can still edit dimensions in Shipmondo if needed.
+**Acceptance:** Shipmondo `POST /shipments` payload includes `length`, `width`, `height` from confirmed packaging type (mm → cm). `weight` is the order's total shippable grams (`sum(variant.weight_g × qty)`). When no packaging is selected, weight-only parcel is sent. Merchant can still edit dimensions in Shipmondo if needed.
 
 ---
 

@@ -3,17 +3,15 @@ import { Link } from "react-router-dom"
 
 import { Button } from "@/components/ui/Button"
 import { Select } from "@/components/ui/Select"
-import type { OrderLineItemRow } from "@/features/orders/orderTypes"
 import { computePackagingUtilisationPercent } from "@/features/packaging/computePackagingUtilisationPercent"
 import { formatPackagingDimensions } from "@/features/packaging/formatPackagingDimensions"
 import type { PackagingTypeDto } from "@/features/packaging/packagingTypes"
-import { useOrderSuggestedPackaging } from "@/features/packaging/useOrderSuggestedPackaging"
+import type { OrderSuggestedPackagingModel } from "@/features/packaging/useOrderSuggestedPackaging"
 
 import { OrderSuggestedPackagingWidgetSkeleton } from "./OrderSuggestedPackagingWidgetSkeleton"
 
 type OrderSuggestedPackagingWidgetProps = {
-  lineItems: OrderLineItemRow[]
-  onConfirmedPackagingChange: (packagingTypeId: string | null) => void
+  model: OrderSuggestedPackagingModel
 }
 
 function buildCatalogOptions(
@@ -26,10 +24,8 @@ function buildCatalogOptions(
 }
 
 export function OrderSuggestedPackagingWidget({
-  lineItems,
-  onConfirmedPackagingChange,
+  model,
 }: OrderSuggestedPackagingWidgetProps): ReactNode {
-  const model = useOrderSuggestedPackaging({ lineItems, onConfirmedPackagingChange })
   const {
     loadState,
     errorMessage,
@@ -111,22 +107,32 @@ export function OrderSuggestedPackagingWidget({
         </p>
       ) : null}
 
-      {canSuggest && loadState === "ready" && selectedPackaging !== null && suggestion !== null ? (
+      {canSuggest && loadState === "ready" && suggestion !== null ? (
         <div className="mt-4 space-y-1 text-sm text-content-primary">
-          <p className="font-medium">{selectedPackaging.name}</p>
           <p className="text-content-secondary">
-            {formatPackagingDimensions(selectedPackaging)}
-          </p>
-          <p className="text-content-secondary">
-            Utilisation{" "}
+            Order weight{" "}
             <span className="font-medium tabular-nums text-content-primary">
-              {computePackagingUtilisationPercent(
-                suggestion.total_volume_mm3,
-                selectedPackaging,
-              )}
-              %
+              {suggestion.total_weight_g} g
             </span>
           </p>
+          {selectedPackaging !== null ? (
+            <>
+              <p className="font-medium">{selectedPackaging.name}</p>
+              <p className="text-content-secondary">
+                {formatPackagingDimensions(selectedPackaging)}
+              </p>
+              <p className="text-content-secondary">
+                Utilisation{" "}
+                <span className="font-medium tabular-nums text-content-primary">
+                  {computePackagingUtilisationPercent(
+                    suggestion.total_volume_mm3,
+                    selectedPackaging,
+                  )}
+                  %
+                </span>
+              </p>
+            </>
+          ) : null}
         </div>
       ) : null}
 

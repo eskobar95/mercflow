@@ -107,6 +107,7 @@ describe("OrderSuggestedPackagingWidget", (): void => {
 
     expect(await screen.findByRole("region", { name: "Suggested packaging" })).toBeInTheDocument()
     expect(await screen.findByText("Small box")).toBeInTheDocument()
+    expect(screen.getByText(/Order weight/)).toHaveTextContent("500 g")
     expect(screen.getByText("30×20×15 cm")).toBeInTheDocument()
     expect(screen.getByText(/Utilisation/)).toHaveTextContent("67%")
 

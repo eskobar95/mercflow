@@ -26,9 +26,10 @@ import {
 export function OrderFulfillmentActionBar(props: {
   order: OrderDetail
   confirmedPackagingTypeId: string | null
+  shipmondoLabelBlockReason: string | null
   onDidMutate: () => void
 }): ReactNode {
-  const { order, confirmedPackagingTypeId, onDidMutate } = props
+  const { order, confirmedPackagingTypeId, shipmondoLabelBlockReason, onDidMutate } = props
   const visibility = useMemo(
     () => getOrderFulfillmentActionVisibility(order),
     [order],
@@ -207,6 +208,12 @@ export function OrderFulfillmentActionBar(props: {
         </p>
       ) : null}
 
+      {shipmondoLabelBlockReason !== null && visibility.showGenerateLabel && shipmondoLabelReady ? (
+        <p className="mt-3 text-sm text-content-secondary" role="status">
+          {shipmondoLabelBlockReason}
+        </p>
+      ) : null}
+
       <OrderShipmondoLabelOutcome labelError={labelError} labelResult={labelResult} />
 
       <div className="mt-4 flex flex-wrap gap-2">
@@ -251,7 +258,9 @@ export function OrderFulfillmentActionBar(props: {
         ) : null}
         {visibility.showGenerateLabel && shipmondoLabelReady ? (
           <OrderShipmondoGenerateLabelButton
-            disabled={labelLoading || shipmondoReadyLoading}
+            disabled={
+              labelLoading || shipmondoReadyLoading || shipmondoLabelBlockReason !== null
+            }
             loading={labelLoading}
             onGenerateLabel={handleGenerateLabel}
           />

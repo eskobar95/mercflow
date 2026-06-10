@@ -1,10 +1,10 @@
 import type { ShipmondoLabelSettings } from "./shipmondo-label-settings"
 
+/** Box dimensions only — parcel weight comes from order line items, not max_weight_g. */
 export type ShipmondoPackagingDimensions = {
   lengthMm: number
   widthMm: number
   heightMm: number
-  maxWeightG: number
 }
 
 export type ShipmondoShipmentParty = {
@@ -26,6 +26,8 @@ export type BuildShipmondoShipmentBodyInput = {
   reference: string
   sender: ShipmondoShipmentParty
   receiver: ShipmondoShipmentParty
+  /** Total shippable weight in grams (sum of variant.weight × qty on the fulfillment). */
+  parcelWeightG: number
   packaging: ShipmondoPackagingDimensions | null
 }
 
@@ -41,15 +43,16 @@ export function mmToCm(mm: number): number {
 }
 
 export function buildShipmondoParcels(
+  parcelWeightG: number,
   packaging: ShipmondoPackagingDimensions | null
 ): ShipmondoShipmentParcel[] {
   if (packaging === null) {
-    return [{ weight: 0 }]
+    return [{ weight: parcelWeightG }]
   }
 
   return [
     {
-      weight: packaging.maxWeightG,
+      weight: parcelWeightG,
       length: mmToCm(packaging.lengthMm),
       width: mmToCm(packaging.widthMm),
       height: mmToCm(packaging.heightMm),
@@ -85,7 +88,7 @@ export function buildShipmondoShipmentBody(
     service_codes: input.serviceCodes,
     automatic_select_service_point: input.automaticSelectServicePoint,
     parties: [buildParty("sender", input.sender), buildParty("receiver", input.receiver)],
-    parcels: buildShipmondoParcels(input.packaging),
+    parcels: buildShipmondoParcels(input.parcelWeightG, input.packaging),
     reference: input.reference,
     print: false,
   }

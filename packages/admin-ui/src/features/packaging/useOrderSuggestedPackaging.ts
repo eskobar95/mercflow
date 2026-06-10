@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useReducer } from "react"
 
+import { resolveShipmondoLabelBlockReason } from "@/features/orders/resolveShipmondoLabelBlockReason"
 import type { OrderLineItemRow } from "@/features/orders/orderTypes"
 import {
   fetchActivePackagingTypes,
@@ -151,10 +152,7 @@ function buildSuggestItems(
   return items
 }
 
-export function useOrderSuggestedPackaging(props: {
-  lineItems: OrderLineItemRow[]
-  onConfirmedPackagingChange: (packagingTypeId: string | null) => void
-}): {
+export type OrderSuggestedPackagingModel = {
   loadState: OrderSuggestedPackagingLoadState
   errorMessage: string | null
   suggestion: SuggestPackagingResult | null
@@ -165,11 +163,17 @@ export function useOrderSuggestedPackaging(props: {
   catalogErrorMessage: string | null
   activeCatalog: PackagingTypeDto[]
   canSuggest: boolean
+  shipmondoLabelBlockReason: string | null
   openOverride: () => void
   closeOverride: () => void
   selectPackaging: (packagingTypeId: string) => void
   retry: () => void
-} {
+}
+
+export function useOrderSuggestedPackaging(props: {
+  lineItems: OrderLineItemRow[]
+  onConfirmedPackagingChange: (packagingTypeId: string | null) => void
+}): OrderSuggestedPackagingModel {
   const { lineItems, onConfirmedPackagingChange } = props
   const suggestItems = useMemo(() => buildSuggestItems(lineItems), [lineItems])
   const canSuggest = suggestItems.length > 0
@@ -271,6 +275,17 @@ export function useOrderSuggestedPackaging(props: {
     dispatch({ type: "retry" })
   }, [])
 
+  const shipmondoLabelBlockReason = useMemo(
+    () =>
+      resolveShipmondoLabelBlockReason({
+        lineItems,
+        packagingLoadState: state.loadState,
+        packagingErrorMessage: state.errorMessage,
+        suggestion: state.suggestion,
+      }),
+    [lineItems, state.errorMessage, state.loadState, state.suggestion],
+  )
+
   return {
     loadState: state.loadState,
     errorMessage: state.errorMessage,
@@ -282,6 +297,7 @@ export function useOrderSuggestedPackaging(props: {
     catalogErrorMessage: state.catalogErrorMessage,
     activeCatalog: state.activeCatalog,
     canSuggest,
+    shipmondoLabelBlockReason,
     openOverride,
     closeOverride,
     selectPackaging,

@@ -1,4 +1,4 @@
-import { type ReactNode, useCallback, useState } from "react"
+import { type ReactNode } from "react"
 import { Link, useParams } from "react-router-dom"
 
 import { Card } from "@/components/ui/Card"
@@ -8,8 +8,7 @@ import { OrderLineItemsTable } from "@/components/orders/OrderLineItemsTable"
 import { OrderPaymentSummaryCard } from "@/components/orders/OrderPaymentSummaryCard"
 import { OrderAdminBadge } from "@/components/orders/OrderAdminBadge"
 import { OrderShippingAddressCard } from "@/components/orders/OrderShippingAddressCard"
-import { OrderFulfillmentActionBar } from "@/components/orders/OrderFulfillmentActionBar"
-import { OrderSuggestedPackagingWidget } from "@/components/orders/OrderSuggestedPackagingWidget"
+import { OrderFulfillmentSection } from "@/components/orders/OrderFulfillmentSection"
 import { OrderInternalNotesPanel } from "@/components/orders/OrderInternalNotesPanel"
 import { OrderStatusTimeline } from "@/components/orders/OrderStatusTimeline"
 import { useOrderDetail } from "@/hooks/useOrderDetail"
@@ -19,11 +18,6 @@ import { buildOrderTimeline } from "@/utils/buildOrderTimeline"
 export function OrderDetailPage(): ReactNode {
   const { orderId } = useParams<{ orderId: string }>()
   const { order, isLoading, errorMessage, refetch } = useOrderDetail(orderId)
-  const [confirmedPackagingTypeId, setConfirmedPackagingTypeId] = useState<string | null>(null)
-  const handleConfirmedPackagingChange = useCallback((packagingTypeId: string | null): void => {
-    setConfirmedPackagingTypeId(packagingTypeId)
-  }, [])
-
   if (isLoading && order === null && errorMessage === null) {
     return (
       <div className="p-6">
@@ -128,21 +122,9 @@ export function OrderDetailPage(): ReactNode {
         </div>
       </header>
 
-      <section
-        aria-label="Order fulfillment"
-        className="mb-6 space-y-4"
-        data-confirmed-packaging-type-id={confirmedPackagingTypeId ?? undefined}
-      >
-        <OrderSuggestedPackagingWidget
-          lineItems={order.lineItems}
-          onConfirmedPackagingChange={handleConfirmedPackagingChange}
-        />
-        <OrderFulfillmentActionBar
-          order={order}
-          confirmedPackagingTypeId={confirmedPackagingTypeId}
-          onDidMutate={refetch}
-        />
-      </section>
+      <div className="mb-6">
+        <OrderFulfillmentSection order={order} onDidMutate={refetch} />
+      </div>
 
       <div className="mb-6">
         <OrderInternalNotesPanel orderId={order.id} />
