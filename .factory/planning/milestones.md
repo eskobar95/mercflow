@@ -4,7 +4,7 @@
 > Updated: 2026-06-04 (S003 merged — PR #60; see `.factory/logs/sprints/S003-closeout-2026-06-04.md`)
 > Updated: 2026-06-04 (synced with `development`; see `.factory/logs/milestone-reviews/M000-2026-06-04.md`)
 > Updated: 2026-06-09 (M007 added — Medusa Fork Setup; ADR-007 accepted)
-> Updated: 2026-06-10 (S017 merged to `development` — PRs #84 `622ad70`, #85 `f71c460`; M009 S017 done)
+> Updated: 2026-06-10 (S018 merged to `development` — PRs #86 `6d89f1b`, #87 `b0ade41`; M009 ready for milestone review)
 
 ---
 
@@ -27,7 +27,7 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 | M006 | Production Infrastructure | MercFlow kører på Hetzner; Traefik, Redis, Sentry, provisioning | M005 | done |
 | M007 | Medusa Fork Setup | Medusa som lokale workspace packages; `store_id` på core tables; tenant wiring; dashboard fjernet | M006 | done |
 | M008 | Metafields | Tenant-defined metafield definitions + values; standard library; admin UI; store API | M007 | ready for milestone review |
-| M009 | Product Form Polish | Unsaved state; progressive variant UX; SEO lazy preview; physical/digital toggle; product dimensions | M008 | planned |
+| M009 | Product Form Polish | Unsaved state; progressive variant UX; SEO lazy preview; physical/digital toggle; product dimensions | M008 | ready for milestone review |
 | M010 | Fulfillment Intelligence | Merchant packaging catalog; bin-packing suggestion on order fulfillment; Shipmondo dimensions auto-fill | M009 | planned |
 
 ---
@@ -311,17 +311,17 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 | Sprint | Goal | Tasks | Status |
 |--------|------|-------|--------|
 | S017 | Unsaved state indicator + SEO lazy preview | T046, T048 | done |
-| S018 | Variant UX + physical product toggle + dimensions | T047, T049 | planned |
+| S018 | Variant UX + physical product toggle + dimensions | T047, T049 | done |
 
 **Dependencies:** M008
 
 **Definition of done:**
 - [x] Unsaved state indicator på page title + `beforeunload` guard (T046 / S017 — PR #85)
-- [ ] Varianter: enkelt CTA → grid vises kun efter option er tilføjet
+- [x] Varianter: enkelt CTA → grid vises kun efter option er tilføjet (T047 / S018 — PR #86)
 - [x] SEO preview: tom tilstand = hjælpetekst; fyldt tilstand = live snippet (T048 / S017 — PR #84)
-- [ ] "Physical product" toggle kollapser shipping-felter
-- [ ] Dimension-felter (L/W/H/weight) synlige og persisterede per variant
-- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [x] "Physical product" toggle kollapser shipping-felter (T049 / S018 — PR #87)
+- [x] Dimension-felter (L/W/H/weight) synlige og persisterede per variant (T049 / S018 — PR #87)
+- [x] `pnpm react-doctor:admin-ui` 0 issues (S017–S018 PR CI)
 - [ ] `/milestone-review M009` grøn
 
 **Merged to `development` (2026-06-10, S017):**
@@ -330,6 +330,13 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 |----|------|-------|
 | #84 | T048 SEO lazy preview + character counters | `622ad70` |
 | #85 | T046 unsaved state indicator + beforeunload guard | `f71c460` |
+
+**Merged to `development` (2026-06-10, S018):**
+
+| PR | Task | Merge |
+|----|------|-------|
+| #86 | T047 progressive variant options CTA | `6d89f1b` |
+| #87 | T049 physical product toggle + shipping dimensions | `b0ade41` |
 
 ---
 

@@ -974,7 +974,77 @@ none (M008 feature-complete pending milestone review)
 - [ ] Merge PR #83 to `development`
 - [x] Merge PR #83 to `development` (`93bc552` — 2026-06-10)
 - [ ] `/milestone-review M008`
-- [ ] `/run-sprint S017` — T046, T048
+- [x] `/run-sprint S017` — T046, T048 (merged PR #84, #85)
+- [x] `/run-sprint S018` — T047, T049 (merged PR #86, #87)
+
+---
+
+## Task T047 — Variant UX: progressiv "Add options" CTA → variant grid — 2026-06-10
+
+**Sprint:** S018 | **Milestone:** M009 | **Status:** done
+**Branch:** `feature/S018/T047-variant-progressive-ux`
+**PR:** https://github.com/eskobar95/mercflow/pull/86
+**Merge:** `6d89f1b`
+**Mode:** AFK | **Parallel group:** A
+
+### Outcome
+Progressive variant UX — Add options CTA, inline builder, grid only after first defined option; no Default Title row for simple products
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+---
+
+## Task T049 — "Physical product" toggle + shipping section collapse + dimension fields — 2026-06-10
+
+**Sprint:** S018 | **Milestone:** M009 | **Status:** done
+**Branch:** `feature/S018/T049-physical-toggle-dimensions`
+**PR:** https://github.com/eskobar95/mercflow/pull/87
+**Merge:** `b0ade41`
+**Mode:** AFK | **Parallel group:** A
+
+### Outcome
+Physical product toggle with collapsible per-variant shipping dimensions (cm/g), apply-to-all confirmation, persist via variant fields + inventory requires_shipping. Rebased onto T047 merge before merge to `development`.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+---
+
+## Sprint retro — S018 — 2026-06-10
+
+**Milestone:** M009
+**Duration:** session
+**Tasks:** 2/2 done, 0 blocked
+
+### What went well
+- T047 og T049 merged til `development` (PR #86, #87)
+- Merge-konflikt mellem parallel branches løst ved rebase (bevarede T047 progressive UX + T049 shipping)
+
+### What failed or slowed down
+- PR #87 havde merge-konflikter efter #86 — forventet for parallel produktform-ændringer
+
+### Task log index
+| Task | Final status | Merge |
+|------|--------------|-------|
+| T047 | done | `6d89f1b` |
+| T049 | done | `b0ade41` |
+
+### Next actions
+- [ ] `/milestone-review M009`
+- [ ] `/run-sprint S019` — T050 (M010 packaging-module)
 
 ---
 

@@ -2470,11 +2470,12 @@ SEO-sektionen viser instruktionstekst når ingen data er udfyldt, og et live Goo
 **Sprint:** S018
 **Milestone:** M009
 **Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/86
+**Merge:** `6d89f1b`
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S018/T047-variant-progressive-ux
-**PR:** #86
 **PRD journey:** J001 (PRD-product-form-polish.md)
 
 ### Slice objective
@@ -2497,12 +2498,12 @@ Variants-sektionen starter med ét simpelt CTA frem for den fulde variant-matrix
 
 ### Definition of done
 
-- [ ] Tom tilstand: kun CTA synlig
-- [ ] Efter én option: grid med korrekte variant rows
-- [ ] Eksisterende variant-data (pris, lager) vist korrekt i grid
-- [ ] Ingen "Default Title" row for simple produkter
-- [ ] `pnpm react-doctor:admin-ui` 0 issues
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] Tom tilstand: kun CTA synlig
+- [x] Efter én option: grid med korrekte variant rows
+- [x] Eksisterende variant-data (pris, lager) vist korrekt i grid
+- [x] Ingen "Default Title" row for simple produkter
+- [x] `pnpm react-doctor:admin-ui` 0 issues
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 
@@ -2510,7 +2511,9 @@ Variants-sektionen starter med ét simpelt CTA frem for den fulde variant-matrix
 
 **Sprint:** S018
 **Milestone:** M009
-**Status:** todo
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/87
+**Merge:** `b0ade41`
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
@@ -2537,12 +2540,12 @@ Shipping-sektionen har et "Physical product" toggle (default ON). Toggle OFF kol
 
 ### Definition of done
 
-- [ ] Toggle OFF skjuler shipping-felter med animation
-- [ ] Toggle sætter `requires_shipping` korrekt på alle variants
-- [ ] Dimension-felter vises og gemmes korrekt
-- [ ] "Apply to all variants" fungerer med bekræftelse
-- [ ] `pnpm react-doctor:admin-ui` 0 issues
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] Toggle OFF skjuler shipping-felter med animation
+- [x] Toggle sætter `requires_shipping` korrekt på alle variants
+- [x] Dimension-felter vises og gemmes korrekt
+- [x] "Apply to all variants" fungerer med bekræftelse
+- [x] `pnpm react-doctor:admin-ui` 0 issues
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 
