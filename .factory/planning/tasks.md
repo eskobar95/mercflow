@@ -2072,12 +2072,13 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 
 **Sprint:** S015
 **Milestone:** M008
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T039, T041
 **PRD journeys:** J002, J004
 **Branch:** `feature/S015/T042-product-form-metafields`
+**PR:** https://github.com/eskobar95/mercflow/pull/82
 
 ---
 
