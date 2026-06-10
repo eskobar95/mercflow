@@ -8,6 +8,7 @@ import { ContainerRegistrationKeys, MedusaError } from "@medusajs/utils"
 import { PACKAGING_MODULE } from "@mercflow/packaging-module"
 import { buildConnectorAdminList } from "./build-connector-admin-list"
 import { buildShipmondoShipmentBody } from "./build-shipmondo-shipment-body"
+import { resolveFulfillmentParcelWeightG } from "./resolve-fulfillment-parcel-weight-g"
 import EncryptionService from "./encryption-service"
 import { GtmConnector } from "./gtm-connector"
 import type {
@@ -521,11 +522,15 @@ export default class ConnectorModuleService extends MedusaService({
       fulfillmentId: input.fulfillmentId,
     })
 
+    const parcelWeightG = await resolveFulfillmentParcelWeightG({
+      graph: remoteQuery.graph,
+      fulfillmentId: input.fulfillmentId,
+    })
+
     let packaging: {
       lengthMm: number
       widthMm: number
       heightMm: number
-      maxWeightG: number
     } | null = null
 
     if (input.packagingTypeId !== null && input.packagingTypeId.trim() !== "") {
@@ -538,7 +543,6 @@ export default class ConnectorModuleService extends MedusaService({
           length_mm: number
           width_mm: number
           height_mm: number
-          max_weight_g: number
         } | null>
       }
       try {
@@ -550,7 +554,6 @@ export default class ConnectorModuleService extends MedusaService({
             length_mm: number
             width_mm: number
             height_mm: number
-            max_weight_g: number
           } | null>
         }
       } catch {
@@ -575,7 +578,6 @@ export default class ConnectorModuleService extends MedusaService({
         lengthMm: packagingType.length_mm,
         widthMm: packagingType.width_mm,
         heightMm: packagingType.height_mm,
-        maxWeightG: packagingType.max_weight_g,
       }
     }
 
@@ -602,6 +604,7 @@ export default class ConnectorModuleService extends MedusaService({
         phone: senderSettings.senderPhone,
       },
       receiver: context.receiver,
+      parcelWeightG,
       packaging,
     })
 

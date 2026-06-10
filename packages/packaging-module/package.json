@@ -9,7 +9,9 @@
     ".": "./src/modules/packaging/index.ts",
     "./mercflow-admin-packaging-types-api": "./src/integrations/mercflow-admin-packaging-types-api.ts",
     "./mercflow-admin-packaging-types-id-api": "./src/integrations/mercflow-admin-packaging-types-id-api.ts",
-    "./mercflow-admin-packaging-types-suggest-api": "./src/integrations/mercflow-admin-packaging-types-suggest-api.ts"
+    "./mercflow-admin-packaging-types-suggest-api": "./src/integrations/mercflow-admin-packaging-types-suggest-api.ts",
+    "./suggest-packaging": "./src/modules/packaging/suggest-packaging.ts",
+    "./variant-dimensions": "./src/api/http/variant-dimensions.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

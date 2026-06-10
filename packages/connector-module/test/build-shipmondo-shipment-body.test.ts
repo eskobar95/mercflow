@@ -32,7 +32,7 @@ const receiverParty = {
 }
 
 describe("buildShipmondoShipmentBody", (): void => {
-  it("converts packaging mm to cm and passes max_weight_g as grams", (): void => {
+  it("converts packaging mm to cm and uses parcel weight from order line items", (): void => {
     const body = buildShipmondoShipmentBody({
       productCode: "GLSDK_SD",
       serviceCodes: "EMAIL_NT",
@@ -42,17 +42,17 @@ describe("buildShipmondoShipmentBody", (): void => {
       reference: "Order #1001",
       sender: senderParty,
       receiver: receiverParty,
+      parcelWeightG: 750,
       packaging: {
         lengthMm: 300,
         widthMm: 200,
         heightMm: 100,
-        maxWeightG: 2000,
       },
     })
 
     expect(body.parcels).toEqual([
       {
-        weight: 2000,
+        weight: 750,
         length: 30,
         width: 20,
         height: 10,
@@ -65,8 +65,8 @@ describe("buildShipmondoShipmentBody", (): void => {
   })
 
   it("falls back to weight-only parcel when packaging is null", (): void => {
-    const parcels = buildShipmondoParcels(null)
-    expect(parcels).toEqual([{ weight: 0 }])
+    const parcels = buildShipmondoParcels(480, null)
+    expect(parcels).toEqual([{ weight: 480 }])
 
     const body = buildShipmondoShipmentBody({
       productCode: "GLSDK_SD",
@@ -81,10 +81,11 @@ describe("buildShipmondoShipmentBody", (): void => {
       reference: "Order #42",
       sender: senderParty,
       receiver: receiverParty,
+      parcelWeightG: 480,
       packaging: null,
     })
 
-    expect(body.parcels).toEqual([{ weight: 0 }])
+    expect(body.parcels).toEqual([{ weight: 480 }])
     expect(body.own_agreement).toBe(true)
     expect(body.label_format).toBe("a4_pdf")
     expect(body.service_point_id).toBeUndefined()
