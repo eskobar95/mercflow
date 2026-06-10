@@ -28,6 +28,11 @@
 | S014 | M008 | Standard library seeds + activation + store API + category constraints | T040, T043, T044 | done |
 | S015 | M008 | Admin UI: Custom Data settings + product form metafields | T041, T042 | done |
 | S016 | M008 | Polish: standard library browse dialog | T045 | planned |
+| S017 | M009 | Unsaved state indicator + SEO lazy preview polish | T046, T048 | planned |
+| S018 | M009 | Variant UX progressive CTA + physical product toggle + dimension fields | T047, T049 | planned |
+| S019 | M010 | packaging-module: model, migration, RLS, service, admin API | T050 | planned |
+| S020 | M010 | Settings → Packaging UI + Order fulfillment suggestion widget | T051, T052 | planned |
+| S021 | M010 | Shipmondo connector: packaging dimensions auto-fill (HITL) | T053 | planned |
 
 ---
 
@@ -47,6 +52,22 @@
 - **S010:** T033 (fork workspace) og T034 (shared package) kører i parallelt — ingen indbyrdes afhængighed.
 - **S011:** T035 (dashboard removal) og T036 (core store_id) kører i parallelt — begge blokkeret af T033.
 - **S012:** T037 (tenant wiring) — blokkeret af T036 (core tables skal eksistere).
+
+---
+
+## S017–S018 — M009 Product Form Polish
+
+- **S017:** T046 (unsaved state) og T048 (SEO preview) kører parallelt — begge isolerede admin-ui ændringer.
+- **S018:** T047 (variant UX) og T049 (physical toggle + dimensioner) kører parallelt — rører kun produktformularen, ingen indbyrdes afhængighed.
+
+---
+
+## S019–S021 — M010 Fulfillment Intelligence
+
+- **S019:** T050 (packaging-module) — solo prerequisite for alt i M010.
+- **S020:**
+  - Group A: T051 (Settings UI) og T052 (fulfillment widget) kører parallelt — begge blokkeret af T050, uafhængige af hinanden.
+- **S021:** T053 (Shipmondo pre-fill) — **HITL**; blokkeret af T052; kræver manuel Shipmondo API-verifikation.
 
 ---
 

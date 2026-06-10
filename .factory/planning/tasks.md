@@ -2128,5 +2128,319 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 
 ---
 
-<!-- Total: T001–T045 | AFK: 37 | HITL: 7 | Cancelled: T029 -->
-<!-- Sprints: S001–S016 | Milestones: M000–M008 -->
+---
+
+## M009 — Product Form Polish
+
+> Se PRD-product-form-polish.md
+
+---
+
+## T046 — Unsaved state indicator + `beforeunload` guard
+
+**Sprint:** S017
+**Milestone:** M009
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none
+**Branch:** feature/S017/T046-unsaved-state-indicator
+**PRD journey:** J002 (PRD-product-form-polish.md)
+
+### Slice objective
+
+Merchant ser tydeligt når produktformularen har ændringer der ikke er gemt. Navigation væk fra en uGemt formular kræver bekræftelse.
+
+### Layers in scope
+
+- UI: `packages/admin-ui` — produktformular
+- React Hook Form `isDirty` → `document.title` præfikset med `• ` når dirty
+- `beforeunload` handler med `event.preventDefault()` + `event.returnValue = ""`
+- Cleanup ved unmount og ved successful save
+
+### Context for implementing agent
+
+- Produktformularen bruger allerede React Hook Form — find den eksisterende `useForm` instans
+- `beforeunload` kræver `event.preventDefault()` + `event.returnValue = ""` for cross-browser support
+- Sørg for at cleanup sker i `useEffect` return function
+
+### Definition of done
+
+- [ ] `document.title` viser `• Produktnavn` ved dirty state
+- [ ] Browser-dialog vises ved navigation med unsaved changes
+- [ ] Dialog vises IKKE når formularen er ren (ingen falske positiver)
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T048 — SEO section: lazy preview + character counter
+
+**Sprint:** S017
+**Milestone:** M009
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none
+**Branch:** feature/S017/T048-seo-lazy-preview
+**PRD journey:** J003 (PRD-product-form-polish.md)
+
+### Slice objective
+
+SEO-sektionen viser instruktionstekst når ingen data er udfyldt, og et live Google snippet preview med character counters når felterne er udfyldt.
+
+### Layers in scope
+
+- UI: `packages/admin-ui` — produktformulars SEO sektion
+- Konditionel rendering: `if (!seoTitle && !seoDescription)` → empty state med instruktionstekst
+- Live Google snippet preview: titel (rød > 60) + description (rød > 160)
+- Preview opdateres debounced 300ms på keystroke
+- Character count badge inline under hvert felt
+
+### Definition of done
+
+- [ ] Tom tilstand: instruktionstekst (ikke blank box)
+- [ ] Udfyldt tilstand: Google snippet preview live
+- [ ] Character counters med rød fejltilstand ved overskridelse
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T047 — Variant UX: progressiv "Add options" CTA → variant grid
+
+**Sprint:** S018
+**Milestone:** M009
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none
+**Branch:** feature/S018/T047-variant-progressive-ux
+**PRD journey:** J001 (PRD-product-form-polish.md)
+
+### Slice objective
+
+Variants-sektionen starter med ét simpelt CTA frem for den fulde variant-matrix. Option builder udvider sig inline. Grid vises kun efter mindst én option er defineret.
+
+### Layers in scope
+
+- UI: `packages/admin-ui` — Variants sektion på produktformularen
+- Initial state: `+ Add options like size or color` CTA-knap
+- Option builder (inline expand): option name input + comma-separated values input + "Add option" knap
+- Grid render: aktiveres når `options.length > 0`
+- Eksisterende variant CRUD (pris, lager) bevares uændret
+
+### Context for implementing agent
+
+- Find den eksisterende `VariantsSection` eller tilsvarende komponent
+- "Default Title" variant for simple produkter skal IKKE vises som en row i gridden
+- Tilføj "Add another option" link under første option for multipel-option produkter
+
+### Definition of done
+
+- [ ] Tom tilstand: kun CTA synlig
+- [ ] Efter én option: grid med korrekte variant rows
+- [ ] Eksisterende variant-data (pris, lager) vist korrekt i grid
+- [ ] Ingen "Default Title" row for simple produkter
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T049 — "Physical product" toggle + shipping section collapse + dimension fields
+
+**Sprint:** S018
+**Milestone:** M009
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none
+**Branch:** feature/S018/T049-physical-toggle-dimensions
+**PRD journey:** J004, J005 (PRD-product-form-polish.md)
+
+### Slice objective
+
+Shipping-sektionen har et "Physical product" toggle (default ON). Toggle OFF kollapser alle shipping-felter. Dimensioner (L×W×H + weight) er synlige og persisterede per variant.
+
+### Layers in scope
+
+- UI: `packages/admin-ui` — Shipping sektion på produktformularen
+- Toggle: kontrollerer `product_variant.requires_shipping` for alle variants
+- Collapse animation på shipping-felter ved toggle OFF
+- Dimension inputs per variant: Length (cm), Width (cm), Height (cm), Weight (g)
+- "Apply to all variants" knap med bekræftelse når varianter har eksisterende værdier
+- Read/write: Medusa Admin JS SDK `product_variant.length/width/height/weight/requires_shipping`
+
+### Context for implementing agent
+
+- `product_variant.length`, `.width`, `.height`, `.weight` eksisterer allerede i Medusa — ingen migration nødvendig
+- **OQ-01:** Verificer unit-konvention i Medusa-forken (mm? cm?) FØR implementering — konverter KUN i UI, ikke i DB
+
+### Definition of done
+
+- [ ] Toggle OFF skjuler shipping-felter med animation
+- [ ] Toggle sætter `requires_shipping` korrekt på alle variants
+- [ ] Dimension-felter vises og gemmes korrekt
+- [ ] "Apply to all variants" fungerer med bekræftelse
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## M010 — Fulfillment Intelligence
+
+> Se PRD-fulfillment-intelligence.md
+
+---
+
+## T050 — `packaging-module`: PackagingType model, migration, RLS, service (CRUD + suggestPackaging), admin API
+
+**Sprint:** S019
+**Milestone:** M010
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none
+**Branch:** feature/S019/T050-packaging-module
+**PRD journey:** J001, J002, J003 (PRD-fulfillment-intelligence.md)
+
+### Slice objective
+
+Packaging-modulet eksisterer med `packaging_types` tabel, fuld CRUD service og `suggestPackaging()` algoritme. Admin API eksponerer CRUD + `/suggest` endpoint.
+
+### Layers in scope
+
+- Package: `packages/packaging-module/` — ny Medusa module
+- DB: `packaging_types` — `id`, `store_id NOT NULL`, `name`, `type` enum (`box|envelope|bag|tube|other`), `length_mm int`, `width_mm int`, `height_mm int`, `max_weight_g int`, `is_active boolean`, `deleted_at`
+- RLS: `store_id = current_setting('app.tenant_id', true)`
+- Service: `PackagingTypeService extends MedusaService` — CRUD + `suggestPackaging({ items: [{variantId, quantity}] })`
+- `suggestPackaging`: `totalVolumeMm3 = sum(L×W×H×qty) × 1.2` + `totalWeightG = sum(weight×qty)` → smallest qualifying entry
+- API: CRUD routes + `POST /admin/packaging-types/suggest`
+- Validation: Zod på alle request bodies
+- Module registration i `apps/backend/medusa-config.ts`
+- Tests: unit test på `suggestPackaging` med mock variants
+- Docs: `packages/packaging-module/README.md`
+
+### Definition of done
+
+- [ ] `pnpm migration:run` ren lokalt
+- [ ] CRUD API returnerer korrekte statuskoder
+- [ ] `suggestPackaging` returnerer korrekt forslag i unit tests
+- [ ] Zero cross-tenant rows (integration test)
+- [ ] Module registreret i backend
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [ ] `packages/packaging-module/README.md` oprettet
+
+---
+
+## T051 — Admin UI: Settings → Packaging catalog
+
+**Sprint:** S020
+**Milestone:** M010
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T050
+**Branch:** feature/S020/T051-packaging-settings-ui
+**PRD journey:** J001, J005 (PRD-fulfillment-intelligence.md)
+
+### Slice objective
+
+Merchant kan administrere deres pakke-katalog i Admin → Settings → Packaging. Tabel med alle typer, "Add packaging type" slide-over, edit og delete.
+
+### Layers in scope
+
+- UI: `packages/admin-ui` — `/settings/packaging` side
+- Tabel: name, type badge, dimensions (L×W×H cm, konverteret fra mm), max weight, is_active toggle, edit/delete actions
+- "Add packaging type" slide-over: name, type picker, dimension inputs (cm → sendes som mm til API), max weight (g/kg), is_active toggle
+- Empty state med instruktionstext + CTA
+- Settings sidebar: "Packaging" link under Shipping-sektion
+
+### Definition of done
+
+- [ ] CRUD fungerer end-to-end
+- [ ] Dimensioner vises korrekt i cm (konverteret fra mm)
+- [ ] Empty state vist korrekt
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T052 — Order fulfillment widget: packaging forslag + override dropdown
+
+**Sprint:** S020
+**Milestone:** M010
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T050
+**Branch:** feature/S020/T052-fulfillment-packaging-widget
+**PRD journey:** J002, J003 (PRD-fulfillment-intelligence.md)
+
+### Slice objective
+
+Order detail-siden viser et "Suggested packaging" widget i fulfillment-sektionen. Merchant accepterer eller overrider forslaget. Valgt emballage-ID klar til T053 Shipmondo-integration.
+
+### Layers in scope
+
+- UI: `packages/admin-ui` — Order detail side, fulfillment sektion
+- Kalder `POST /admin/packaging-types/suggest` med order line items (variant_id + quantity)
+- Loading: skeleton mens request pågår
+- Succes: packaging navn + dimensioner + utilisation % (`Math.round(totalVol / packagingVol × 100)`)
+- Ingen egnet emballage: contextuel besked med link til Settings → Packaging
+- Override: "Change" knap → dropdown med alle aktive `packaging_types`
+- Confirmed packaging ID eksponeret via callback/state til parent for T053
+
+### Definition of done
+
+- [ ] Widget viser forslag for ordre med varianter der har dimensioner
+- [ ] Override dropdown viser aktive pakke-typer
+- [ ] Ingen-forslag tilstand vist korrekt
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T053 — Shipmondo connector: packaging dimensions auto-fill ved label-generering
+
+**Sprint:** S021
+**Milestone:** M010
+**Status:** todo
+**Mode:** HITL
+**HITL reason:** Kræver live Shipmondo API-verifikation — label-generering kan ikke mockes fuldt ud; menneskelig bekræftelse af korrekt dimension-payload er nødvendig
+**Parallel group:** A
+**Blocked by:** T052
+**Branch:** feature/S021/T053-shipmondo-packaging-autofill
+**PRD journey:** J004 (PRD-fulfillment-intelligence.md)
+
+### Slice objective
+
+Shipmondo label-generering præ-udfyldes med dimensioner fra bekræftet emballage. Merchant behøver ikke manuelt taste boks-mål i Shipmondo.
+
+### Layers in scope
+
+- Code: `packages/connector-module` — Shipmondo integration
+- `generateLabel(fulfillmentId, packagingTypeId)` — resolver `PackagingType` og injekterer dimensioner i Shipmondo `POST /shipments` payload
+- Dimensioner konverteret mm → cm og g → kg per Shipmondo API spec
+- Order detail UI: "Generate label" knap sender `packagingTypeId` fra T052 widget
+- Fallback: `packagingTypeId = null` → kald uden dimensioner (ingen fejl)
+- Tests: unit test verificerer korrekt payload-mapping
+
+### Context for implementing agent
+
+- Verificer Shipmondo `POST /shipments` payload format og enheder inden implementering
+- Find eksisterende Shipmondo integration i connector-module og udvid `generateLabel`
+- HITL checkpoint: manuel verifikation af Shipmondo test-forsendelse med korrekte dimensioner
+
+### Definition of done
+
+- [ ] Shipmondo label-kald indeholder korrekte dimensioner fra valgt `PackagingType`
+- [ ] HITL: manuel verifikation af Shipmondo test-forsendelse gennemført
+- [ ] Fallback (null packagingTypeId) fungerer uden fejl
+- [ ] Unit test på payload-mapping grøn
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+<!-- Total: T001–T053 | AFK: 44 | HITL: 8 (T003, T008, T013, T023, T027, T033, T036, T053) | Cancelled: T029 -->
+<!-- Sprints: S001–S021 | Milestones: M000–M010 -->

@@ -27,6 +27,8 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 | M006 | Production Infrastructure | MercFlow kører på Hetzner; Traefik, Redis, Sentry, provisioning | M005 | done |
 | M007 | Medusa Fork Setup | Medusa som lokale workspace packages; `store_id` på core tables; tenant wiring; dashboard fjernet | M006 | done |
 | M008 | Metafields | Tenant-defined metafield definitions + values; standard library; admin UI; store API | M007 | in-progress (S016 remaining) |
+| M009 | Product Form Polish | Unsaved state; progressive variant UX; SEO lazy preview; physical/digital toggle; product dimensions | M008 | planned |
+| M010 | Fulfillment Intelligence | Merchant packaging catalog; bin-packing suggestion on order fulfillment; Shipmondo dimensions auto-fill | M009 | planned |
 
 ---
 
@@ -295,6 +297,47 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 
 ---
 
+## M009 — Product Form Polish
+
+**Outcome:** Produktformularen er hurtigere og mere fejlfri at bruge. Merchants mister ikke data ved navigation. Varianter oprettes med ét enkelt CTA. SEO preview er live og kontekstuel. Fysiske produktmål (L×W×H) er tilgængelige — prerequisite for M010.
+
+**PRD:** `.factory/context/PRD-product-form-polish.md`
+
+**Sprints i dette milestone:** S017, S018
+
+**Dependencies:** M008
+
+**Definition of done:**
+- [ ] Unsaved state indicator på page title + `beforeunload` guard
+- [ ] Varianter: enkelt CTA → grid vises kun efter option er tilføjet
+- [ ] SEO preview: tom tilstand = hjælpetekst; fyldt tilstand = live snippet
+- [ ] "Physical product" toggle kollapser shipping-felter
+- [ ] Dimension-felter (L/W/H/weight) synlige og persisterede per variant
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `/milestone-review M009` grøn
+
+---
+
+## M010 — Fulfillment Intelligence
+
+**Outcome:** Merchant definerer deres pakke-katalog (boks-størrelser, kuverter). Under ordrebehandling foreslår systemet den optimale emballage baseret på produktdimensioner. Valgt emballage auto-udfylder Shipmondo ved label-generering.
+
+**PRD:** `.factory/context/PRD-fulfillment-intelligence.md`
+
+**Sprints i dette milestone:** S019, S020, S021
+
+**Dependencies:** M009 (produktdimensioner skal være i formularen)
+
+**Definition of done:**
+- [ ] Merchant kan oprette og administrere pakke-katalog i Settings
+- [ ] Order fulfillment viser foreslået emballage med utilisation-indikator
+- [ ] Merchant kan acceptere eller override forslag
+- [ ] Shipmondo label-generering præ-udfylder dimensioner fra valgt emballage (HITL verificeret)
+- [ ] Zero cross-tenant packaging data (test-covered)
+- [ ] `/milestone-review M010` grøn
+
+---
+
 ## Dependency graph
 
 ```mermaid
@@ -307,4 +350,6 @@ flowchart LR
   M005 --> M006
   M006 --> M007
   M007 --> M008
+  M008 --> M009
+  M009 --> M010
 ```
