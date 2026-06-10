@@ -2059,12 +2059,14 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 
 **Sprint:** S015
 **Milestone:** M008
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T038
 **PRD journeys:** J001
 **Branch:** `feature/S015/T041-custom-data-settings-ui`
+**PR:** https://github.com/eskobar95/mercflow/pull/79
+**Merge:** `34bc047`
 
 ---
 
@@ -2079,6 +2081,7 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 **PRD journeys:** J002, J004
 **Branch:** `feature/S015/T042-product-form-metafields`
 **PR:** https://github.com/eskobar95/mercflow/pull/82
+**Merge:** `80b4855`
 
 ---
 

@@ -675,6 +675,7 @@ none (M007 fork setup complete)
 **Sprint:** S014 | **Milestone:** M008 | **Status:** done
 **Branch:** `feature/S014/T040-metafield-standard-library`
 **PR:** https://github.com/eskobar95/mercflow/pull/78
+**Merge:** `0c9a02c`
 **Mode:** AFK | **Parallel group:** A
 
 ### Outcome
@@ -699,6 +700,7 @@ T045
 **Sprint:** S014 | **Milestone:** M008 | **Status:** done
 **Branch:** `feature/S014/T043-category-form-metafields`
 **PR:** https://github.com/eskobar95/mercflow/pull/81
+**Merge:** `43d3cb4`
 **Mode:** AFK | **Parallel group:** B
 
 ### Outcome
@@ -723,6 +725,7 @@ none
 **Sprint:** S014 | **Milestone:** M008 | **Status:** done
 **Branch:** `feature/S014/T044-store-api-metafields`
 **PR:** https://github.com/eskobar95/mercflow/pull/80
+**Merge:** `e6d6eb8`
 **Mode:** AFK | **Parallel group:** B
 
 ### Outcome
@@ -790,5 +793,119 @@ none
 
 ### Next actions
 - [x] Merge PRs #78, #80, #81 to `development` (2026-06-10)
-- [ ] `/run-sprint S015` — T041 (group A) + T042 (group B after T041)
-- [ ] `/run-sprint S016` — T045 after T041 merges
+- [x] `/run-sprint S015` — T041 (group A) + T042 (group B after T041)
+- [ ] `/run-sprint S016` — T045 (T040 + T041 merged)
+
+---
+
+## Task T041 — Custom Data settings page — 2026-06-10
+
+**Sprint:** S015 | **Milestone:** M008 | **Status:** done
+**Branch:** `feature/S015/T041-custom-data-settings-ui`
+**PR:** https://github.com/eskobar95/mercflow/pull/79
+**Merge:** `34bc047`
+**Mode:** AFK | **Parallel group:** A
+
+### Outcome
+Custom Data settings page at `/settings/custom-data` with entity sidebar, definition table, and add/edit/delete slide-over wired to metafield-definitions admin API.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+T042
+
+---
+
+## Task T042 — Product form metafields sections — 2026-06-10
+
+**Sprint:** S015 | **Milestone:** M008 | **Status:** done
+**Branch:** `feature/S015/T042-product-form-metafields`
+**PR:** https://github.com/eskobar95/mercflow/pull/82
+**Merge:** `80b4855`
+**Mode:** AFK | **Parallel group:** B
+
+### Outcome
+Product form metafields sections with two-tier UI (primary inputs + expandable chips), category-scoped inline section with badge, batch save on product submit.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+none
+
+---
+
+## Group A complete (S015)
+| Task | Status | PR |
+|------|--------|-----|
+| T041 | done | https://github.com/eskobar95/mercflow/pull/79 |
+
+## Group B complete (S015)
+| Task | Status | PR |
+|------|--------|-----|
+| T042 | done | https://github.com/eskobar95/mercflow/pull/82 |
+
+---
+
+## Merged to development — S014 + S015 — 2026-06-10
+
+| PR | Task | Merge |
+|----|------|-------|
+| #78 | T040 standard library | `0c9a02c` |
+| #80 | T044 store API metafields | `e6d6eb8` |
+| #81 | T043 category form metafields | `43d3cb4` |
+| #79 | T041 Custom Data settings UI | `34bc047` |
+| #82 | T042 product form metafields | `80b4855` |
+
+**Note:** #79 og #82 krævede merge-konfliktløsning mod `development` (union af metafield types/API mellem S014 og S015 branches).
+
+---
+
+## Sprint retro — S015 — 2026-06-10
+
+**Milestone:** M008
+**Duration:** session
+**Tasks:** 2/2 done, 0 blocked
+
+### What went well
+- Sequential groups A→B: T041 unblocked T042 without rework
+- Both PRs CI green; merged to `development` same day
+- PRD two-tier metafield UX delivered in settings + product form
+
+### What failed or slowed down
+- Merge conflicts on both PRs (add/add i shared metafield-filer mellem S014 og S015)
+- Planning files ikke committed på `development` før sprint-run
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T041 | done | Task T041 — 2026-06-10 |
+| T042 | done | Task T042 — 2026-06-10 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T041 | 0 | — |
+| T042 | 1 | implement retry after review |
+
+### Harness notes
+- Parallel groups: A (T041) → B (T042 sequential)
+- Merge order: #79 før #82; conflict resolution required on both
+
+### Next actions
+- [x] Merge PRs #79, #82 to `development` (2026-06-10)
+- [ ] `/run-sprint S016` — T045 standard library browse dialog
+- [ ] `/milestone-review M008` after S016

@@ -4,6 +4,7 @@
 > Updated: 2026-06-04 (S003 merged — PR #60; see `.factory/logs/sprints/S003-closeout-2026-06-04.md`)
 > Updated: 2026-06-04 (synced with `development`; see `.factory/logs/milestone-reviews/M000-2026-06-04.md`)
 > Updated: 2026-06-09 (M007 added — Medusa Fork Setup; ADR-007 accepted)
+> Updated: 2026-06-10 (M008 added — Metafields; S013–S015 merged to `development`)
 
 ---
 
@@ -24,7 +25,8 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 | M004 | Inventory & Purchase Orders | Full PO lifecycle + inventory dashboard | M000 | done |
 | M005 | Improved Order Flow | Faster order processing + pick list | M000 | done |
 | M006 | Production Infrastructure | MercFlow kører på Hetzner; Traefik, Redis, Sentry, provisioning | M005 | done |
-| M007 | Medusa Fork Setup | Medusa som lokale workspace packages; `store_id` på core tables; tenant wiring; dashboard fjernet | M006 | todo |
+| M007 | Medusa Fork Setup | Medusa som lokale workspace packages; `store_id` på core tables; tenant wiring; dashboard fjernet | M006 | done |
+| M008 | Metafields | Tenant-defined metafield definitions + values; standard library; admin UI; store API | M007 | in-progress (S016 remaining) |
 
 ---
 
@@ -244,7 +246,52 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 - [ ] `store_id NOT NULL` + RLS på alle 6 M0 core tables
 - [ ] `TenantIsolationSubscriber` registreret og verificeret via integration test
 - [ ] `@medusajs/dashboard` fjernet fra `apps/backend`
-- [ ] `/milestone-review M007` grøn
+- [x] `/milestone-review M007` grøn
+
+---
+
+## M008 — Metafields
+
+**Outcome:** Merchants can create tenant-scoped metafield definitions and fill values on products and categories from the admin UI — no code required. Standard library per vertical (skincare, fashion) activatable in one click. Storefront fetches metafields via publishable API key. Two-tier form UX: `is_primary` fields always visible; secondary as expandable chips.
+
+**PRD:** `.factory/context/PRD-metafields.md`
+**ADR:** ADR-008
+
+**Sprints in this milestone:**
+
+| Sprint | Goal | Tasks | Status |
+|--------|------|-------|--------|
+| S013 | metafield-module engine: definitions + values | T038, T039 | done |
+| S014 | Standard library + activation + store API + category constraints | T040, T043, T044 | done |
+| S015 | Admin UI: Custom Data settings + product form metafields | T041, T042 | done |
+| S016 | Polish: standard library browse dialog | T045 | planned |
+
+**Dependencies:** M007 (done)
+
+**Definition of done:**
+- [x] `metafield-module` definitions + values engine with RLS (S013 — PR #77, #76)
+- [x] Standard library seeds + activation API (T040 — PR #78)
+- [x] Store API `GET /store/v1/metafields` with cross-tenant isolation (T044 — PR #80)
+- [x] Category form metafields + category-constraint filter (T043 — PR #81)
+- [x] Custom Data settings page `/settings/custom-data` (T041 — PR #79)
+- [x] Product form metafields two-tier UI + batch save (T042 — PR #82)
+- [x] `is_primary` always visible; secondary as `+ chip` pattern
+- [ ] Standard library browse dialog in settings (T045 / S016)
+- [ ] Zero cross-tenant metafield rows (test-covered on store API; full milestone gate at review)
+- [ ] Guapo brand + ingredients migrated to metafields (deferred — post-M008)
+- [ ] `/milestone-review M008` grøn
+
+**Merged to `development` (2026-06-10):**
+
+| PR | Task | Merge |
+|----|------|-------|
+| #76 | T039 metafield values engine | `8df5999` |
+| #77 | T038 metafield definitions engine | `f64238a` |
+| #78 | T040 standard library | `0c9a02c` |
+| #80 | T044 store API metafields | `e6d6eb8` |
+| #81 | T043 category form metafields | `43d3cb4` |
+| #79 | T041 Custom Data settings UI | `34bc047` |
+| #82 | T042 product form metafields | `80b4855` |
 
 ---
 
@@ -259,4 +306,5 @@ flowchart LR
   M001 --> M002
   M005 --> M006
   M006 --> M007
+  M007 --> M008
 ```

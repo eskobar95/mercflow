@@ -8,7 +8,7 @@
 > Updated: 2026-06-04 (S003 done on feature branch; merged with development planning hygiene)
 > Updated: 2026-06-04 (merged `origin/development` + S006 branch)
 > Updated: 2026-06-09 (S010–S012 added — M007 Medusa Fork Setup)
-> Updated: 2026-06-10 (S013–S016 M008; S014 run complete — PRs #78, #80, #81)
+> Updated: 2026-06-10 (S013–S016 M008; S014 done — PRs #78, #80, #81; S015 done — PRs #79, #82)
 
 | ID | Milestone | Goal | Tasks | Status |
 |----|-----------|------|-------|--------|
@@ -26,7 +26,7 @@
 | S012 | M007 | Startup tenant wiring | T037 | done |
 | S013 | M008 | metafield-module engine: definitions + values | T038, T039 | done |
 | S014 | M008 | Standard library seeds + activation + store API + category constraints | T040, T043, T044 | done |
-| S015 | M008 | Admin UI: Custom Data settings + product form metafields | T041, T042 | planned |
+| S015 | M008 | Admin UI: Custom Data settings + product form metafields | T041, T042 | done |
 | S016 | M008 | Polish: standard library browse dialog | T045 | planned |
 
 ---
@@ -37,8 +37,8 @@
 
 - **S013:** T038 (definitions) og T039 (values) — done (PR #77, #76).
 - **S014:** T040 group A; T043 + T044 group B parallel — done (PR #78, #81, #80).
-- **S015:** T041, T042 — planned.
-- **S016:** T045 — planned (blocked by T040 + T041).
+- **S015:** T041 group A → T042 group B — done (PR #79 `34bc047`, PR #82 `80b4855`).
+- **S016:** T045 — planned (T040 + T041 merged — ready to run).
 
 ---
 
