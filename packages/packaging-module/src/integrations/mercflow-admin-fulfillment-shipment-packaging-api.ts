@@ -1,0 +1,1 @@
+export { GET, PUT } from "../api/admin/fulfillments/[fulfillment_id]/shipment-packaging/route"

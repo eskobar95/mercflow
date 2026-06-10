@@ -46,3 +46,9 @@ export const suggestPackagingBodySchema = z
     items: z.array(suggestPackagingItemSchema).min(1),
   })
   .strict()
+
+export const shipmentPackagingPutBodySchema = z
+  .object({
+    packaging_type_id: z.string().min(1),
+  })
+  .strict()

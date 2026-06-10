@@ -2,7 +2,8 @@ import type { Context } from "@medusajs/types"
 import { MedusaService } from "@medusajs/framework/utils"
 import { MedusaError } from "@medusajs/utils"
 
-import { MercflowPackagingType } from "./models"
+import { MercflowPackagingType, MercflowShipmentPackaging } from "./models"
+import { buildDimensionsSnapshotFromPackagingType } from "./dimensions-snapshot"
 import { suggestPackagingFromCatalog } from "./suggest-packaging"
 import { runWithTenantScope } from "./tenant-scope"
 import type {
@@ -11,9 +12,12 @@ import type {
   PackagingTypeRecord,
   SuggestPackagingItem,
   SuggestPackagingResult,
+  ShipmentPackagingRecord,
   UpdatePackagingTypeInput,
+  UpsertShipmentPackagingInput,
   VariantDimensionLoader,
 } from "./types"
+import type { DimensionsSnapshot } from "./types"
 import { PACKAGING_TYPE_KINDS } from "./types"
 
 function isDuplicateKeyError(error: unknown): boolean {
@@ -62,8 +66,39 @@ function assertPositiveDimension(field: string, value: number): void {
   }
 }
 
+function parseDimensionsSnapshot(value: unknown): DimensionsSnapshot {
+  if (value === null || typeof value !== "object") {
+    throw new MedusaError(
+      MedusaError.Types.UNEXPECTED_STATE,
+      "Shipment packaging has invalid dimensions_snapshot_json"
+    )
+  }
+  const row = value as Record<string, unknown>
+  return {
+    name: String(row.name),
+    length_mm: Number(row.length_mm),
+    width_mm: Number(row.width_mm),
+    height_mm: Number(row.height_mm),
+    max_weight_g: Number(row.max_weight_g),
+  }
+}
+
+function toShipmentPackagingRecord(row: Record<string, unknown>): ShipmentPackagingRecord {
+  return {
+    id: String(row.id),
+    store_id: String(row.store_id),
+    fulfillment_id: String(row.fulfillment_id),
+    packaging_type_id: String(row.packaging_type_id),
+    dimensions_snapshot_json: parseDimensionsSnapshot(row.dimensions_snapshot_json),
+    created_at: row.created_at as string | Date,
+    updated_at: row.updated_at as string | Date,
+    deleted_at: (row.deleted_at as string | Date | null | undefined) ?? null,
+  }
+}
+
 class PackagingModuleService extends MedusaService({
   MercflowPackagingType,
+  MercflowShipmentPackaging,
 }) {
   async withTenant<T>(
     storeId: string,
@@ -261,6 +296,101 @@ class PackagingModuleService extends MedusaService({
         total_volume_mm3: result.total_volume_mm3,
         total_weight_g: result.total_weight_g,
       }
+    })
+  }
+
+  async retrieveShipmentPackaging(
+    storeId: string,
+    fulfillmentId: string
+  ): Promise<ShipmentPackagingRecord | null> {
+    return this.withTenant(storeId, async (context) => {
+      const rows = await this.listMercflowShipmentPackagings(
+        { store_id: storeId, fulfillment_id: fulfillmentId, deleted_at: null },
+        {},
+        context
+      )
+      const row = rows[0]
+      if (!row) {
+        return null
+      }
+      return toShipmentPackagingRecord(row as unknown as Record<string, unknown>)
+    })
+  }
+
+  async upsertShipmentPackaging(
+    input: UpsertShipmentPackagingInput
+  ): Promise<ShipmentPackagingRecord> {
+    const { storeId, fulfillmentId, packagingTypeId } = input
+
+    return this.withTenant(storeId, async (context) => {
+      const packagingTypeRows = await this.listMercflowPackagingTypes(
+        { id: packagingTypeId, store_id: storeId, deleted_at: null },
+        {},
+        context
+      )
+      if (!packagingTypeRows[0]) {
+        throw new MedusaError(
+          MedusaError.Types.NOT_FOUND,
+          `Packaging type "${packagingTypeId}" not found for this store`
+        )
+      }
+
+      const packagingType = toPackagingTypeRecord(
+        packagingTypeRows[0] as unknown as Record<string, unknown>
+      )
+      const snapshot = buildDimensionsSnapshotFromPackagingType(packagingType)
+
+      const existingRows = await this.listMercflowShipmentPackagings(
+        { store_id: storeId, fulfillment_id: fulfillmentId, deleted_at: null },
+        {},
+        context
+      )
+      const existing = existingRows[0]
+
+      if (existing) {
+        const updated = unwrapCreated(
+          await this.updateMercflowShipmentPackagings(
+            {
+              packaging_type_id: packagingTypeId,
+              dimensions_snapshot_json: snapshot,
+            },
+            { id: String(existing.id) },
+            context
+          )
+        )
+        return toShipmentPackagingRecord(updated as unknown as Record<string, unknown>)
+      }
+
+      const created = unwrapCreated(
+        await this.createMercflowShipmentPackagings(
+          {
+            store_id: storeId,
+            fulfillment_id: fulfillmentId,
+            packaging_type_id: packagingTypeId,
+            dimensions_snapshot_json: snapshot,
+          },
+          context
+        )
+      )
+      return toShipmentPackagingRecord(created as unknown as Record<string, unknown>)
+    })
+  }
+
+  async deleteShipmentPackaging(storeId: string, fulfillmentId: string): Promise<void> {
+    await this.withTenant(storeId, async (context) => {
+      const existingRows = await this.listMercflowShipmentPackagings(
+        { store_id: storeId, fulfillment_id: fulfillmentId, deleted_at: null },
+        {},
+        context
+      )
+      const existing = existingRows[0]
+      if (!existing) {
+        throw new MedusaError(
+          MedusaError.Types.NOT_FOUND,
+          `Shipment packaging for fulfillment "${fulfillmentId}" not found`
+        )
+      }
+      await this.softDeleteMercflowShipmentPackagings(String(existing.id))
     })
   }
 }

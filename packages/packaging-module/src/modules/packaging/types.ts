@@ -58,3 +58,28 @@ export type SuggestPackagingResult = {
   total_volume_mm3: number
   total_weight_g: number
 }
+
+export type DimensionsSnapshot = {
+  name: string
+  length_mm: number
+  width_mm: number
+  height_mm: number
+  max_weight_g: number
+}
+
+export type ShipmentPackagingRecord = {
+  id: string
+  store_id: string
+  fulfillment_id: string
+  packaging_type_id: string
+  dimensions_snapshot_json: DimensionsSnapshot
+  created_at: string | Date
+  updated_at: string | Date
+  deleted_at: string | Date | null
+}
+
+export type UpsertShipmentPackagingInput = {
+  storeId: string
+  fulfillmentId: string
+  packagingTypeId: string
+}
