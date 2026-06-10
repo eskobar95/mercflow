@@ -98,6 +98,62 @@ describe("MetafieldModuleService definitions", (): void => {
     expect(result.count).toBe(0)
   })
 
+  it("listDefinitions filters by category_constraint_id ancestors via $in", async (): Promise<void> => {
+    const withTenant = vi.fn(
+      async <T>(
+        _storeId: string,
+        fn: (context: { transactionManager: unknown }) => Promise<T>
+      ): Promise<T> => fn({ transactionManager: {} })
+    )
+    const listAndCountMetafieldDefinitions = vi.fn(async () => [[], 0] as [unknown[], number])
+
+    vi.spyOn(
+      MetafieldModuleService.prototype,
+      "listAndCountMetafieldDefinitions"
+    ).mockImplementation(
+      listAndCountMetafieldDefinitions as MetafieldModuleService["listAndCountMetafieldDefinitions"]
+    )
+
+    const svc = Object.create(MetafieldModuleService.prototype) as MetafieldModuleService
+    Object.assign(svc, { withTenant })
+
+    await svc.listDefinitions({
+      ownerType: "product",
+      storeId: STORE_A,
+      categoryConstraintIds: ["pcat_child", "pcat_parent"],
+      limit: 50,
+      offset: 0,
+    })
+
+    expect(listAndCountMetafieldDefinitions).toHaveBeenCalledWith(
+      {
+        store_id: STORE_A,
+        owner_type: "product",
+        category_constraint_id: { $in: ["pcat_child", "pcat_parent"] },
+      },
+      expect.objectContaining({ take: 50, skip: 0 }),
+      expect.any(Object)
+    )
+  })
+
+  it("listDefinitions returns empty when categoryConstraintIds is empty", async (): Promise<void> => {
+    const withTenant = vi.fn()
+    const listAndCountMetafieldDefinitions = vi.fn()
+
+    const svc = Object.create(MetafieldModuleService.prototype) as MetafieldModuleService
+    Object.assign(svc, { withTenant, listAndCountMetafieldDefinitions })
+
+    const result = await svc.listDefinitions({
+      ownerType: "product",
+      storeId: STORE_A,
+      categoryConstraintIds: [],
+    })
+
+    expect(withTenant).not.toHaveBeenCalled()
+    expect(listAndCountMetafieldDefinitions).not.toHaveBeenCalled()
+    expect(result).toEqual({ definitions: [], count: 0 })
+  })
+
   it("createDefinition maps unique constraint errors to DUPLICATE_ERROR", async (): Promise<void> => {
     const withTenant = vi.fn(
       async <T>(

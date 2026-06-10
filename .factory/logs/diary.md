@@ -667,3 +667,128 @@ none (M007 fork setup complete)
 | #75 | T037 tenant startup wiring | `4bfc586` |
 
 **M007 Medusa Fork Setup:** complete on `development` (T033–T037).
+
+---
+
+## Task T040 — Standard library seeds + activation API — 2026-06-10
+
+**Sprint:** S014 | **Milestone:** M008 | **Status:** done
+**Branch:** `feature/S014/T040-metafield-standard-library`
+**PR:** https://github.com/eskobar95/mercflow/pull/78
+**Mode:** AFK | **Parallel group:** A
+
+### Outcome
+Standard library seeds (skincare + fashion), activation service, admin library routes.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+T045
+
+---
+
+## Task T043 — Category form metafields + constraint filter — 2026-06-10
+
+**Sprint:** S014 | **Milestone:** M008 | **Status:** done
+**Branch:** `feature/S014/T043-category-form-metafields`
+**PR:** https://github.com/eskobar95/mercflow/pull/81
+**Mode:** AFK | **Parallel group:** B
+
+### Outcome
+Category form metafields section + ancestor-aware category_constraint filter on definitions API.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none
+
+---
+
+## Task T044 — Store API metafields — 2026-06-10
+
+**Sprint:** S014 | **Milestone:** M008 | **Status:** done
+**Branch:** `feature/S014/T044-store-api-metafields`
+**PR:** https://github.com/eskobar95/mercflow/pull/80
+**Mode:** AFK | **Parallel group:** B
+
+### Outcome
+GET /store/v1/metafields with publishable_api_key auth and cross-tenant isolation tests.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none
+
+---
+
+## Group B complete (S014)
+| Task | Status | PR |
+|------|--------|-----|
+| T043 | done | https://github.com/eskobar95/mercflow/pull/81 |
+| T044 | done | https://github.com/eskobar95/mercflow/pull/80 |
+
+---
+
+## Sprint retro — S014 — 2026-06-10
+
+**Milestone:** M008
+**Duration:** session
+**Tasks:** 3/3 done, 0 blocked
+
+### What went well
+- Group A (T040) then Group B (T043 + T044) parallel dispatch worked; all three PRs CI green on first pass.
+- Metafield-module backend slices landed cleanly on top of S013 definitions/values engine.
+
+### What failed or slowed down
+- Planning files (`tasks.md` M008 section) were not on `development` — restored during closeout.
+- T040 subagent transcript did not return YAML; lead verified PR #78 CI manually.
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T040 | done | Task T040 — 2026-06-10 |
+| T043 | done | Task T043 — 2026-06-10 |
+| T044 | done | Task T044 — 2026-06-10 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T040 | 0 | — |
+| T043 | 0 | — |
+| T044 | 0 | — |
+
+### Harness notes
+- Parallel groups: A (T040) → B (T043, T044)
+- Subagent issues: T040 YAML missing; planning file drift between branches
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| planning | Keep M008 task rows committed on `development` before `/run-sprint` | `.factory/planning/tasks.md` |
+| harness | Lead should commit planning/diary updates on `development` after each sprint group | skills/harness/close/SKILL.md |
+
+### Next actions
+- [x] Merge PRs #78, #80, #81 to `development` (2026-06-10)
+- [ ] `/run-sprint S015` — T041 (group A) + T042 (group B after T041)
+- [ ] `/run-sprint S016` — T045 after T041 merges

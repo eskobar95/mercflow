@@ -5,6 +5,7 @@ import {
   resolveAdminListOffset,
 } from "../../http/admin-list-limit"
 import { definitionToAdminJson } from "../../http/definition-json"
+import { resolveCategoryAncestorIds } from "../../http/resolve-category-ancestor-ids"
 import { sendZodError } from "../../http/zod-error"
 import { METAFIELD_MODULE } from "../../../modules/metafield"
 import {
@@ -25,10 +26,16 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
   const storeId = resolveMercflowStoreId(req)
 
   const service = req.scope.resolve(METAFIELD_MODULE) as unknown as MetafieldModuleService
+
+  let categoryConstraintIds: string[] | undefined
+  if (parsed.data.category_id) {
+    categoryConstraintIds = await resolveCategoryAncestorIds(req, parsed.data.category_id)
+  }
+
   const { definitions, count } = await service.listDefinitions({
     ownerType: parsed.data.owner_type,
     storeId,
-    categoryConstraintId: parsed.data.category_id,
+    categoryConstraintIds,
     limit,
     offset,
   })
