@@ -8,6 +8,9 @@
 > Updated: 2026-06-04 (S003 done on feature branch; merged with development planning hygiene)
 > Updated: 2026-06-04 (merged `origin/development` + S006 branch)
 > Updated: 2026-06-09 (S010–S012 added — M007 Medusa Fork Setup)
+> Updated: 2026-06-10 (S022 done — M011 merged PR #94, #95 to `development`)
+> Updated: 2026-06-10 (S021 follow-up merged — PR #93 `b891b26` local Shipmondo E2E)
+> Updated: 2026-06-10 (S019–S020 done — PRs #88–#90)
 > Updated: 2026-06-10 (S021 done — PR #91 T053 Shipmondo label + packaging autofill)
 > Updated: 2026-06-10 (S018 merged to `development` — PRs #86 `6d89f1b`, #87 `b0ade41`)
 
@@ -31,9 +34,14 @@
 | S016 | M008 | Polish: standard library browse dialog | T045 | done |
 | S017 | M009 | Unsaved state indicator + SEO lazy preview polish | T046, T048 | done |
 | S018 | M009 | Variant UX progressive CTA + physical product toggle + dimension fields | T047, T049 | done |
-| S019 | M010 | packaging-module: model, migration, RLS, service, admin API | T050 | planned |
-| S020 | M010 | Settings → Packaging UI + Order fulfillment suggestion widget | T051, T052 | planned |
+| S019 | M010 | packaging-module: model, migration, RLS, service, admin API | T050 | done |
+| S020 | M010 | Settings → Packaging UI + Order fulfillment suggestion widget | T051, T052 | done |
 | S021 | M010 | Shipmondo connector: packaging dimensions auto-fill (HITL) | T053 | done |
+| S022 | M011 | Persist + restore confirmed packaging per fulfillment | T054, T055 | done |
+| S023 | M012 | notification-module foundation: models, migrations, RLS, service, admin API | T056 | planned |
+| S024 | M012 | SES domain identity (HITL) + BullMQ worker infrastructure | T057, T058 | planned |
+| S025 | M012 | order-confirmation template + order.placed subscriber + domain admin UI | T059, T061 | planned |
+| S026 | M012 | Remaining templates + branding UI + delivery history UI | T060, T062, T063 | planned |
 
 ---
 
@@ -63,12 +71,36 @@
 
 ---
 
+## S023–S026 — M012 Notification System
+
+- **S023:** T056 (module foundation) — solo; prerequisite for alt i M012.
+- **S024:**
+  - Group A: T057 (SES domain identity — **HITL**; AWS prerequisites) og T058 (BullMQ worker infrastructure) — parallelt; begge afhænger kun af T056.
+- **S025:**
+  - Group A: T059 (order-confirmation template + `order.placed` subscriber) — blokkeret af T058.
+  - Group B: T061 (Admin UI — Domain tab) — blokkeret af T057.
+  - T059 og T061 er indbyrdes uafhængige og kører parallelt i S025.
+- **S026:**
+  - Group A: T060 (øvrige templates + subscribers) — blokkeret af T059.
+  - Group A: T062 (branding UI + preview) + T063 (delivery history UI) — begge kun blokkeret af T056 (done efter S023); kan starte tidligt i S026.
+  - T060, T062, T063 kører parallelt.
+
+---
+
 ## S019–S021 — M010 Fulfillment Intelligence
 
 - **S019:** T050 (packaging-module) — solo prerequisite for alt i M010.
 - **S020:**
   - Group A: T051 (Settings UI) og T052 (fulfillment widget) kører parallelt — begge blokkeret af T050, uafhængige af hinanden.
-- **S021:** T053 (Shipmondo pre-fill) — done (PR #91).
+- **S021:** T053 (Shipmondo pre-fill) — done (PR #91, follow-up PR #93 `b891b26` merged).
+- **M010 Fulfillment Intelligence:** complete (S019–S021).
+
+---
+
+## S022 — M011 Fulfillment Packaging Persistence
+
+- **S022:** T054 (model + API) → T055 (order detail UI) — sequential; T055 blocked by T054.
+- **PRD:** OQ-01 in `PRD-fulfillment-intelligence.md` — `shipment_packaging` join table in packaging-module.
 
 ---
 

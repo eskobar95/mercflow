@@ -4,6 +4,8 @@
 > Updated: 2026-06-04 (S003 merged — PR #60; see `.factory/logs/sprints/S003-closeout-2026-06-04.md`)
 > Updated: 2026-06-04 (synced with `development`; see `.factory/logs/milestone-reviews/M000-2026-06-04.md`)
 > Updated: 2026-06-09 (M007 added — Medusa Fork Setup; ADR-007 accepted)
+> Updated: 2026-06-10 (M011 added — Fulfillment Packaging Persistence; T054, T055 / S022)
+> Updated: 2026-06-10 (M008–M010 marked done; S019–S021 + PR #93 merged)
 > Updated: 2026-06-10 (S018 merged to `development` — PRs #86 `6d89f1b`, #87 `b0ade41`; M009 ready for milestone review)
 
 ---
@@ -26,9 +28,11 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 | M005 | Improved Order Flow | Faster order processing + pick list | M000 | done |
 | M006 | Production Infrastructure | MercFlow kører på Hetzner; Traefik, Redis, Sentry, provisioning | M005 | done |
 | M007 | Medusa Fork Setup | Medusa som lokale workspace packages; `store_id` på core tables; tenant wiring; dashboard fjernet | M006 | done |
-| M008 | Metafields | Tenant-defined metafield definitions + values; standard library; admin UI; store API | M007 | ready for milestone review |
-| M009 | Product Form Polish | Unsaved state; progressive variant UX; SEO lazy preview; physical/digital toggle; product dimensions | M008 | ready for milestone review |
-| M010 | Fulfillment Intelligence | Merchant packaging catalog; bin-packing suggestion on order fulfillment; Shipmondo dimensions auto-fill | M009 | planned |
+| M008 | Metafields | Tenant-defined metafield definitions + values; standard library; admin UI; store API | M007 | done |
+| M009 | Product Form Polish | Unsaved state; progressive variant UX; SEO lazy preview; physical/digital toggle; product dimensions | M008 | done |
+| M010 | Fulfillment Intelligence | Merchant packaging catalog; bin-packing suggestion on order fulfillment; Shipmondo dimensions auto-fill | M009 | done |
+| M011 | Fulfillment Packaging Persistence | Confirmed packaging per fulfillment persisted and restored on order detail | M010 | done |
+| M012 | Notification System | Transactional email on Amazon SES; per-tenant domain identity; React Email templates; BullMQ delivery queue; admin domain + branding + delivery history | M011 | planned |
 
 ---
 
@@ -279,9 +283,9 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 - [x] Product form metafields two-tier UI + batch save (T042 — PR #82)
 - [x] `is_primary` always visible; secondary as `+ chip` pattern
 - [x] Standard library browse dialog in settings (T045 / S016 — PR #83)
-- [ ] Zero cross-tenant metafield rows (test-covered on store API; full milestone gate at review)
+- [x] Zero cross-tenant metafield rows (test-covered on store API)
 - [ ] Guapo brand + ingredients migrated to metafields (deferred — post-M008)
-- [ ] `/milestone-review M008` grøn
+- [ ] `/milestone-review M008` grøn (harness housekeeping)
 
 **Merged to `development` (2026-06-10):**
 
@@ -322,7 +326,7 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 - [x] "Physical product" toggle kollapser shipping-felter (T049 / S018 — PR #87)
 - [x] Dimension-felter (L/W/H/weight) synlige og persisterede per variant (T049 / S018 — PR #87)
 - [x] `pnpm react-doctor:admin-ui` 0 issues (S017–S018 PR CI)
-- [ ] `/milestone-review M009` grøn
+- [ ] `/milestone-review M009` grøn (harness housekeeping)
 
 **Merged to `development` (2026-06-10, S017):**
 
@@ -346,17 +350,59 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 
 **PRD:** `.factory/context/PRD-fulfillment-intelligence.md`
 
-**Sprints i dette milestone:** S019, S020, S021
+**Sprints in this milestone:**
+
+| Sprint | Goal | Tasks | Status |
+|--------|------|-------|--------|
+| S019 | packaging-module foundation | T050 | done |
+| S020 | Settings packaging UI + fulfillment widget | T051, T052 | done |
+| S021 | Shipmondo label autofill (HITL) | T053 | done |
 
 **Dependencies:** M009 (produktdimensioner skal være i formularen)
 
 **Definition of done:**
-- [ ] Merchant kan oprette og administrere pakke-katalog i Settings
-- [ ] Order fulfillment viser foreslået emballage med utilisation-indikator
-- [ ] Merchant kan acceptere eller override forslag
-- [ ] Shipmondo label-generering præ-udfylder dimensioner fra valgt emballage (HITL verificeret)
-- [ ] Zero cross-tenant packaging data (test-covered)
-- [ ] `/milestone-review M010` grøn
+- [x] Merchant kan oprette og administrere pakke-katalog i Settings (T051 / PR #89)
+- [x] Order fulfillment viser foreslået emballage med utilisation-indikator (T052 / PR #90)
+- [x] Merchant kan acceptere eller override forslag (T052 — component state; persistence deferred to M011 OQ-01)
+- [x] Shipmondo label-generering præ-udfylder dimensioner fra valgt emballage (T053 / PR #91; HITL + PR #93)
+- [x] Zero cross-tenant packaging data (test-covered — packaging-module tenancy tests)
+- [ ] `/milestone-review M010` grøn (harness housekeeping)
+
+**Merged to `development` (2026-06-10):**
+
+| PR | Task | Merge |
+|----|------|-------|
+| #88 | T050 packaging-module | merged |
+| #89 | T051 packaging settings UI | merged |
+| #90 | T052 fulfillment packaging widget | merged |
+| #91 | T053 Shipmondo label autofill | merged |
+| #93 | T053 follow-up local E2E fixes | `b891b26` |
+
+---
+
+## M011 — Fulfillment Packaging Persistence
+
+**Outcome:** Merchant's confirmed packaging choice on an order fulfillment survives page reload and is available as the default for Shipmondo label generation — without touching Medusa core fulfillment entities.
+
+**PRD:** `.factory/context/PRD-fulfillment-intelligence.md` (OQ-01)
+
+**Sprints in this milestone:**
+
+| Sprint | Goal | Tasks | Status |
+|--------|------|-------|--------|
+| S022 | Persist + restore confirmed packaging per fulfillment | T054, T055 | done |
+
+**Dependencies:** M010 (packaging catalog, suggestion widget, label flow)
+
+**Definition of done:**
+- [x] `shipment_packaging` join table with RLS (`fulfillment_id`, `packaging_type_id`, `dimensions_snapshot_json`)
+- [x] Admin API upsert/read per fulfillment
+- [x] Order detail restores confirmed packaging on reload (override wins over fresh suggestion)
+- [x] Generate label uses persisted `packaging_type_id` when present
+- [x] Zero cross-tenant rows (integration test)
+- [x] `packages/packaging-module/README.md` updated with field definitions + API
+
+**Merged to `development`:** PR #94 (`2662cc9`), PR #95 (`115d3fa`) — 2026-06-10
 
 ---
 
@@ -374,4 +420,38 @@ flowchart LR
   M007 --> M008
   M008 --> M009
   M009 --> M010
+  M010 --> M011
+  M011 --> M012
 ```
+
+---
+
+## M012 — Notification System
+
+**Outcome:** Every order confirmation, shipping update, and cancellation is reliably delivered via Amazon SES from the merchant's own domain (`noreply@merchant.com`). Merchants configure sending domain (with DKIM/SPF records), email branding variables (logo, color, reply-to), and view delivery history with resend capability in admin.
+
+**PRD:** `.factory/context/PRD-notification-system.md`
+**ADR:** ADR-009
+
+**Sprints i dette milestone:**
+
+| Sprint | Goal | Tasks |
+|--------|------|-------|
+| S023 | notification-module foundation: models, migrations, RLS, service, admin API | T056 |
+| S024 | SES domain identity (HITL) + BullMQ worker infrastructure | T057, T058 |
+| S025 | order-confirmation template + subscriber + domain admin UI | T059, T061 |
+| S026 | Remaining templates + branding UI + delivery history UI | T060, T062, T063 |
+
+**Dependencies:** M011
+
+**Infrastructure prerequisite (HITL):** MercFlow team verifies `mail.mercflow.com` in AWS SES as fallback sending domain before M012 ships. Tracked as OQ-04 in PRD.
+
+**Definition of done:**
+- [ ] Order confirmation email sent within 30s of `order.placed` (p95)
+- [ ] Per-tenant SES domain identity setup flow works end-to-end (DNS records shown in admin)
+- [ ] BullMQ retry + DLQ active; BetterStack alert on DLQ size > 0
+- [ ] Idempotency: duplicate `order.placed` events never send duplicate emails
+- [ ] Zero cross-tenant emails (integration test)
+- [ ] Admin: domain setup tab, branding tab with preview, delivery history with resend
+- [ ] `packages/notification-module/README.md` complete
+- [ ] `/milestone-review M012` grøn

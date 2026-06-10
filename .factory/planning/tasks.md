@@ -2559,7 +2559,8 @@ Shipping-sektionen har et "Physical product" toggle (default ON). Toggle OFF kol
 
 **Sprint:** S019
 **Milestone:** M010
-**Status:** todo
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/88
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
@@ -2585,13 +2586,13 @@ Packaging-modulet eksisterer med `packaging_types` tabel, fuld CRUD service og `
 
 ### Definition of done
 
-- [ ] `pnpm migration:run` ren lokalt
-- [ ] CRUD API returnerer korrekte statuskoder
-- [ ] `suggestPackaging` returnerer korrekt forslag i unit tests
-- [ ] Zero cross-tenant rows (integration test)
-- [ ] Module registreret i backend
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
-- [ ] `packages/packaging-module/README.md` oprettet
+- [x] `pnpm migration:run` ren lokalt
+- [x] CRUD API returnerer korrekte statuskoder
+- [x] `suggestPackaging` returnerer korrekt forslag i unit tests
+- [x] Zero cross-tenant rows (integration test)
+- [x] Module registreret i backend
+- [x] `pnpm typecheck` + `pnpm lint` grøn
+- [x] `packages/packaging-module/README.md` oprettet
 
 ---
 
@@ -2599,7 +2600,8 @@ Packaging-modulet eksisterer med `packaging_types` tabel, fuld CRUD service og `
 
 **Sprint:** S020
 **Milestone:** M010
-**Status:** todo
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/89
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T050
@@ -2620,11 +2622,11 @@ Merchant kan administrere deres pakke-katalog i Admin → Settings → Packaging
 
 ### Definition of done
 
-- [ ] CRUD fungerer end-to-end
-- [ ] Dimensioner vises korrekt i cm (konverteret fra mm)
-- [ ] Empty state vist korrekt
-- [ ] `pnpm react-doctor:admin-ui` 0 issues
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] CRUD fungerer end-to-end
+- [x] Dimensioner vises korrekt i cm (konverteret fra mm)
+- [x] Empty state vist korrekt
+- [x] `pnpm react-doctor:admin-ui` 0 issues
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 
@@ -2632,7 +2634,8 @@ Merchant kan administrere deres pakke-katalog i Admin → Settings → Packaging
 
 **Sprint:** S020
 **Milestone:** M010
-**Status:** todo
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/90
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T050
@@ -2655,11 +2658,11 @@ Order detail-siden viser et "Suggested packaging" widget i fulfillment-sektionen
 
 ### Definition of done
 
-- [ ] Widget viser forslag for ordre med varianter der har dimensioner
-- [ ] Override dropdown viser aktive pakke-typer
-- [ ] Ingen-forslag tilstand vist korrekt
-- [ ] `pnpm react-doctor:admin-ui` 0 issues
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] Widget viser forslag for ordre med varianter der har dimensioner
+- [x] Override dropdown viser aktive pakke-typer
+- [x] Ingen-forslag tilstand vist korrekt
+- [x] `pnpm react-doctor:admin-ui` 0 issues
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 
@@ -2669,6 +2672,7 @@ Order detail-siden viser et "Suggested packaging" widget i fulfillment-sektionen
 **Milestone:** M010
 **Status:** done
 **PR:** https://github.com/eskobar95/mercflow/pull/91
+**Follow-up PR:** https://github.com/eskobar95/mercflow/pull/93 — merged `b891b26` (local E2E fixes + reproducible dev setup)
 **Mode:** HITL
 **HITL reason:** Kræver live Shipmondo API-verifikation — label-generering kan ikke mockes fuldt ud; menneskelig bekræftelse af korrekt dimension-payload er nødvendig
 **Parallel group:** A
@@ -2697,13 +2701,448 @@ Shipmondo label-generering præ-udfyldes med dimensioner fra bekræftet emballag
 
 ### Definition of done
 
-- [ ] Shipmondo label-kald indeholder korrekte dimensioner fra valgt `PackagingType`
-- [ ] HITL: manuel verifikation af Shipmondo test-forsendelse gennemført
-- [ ] Fallback (null packagingTypeId) fungerer uden fejl
-- [ ] Unit test på payload-mapping grøn
+- [x] Shipmondo label-kald indeholder korrekte dimensioner fra valgt `PackagingType`
+- [x] HITL: manuel verifikation af Shipmondo test-forsendelse gennemført (sandbox shipment `58028300`; PR #93 lokal E2E)
+- [x] Fallback (null packagingTypeId) fungerer uden fejl
+- [x] Unit test på payload-mapping grøn
+- [x] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## M011 — Fulfillment Packaging Persistence
+
+> Se PRD-fulfillment-intelligence.md (OQ-01)
+
+---
+
+## T054 — `packaging-module`: `shipment_packaging` model, migration, RLS, upsert service, admin API
+
+**Sprint:** S022
+**Milestone:** M011
+**Status:** done
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none
+**Branch:** feature/S022/T054-shipment-packaging-model
+**PR:** https://github.com/eskobar95/mercflow/pull/94
+**PRD journey:** J003 (PRD-fulfillment-intelligence.md, OQ-01)
+
+### Slice objective
+
+Bekræftet emballage per fulfillment persisteres i packaging-modulet. Admin API kan læse og upserte valg pr. `fulfillment_id` med dimension-snapshot til historik.
+
+### Layers in scope
+
+- Package: `packages/packaging-module/`
+- DB: `shipment_packaging` — `id`, `store_id NOT NULL`, `fulfillment_id` (unique per store), `packaging_type_id`, `dimensions_snapshot_json` (length_mm, width_mm, height_mm, max_weight_g, name), `deleted_at`
+- RLS: `store_id = current_setting('app.tenant_id', true)`
+- Service: `upsertShipmentPackaging({ storeId, fulfillmentId, packagingTypeId })` — snapshots dimensions from live `PackagingType` at write time; soft-clear on explicit delete
+- API: `GET /admin/fulfillments/:fulfillment_id/shipment-packaging`, `PUT /admin/fulfillments/:fulfillment_id/shipment-packaging`
+- Validation: Zod on request bodies; reject unknown `packaging_type_id` for tenant
+- Tests: unit test on snapshot shape; integration test on tenant isolation
+- Docs: update `packages/packaging-module/README.md` (field definitions + routes)
+
+### Definition of done
+
+- [x] `pnpm migration:run` clean locally
+- [x] Upsert returns persisted row with snapshot JSON
+- [x] Cross-tenant read/write blocked (integration test)
+- [x] `pnpm typecheck` + `pnpm lint` green
+- [x] README updated
+
+---
+
+## T055 — Order detail: persist + restore confirmed packaging on reload
+
+**Sprint:** S022
+**Milestone:** M011
+**Status:** done
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T054
+**Branch:** feature/S022/T055-order-packaging-persist-ui
+**PR:** https://github.com/eskobar95/mercflow/pull/95
+**PRD journey:** J003, J004 (PRD-fulfillment-intelligence.md)
+
+### Slice objective
+
+Order detail gemmer merchant's packaging-valg (suggestion accept eller override) og genskaber det ved reload. "Generate label" bruger persisted `packaging_type_id` som default.
+
+### Layers in scope
+
+- UI: `packages/admin-ui` — `OrderSuggestedPackagingWidget` + `OrderFulfillmentSection`
+- On confirm/override: `PUT /admin/fulfillments/:id/shipment-packaging`
+- On load: `GET` før suggestion; persisted choice takes precedence over fresh suggest
+- Loading/error states explicit; failed save blocks silent override switch
+- Wire `packagingTypeId` into existing Shipmondo label flow from persisted row
+- Tests: widget/hook test for restore + save paths
+
+### Definition of done
+
+- [x] Reloading order detail shows last confirmed packaging
+- [x] Override persists and survives reload
+- [x] Generate label uses persisted id when set
+- [x] `pnpm react-doctor:admin-ui` 0 issues
+- [x] `pnpm typecheck` + `pnpm lint` green
+
+---
+
+---
+
+## M012 — Notification System
+
+> T056–T063 — se PRD-notification-system.md og ADR-009
+
+---
+
+## T056 — `notification-module` foundation: EmailConfig + EmailDelivery models, migrations, RLS, service, admin API
+
+**Sprint:** S023
+**Milestone:** M012
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none
+**Branch:** feature/S023/T056-notification-module-foundation
+**PRD journey:** J003, J004 (PRD-notification-system.md)
+**ADRs:** ADR-009
+
+### Slice objective
+
+`@mercflow/notification-module` eksisterer med de to tabeller, fuld service og admin API. `enqueueEmail()` sender BullMQ-job til `mercflow:notifications` queue. Delivery history er læsbar via admin API.
+
+### Layers in scope
+
+- Package: `packages/notification-module/` — ny Medusa module
+- DB: `email_configs` tabel — `id`, `store_id NOT NULL`, `domain`, `from_email`, `from_name`, `reply_to`, `logo_url`, `brand_color`, `support_email`, `ses_domain_status enum('pending','verified','failed')`, `ses_identity_arn`, `fallback_from`
+- DB: `email_deliveries` tabel — `id`, `store_id NOT NULL`, `template_key`, `to_email`, `entity_id`, `idempotency_key UNIQUE`, `status enum('queued','sent','failed','dead_letter')`, `error_message`, `sent_at`, `ses_message_id`
+- RLS: `store_id = current_setting('app.tenant_id', true)` på begge tabeller
+- Service: `NotificationService extends MedusaService` — `getEmailConfig`, `updateEmailConfig`, `enqueueEmail({ storeId, templateKey, to, entityId, data })` → BullMQ job, `listDeliveries({ storeId, limit, offset })`, `resendEmail(deliveryId, storeId)`
+- `enqueueEmail`: jobId = `{storeId}:{templateKey}:{entityId}` (idempotency); skips enqueueing if job already exists
+- SES client: **stub interface only** — real SES calls implementeres i T057/T058
+- Admin API:
+  - `GET /admin/notification-config`
+  - `PUT /admin/notification-config/branding` — logo_url, brand_color, from_name, reply_to, support_email
+  - `GET /admin/email-deliveries` — `?limit&offset`
+  - `POST /admin/email-deliveries/:id/resend`
+- Validation: Zod på PUT branding body + resend
+- Module registration i `apps/backend/medusa-config.ts`
+- Tests: unit test på `enqueueEmail` idempotency (duplicate job = no-op)
+- Docs: `packages/notification-module/README.md` (initial version)
+
+### Context for implementing agent
+
+- BullMQ er allerede i stacken via Redis — brug eksisterende Redis connection fra `apps/backend`
+- Queue navn: `mercflow:notifications`; job navn: `send-email`
+- `enqueueEmail` skriver `EmailDelivery` med `status: 'queued'` ved enqueueing; worker opdaterer til `sent`/`failed` (T058)
+- SES client stub: `interface ISESClient { sendEmail(params): Promise<{ messageId: string }> }` — ingen rigtig AWS-kald; stub returnerer fake messageId
+
+### Definition of done
+
+- [ ] `pnpm migration:run` ren lokalt
+- [ ] `enqueueEmail` idempotency test grøn
+- [ ] Admin API: GET/PUT config + GET deliveries + POST resend returnerer korrekte statuskoder
+- [ ] Zero cross-tenant rows (integration test)
+- [ ] Module registreret i backend
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [ ] `packages/notification-module/README.md` oprettet
+
+---
+
+## T057 — SES domain identity management: `setupDomain()`, `checkDomainStatus()`, DKIM records, admin API domain routes
+
+**Sprint:** S024
+**Milestone:** M012
+**Status:** todo
+**Mode:** HITL
+**HITL reason:** AWS SES account prerequisites kræver menneskelig handling inden T057 kan køre end-to-end: (1) IAM-bruger med SES send+identity permissions, (2) SES sandbox exit for production sending, (3) `mail.mercflow.com` verificeret som fallback sending domain (PRD OQ-04)
+**Parallel group:** A
+**Blocked by:** T056
+**Branch:** feature/S024/T057-ses-domain-identity
+**PRD journey:** J001 (PRD-notification-system.md)
+**ADRs:** ADR-009
+
+### Slice objective
+
+Merchant kan sætte deres sending domain op i MercFlow og modtager de 4 DNS records (3 CNAME DKIM + 1 TXT SPF) der skal tilføjes til deres DNS. System poller SES og opdaterer verifikationsstatus automatisk.
+
+### Layers in scope
+
+- Code: `packages/notification-module` — `SESIdentityService` (eller udvid `NotificationService`)
+- AWS SDK: `@aws-sdk/client-ses` — `CreateEmailIdentityCommand`, `GetEmailIdentityCommand`
+- `setupDomain(storeId, domain)`:
+  - Kalder SES `CreateEmailIdentity(domain)`
+  - Gemmer `ses_identity_arn`, DNS records snapshot i `email_configs`
+  - Returnerer `{ dkim: CnameRecord[], spf: TxtRecord }` DNS records
+- `checkDomainStatus(storeId)`:
+  - Kalder SES `GetEmailIdentity(domain)` → `VerificationStatus`
+  - Opdaterer `email_configs.ses_domain_status`
+- Admin API:
+  - `POST /admin/notification-config/domain` — body: `{ domain }` → returns DNS records
+  - `GET /admin/notification-config/domain/status` → `{ status, records, fallback_from }`
+- Cron/polling: `checkDomainStatus` kan kaldes fra admin (on-demand) + planlagt BullMQ job hvert 15. min for `pending` domains
+- Env vars: `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` (dokumenteret i `infra/.env.example`)
+- Tests: unit test med mock SES client
+
+### Context for implementing agent
+
+- HITL checkpoint INDEN test: AWS IAM credentials skal være i `.env`; SES sandbox exit kan tage 24h
+- `fallback_from` sættes automatisk til `noreply@mail.mercflow.com` i EmailConfig ved oprettelse
+- Hvis `ses_domain_status != 'verified'`: `from_email` i leveringer bruger `fallback_from` automatisk (logik i worker, T058)
+
+### Definition of done
+
+- [ ] HITL: AWS prerequisites on checklist completed (IAM + sandbox + mail.mercflow.com)
+- [ ] `setupDomain` returnerer korrekte DNS records for test-domain
+- [ ] `checkDomainStatus` opdaterer status korrekt
+- [ ] Admin API returnerer korrekte records og status
+- [ ] Unit test med mock SES grøn
 - [ ] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 
-<!-- Total: T001–T053 | AFK: 44 | HITL: 8 (T003, T008, T013, T023, T027, T033, T036, T053) | Cancelled: T029 -->
-<!-- Sprints: S001–S021 | Milestones: M000–M010 -->
+## T058 — BullMQ notification worker infrastructure (queue, retry, DLQ, template renderer)
+
+**Sprint:** S024
+**Milestone:** M012
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T056
+**Branch:** feature/S024/T058-notification-worker
+**PRD journey:** J003 (PRD-notification-system.md)
+**ADRs:** ADR-009
+
+### Slice objective
+
+BullMQ notification worker kører i `apps/backend`, henter `send-email` jobs fra `mercflow:notifications` queue, resolver EmailConfig, renderer React Email template til HTML, og sender via SES (real client hvis T057 done, ellers stub). Retry + DLQ konfigureret.
+
+### Layers in scope
+
+- Code: `apps/backend/src/workers/notification-worker.ts`
+- Queue: `mercflow:notifications`, job: `send-email`, concurrency: `NOTIFICATION_WORKER_CONCURRENCY` env (default 5)
+- Retry: `{ attempts: 3, backoff: { type: 'exponential', delay: 30_000 } }` (30s → 5m → 30m)
+- DLQ: `mercflow:notifications:dead` — failed jobs moved here after exhausting retries
+- Template renderer: `renderTemplate(key: TemplateKey, props: TemplateProps): string` — renders React Email TSX to HTML via `@react-email/render`
+- Processor logic:
+  1. Resolve `EmailConfig` for `storeId`
+  2. Determine `from_email` (verified domain or `fallback_from`)
+  3. Render template: `renderTemplate(templateKey, { ...emailConfig, ...jobData })`
+  4. Call `sesClient.sendEmail({ from, to, subject, html })`
+  5. Update `EmailDelivery.status = 'sent'`, set `ses_message_id` + `sent_at`
+  6. On error: update `EmailDelivery.status = 'failed'`, set `error_message`
+  7. On DLQ: update `EmailDelivery.status = 'dead_letter'`
+- Template registry: `Map<TemplateKey, React.FC<TemplateProps>>` — initially empty; T059 registers `order-confirmation`
+- Worker registration in backend startup (`apps/backend/src/workers/index.ts` or equivalent)
+- Dependencies: `@react-email/render`, `@react-email/components`, `@aws-sdk/client-ses`
+- Tests: unit test — mock job processing, verify `EmailDelivery` status updates
+
+### Context for implementing agent
+
+- Worker bruger SES client fra `notification-module` — if T057 er done, real client; ellers stub
+- `from_email` logik: `emailConfig.ses_domain_status === 'verified' ? emailConfig.from_email : emailConfig.fallback_from`
+- BetterStack alert: konfigurér metrics/uptime check på DLQ størrelse (dokumentér i `infra/RUNBOOK.md`)
+
+### Definition of done
+
+- [ ] Worker starter og behandler test-job uden fejl
+- [ ] Retry konfigureret og verificeret i unit test
+- [ ] DLQ modtager job efter 3 mislykkede forsøg
+- [ ] `EmailDelivery.status` opdateres korrekt (sent / failed / dead_letter)
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [ ] `infra/RUNBOOK.md` opdateret med DLQ monitoring note
+
+---
+
+## T059 — `order-confirmation` React Email template + `order.placed` event subscriber
+
+**Sprint:** S025
+**Milestone:** M012
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T058
+**Branch:** feature/S025/T059-order-confirmation-template
+**PRD journey:** J003 (PRD-notification-system.md)
+**ADRs:** ADR-009
+
+### Slice objective
+
+En kunde modtager automatisk en ordrebekræftelse med butikslogo, ordreresumé og linjevarer inden for 30 sekunder efter ordren er placeret. Kritisk leveringsvej fuldt operationel.
+
+### Layers in scope
+
+- Templates: `packages/notification-module/src/templates/`
+  - `layout.tsx` — header (logo, brand color), footer (store name, support email, unsubscribe note)
+  - `line-item.tsx` — product name, variant, qty, price
+  - `address-block.tsx` — shipping address
+  - `order-confirmation.tsx` — order number, line items, shipping address, totals, CTA "View order"
+- Shared components bruge `@react-email/components` (Html, Head, Body, Container, Section, Text, Button, Img, Hr)
+- Template props: `{ logoUrl, brandColor, storeName, supportEmail, order: MedusaOrder }`
+- Register in worker template registry: `templates.set('order-confirmation', OrderConfirmationTemplate)`
+- Subscriber: `apps/backend/src/subscribers/order-placed.subscriber.ts`
+  - Medusa event: `order.placed`
+  - Resolver: `order.customer.email` + `store_id` → `notificationService.enqueueEmail({ storeId, templateKey: 'order-confirmation', to: customer.email, entityId: order.id, data: { order } })`
+- Tests:
+  - Snapshot test: rendered HTML contains order number, customer email
+  - Integration test: `order.placed` event → `EmailDelivery` row created with `status: 'queued'`
+
+### Context for implementing agent
+
+- Hent Medusa order data via `OrderModule` service — inkludér line items, shipping address, customer
+- `@react-email/render` producerer HTML string — verificer preview i browser med `pnpm email:preview` (tilføj script til notification-module)
+- Brug eksisterende Medusa event subscriber pattern fra `apps/backend/src/subscribers/`
+
+### Definition of done
+
+- [ ] `order-confirmation.tsx` renderer korrekt HTML med alle props
+- [ ] Snapshot test grøn
+- [ ] `order.placed` subscriber enqueuer job med korrekt idempotency key
+- [ ] Integration test: delivery row oprettet
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T060 — `shipping-update`, `order-cancellation`, `customer-welcome` templates + event subscribers
+
+**Sprint:** S026
+**Milestone:** M012
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T059
+**Branch:** feature/S026/T060-remaining-notification-templates
+**PRD journey:** J005 (PRD-notification-system.md)
+**ADRs:** ADR-009
+
+### Slice objective
+
+Alle v1 transaktionelle emails er aktive: shipping update med tracking link, ordreannullering, og velkomstmail ved ny kunde.
+
+### Layers in scope
+
+- Templates:
+  - `shipping-update.tsx` — carrier, tracking number, tracking link, expected delivery
+  - `order-cancellation.tsx` — order number, reason (if available), refund note
+  - `customer-welcome.tsx` — welcome message, store CTA, support contact
+- Subscribers:
+  - `order-shipped.subscriber.ts` → `order.shipment_created` → `enqueueEmail('shipping-update', ...)`
+  - `order-canceled.subscriber.ts` → `order.canceled` → `enqueueEmail('order-cancellation', ...)`
+  - `customer-created.subscriber.ts` → `customer.created` → `enqueueEmail('customer-welcome', ...)`
+- Register all 3 in worker template registry
+- Tests: snapshot test per template
+
+### Definition of done
+
+- [ ] Alle 3 templates renderer korrekt HTML
+- [ ] Alle 3 subscribers enqueuer jobs korrekt
+- [ ] Snapshot tests grønne
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T061 — Admin UI: Settings → Email → Domain tab
+
+**Sprint:** S025
+**Milestone:** M012
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** B
+**Blocked by:** T057
+**Branch:** feature/S025/T061-email-domain-settings-ui
+**PRD journey:** J001 (PRD-notification-system.md)
+
+### Slice objective
+
+Merchant kan konfigurere og verificere deres sending domain i admin. DNS records vises med copy-to-clipboard. Verifikationsstatus opdateres automatisk.
+
+### Layers in scope
+
+- UI: `packages/admin-ui` — `/settings/email` side, Domain tab
+- Domain input (disabled efter setup) + "Setup domain" knap
+- DNS records tabel: Type (CNAME/TXT), Name, Value — copy-to-clipboard per row
+- Verifikationsstatus badge: Pending (gul) / Verified (grøn) / Failed (rød)
+- Auto-refresh: `useInterval(checkStatus, 30_000)` mens status = pending
+- Fallback info: "Emails send from noreply@mail.mercflow.com until verified"
+- Settings sidebar: "Email" under Communications sektion
+
+### Definition of done
+
+- [ ] Domain setup flow fungerer end-to-end
+- [ ] DNS records vises korrekt med copy-to-clipboard
+- [ ] Status badge opdateres automatisk (polling)
+- [ ] Fallback besked synlig ved pending/failed
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T062 — Admin UI: Settings → Email → Branding tab + preview modal
+
+**Sprint:** S026
+**Milestone:** M012
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T056
+**Branch:** feature/S026/T062-email-branding-ui
+**PRD journey:** J002 (PRD-notification-system.md)
+
+### Slice objective
+
+Merchant kan tilpasse emailbranding (logo, farve, butiksnavns, reply-to, support email) og se et live preview af ordrebekræftelse med deres variabler inden de gemmer.
+
+### Layers in scope
+
+- UI: `packages/admin-ui` — `/settings/email` side, Branding tab
+- Form: Logo URL (HTTPS input), Store display name, Brand color (hex color picker), Reply-to email, Support email
+- "Preview" knap → kalder `GET /admin/notification-config/preview/order-confirmation` → åbner HTML i scrollable modal
+- Auto-preview: debounced preview refresh on field change (500ms)
+- Save → `PUT /admin/notification-config/branding`
+
+### Definition of done
+
+- [ ] Alle 5 felter gemmes korrekt
+- [ ] Preview modal viser korrekt rendered HTML med brugerens variabler
+- [ ] Logo URL valideres (HTTPS)
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T063 — Admin UI: Settings → Email → Delivery history tab
+
+**Sprint:** S026
+**Milestone:** M012
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T056
+**Branch:** feature/S026/T063-email-delivery-history-ui
+**PRD journey:** J004 (PRD-notification-system.md)
+
+### Slice objective
+
+Merchant kan se leveringshistorik for alle transaktionelle emails og kan gensende fejlede emails med ét klik.
+
+### Layers in scope
+
+- UI: `packages/admin-ui` — `/settings/email` side, Delivery history tab
+- Pagineret tabel: recipient, template type (badge), entity link (order number → order detail), status badge (Sent/Failed/Queued/Dead Letter), sent_at relative timestamp
+- Row expand: error_message ved Failed/Dead Letter
+- "Resend" knap på Failed og Dead Letter rows → `POST /admin/email-deliveries/:id/resend` → optimistic UI update
+- Empty state: "No emails sent yet"
+- Pagination: 50 per side; Previous/Next
+
+### Definition of done
+
+- [ ] Delivery history vises med korrekte statuser
+- [ ] Resend opretter ny delivery row (optimistisk UI + re-fetch)
+- [ ] Fejlbesked synlig på mislykkede leveringer
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+<!-- Total: T001–T063 | AFK: 52 | HITL: 9 (T003, T008, T013, T023, T027, T033, T036, T053, T057) | Cancelled: T029 -->
+<!-- Sprints: S001–S026 | Milestones: M000–M012 -->
