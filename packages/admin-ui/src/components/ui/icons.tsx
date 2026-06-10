@@ -339,6 +339,17 @@ export function IconCustomData({ size = 18, ...rest }: IconProps): ReactNode {
   )
 }
 
+/** Packaging catalog — open box with lid. */
+export function IconPackaging({ size = 18, ...rest }: IconProps): ReactNode {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <path d="M4 8.5 12 5l8 3.5v11L12 22l-8-3.5z" />
+      <path d="M4 8.5 12 12l8-3.5" />
+      <path d="M12 12v10" />
+    </svg>
+  )
+}
+
 /** Google Shopping / product feed — broadcast waves. */
 export function IconFeed({ size = 18, ...rest }: IconProps): ReactNode {
   return (
