@@ -7,9 +7,53 @@ MercFlow Medusa v2 module for tenant-defined metafield **definitions** and typed
 - Store metafield definitions per tenant (`metafield_definition`)
 - Store typed metafield values per entity instance (`metafield_value`)
 - Admin API for reading/writing values (definition CRUD routes are T038)
+- Store API for storefront metafield reads (T044)
 - RLS via `store_id` + `app.tenant_id` (ADR-008)
 
-Does **not** belong here: content-module SEO/rich text, standard library seeds (T040), admin UI (T041+), store public API (later task).
+Does **not** belong here: content-module SEO/rich text, admin UI (T041+).
+
+## Standard library (T040)
+
+Library seeds live in `metafield_definitions` with `store_id = NULL`, `is_standard = true`, and namespace `mercflow_library`. Vertical is stored in `validations.vertical` (`skincare` | `fashion`).
+
+Activation copies library rows into tenant-owned definitions with `namespace = mercflow_standard`, `is_standard = false`, and the caller's `store_id`.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/admin/metafield-definitions/standard-library?vertical=skincare` | List library definitions for a vertical |
+| POST | `/admin/metafield-definitions/activate-standard` | Copy selected (or all) library defs for a vertical |
+
+### Activate body
+
+```json
+{
+  "vertical": "skincare",
+  "definition_ids": ["mfd_lib_skincare_material"]
+}
+```
+
+Omit `definition_ids` to activate every library definition for the vertical that is not already present under `mercflow_standard`.
+
+## Service methods (library)
+
+- `listStandardLibrary({ vertical, storeId, ownerType?, limit?, offset? })`
+- `activateStandardDefinitions(storeId, { vertical, definitionIds? })`
+
+## Field definitions — `metafield_definition`
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | text PK | Medusa `model.id()` |
+| `store_id` | text nullable | NULL for library seeds; tenant ID otherwise |
+| `owner_type` | text NOT NULL | `product` \| `category` |
+| `namespace` | text NOT NULL | `custom`, `mercflow_library`, `mercflow_standard`, … |
+| `key` | text NOT NULL | Stable key within namespace |
+| `type` | text NOT NULL | ValueType enum |
+| `is_primary` | boolean | Primary form field vs chip |
+| `is_standard` | boolean | Library seed marker |
+| `validations` | jsonb nullable | Type rules; library vertical in `validations.vertical` |
+
+Unique: `(store_id, owner_type, namespace, key)`.
 
 ## Field definitions — `metafield_value`
 
@@ -45,6 +89,32 @@ All routes require Medusa admin JWT. Pass `?store_id=` or set `MERCFLOW_DEFAULT_
 | GET | `/admin/metafield-values?owner_type=&owner_id=&locale=` | List typed values with definition metadata |
 | POST | `/admin/metafield-values/batch` | Transactional upsert (max 50 values) |
 | DELETE | `/admin/metafield-values/:id` | Delete one value |
+
+## Store API — metafields (T044)
+
+Authenticated via Medusa publishable API key (`x-publishable-api-key`). Tenant is resolved from the key's sales channel → store binding.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/v1/store/metafields?owner_type=product\|category&owner_id=&locale=` | Typed metafield values for the authenticated tenant |
+
+Legacy unversioned `/store/metafields` redirects with **301** to `/v1/store/metafields` (T032).
+
+### Store list response shape
+
+```json
+{
+  "metafields": [
+    {
+      "namespace": "custom",
+      "key": "active_ingredients",
+      "value": "Niacinamide 10%, Zinc 1%",
+      "type": "multi_line_text"
+    }
+  ],
+  "count": 1
+}
+```
 
 ### List response shape
 
@@ -100,10 +170,10 @@ pnpm --filter @mercflow/metafield-module db:rollback
 
 Migrations (in order):
 
-1. `Migration20260610120000CreateMetafieldDefinitions` — definitions table (T038 prerequisite)
-2. `Migration20260610120100EnableRlsMetafieldDefinitions`
-3. `Migration20260610120200CreateMetafieldValues`
-4. `Migration20260610120300EnableRlsMetafieldValues`
+1. `Migration20260610120000CreateMetafieldDefinitions` — definitions table (T038)
+2. `Migration20260610120200CreateMetafieldValues`
+3. `Migration20260610120300EnableRlsMetafieldValues`
+4. `Migration20260610120400SeedStandardLibraryDefinitions` — skincare + fashion library seeds (T040)
 
 Each file includes a MIGRATION DECISION LOG comment at the top.
 

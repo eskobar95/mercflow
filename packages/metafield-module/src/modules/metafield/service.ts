@@ -4,8 +4,11 @@ import { MedusaError } from "@medusajs/utils"
 
 import { MetafieldDefinition, MetafieldValue } from "./models"
 import type {
+  ActivateStandardDefinitionsInput,
+  ActivateStandardDefinitionsResult,
   CreateDefinitionInput,
   ListDefinitionsFilters,
+  ListStandardLibraryFilters,
   MetafieldDefinitionRecord,
   MetafieldOwnerType,
   MetafieldValueListItem,
@@ -15,6 +18,11 @@ import type {
   UpsertValueInput,
   ValueType,
 } from "./types"
+import {
+  METAFIELD_ACTIVATED_NAMESPACE,
+  METAFIELD_LIBRARY_NAMESPACE,
+  readVerticalFromValidations,
+} from "./standard-library-seeds"
 import { runWithTenantScope } from "./tenant-scope"
 import { buildStoredColumns, extractTypedValue } from "./value-columns"
 
@@ -180,6 +188,128 @@ class MetafieldModuleService extends MedusaService({
         )
       }
       await this.deleteMetafieldDefinitions(definitionId, context)
+    })
+  }
+
+  async listStandardLibrary(
+    filters: ListStandardLibraryFilters
+  ): Promise<{ definitions: MetafieldDefinitionRecord[]; count: number }> {
+    return this.withTenant(filters.storeId, async (context) => {
+      const query: Record<string, unknown> = {
+        store_id: null,
+        is_standard: true,
+        namespace: METAFIELD_LIBRARY_NAMESPACE,
+      }
+      if (filters.ownerType) {
+        query.owner_type = filters.ownerType
+      }
+
+      const rows = await this.listMetafieldDefinitions(
+        query,
+        {
+          order: { pinned_position: "ASC", name: "ASC" },
+        },
+        context
+      )
+
+      const verticalMatches = rows
+        .map((row) => toDefinitionRecord(row as Record<string, unknown>))
+        .filter((row) => readVerticalFromValidations(row.validations) === filters.vertical)
+
+      const offset = filters.offset ?? 0
+      const limit = filters.limit ?? 100
+      const definitions = verticalMatches.slice(offset, offset + limit)
+
+      return {
+        definitions,
+        count: verticalMatches.length,
+      }
+    })
+  }
+
+  async activateStandardDefinitions(
+    storeId: string,
+    input: ActivateStandardDefinitionsInput
+  ): Promise<ActivateStandardDefinitionsResult> {
+    return this.withTenant(storeId, async (context) => {
+      const libraryQuery: Record<string, unknown> = {
+        store_id: null,
+        is_standard: true,
+        namespace: METAFIELD_LIBRARY_NAMESPACE,
+      }
+      if (input.definitionIds && input.definitionIds.length > 0) {
+        libraryQuery.id = { $in: input.definitionIds }
+      }
+
+      const libraryRows = await this.listMetafieldDefinitions(libraryQuery, {}, context)
+      const libraryDefinitions = libraryRows
+        .map((row) => toDefinitionRecord(row as Record<string, unknown>))
+        .filter((row) => readVerticalFromValidations(row.validations) === input.vertical)
+
+      if (libraryDefinitions.length === 0) {
+        throw new MedusaError(
+          MedusaError.Types.NOT_FOUND,
+          `No standard library definitions found for vertical ${input.vertical}`
+        )
+      }
+
+      const existingRows = await this.listMetafieldDefinitions(
+        {
+          store_id: storeId,
+          namespace: METAFIELD_ACTIVATED_NAMESPACE,
+        },
+        { take: 500 },
+        context
+      )
+      const existingKeys = new Set(
+        existingRows.map(
+          (row) =>
+            `${(row as { owner_type: string }).owner_type}:${(row as { key: string }).key}`
+        )
+      )
+
+      const activated: MetafieldDefinitionRecord[] = []
+      const skipped_keys: string[] = []
+
+      for (const seed of libraryDefinitions) {
+        const dedupeKey = `${seed.owner_type}:${seed.key}`
+        if (existingKeys.has(dedupeKey)) {
+          skipped_keys.push(seed.key)
+          continue
+        }
+
+        try {
+          const created = await this.createMetafieldDefinitions(
+            {
+              store_id: storeId,
+              owner_type: seed.owner_type,
+              namespace: METAFIELD_ACTIVATED_NAMESPACE,
+              key: seed.key,
+              name: seed.name,
+              description: seed.description,
+              type: seed.type,
+              validations: seed.validations,
+              pinned_position: seed.pinned_position,
+              is_required: seed.is_required,
+              is_primary: seed.is_primary,
+              category_constraint_id: seed.category_constraint_id,
+              is_standard: false,
+            },
+            context
+          )
+          const record = toDefinitionRecord(unwrapCreated(created) as Record<string, unknown>)
+          activated.push(record)
+          existingKeys.add(dedupeKey)
+        } catch (error: unknown) {
+          if (isDuplicateKeyError(error)) {
+            skipped_keys.push(seed.key)
+            continue
+          }
+          throw error
+        }
+      }
+
+      return { activated, skipped_keys }
     })
   }
 
