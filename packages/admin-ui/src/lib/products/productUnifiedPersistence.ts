@@ -9,6 +9,8 @@ import {
   DEFAULT_SINGLE_OPTION_VALUE,
   type ProductOptionRowModel,
 } from "@/lib/products/productOptionMatrix"
+import { displayCmToMedusaMm, displayGToMedusaG } from "@/lib/products/productVariantShippingUnits"
+import type { VariantShippingDraft } from "@/lib/products/variantShippingDraft"
 
 export type ProductFormPrerequisites = {
   shippingProfileId: string
@@ -161,12 +163,57 @@ async function setInventoryLevelQuantityAtLocation(params: {
   })
 }
 
+export type PersistVariantShipping = {
+  lengthMm: number | null
+  widthMm: number | null
+  heightMm: number | null
+  weightG: number | null
+}
+
 export type PersistVariantEconomics = {
   comboKey: string
   selections: Record<string, string>
   priceMinorUnits: number
   stockQuantity: number
   existingVariantId?: string | null
+  shipping?: PersistVariantShipping
+}
+
+export function resolvePersistVariantShipping(draft: VariantShippingDraft | undefined): PersistVariantShipping {
+  return {
+    lengthMm: displayCmToMedusaMm(draft?.lengthCm ?? ""),
+    widthMm: displayCmToMedusaMm(draft?.widthCm ?? ""),
+    heightMm: displayCmToMedusaMm(draft?.heightCm ?? ""),
+    weightG: displayGToMedusaG(draft?.weightG ?? ""),
+  }
+}
+
+function variantShippingPayload(shipping: PersistVariantShipping | undefined): {
+  weight: number | null
+  length: number | null
+  height: number | null
+  width: number | null
+} {
+  return {
+    weight: shipping?.weightG ?? null,
+    length: shipping?.lengthMm ?? null,
+    height: shipping?.heightMm ?? null,
+    width: shipping?.widthMm ?? null,
+  }
+}
+
+async function syncInventoryRequiresShippingForVariants(params: {
+  sdk: Medusa
+  variants: AdminProductVariant[]
+  requiresShipping: boolean
+}): Promise<void> {
+  const updates: Array<Promise<unknown>> = []
+  for (const variant of params.variants) {
+    const inventoryItemId = medianFirstInventoryItem(variant)
+    if (inventoryItemId === null) continue
+    updates.push(params.sdk.admin.inventoryItem.update(inventoryItemId, { requires_shipping: params.requiresShipping }))
+  }
+  await Promise.all(updates)
 }
 
 function resolvePersistSelections(row: PersistVariantEconomics): Record<string, string> {
@@ -193,6 +240,7 @@ export async function persistUnifiedProductCreate(params: {
   /** Full option definitions (excluding empty titles). Defaults row generated upstream when empty. */
   optionRows: ProductOptionRowModel[]
   variants: PersistVariantEconomics[]
+  requiresShipping: boolean
 }): Promise<{ productId: string }> {
   const optionsPayload =
     params.optionRows.length > 0
@@ -215,6 +263,7 @@ export async function persistUnifiedProductCreate(params: {
       sku: null,
       manage_inventory: true,
       options: selections,
+      ...variantShippingPayload(row.shipping),
       prices: [
         {
           currency_code: "dkk",
@@ -282,6 +331,8 @@ export async function persistUnifiedProductCreate(params: {
 
   await Promise.all(stockUpdates)
 
+  await syncInventoryRequiresShippingForVariants({ sdk: params.sdk, variants: variantList, requiresShipping: params.requiresShipping })
+
   return { productId: product.id }
 }
 
@@ -295,6 +346,7 @@ export async function persistUnifiedProductUpdate(params: {
   categoryIds: string[]
   optionRows: ProductOptionRowModel[]
   variants: PersistVariantEconomics[]
+  requiresShipping: boolean
 }): Promise<void> {
   const current = await params.sdk.admin.product.retrieve(params.productId, {
     fields: ADMIN_PRODUCT_EDITOR_FIELDS,
@@ -375,6 +427,10 @@ export async function persistUnifiedProductUpdate(params: {
     sku: null
     manage_inventory: true
     options: Record<string, string>
+    weight: number | null
+    length: number | null
+    height: number | null
+    width: number | null
     prices: Array<{ currency_code: string; amount: number }>
   }> = []
 
@@ -383,6 +439,10 @@ export async function persistUnifiedProductUpdate(params: {
     title: string
     manage_inventory: true
     options: Record<string, string>
+    weight: number | null
+    length: number | null
+    height: number | null
+    width: number | null
     prices: Array<{ currency_code: string; amount: number }>
   }> = []
 
@@ -403,6 +463,7 @@ export async function persistUnifiedProductUpdate(params: {
         title: deriveVariantPayloadTitle(selections),
         manage_inventory: true,
         options: selections,
+        ...variantShippingPayload(row.shipping),
         prices: [{ currency_code: "dkk", amount: row.priceMinorUnits }],
       })
     } else {
@@ -411,6 +472,7 @@ export async function persistUnifiedProductUpdate(params: {
         sku: null,
         manage_inventory: true,
         options: selections,
+        ...variantShippingPayload(row.shipping),
         prices: [{ currency_code: "dkk", amount: row.priceMinorUnits }],
       })
     }
@@ -471,4 +533,6 @@ export async function persistUnifiedProductUpdate(params: {
   }
 
   await Promise.all(stockUpdates)
+
+  await syncInventoryRequiresShippingForVariants({ sdk: params.sdk, variants: refreshed.product?.variants ?? [], requiresShipping: params.requiresShipping })
 }

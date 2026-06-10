@@ -46,6 +46,7 @@ describe("persistUnifiedProductCreate", (): void => {
             inventory_levels: [],
           }),
           batchInventoryItemsLocationLevels: capturedBatchPayload.mockResolvedValue({}),
+          update: vi.fn().mockResolvedValue({}),
         },
       },
     } as unknown as Medusa
@@ -77,6 +78,7 @@ describe("persistUnifiedProductCreate", (): void => {
           selections: { Size: "S", Color: "Red" },
           priceMinorUnits: 9900,
           stockQuantity: 4,
+          shipping: { lengthMm: 300, widthMm: 200, heightMm: 100, weightG: 400 },
         },
         {
           comboKey: "",
@@ -85,6 +87,7 @@ describe("persistUnifiedProductCreate", (): void => {
           stockQuantity: 6,
         },
       ],
+      requiresShipping: true,
     })
 
     expect(productId).toBe("prod_test_primary")
