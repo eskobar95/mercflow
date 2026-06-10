@@ -2,6 +2,11 @@ export const METAFIELD_OWNER_TYPES = ["product", "category"] as const
 
 export type MetafieldOwnerType = (typeof METAFIELD_OWNER_TYPES)[number]
 
+/** Mirrors `METAFIELD_LIBRARY_VERTICALS` in metafield-module standard-library-seeds. */
+export const METAFIELD_LIBRARY_VERTICALS = ["skincare", "fashion"] as const
+
+export type MetafieldLibraryVertical = (typeof METAFIELD_LIBRARY_VERTICALS)[number]
+
 export const METAFIELD_VALUE_TYPES = [
   "single_line_text",
   "multi_line_text",
@@ -85,21 +90,3 @@ export type MetafieldValueUpsertPayload = {
 export type CustomDataEntityKey = "product" | "category" | "variant" | "order" | "customer"
 
 export type CustomDataListTab = "all" | "by_category"
-
-export type MetafieldValueDto = {
-  id: string
-  namespace: string
-  key: string
-  name: string
-  type: MetafieldValueType
-  value: unknown
-  locale: string
-}
-
-export type MetafieldValueUpsertPayload = {
-  definition_id: string
-  owner_id: string
-  owner_type: MetafieldOwnerType
-  locale?: string
-  value: unknown
-}
