@@ -109,7 +109,6 @@ const ADMIN_ORDER_DETAIL_FIELDS = [
   "*payment_collections.payments",
   "*fulfillments",
   "*fulfillments.items",
-  "*fulfillments.shipments",
 ].join(",")
 
 export async function fetchAdminOrder(orderId: string): Promise<OrderDetail> {

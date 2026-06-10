@@ -41,6 +41,7 @@ describe("POST /admin/connectors/shipmondo/shipments", (): void => {
       storeId: "store_1",
       fulfillmentId: "ful_123",
       packagingTypeId: "pkg_456",
+      scope: req.scope,
     })
     expect(status).toHaveBeenCalledWith(200)
     expect(json).toHaveBeenCalledWith({ data: sampleResult })

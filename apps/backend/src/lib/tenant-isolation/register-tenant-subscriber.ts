@@ -3,7 +3,7 @@ import type { EntityManager } from "@medusajs/framework/mikro-orm/core"
 import { TenantIsolationSubscriber } from "./tenant-subscriber"
 
 const subscriber = new TenantIsolationSubscriber()
-let registered = false
+const registeredManagers = new WeakSet<EntityManager>()
 
 /**
  * Register the TenantIsolationSubscriber on a MikroORM EntityManager.
@@ -17,7 +17,7 @@ let registered = false
  * from an `onApplicationBootstrap` hook or a startup script.
  *
  * Safe to call multiple times: the subscriber is registered at most once
- * globally due to the `registered` guard.
+ * per EntityManager (modules may use separate MikroORM instances).
  *
  * @example
  * ```ts
@@ -29,7 +29,9 @@ let registered = false
  * ```
  */
 export function registerTenantSubscriber(em: EntityManager): void {
-  if (registered) return
+  if (registeredManagers.has(em)) {
+    return
+  }
   em.getEventManager().registerSubscriber(subscriber)
-  registered = true
+  registeredManagers.add(em)
 }

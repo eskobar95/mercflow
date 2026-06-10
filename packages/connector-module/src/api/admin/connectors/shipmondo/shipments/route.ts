@@ -18,6 +18,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse): Promise<voi
     storeId,
     fulfillmentId: parsed.data.fulfillment_id,
     packagingTypeId: parsed.data.packaging_type_id ?? null,
+    scope: req.scope,
   })
 
   res.status(200).json({ data })

@@ -14,10 +14,12 @@ import {
 import {
   EntityClass,
   EntityManager,
+  EntityMetadata,
   EntityName,
   EntityProperty,
   EntitySchema,
   LoadStrategy,
+  MetadataStorage,
   FilterQuery as MikroFilterQuery,
   FindOptions as MikroOptions,
   ReferenceKind,
@@ -35,6 +37,16 @@ import { transactionWrapper } from "../utils"
 import { dbErrorMapper } from "./db-error-mapper"
 import { mikroOrmSerializer } from "./mikro-orm-serializer"
 import { mikroOrmUpdateDeletedAtRecursively } from "./utils"
+
+function resolveEntityMetadata(
+  entity: EntityClass<any> | EntitySchema
+): EntityMetadata | undefined {
+  return (
+    (entity as EntitySchema).meta ??
+    (entity as EntityClass<any>).prototype.__meta ??
+    MetadataStorage.getMetadataFromDecorator(entity as EntityClass<any>)
+  )
+}
 
 export class MikroOrmBase {
   readonly manager_: any
@@ -102,10 +114,7 @@ export class MikroOrmBaseRepository<const T extends object = object>
   }
 
   static retrievePrimaryKeys(entity: EntityClass<any> | EntitySchema) {
-    return (
-      (entity as EntitySchema).meta?.primaryKeys ??
-      (entity as EntityClass<any>).prototype.__meta.primaryKeys ?? ["id"]
-    )
+    return resolveEntityMetadata(entity)?.primaryKeys ?? ["id"]
   }
 
   /**
@@ -293,10 +302,7 @@ export function mikroOrmBaseRepositoryFactory<const T extends object>(
 
   class MikroOrmAbstractBaseRepository_ extends MikroOrmBaseRepository<T> {
     entity = mikroOrmEntity
-    tableName = (
-      (mikroOrmEntity as unknown as EntitySchema).meta ??
-      (mikroOrmEntity as EntityClass<any>).prototype.__meta
-    ).collection
+    tableName = resolveEntityMetadata(mikroOrmEntity)!.collection
 
     // @ts-ignore
     constructor(...args: any[]) {
