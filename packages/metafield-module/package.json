@@ -9,6 +9,8 @@
     ".": "./src/modules/metafield/index.ts",
     "./mercflow-admin-metafield-definitions-api": "./src/integrations/mercflow-admin-metafield-definitions-api.ts",
     "./mercflow-admin-metafield-definitions-id-api": "./src/integrations/mercflow-admin-metafield-definitions-id-api.ts",
+    "./mercflow-admin-metafield-definitions-standard-library-api": "./src/integrations/mercflow-admin-metafield-definitions-standard-library-api.ts",
+    "./mercflow-admin-metafield-definitions-activate-standard-api": "./src/integrations/mercflow-admin-metafield-definitions-activate-standard-api.ts",
     "./mercflow-admin-metafield-values-api": "./src/integrations/mercflow-admin-metafield-values-api.ts",
     "./mercflow-admin-metafield-values-batch-api": "./src/integrations/mercflow-admin-metafield-values-batch-api.ts",
     "./mercflow-admin-metafield-values-id-api": "./src/integrations/mercflow-admin-metafield-values-id-api.ts",
