@@ -1,4 +1,4 @@
-import type { MetafieldValueType } from "./types"
+import type { MetafieldDefinitionDto, MetafieldValueType } from "./types"
 
 export function sortMetafieldDefinitionsByPinned<
   T extends { pinned_position: number | null; name: string },
@@ -11,6 +11,21 @@ export function sortMetafieldDefinitionsByPinned<
     }
     return a.name.localeCompare(b.name)
   })
+}
+
+export function splitMetafieldDefinitionsByPrimary<T extends { is_primary: boolean }>(
+  definitions: readonly T[]
+): { primary: T[]; secondary: T[] } {
+  const primary: T[] = []
+  const secondary: T[] = []
+  for (const definition of definitions) {
+    if (definition.is_primary) {
+      primary.push(definition)
+    } else {
+      secondary.push(definition)
+    }
+  }
+  return { primary, secondary }
 }
 
 export function metafieldValueToDraftString(type: MetafieldValueType, value: unknown): string {
@@ -49,6 +64,20 @@ export function metafieldValueToDraftString(type: MetafieldValueType, value: unk
       return String(_exhaustive)
     }
   }
+}
+
+export function buildMetafieldDraftsForDefinitions(
+  definitions: readonly MetafieldDefinitionDto[],
+  values: ReadonlyArray<{ namespace: string; key: string; type: MetafieldValueType; value: unknown }>
+): Record<string, string> {
+  const drafts: Record<string, string> = {}
+  for (const definition of definitions) {
+    const matched = values.find(
+      (row) => row.namespace === definition.namespace && row.key === definition.key
+    )
+    drafts[definition.id] = metafieldValueToDraftString(definition.type, matched?.value)
+  }
+  return drafts
 }
 
 export function parseMetafieldDraftValue(

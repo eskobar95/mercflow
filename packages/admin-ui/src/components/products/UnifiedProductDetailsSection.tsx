@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 
+import { Badge } from "@/components/ui/Badge"
 import { Card } from "@/components/ui/Card"
 import { Checkbox } from "@/components/ui/Checkbox"
 import { FormField } from "@/components/ui/FormField"
@@ -20,6 +21,7 @@ type UnifiedProductDetailsSectionProps = {
   isPublished: boolean
   categories: CategoryOption[]
   selectedCategoryIds: Set<string>
+  categoryMetafieldCounts?: ReadonlyMap<string, number>
   fieldErrors: UnifiedCatalogProductFormErrors
   setTitle: (value: string) => void
   setDescription: (value: string) => void
@@ -34,6 +36,7 @@ export function UnifiedProductDetailsSection({
   isPublished,
   categories,
   selectedCategoryIds,
+  categoryMetafieldCounts,
   fieldErrors,
   setTitle,
   setDescription,
@@ -108,17 +111,35 @@ export function UnifiedProductDetailsSection({
             </p>
           ) : (
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {categories.map((category) => (
-                <Checkbox
-                  key={category.id}
-                  id={`${baseId}-category-${category.id}`}
-                  label={category.label}
-                  checked={selectedCategoryIds.has(category.id)}
-                  onCheckedChange={(state) => {
-                    toggleCategory(category.id, state === true)
-                  }}
-                />
-              ))}
+              {categories.map((category) => {
+                const metafieldCount = categoryMetafieldCounts?.get(category.id) ?? 0
+                const checkboxId = `${baseId}-category-${category.id}`
+
+                return (
+                  <label
+                    key={category.id}
+                    htmlFor={checkboxId}
+                    className="inline-flex min-h-11 cursor-pointer items-center gap-2.5"
+                  >
+                    <Checkbox
+                      id={checkboxId}
+                      checked={selectedCategoryIds.has(category.id)}
+                      onCheckedChange={(state) => {
+                        toggleCategory(category.id, state === true)
+                      }}
+                    />
+                    <span className="inline-flex flex-wrap items-center gap-2 text-sm text-content-primary">
+                      <span>{category.label}</span>
+                      {metafieldCount > 0 ? (
+                        <Badge variant="accent">
+                          {metafieldCount}{" "}
+                          {metafieldCount === 1 ? "metafield" : "metafields"}
+                        </Badge>
+                      ) : null}
+                    </span>
+                  </label>
+                )
+              })}
             </div>
           )}
         </fieldset>
