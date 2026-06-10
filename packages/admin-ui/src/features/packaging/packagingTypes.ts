@@ -25,3 +25,22 @@ export type SuggestPackagingItemInput = {
   variant_id: string
   quantity: number
 }
+
+export type DimensionsSnapshotDto = {
+  name: string
+  length_mm: number
+  width_mm: number
+  height_mm: number
+  max_weight_g: number
+}
+
+export type ShipmentPackagingDto = {
+  id: string
+  store_id: string
+  fulfillment_id: string
+  packaging_type_id: string
+  dimensions_snapshot_json: DimensionsSnapshotDto
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+}

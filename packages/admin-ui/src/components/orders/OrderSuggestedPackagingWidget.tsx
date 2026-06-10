@@ -31,6 +31,8 @@ export function OrderSuggestedPackagingWidget({
     errorMessage,
     suggestion,
     selectedPackaging,
+    saveState,
+    saveErrorMessage,
     isOverrideOpen,
     catalogLoadState,
     catalogErrorMessage,
@@ -64,7 +66,13 @@ export function OrderSuggestedPackagingWidget({
           </p>
         </div>
         {loadState === "ready" && (selectedPackaging !== null || canSuggest) ? (
-          <Button type="button" variant="secondary" size="sm" onClick={openOverride}>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            disabled={saveState === "saving"}
+            onClick={openOverride}
+          >
             Change
           </Button>
         ) : null}
@@ -133,6 +141,21 @@ export function OrderSuggestedPackagingWidget({
               </p>
             </>
           ) : null}
+        </div>
+      ) : null}
+
+      {saveState === "saving" ? (
+        <p className="mt-3 text-sm text-content-secondary" role="status">
+          Saving packaging choice…
+        </p>
+      ) : null}
+
+      {saveState === "error" ? (
+        <div
+          className="mt-3 rounded-md border border-feedback-danger-border bg-feedback-danger-subtle px-3 py-2 text-sm text-feedback-danger-content"
+          role="alert"
+        >
+          {saveErrorMessage ?? "Failed to save packaging choice."}
         </div>
       ) : null}
 

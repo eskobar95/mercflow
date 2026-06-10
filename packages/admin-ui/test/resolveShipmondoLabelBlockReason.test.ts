@@ -20,6 +20,7 @@ describe("resolveShipmondoLabelBlockReason", (): void => {
       packagingLoadState: "ready",
       packagingErrorMessage: null,
       suggestion: null,
+      saveState: "idle",
     })
     expect(reason).toMatch(/variant IDs/i)
   })
@@ -41,6 +42,7 @@ describe("resolveShipmondoLabelBlockReason", (): void => {
       packagingLoadState: "ready",
       packagingErrorMessage: null,
       suggestion: { suggested: null, total_volume_mm3: 1000, total_weight_g: 750 },
+      saveState: "idle",
     })
     expect(reason).toBeNull()
   })
