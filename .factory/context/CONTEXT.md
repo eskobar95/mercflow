@@ -267,13 +267,21 @@
 
 ## Notification system (MercFlow-owned)
 
-**Meaning:** MercFlow replaces Medusa's default notification module with its own event-driven notification layer. Order confirmation, shipping updates, and other transactional emails are orchestrated by MercFlow workflows — not Medusa's built-in notification providers.
+**Meaning:** `@mercflow/notification-module` — MercFlow's own transactional email stack built on Amazon SES. Each tenant gets a **per-tenant SES domain identity** (`noreply@merchant.com`). Medusa event subscribers enqueue BullMQ jobs (`mercflow:notifications`). A notification worker renders React Email templates with per-tenant variables (logo, brand color, store name) and calls SES. Delivery logged to `email_deliveries` table with status and SES message ID.
 
-**Not:** Medusa's `notification-module` or `notification-provider` pattern. Not just a new notification provider registered in Medusa config.
+**Not:** Medusa's `notification-module` or `notification-provider` pattern. Not Resend (SaaS) or Postmark. Not marketing/bulk email — transactional only. Not per-tenant sub-accounts in AWS — one SES account, one domain identity per tenant.
 
-**Architecture direction:** MercFlow emits typed domain events via BullMQ (or similar reliable MQ). A notification worker picks them up per tenant, resolves the correct template and channel (email, SMS), and dispatches. Per-tenant template config lives in the connector-module or a dedicated notification-module.
+**Templates (v1):** `order-confirmation`, `shipping-update`, `order-cancellation`, `customer-welcome` — all React Email (JSX → HTML). MercFlow owns template structure; merchants configure variables only.
 
-**Why:** Medusa's notification flow is single-instance and not natively multi-tenant. Reliable order confirmation requires guaranteed delivery with retry — not fire-and-forget event bus subscribers.
+**Fallback:** Before tenant domain is verified (DNS propagation), emails sent from `noreply@mail.mercflow.com` with admin warning. Never queued and held — order confirmations must send immediately.
+
+**Retry:** BullMQ — 3 attempts, exponential backoff (30s → 5m → 30m). Permanently failed jobs → dead-letter queue `mercflow:notifications:dead`. BetterStack alert on DLQ size > 0.
+
+**Idempotency:** Job ID = `{tenantId}:{templateKey}:{entityId}` — duplicate events never send duplicate emails.
+
+**Admin:** Settings → Email — domain setup (DNS records), branding variables (logo, color, reply-to), delivery history with resend.
+
+**See:** ADR-009, PRD-notification-system.md (M012)
 
 ---
 

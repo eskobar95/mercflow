@@ -118,7 +118,10 @@ mercflow/
 │   ├── subscription-module/# Subscription records (Batch 1+)
 │   ├── seo-module/         # Redirects, sitemap, robots, slug utility (Batch 2)
 │   ├── feed-module/        # Google Shopping XML (Batch 2)
-│   └── inventory-module/   # Suppliers, POs, inventory dashboard (Batch 2)
+│   ├── inventory-module/   # Suppliers, POs, inventory dashboard (Batch 2)
+│   ├── metafield-module/   # M008 — tenant-defined metafield definitions + values
+│   ├── packaging-module/   # M010–M011 — packaging catalog + fulfillment suggestion + persistence
+│   └── notification-module/ # M012 — transactional email via Amazon SES + BullMQ
 ├── .factory/context/       # PRD, TECHSPEC, CONTEXT, ADR
 ├── .factory/planning/      # milestones, sprints, tasks (Factory harness)
 └── infra/                  # Docker Compose, Traefik config (ADR-006)
@@ -166,17 +169,24 @@ BDD: optional under `.factory/specs/` — link to PRD journeys when used.
 
 ---
 
-## Batch 2 — technical additions (planned)
+## Modules — shipped
 
-| Module | Responsibility |
-|--------|----------------|
-| `seo-module` | Redirects, sitemap/robots config, slug utility, public `GET /sitemap.xml`, `GET /robots.txt` |
-| `feed-module` | `GET /feed/google-shopping.xml`, feed config, validation report |
-| `inventory-module` | Suppliers, POs, receipts, inventory dashboard aggregates, low-stock config |
+| Module | Milestone | Responsibility |
+|--------|-----------|----------------|
+| `seo-module` | M001–M002 | Redirects, sitemap/robots config, slug utility, public `GET /sitemap.xml`, `GET /robots.txt`, JSON-LD, OG, canonical |
+| `feed-module` | M003 | `GET /feed/google-shopping.xml`, feed config, validation report |
+| `inventory-module` | M004 | Suppliers, POs, receipts, inventory dashboard aggregates, low-stock config |
+| `content-module` | Batch 1 | Rich text, SEO fields, articles, pages, page blocks, media, redirects, globals |
+| `connector-module` | Batch 1 | Third-party credentials: Stripe, Shipmondo, Plunk, GTM |
+| `subscription-module` | Batch 1 | Subscription table — read-only admin view (v1) |
+| `metafield-module` | M008 | Tenant-defined metafield definitions + values for products + categories. Two-tier form. Standard library per vertical. |
+| `packaging-module` | M010–M011 | PackagingType catalog, `suggestPackaging()` greedy-fit service, `shipment_packaging` fulfillment record, Shipmondo dimensions auto-fill |
 
-**Suggested implementation order** (from PRD-batch2 §5): slug utility → seo foundation → redirects → sitemap → robots → structured data / OG / canonical → feed → suppliers → POs → inventory dashboard → order flow improvements.
+## Modules — planned
 
-**Out of scope Batch 2:** wildcard/regex redirects, Amazon/Pricerunner feeds, EDI, auto low-stock ordering, GLS labels (Batch 3).
+| Module | Milestone | Responsibility |
+|--------|-----------|----------------|
+| `notification-module` | **M012** | Transactional email on Amazon SES. Per-tenant domain identity (DKIM/SPF). React Email templates. BullMQ delivery queue with retry + DLQ. `EmailConfig` + `EmailDelivery` models. Admin: domain setup, branding variables, delivery history. |
 
 ---
 
@@ -191,6 +201,8 @@ BDD: optional under `.factory/specs/` — link to PRD journeys when used.
 | [ADR-005](ADR/ADR-005-security-rls-rate-limiting.md) | 2026-06-04 | Security: RLS on MercFlow tables + rate limiting + Neon IP policy | accepted |
 | [ADR-006](ADR/ADR-006-hetzner-infra-stack.md) | 2026-06-08 | Production infra: Hetzner + Docker Compose + Traefik + Redis + Portainer | accepted |
 | [ADR-007](ADR/ADR-007-medusa-fork-platform-ownership.md) | 2026-06-09 | Fork Medusa v2.14.1 — full platform ownership, local workspace packages | accepted |
+| [ADR-008](ADR/ADR-008-metafield-storage-model.md) | 2026-06-10 | Metafield storage: typed columns + `is_primary` two-tier form presentation | accepted |
+| [ADR-009](ADR/ADR-009-notification-ses-per-tenant.md) | 2026-06-11 | Notification: Amazon SES per-tenant domain identities + BullMQ + React Email | accepted |
 | PRD-api-hardening | 2026-06-08 | API hardening: pagination max, error shape, /v1/ store route versioning — see PRD-api-hardening.md | accepted |
 
 ---
