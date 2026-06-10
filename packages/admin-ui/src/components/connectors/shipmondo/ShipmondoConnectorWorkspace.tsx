@@ -5,6 +5,7 @@ import { ShipmondoShippingRulesSection } from "@/components/connectors/shipmondo
 
 import { ShipmondoCredentialsCard } from "./ShipmondoCredentialsCard"
 import { ShipmondoRecentTestsCard } from "./ShipmondoRecentTestsCard"
+import { ShipmondoSenderSettingsSection } from "./ShipmondoSenderSettingsSection"
 import { formatLastTestedAt } from "./shipmondoWorkspaceState"
 import { useShipmondoConnectorWorkspace } from "./useShipmondoConnectorWorkspace"
 
@@ -99,6 +100,11 @@ export function ShipmondoConnectorWorkspace(): ReactNode {
           <ShipmondoShippingRulesSection
             configured={configured}
             shippingRules={snapshot.shippingRules}
+          />
+
+          <ShipmondoSenderSettingsSection
+            configured={configured}
+            labelSettings={snapshot.labelSettings}
           />
 
           {testBanner ? (

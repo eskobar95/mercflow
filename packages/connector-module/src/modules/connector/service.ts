@@ -5,7 +5,9 @@ import StripeSdk from "stripe"
 
 import { ContainerRegistrationKeys, MedusaError } from "@medusajs/utils"
 
+import { PACKAGING_MODULE } from "@mercflow/packaging-module"
 import { buildConnectorAdminList } from "./build-connector-admin-list"
+import { buildShipmondoShipmentBody } from "./build-shipmondo-shipment-body"
 import EncryptionService from "./encryption-service"
 import { GtmConnector } from "./gtm-connector"
 import type {
@@ -17,13 +19,30 @@ import type {
 import { ConnectorConfig } from "./models/connector-config"
 import { ConnectorLog } from "./models/connector-log"
 import { pingPlunkWithSecretKey, sendPlunkTestMail } from "./plunk-remote"
-import { fetchShipmondoProductsJson, probeShipmondoShipments } from "./shipmondo-http-client"
+import {
+  extractShipmondoErrorMessage,
+  extractShipmondoLabelBase64FromResponse,
+  extractShipmondoTrackingUrl,
+  fetchShipmondoProductsJson,
+  fetchShipmondoShipmentLabels,
+  postShipmondoShipment,
+  probeShipmondoShipments,
+} from "./shipmondo-http-client"
+import { loadShipmondoShipmentContext } from "./load-shipmondo-shipment-context"
+import {
+  assertShipmondoSenderConfigured,
+  mergeShipmondoLabelSettingsPatch,
+  type ShipmondoLabelSettingsPatchBody,
+} from "./shipmondo-label-settings"
+import {
+  readShipmondoConnectorRules,
+  writeShipmondoConnectorRules,
+} from "./shipmondo-connector-rules-json"
 import { shipmondoCredentialsSchema, type ShipmondoCredentials } from "./shipmondo-credentials"
 import { parseShipmondoCarrierProductsEnvelope } from "./shipmondo-product-catalog"
 import {
   normalizeShipmondoRulesFromStoredJson,
   shipmondoPatchShippingRulesBodySchema,
-  shipmondoRulesToStored,
 } from "./shipmondo-shipping-rules"
 import { maskStripeField } from "./stripe/stripe-mask"
 import type { StripePaymentOverviewRow } from "./stripe/stripe-payments-list"
@@ -43,6 +62,8 @@ import type {
   ShipmondoAdminGetDto,
   ShipmondoCarrierProductAdminDto,
   ShipmondoConnectionTestDto,
+  ShipmondoCreateLabelResultDto,
+  ShipmondoLabelSettingsAdminDto,
   ShipmondoShippingRulesAdminDto,
   StoreShipmondoActiveDto,
   StoreShipmondoRulesDto,
@@ -196,9 +217,26 @@ export default class ConnectorModuleService extends MedusaService({
             : false,
       },
       recentLogs,
-      shippingRules: normalizeShipmondoRulesFromStoredJson(
-        row === null ? null : (row.rules_json ?? null)
+      shippingRules: readShipmondoConnectorRules(row === null ? null : row.rules_json).shipping,
+      labelSettings: this.toLabelSettingsAdminDto(
+        readShipmondoConnectorRules(row === null ? null : row.rules_json).label
       ),
+    }
+  }
+
+  private toLabelSettingsAdminDto(
+    label: ReturnType<typeof readShipmondoConnectorRules>["label"]
+  ): ShipmondoLabelSettingsAdminDto {
+    return {
+      senderName: label.senderName,
+      senderAddress1: label.senderAddress1,
+      senderPostalCode: label.senderPostalCode,
+      senderCity: label.senderCity,
+      senderCountryCode: label.senderCountryCode,
+      senderEmail: label.senderEmail,
+      senderPhone: label.senderPhone,
+      labelFormat: label.labelFormat,
+      ownAgreement: label.ownAgreement,
     }
   }
 
@@ -293,6 +331,7 @@ export default class ConnectorModuleService extends MedusaService({
     const updatePayload: {
       credentials_encrypted: string
       active?: boolean
+      rules_json?: ReturnType<typeof writeShipmondoConnectorRules>
     } = {
       credentials_encrypted: encryption.encrypt(JSON.stringify(nextCred)),
     }
@@ -301,12 +340,68 @@ export default class ConnectorModuleService extends MedusaService({
       updatePayload.active = body.active
     }
 
+    const labelPatch = this.extractLabelSettingsPatch(body)
+    if (labelPatch !== null) {
+      const existingRules = readShipmondoConnectorRules(rowExisting.rules_json ?? null)
+      const nextLabel = mergeShipmondoLabelSettingsPatch(existingRules.label, labelPatch)
+      updatePayload.rules_json = writeShipmondoConnectorRules({
+        shipping: existingRules.shipping,
+        label: nextLabel,
+      })
+    }
+
     await this.updateConnectorConfigs({
       id: rowExisting.id,
       ...updatePayload,
     })
 
     return await this.getShipmondoAdminPayload()
+  }
+
+  private extractLabelSettingsPatch(
+    body: ShipmondoPatchBody
+  ): ShipmondoLabelSettingsPatchBody | null {
+    const patch: ShipmondoLabelSettingsPatchBody = {}
+    let touched = false
+
+    if (body.senderName !== undefined) {
+      patch.senderName = body.senderName
+      touched = true
+    }
+    if (body.senderAddress1 !== undefined) {
+      patch.senderAddress1 = body.senderAddress1
+      touched = true
+    }
+    if (body.senderPostalCode !== undefined) {
+      patch.senderPostalCode = body.senderPostalCode
+      touched = true
+    }
+    if (body.senderCity !== undefined) {
+      patch.senderCity = body.senderCity
+      touched = true
+    }
+    if (body.senderCountryCode !== undefined) {
+      patch.senderCountryCode = body.senderCountryCode
+      touched = true
+    }
+    if (body.senderEmail !== undefined) {
+      patch.senderEmail = body.senderEmail
+      touched = true
+    }
+    if (body.senderPhone !== undefined) {
+      patch.senderPhone = body.senderPhone
+      touched = true
+    }
+    if (body.labelFormat !== undefined) {
+      patch.labelFormat = body.labelFormat
+      touched = true
+    }
+    if (body.ownAgreement !== undefined) {
+      patch.ownAgreement = body.ownAgreement
+      touched = true
+    }
+
+    return touched ? patch : null
   }
 
   async fetchShipmondoCarrierProducts(opts: {
@@ -371,10 +466,207 @@ export default class ConnectorModuleService extends MedusaService({
 
     await this.updateConnectorConfigs({
       id: rowExisting.id,
-      rules_json: shipmondoRulesToStored(normalized),
+      rules_json: writeShipmondoConnectorRules({
+        shipping: normalized,
+        label: readShipmondoConnectorRules(rowExisting.rules_json ?? null).label,
+      }),
     })
 
     return normalized
+  }
+
+  async createShipmentLabel(input: {
+    storeId: string
+    fulfillmentId: string
+    packagingTypeId: string | null
+    fetchImpl?: typeof fetch
+  }): Promise<ShipmondoCreateLabelResultDto> {
+    const row = await this.retrieveShipmondoRow()
+    if (row === null || !row.active) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "Shipmondo is not configured or inactive — save credentials and enable the connector first"
+      )
+    }
+
+    let creds: ShipmondoCredentials
+    try {
+      creds = this.requireDecryptedCredentials(row)
+    } catch {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "Stored Shipmondo credentials are unavailable"
+      )
+    }
+
+    shipmondoCredentialsSchema.parse(creds)
+
+    const connectorRules = readShipmondoConnectorRules(row.rules_json ?? null)
+    try {
+      assertShipmondoSenderConfigured(connectorRules.label)
+    } catch (error) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        error instanceof Error ? error.message : "Shipmondo sender settings are incomplete"
+      )
+    }
+
+    const self = this as unknown as ServiceContainerAware
+    const remoteQuery = self.__container__.resolve(
+      ContainerRegistrationKeys.QUERY
+    ) as unknown as RemoteQueryFunction
+
+    const context = await loadShipmondoShipmentContext({
+      graph: remoteQuery.graph,
+      fulfillmentId: input.fulfillmentId,
+    })
+
+    let packaging: {
+      lengthMm: number
+      widthMm: number
+      heightMm: number
+      maxWeightG: number
+    } | null = null
+
+    if (input.packagingTypeId !== null && input.packagingTypeId.trim() !== "") {
+      const packagingModuleKey = PACKAGING_MODULE
+      let packagingService: {
+        retrievePackagingType: (
+          storeId: string,
+          packagingTypeId: string
+        ) => Promise<{
+          length_mm: number
+          width_mm: number
+          height_mm: number
+          max_weight_g: number
+        } | null>
+      }
+      try {
+        packagingService = self.__container__.resolve(packagingModuleKey) as {
+          retrievePackagingType: (
+            storeId: string,
+            packagingTypeId: string
+          ) => Promise<{
+            length_mm: number
+            width_mm: number
+            height_mm: number
+            max_weight_g: number
+          } | null>
+        }
+      } catch {
+        throw new MedusaError(
+          MedusaError.Types.UNEXPECTED_STATE,
+          "Packaging module is unavailable — cannot resolve packaging dimensions"
+        )
+      }
+
+      const packagingType = await packagingService.retrievePackagingType(
+        input.storeId,
+        input.packagingTypeId.trim()
+      )
+      if (packagingType === null) {
+        throw new MedusaError(
+          MedusaError.Types.NOT_FOUND,
+          `Packaging type ${input.packagingTypeId} was not found`
+        )
+      }
+
+      packaging = {
+        lengthMm: packagingType.length_mm,
+        widthMm: packagingType.width_mm,
+        heightMm: packagingType.height_mm,
+        maxWeightG: packagingType.max_weight_g,
+      }
+    }
+
+    const senderSettings = connectorRules.label
+    const reference =
+      context.orderDisplayId !== ""
+        ? `Order #${context.orderDisplayId}`
+        : `Order ${context.orderId}`
+
+    const shipmentBody = buildShipmondoShipmentBody({
+      productCode: context.productCode,
+      serviceCodes: "EMAIL_NT,SMS_NT",
+      servicePointId: context.servicePointId,
+      automaticSelectServicePoint: false,
+      labelSettings: senderSettings,
+      reference,
+      sender: {
+        name: senderSettings.senderName,
+        address1: senderSettings.senderAddress1,
+        postalCode: senderSettings.senderPostalCode,
+        city: senderSettings.senderCity,
+        countryCode: senderSettings.senderCountryCode,
+        email: senderSettings.senderEmail,
+        phone: senderSettings.senderPhone,
+      },
+      receiver: context.receiver,
+      packaging,
+    })
+
+    const created = await postShipmondoShipment({
+      apiUser: creds.api_user,
+      apiKey: creds.api_key,
+      body: shipmentBody,
+      fetchImpl: input.fetchImpl,
+    })
+
+    if (!created.ok) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        extractShipmondoErrorMessage(created.body, created.httpStatus)
+      )
+    }
+
+    const createdBody = created.body
+    const shipmentIdRaw =
+      typeof createdBody === "object" &&
+      createdBody !== null &&
+      !Array.isArray(createdBody) &&
+      (createdBody as Record<string, unknown>).id
+
+    const shipmentId =
+      typeof shipmentIdRaw === "number" || typeof shipmentIdRaw === "string"
+        ? shipmentIdRaw
+        : null
+
+    if (shipmentId === null) {
+      throw new MedusaError(
+        MedusaError.Types.UNEXPECTED_STATE,
+        "Shipmondo created a shipment but did not return an id"
+      )
+    }
+
+    let labelPdfBase64 = extractShipmondoLabelBase64FromResponse(createdBody)
+    if (labelPdfBase64 === null) {
+      const labels = await fetchShipmondoShipmentLabels({
+        apiUser: creds.api_user,
+        apiKey: creds.api_key,
+        shipmentId,
+        fetchImpl: input.fetchImpl,
+      })
+      if (labels.ok) {
+        labelPdfBase64 = extractShipmondoLabelBase64FromResponse(labels.body)
+      }
+    }
+
+    const trackingUrl = extractShipmondoTrackingUrl(createdBody)
+
+    await this.persistConnectionLog({
+      connectorId: row.id,
+      success: true,
+      summary: `Created Shipmondo shipment ${String(shipmentId)} for fulfillment ${input.fulfillmentId}`,
+      http_status: created.httpStatus,
+    })
+
+    return {
+      shipmentId,
+      trackingUrl,
+      labelPdfBase64,
+      productCode: context.productCode,
+      reference,
+    }
   }
 
   async testShipmondoConnection(fetchImpl?: typeof fetch): Promise<ShipmondoConnectionTestDto> {

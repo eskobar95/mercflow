@@ -152,11 +152,41 @@ type OrderFulfillmentActionVisibility = {
   showCapturePayment: boolean
   showCreateFulfillment: boolean
   showMarkShipped: boolean
+  showGenerateLabel: boolean
+  labelFulfillmentId: string | null
   capturablePaymentId: string | null
   unshippedFulfillmentId: string | null
   /** Line items on the fulfillment record that should be submitted to the shipment route. */
   shipmentItemsPayload: { id: string; quantity: number }[]
   fulfillmentItemsPayload: { id: string; quantity: number }[]
+}
+
+function resolveLabelFulfillmentId(order: Record<string, unknown>): string | null {
+  const pending = resolveUnshippedFulfillmentShipment(order)
+  if (pending !== null) {
+    return pending.fulfillmentId
+  }
+
+  const list = order.fulfillments
+  if (!Array.isArray(list)) {
+    return null
+  }
+
+  for (const raw of list) {
+    if (!isRecord(raw)) {
+      continue
+    }
+    const canceled = readString(raw, "canceled_at")
+    if (canceled !== undefined && canceled.trim() !== "") {
+      continue
+    }
+    const id = readString(raw, "id")
+    if (id !== undefined) {
+      return id
+    }
+  }
+
+  return null
 }
 
 export function getOrderFulfillmentActionVisibility(
@@ -180,11 +210,14 @@ export function getOrderFulfillmentActionVisibility(
     fulfillmentItemsPayload.length > 0 &&
     pendingShipment === null &&
     !showCapturePayment
+  const labelFulfillmentId = resolveLabelFulfillmentId(order)
 
   return {
     showCapturePayment,
     showCreateFulfillment,
     showMarkShipped,
+    showGenerateLabel: labelFulfillmentId !== null,
+    labelFulfillmentId,
     capturablePaymentId,
     unshippedFulfillmentId,
     shipmentItemsPayload,

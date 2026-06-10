@@ -4,6 +4,13 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 
 import { OrderDetailPage } from "@/pages/OrderDetailPage"
 
+vi.mock("@/hooks/useShipmondoLabelGenerationReady", () => ({
+  useShipmondoLabelGenerationReady: (): { isReady: boolean; isLoading: boolean } => ({
+    isReady: false,
+    isLoading: false,
+  }),
+}))
+
 function jsonResponse(payload: unknown, status = 200): Response {
   return new Response(JSON.stringify(payload), {
     status,

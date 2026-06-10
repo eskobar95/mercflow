@@ -25,6 +25,27 @@ export type ShipmondoShippingRulesAdminDto = {
   enabledCarrierCodes: string[]
 }
 
+/** Sender + label output settings stored in connector_config.rules_json. */
+export type ShipmondoLabelSettingsAdminDto = {
+  senderName: string
+  senderAddress1: string
+  senderPostalCode: string
+  senderCity: string
+  senderCountryCode: string
+  senderEmail: string
+  senderPhone: string
+  labelFormat: string
+  ownAgreement: boolean
+}
+
+export type ShipmondoCreateLabelResultDto = {
+  shipmentId: string | number
+  trackingUrl: string | null
+  labelPdfBase64: string | null
+  productCode: string
+  reference: string
+}
+
 /** One Shipmondo carrier product surfaced in MercFlow admin (fetch-carriers UX). */
 export type ShipmondoCarrierProductAdminDto = {
   productCode: string
@@ -116,6 +137,7 @@ export type ShipmondoAdminGetDto = {
   credentials: ShipmondoCredentialFlags
   recentLogs: ShipmondoAdminLogDto[]
   shippingRules: ShipmondoShippingRulesAdminDto
+  labelSettings: ShipmondoLabelSettingsAdminDto
 }
 
 export type ShipmondoConnectionTestDto = {

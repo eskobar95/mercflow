@@ -23,6 +23,17 @@ vi.mock("@/hooks/useShipmondoConnectorSettings", () => ({
         freeShippingThresholdMinor: 0,
         enabledCarrierCodes: [],
       },
+      labelSettings: {
+        senderName: "",
+        senderAddress1: "",
+        senderPostalCode: "",
+        senderCity: "",
+        senderCountryCode: "DK",
+        senderEmail: "",
+        senderPhone: "",
+        labelFormat: "10x19_pdf",
+        ownAgreement: false,
+      },
     },
     isLoading: false,
     isError: false,
@@ -43,6 +54,10 @@ vi.mock("@/hooks/useShipmondoConnectorSettings", () => ({
       mutate: mutateTest,
     },
   }),
+}))
+
+vi.mock("@/components/connectors/shipmondo/ShipmondoSenderSettingsSection", (): { ShipmondoSenderSettingsSection: () => ReactElement } => ({
+  ShipmondoSenderSettingsSection: (): ReactElement => <></>,
 }))
 
 vi.mock("@/components/connectors/shipmondo/ShipmondoShippingRulesSection", (): { ShipmondoShippingRulesSection: () => ReactElement } => ({
