@@ -40,6 +40,7 @@ export function UnifiedProductForm({ mode, productId }: Props): ReactNode {
     description,
     isPublished,
     optionRows,
+    hasDefinedOptions,
     variantRowsPreview,
     categories,
     selectedCategoryIds,
@@ -214,12 +215,14 @@ export function UnifiedProductForm({ mode, productId }: Props): ReactNode {
             removeOptionRow={removeOptionRow}
           />
 
-          <UnifiedProductPricingSection
-            baseId={baseId}
-            variantRowsPreview={variantRowsPreview}
-            fieldErrors={fieldErrors}
-            updateEconomicsRow={updateEconomicsRow}
-          />
+          {hasDefinedOptions ? (
+            <UnifiedProductPricingSection
+              baseId={baseId}
+              variantRowsPreview={variantRowsPreview}
+              fieldErrors={fieldErrors}
+              updateEconomicsRow={updateEconomicsRow}
+            />
+          ) : null}
 
           <ProductMetafieldsSection
             definitions={

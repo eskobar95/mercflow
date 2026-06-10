@@ -82,15 +82,6 @@ export function hydrateEditorModelsFromAdminProduct(product: AdminProduct): {
     }
   })
 
-  if (optionRows.length === 0 && variantRows.length > 0) {
-    optionRows = [
-      {
-        title: DEFAULT_SINGLE_OPTION_TITLE,
-        values: [DEFAULT_SINGLE_OPTION_VALUE],
-      },
-    ]
-  }
-
   return {
     optionRows,
     variantRows,

@@ -6,6 +6,7 @@ import { ADMIN_PRODUCT_EDITOR_FIELDS } from "@/lib/products/adminProductEditorFi
 import { hydrateEditorModelsFromAdminProduct } from "@/lib/products/productFormHydration"
 import {
   buildVariantRowsFromOptionMatrix,
+  hasDefinedProductOptions,
   type ProductOptionRowModel,
   type VariantRowModel,
 } from "@/lib/products/productOptionMatrix"
@@ -100,6 +101,7 @@ export function useUnifiedCatalogProductForm(params: {
   description: string
   isPublished: boolean
   optionRows: ProductOptionRowModel[]
+  hasDefinedOptions: boolean
   derivedCombos: ComboSnapshot[]
   variantRowsPreview: VariantRowModel[]
   selectedCategoryIds: Set<string>
@@ -127,9 +129,7 @@ export function useUnifiedCatalogProductForm(params: {
   const [description, setDescription] = useState("")
   const [isPublished, setIsPublished] = useState(false)
 
-  const [optionRows, setOptionRows] = useState<ProductOptionRowModel[]>(() => [
-    { title: "", values: [] },
-  ])
+  const [optionRows, setOptionRows] = useState<ProductOptionRowModel[]>(() => [])
 
   const [economicsMap, setEconomicsMap] = useState<
     Partial<Record<string, VariantEconomics>>
@@ -195,6 +195,7 @@ export function useUnifiedCatalogProductForm(params: {
   }, [categoriesPayload])
 
   const derivedCombos = useMemo(() => buildVariantRowsFromOptionMatrix(optionRows), [optionRows])
+  const hasDefinedOptions = useMemo(() => hasDefinedProductOptions(optionRows), [optionRows])
 
   const derivedComboKeys = derivedCombos.map((combo) => combo.comboKey).join("\u0000")
 
@@ -259,7 +260,7 @@ export function useUnifiedCatalogProductForm(params: {
     if (hydrated.optionRows.length > 0) {
       setOptionRows(hydrated.optionRows)
     } else {
-      setOptionRows([{ title: "", values: [] }])
+      setOptionRows([])
     }
 
     const economicsHydrated: Partial<Record<string, VariantEconomics>> = {}
@@ -276,16 +277,15 @@ export function useUnifiedCatalogProductForm(params: {
 
   if (params.mode === "create" && !createBootstrapped.current) {
     createBootstrapped.current = true
-    const combosBootstrap = buildVariantRowsFromOptionMatrix([{ title: "", values: [] }])
-    const initialEconomics: Partial<Record<string, VariantEconomics>> = {}
-    for (const combo of combosBootstrap) {
-      initialEconomics[combo.comboKey] = emptyEconomicsSnapshot()
-    }
-    setEconomicsMap(initialEconomics)
-    setOptionRows([{ title: "", values: [] }])
+    setEconomicsMap({})
+    setOptionRows([])
   }
 
   const variantRowsPreview = useMemo((): VariantRowModel[] => {
+    if (!hasDefinedOptions) {
+      return []
+    }
+
     return derivedCombos.map((combo) => ({
       comboKey: combo.comboKey,
       selections: combo.selections,
@@ -293,7 +293,7 @@ export function useUnifiedCatalogProductForm(params: {
       stock: economicsMap[combo.comboKey]?.stock ?? "",
       medusaVariantId: economicsMap[combo.comboKey]?.medusaVariantId ?? undefined,
     }))
-  }, [derivedCombos, economicsMap])
+  }, [derivedCombos, economicsMap, hasDefinedOptions])
 
   const toggleCategory = useCallback((categoryId: string, enabled: boolean): void => {
     setSelectedCategoryIds((previous) => {
@@ -360,11 +360,25 @@ export function useUnifiedCatalogProductForm(params: {
         validationErrors.title = "Title is required."
       }
 
-      if (derivedCombos.length === 0) {
+      const optionsDefined = hasDefinedProductOptions(optionRows)
+      const combosToValidate = optionsDefined
+        ? derivedCombos
+        : buildVariantRowsFromOptionMatrix([])
+
+      if (derivedCombos.length === 0 && optionsDefined) {
         validationErrors.variants = "Add at least one variant row."
       }
 
-      for (const combo of derivedCombos) {
+      if (!optionsDefined && params.mode === "create") {
+        validationErrors.variants =
+          "Add product options to configure variant pricing and inventory."
+      }
+
+      for (const combo of combosToValidate) {
+        if (!optionsDefined && params.mode === "create") {
+          continue
+        }
+
         const economicsSnapshot = economicsMap[combo.comboKey]
         const priceParsed = parseDkkMajorToMinorUnits(economicsSnapshot?.priceDkk ?? "")
         if (!priceParsed.ok) {
@@ -382,23 +396,25 @@ export function useUnifiedCatalogProductForm(params: {
         throw new UnifiedFormValidationError(validationErrors)
       }
 
-      const cleanPayload = derivedCombos.map((combo): PersistVariantEconomics => {
-        const econ = economicsMap[combo.comboKey]
-        const priceResolved = parseDkkMajorToMinorUnits(econ?.priceDkk ?? "")
-        const stockResolved = parsePositiveIntegerQty(econ?.stock ?? "")
+      const cleanPayload = (optionsDefined ? derivedCombos : combosToValidate).map(
+        (combo): PersistVariantEconomics => {
+          const econ = economicsMap[combo.comboKey]
+          const priceResolved = parseDkkMajorToMinorUnits(econ?.priceDkk ?? "")
+          const stockResolved = parsePositiveIntegerQty(econ?.stock ?? "")
 
-        if (!priceResolved.ok || !stockResolved.ok) {
-          throw new Error("Unexpected validation drift while building the catalogue payload.")
-        }
+          if (!priceResolved.ok || !stockResolved.ok) {
+            throw new Error("Unexpected validation drift while building the catalogue payload.")
+          }
 
-        return {
-          comboKey: combo.comboKey,
-          selections: combo.selections,
-          priceMinorUnits: priceResolved.minorUnits,
-          stockQuantity: stockResolved.quantity,
-          existingVariantId: econ?.medusaVariantId,
-        }
-      })
+          return {
+            comboKey: combo.comboKey,
+            selections: combo.selections,
+            priceMinorUnits: priceResolved.minorUnits,
+            stockQuantity: stockResolved.quantity,
+            existingVariantId: econ?.medusaVariantId,
+          }
+        },
+      )
 
       const categoryIds = [...selectedCategoryIds.values()]
 
@@ -511,6 +527,7 @@ export function useUnifiedCatalogProductForm(params: {
     description,
     isPublished,
     optionRows,
+    hasDefinedOptions,
     derivedCombos,
     variantRowsPreview,
     selectedCategoryIds,

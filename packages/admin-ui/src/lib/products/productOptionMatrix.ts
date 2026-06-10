@@ -9,6 +9,21 @@ export type ProductOptionRowModel = {
   values: string[]
 }
 
+/** True when at least one option row has a non-empty title and one or more values. */
+export function hasDefinedProductOptions(options: ProductOptionRowModel[]): boolean {
+  for (const row of options) {
+    const title = row.title.trim()
+    if (title === "") {
+      continue
+    }
+    const hasValue = row.values.some((value) => value.trim() !== "")
+    if (hasValue) {
+      return true
+    }
+  }
+  return false
+}
+
 export type VariantRowModel = {
   /** Stable lookup key derived from selections (sorted). */
   comboKey: string
