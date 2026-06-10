@@ -157,17 +157,12 @@ export function useUnifiedCatalogProductForm(params: {
     if (params.mode !== "create") {
       return null
     }
-    const combosBootstrap = buildVariantRowsFromOptionMatrix([{ title: "", values: [] }])
-    const initialEconomics: Partial<Record<string, VariantEconomics>> = {}
-    for (const combo of combosBootstrap) {
-      initialEconomics[combo.comboKey] = emptyEconomicsSnapshot()
-    }
     return captureUnifiedCatalogFormSnapshot({
       title: "",
       description: "",
       isPublished: false,
-      optionRows: [{ title: "", values: [] }],
-      economicsMap: initialEconomics,
+      optionRows: [],
+      economicsMap: {},
       selectedCategoryIds: new Set(),
     })
   })
