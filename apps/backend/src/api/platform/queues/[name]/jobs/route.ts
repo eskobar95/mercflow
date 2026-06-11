@@ -1,13 +1,19 @@
 import type { MedusaResponse } from "@medusajs/framework/http"
-import { z } from "zod"
 
 import type { PlatformAuthRequest } from "../../../../../lib/platform-auth/clerk-platform-auth-middleware"
 import { getPlatformQueueMonitor } from "../../../../../lib/platform-queues/platform-queue-monitor"
 import { resolvePlatformQueueDefinition } from "../../../../../lib/platform-queues/queue-registry"
 
-const jobsQuerySchema = z.object({
-  status: z.literal("failed").default("failed"),
-})
+function parseFailedStatusQuery(query: Record<string, unknown> | undefined): "failed" | null {
+  const rawStatus = query?.status
+  if (rawStatus === undefined) {
+    return "failed"
+  }
+  if (typeof rawStatus === "string" && rawStatus === "failed") {
+    return "failed"
+  }
+  return null
+}
 
 export async function GET(
   req: PlatformAuthRequest,
@@ -24,8 +30,8 @@ export async function GET(
     return
   }
 
-  const parsedQuery = jobsQuerySchema.safeParse(req.query ?? {})
-  if (!parsedQuery.success) {
+  const status = parseFailedStatusQuery(req.query as Record<string, unknown> | undefined)
+  if (!status) {
     res.status(400).json({
       message: "Invalid query parameters",
       type: "invalid_data",
@@ -39,7 +45,7 @@ export async function GET(
 
   res.status(200).json({
     queue: queueName,
-    status: parsedQuery.data.status,
+    status,
     jobs,
   })
 }
