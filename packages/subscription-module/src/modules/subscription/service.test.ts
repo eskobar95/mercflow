@@ -217,6 +217,61 @@ describe("SubscriptionModuleService", (): void => {
     )
   })
 
+  it("listDueRenewals queries active subscriptions due on or before asOf", async (): Promise<void> => {
+    const asOf = new Date("2026-07-01T12:00:00.000Z")
+    const listMercflowSubscriptions = vi.fn().mockResolvedValue([BASE_SUBSCRIPTION])
+    const svc = createServiceStub({ listMercflowSubscriptions })
+    const rows = await svc.listDueRenewals(STORE_A, asOf)
+    expect(rows).toHaveLength(1)
+    expect(listMercflowSubscriptions).toHaveBeenCalledWith(
+      { store_id: STORE_A, status: "active", next_renewal_at: { $lte: asOf } },
+      expect.objectContaining({ order: { next_renewal_at: "ASC" } }),
+      expect.any(Object)
+    )
+  })
+
+  it("completeRenewalSuccess logs success renewal", async (): Promise<void> => {
+    const listMercflowSubscriptions = vi.fn().mockResolvedValue([BASE_SUBSCRIPTION])
+    const updateMercflowSubscriptions = vi.fn().mockResolvedValue([BASE_SUBSCRIPTION])
+    const createMercflowSubscriptionRenewalLogs = vi.fn().mockResolvedValue([{ id: "log_1" }])
+    const svc = createServiceStub({
+      listMercflowSubscriptions,
+      updateMercflowSubscriptions,
+      createMercflowSubscriptionRenewalLogs,
+    })
+    await svc.completeRenewalSuccess(STORE_A, "sub_1", {
+      order_id: "order_1",
+      amount: 9900,
+      currency: "dkk",
+      stripe_payment_intent_id: "pi_123",
+      renewed_at: new Date("2026-07-01T00:00:00.000Z"),
+    })
+    expect(createMercflowSubscriptionRenewalLogs).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "success" }),
+      expect.any(Object)
+    )
+  })
+
+  it("recordRenewalFailure marks past_due", async (): Promise<void> => {
+    const listMercflowSubscriptions = vi.fn().mockResolvedValue([BASE_SUBSCRIPTION])
+    const updateMercflowSubscriptions = vi.fn().mockResolvedValue([
+      { ...BASE_SUBSCRIPTION, status: "past_due" },
+    ])
+    const createMercflowSubscriptionRenewalLogs = vi.fn().mockResolvedValue([{ id: "log_2" }])
+    const svc = createServiceStub({
+      listMercflowSubscriptions,
+      updateMercflowSubscriptions,
+      createMercflowSubscriptionRenewalLogs,
+    })
+    const row = await svc.recordRenewalFailure(STORE_A, "sub_1", {
+      order_id: "order_1",
+      amount: 9900,
+      currency: "dkk",
+      error_message: "card_declined",
+    })
+    expect(row.status).toBe("past_due")
+  })
+
   it("updateRenewalTimestamp patches next_renewal_at", async (): Promise<void> => {
     const listMercflowSubscriptions = vi.fn().mockResolvedValue([BASE_SUBSCRIPTION])
     const nextRenewal = new Date("2026-08-01T00:00:00.000Z")
