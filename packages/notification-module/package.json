@@ -1,0 +1,41 @@
+{
+  "name": "@mercflow/notification-module",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "description": "MercFlow Medusa v2 module: transactional email config, delivery log, and BullMQ enqueue.",
+  "main": "src/modules/notification/index.ts",
+  "exports": {
+    ".": "./src/modules/notification/index.ts",
+    "./mercflow-admin-notification-config-api": "./src/integrations/mercflow-admin-notification-config-api.ts",
+    "./mercflow-admin-notification-config-branding-api": "./src/integrations/mercflow-admin-notification-config-branding-api.ts",
+    "./mercflow-admin-email-deliveries-api": "./src/integrations/mercflow-admin-email-deliveries-api.ts",
+    "./mercflow-admin-email-deliveries-resend-api": "./src/integrations/mercflow-admin-email-deliveries-resend-api.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "db:generate": "medusa db:generate notification",
+    "db:migrate": "medusa db:migrate",
+    "db:rollback": "medusa db:rollback --modules notification"
+  },
+  "dependencies": {
+    "@medusajs/framework": "workspace:*",
+    "@medusajs/medusa": "workspace:*",
+    "@medusajs/types": "workspace:*",
+    "@medusajs/utils": "workspace:*",
+    "bullmq": "5.13.0",
+    "ioredis": "^5.4.2",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@medusajs/cli": "workspace:*",
+    "@types/node": "^22.10.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -27,6 +27,7 @@
     "@mercflow/inventory-module": "workspace:*",
     "@mercflow/metafield-module": "workspace:*",
     "@mercflow/packaging-module": "workspace:*",
+    "@mercflow/notification-module": "workspace:*",
     "@mercflow/seo-module": "workspace:*",
     "@mercflow/subscription-module": "workspace:*",
     "@sentry/node": "^10.56.0"

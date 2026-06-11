@@ -2800,11 +2800,8 @@ Order detail gemmer merchant's packaging-valg (suggestion accept eller override)
 
 **Sprint:** S023
 **Milestone:** M012
-**Status:** todo
-**Mode:** AFK
-**Parallel group:** A
-**Blocked by:** none
-**Branch:** feature/S023/T056-notification-module-foundation
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/97
 **PRD journey:** J003, J004 (PRD-notification-system.md)
 **ADRs:** ADR-009
 
@@ -3211,11 +3208,12 @@ Kræver at operatøren opretter Clerk-konto + to apps (`mercflow-store-admin`, `
 
 **Sprint:** S028
 **Milestone:** M013
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T064
 **Branch:** feature/S028/T065-settings-landing-sub-nav
+**PR:** #98
 **PRD journey:** J001, J004 (PRD-admin-shell-navigation.md)
 **ADRs:** ADR-011
 

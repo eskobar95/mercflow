@@ -16,6 +16,7 @@ export default defineConfig({
       "packages/feed-module",
       "packages/inventory-module",
       "packages/packaging-module",
+      "packages/notification-module",
       "packages/seo-module",
       "packages/subscription-module",
       "packages/connector-module",
