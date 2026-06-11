@@ -487,7 +487,7 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 
 | Sprint | Goal | Tasks | Status |
 |--------|------|-------|--------|
-| S032 | subscription-module foundation: models, migrations, RLS, service, admin API | T071 | planned |
+| S032 | subscription-module foundation: models, migrations, RLS, service, admin API | T071 | done |
 | S033 | BullMQ renewal worker + subscription admin UI (parallel) | T072, T073 | planned |
 | S034 | Customer Club Stripe setup (HITL) + per-product member price (parallel) | T074, T075 | planned |
 

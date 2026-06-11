@@ -1924,4 +1924,70 @@ none
 
 ### Next actions
 - [x] Merge PR #111 to `development`
-- [ ] `/run-sprint S032` — T071 subscription-module foundation
+- [x] `/run-sprint S032` — T071 subscription-module foundation
+
+---
+
+## Task T071 — `subscription-module` foundation: models, migrations, RLS, service, admin API — 2026-06-11
+
+**Sprint:** S032 | **Milestone:** M015 | **Status:** done
+**Branch:** `feature/S032/T071-subscription-module-foundation`
+**PR:** https://github.com/eskobar95/mercflow/pull/115
+**Mode:** AFK
+**Parallel group:** solo
+
+### Outcome
+Subscription-module foundation with DML models, RLS migration, tenant-scoped service (7 methods), admin list/detail/pause/cancel/resume API, tests, and README.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+T072, T073, T074
+
+---
+
+## Sprint retro — S032 — 2026-06-11
+
+**Milestone:** M015
+**Duration:** session
+**Tasks:** 1/1 done, 0 blocked
+
+### What went well
+- Solo task completed end-to-end with CI green on first fix-ci iteration
+- Existing Batch 1 scaffold expanded cleanly into full foundation without breaking backend registration
+- T072, T073, T074 unblocked for S033/S034
+
+### What failed or slowed down
+- One revision cycle (tsconfig ESNext alignment for test typecheck)
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T071 | done | Task T071 — 2026-06-11 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T071 | 1 | tsconfig ESNext fix in revision 1 |
+
+### Harness notes
+- Parallel groups used: solo
+- Subagent issues: none
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Default integration branch to `development` in implement/close skills | `.cursor/skills/harness/implement/SKILL.md` |
+| skill | Preflight should check `development` when `dev` missing | `.cursor/skills/harness/harness/SKILL.md` |
+
+### Next actions
+- [ ] Merge PR #115 to `development`
+- [ ] `/run-sprint S033` — T072 + T073 (parallel)
+- [ ] `/milestone-review M015` after S034
