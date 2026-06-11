@@ -44,13 +44,10 @@ export function EmailDomainTab(): ReactNode {
   return (
     <div className="space-y-6">
       {showFallbackInfo ? (
-        <div
-          role="status"
-          className="rounded-lg border border-feedback-warning-border bg-feedback-warning-subtle p-4 text-sm text-content-primary"
-        >
+        <aside className="rounded-lg border border-feedback-warning-border bg-feedback-warning-subtle p-4 text-sm text-content-primary">
           Emails send from{" "}
           <span className="font-medium">{fallbackFrom}</span> until your domain is verified.
-        </div>
+        </aside>
       ) : null}
 
       <Card className="space-y-5 p-6">
