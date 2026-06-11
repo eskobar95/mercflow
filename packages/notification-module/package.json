@@ -7,6 +7,8 @@
   "main": "src/modules/notification/index.ts",
   "exports": {
     ".": "./src/modules/notification/index.ts",
+    "./types": "./src/modules/notification/types.ts",
+    "./ses-client": "./src/modules/notification/ses-client.ts",
     "./mercflow-admin-notification-config-api": "./src/integrations/mercflow-admin-notification-config-api.ts",
     "./mercflow-admin-notification-config-branding-api": "./src/integrations/mercflow-admin-notification-config-branding-api.ts",
     "./mercflow-admin-email-deliveries-api": "./src/integrations/mercflow-admin-email-deliveries-api.ts",

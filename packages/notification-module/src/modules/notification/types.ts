@@ -73,6 +73,28 @@ export type SendEmailJobPayload = {
   deliveryId: string
 }
 
+export const NOTIFICATION_MODULE = "notification"
+
 export const NOTIFICATION_QUEUE_NAME = "mercflow:notifications"
+export const NOTIFICATION_DLQ_NAME = "mercflow:notifications:dead"
 export const SEND_EMAIL_JOB_NAME = "send-email"
+
+export const NOTIFICATION_JOB_RETRY_OPTIONS = {
+  attempts: 3,
+  backoff: {
+    type: "exponential" as const,
+    delay: 30_000,
+  },
+}
+
+export type TemplateKey = string
+
+export type TemplateProps = Record<string, unknown> & {
+  logoUrl?: string | null
+  brandColor?: string | null
+  fromName?: string | null
+  replyTo?: string | null
+  supportEmail?: string | null
+}
+
 export const DEFAULT_FALLBACK_FROM = "noreply@mail.mercflow.com"

@@ -22,3 +22,7 @@ export class StubSESClient implements ISESClient {
     }
   }
 }
+
+export function createSESClientFromEnv(): ISESClient {
+  return new StubSESClient()
+}

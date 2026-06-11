@@ -2,7 +2,11 @@ import { Queue } from "bullmq"
 import IORedis from "ioredis"
 
 import type { SendEmailJobPayload } from "./types"
-import { NOTIFICATION_QUEUE_NAME, SEND_EMAIL_JOB_NAME } from "./types"
+import {
+  NOTIFICATION_JOB_RETRY_OPTIONS,
+  NOTIFICATION_QUEUE_NAME,
+  SEND_EMAIL_JOB_NAME,
+} from "./types"
 
 export type NotificationQueueClient = {
   getJob(jobId: string): Promise<{ id: string } | null>
@@ -36,7 +40,10 @@ export function createBullMQNotificationQueueClient(
       return { id: job.id ?? jobId }
     },
     async addSendEmailJob(jobId: string, payload: SendEmailJobPayload): Promise<void> {
-      await queue.add(SEND_EMAIL_JOB_NAME, payload, { jobId })
+      await queue.add(SEND_EMAIL_JOB_NAME, payload, {
+        jobId,
+        ...NOTIFICATION_JOB_RETRY_OPTIONS,
+      })
     },
   }
 }

@@ -290,6 +290,59 @@ class NotificationModuleService extends MedusaService({
     })
   }
 
+  async markDeliverySent(
+    storeId: string,
+    deliveryId: string,
+    sesMessageId: string
+  ): Promise<void> {
+    await this.withTenant(storeId, async (context) => {
+      await this.updateMercflowEmailDeliveries(
+        {
+          status: "sent",
+          ses_message_id: sesMessageId,
+          sent_at: new Date(),
+          error_message: null,
+        },
+        { id: deliveryId, store_id: storeId },
+        context
+      )
+    })
+  }
+
+  async markDeliveryFailed(
+    storeId: string,
+    deliveryId: string,
+    errorMessage: string
+  ): Promise<void> {
+    await this.withTenant(storeId, async (context) => {
+      await this.updateMercflowEmailDeliveries(
+        {
+          status: "failed",
+          error_message: errorMessage,
+        },
+        { id: deliveryId, store_id: storeId },
+        context
+      )
+    })
+  }
+
+  async markDeliveryDeadLetter(
+    storeId: string,
+    deliveryId: string,
+    errorMessage: string
+  ): Promise<void> {
+    await this.withTenant(storeId, async (context) => {
+      await this.updateMercflowEmailDeliveries(
+        {
+          status: "dead_letter",
+          error_message: errorMessage,
+        },
+        { id: deliveryId, store_id: storeId },
+        context
+      )
+    })
+  }
+
   async resendEmail(deliveryId: string, storeId: string): Promise<EnqueueEmailResult> {
     return this.withTenant(storeId, async (context) => {
       const rows = await this.listMercflowEmailDeliveries(
