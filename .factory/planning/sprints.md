@@ -17,6 +17,8 @@
 > Updated: 2026-06-11 (S027 done — T064 Clerk auth + AppShell; PR #96 merged `3fe6dc0`)
 > Updated: 2026-06-11 (S023 done — T056 notification-module; PR #97 merged `d7194a4`; T057 HITL approved)
 
+> Updated: 2026-06-11 (S026 partial — T062/T063 done PR #105/#106; T060 blocked by T059)
+
 | ID | Milestone | Goal | Tasks | Status |
 |----|-----------|------|-------|--------|
 | S001 | M000 | Tenancy + RLS + rate limiting (sequential, no parallelism) | T001, T002, T003 | done |

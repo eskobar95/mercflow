@@ -3082,12 +3082,13 @@ Merchant kan konfigurere og verificere deres sending domain i admin. DNS records
 
 **Sprint:** S026
 **Milestone:** M012
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Unblocked by:** T056 (PR #97 merged `d7194a4`)
 **Branch:** feature/S026/T062-email-branding-ui
+**PR:** https://github.com/eskobar95/mercflow/pull/106
 **PRD journey:** J002 (PRD-notification-system.md)
 
 ### Slice objective
@@ -3116,12 +3117,13 @@ Merchant kan tilpasse emailbranding (logo, farve, butiksnavns, reply-to, support
 
 **Sprint:** S026
 **Milestone:** M012
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Unblocked by:** T056 (PR #97 merged `d7194a4`)
 **Branch:** feature/S026/T063-email-delivery-history-ui
+**PR:** https://github.com/eskobar95/mercflow/pull/105
 **PRD journey:** J004 (PRD-notification-system.md)
 
 ### Slice objective

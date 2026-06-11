@@ -4,6 +4,102 @@
 
 ---
 
+## Sprint retro — S026 — 2026-06-11
+
+**Milestone:** M012
+**Duration:** session
+**Tasks:** 2/3 done, 1 blocked (T060)
+
+### What went well
+- T062 og T063 kørt parallelt med grøn CI på begge PRs (#105, #106)
+- Email settings shell etableret; branding preview API tilføjet i notification-module (T062)
+- Delivery history tab med pagination, resend og expandable errors (T063)
+
+### What failed or slowed down
+- T060 ikke dispatchbar — blokeret af T059 (S025, afhænger af T058 worker infrastructure)
+- Harness preflight refererer stadig til `dev`; repo bruger `development`
+- Parallel T062/T063 risikerer merge-konflikt på EmailSettingsPage — koordiner merge-rækkefølge
+
+### Task log index
+| Task | Final status | PR |
+|------|--------------|-----|
+| T060 | blocked (T059) | — |
+| T062 | done | #106 |
+| T063 | done | #105 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T062 | 1 | eslint/react-doctor fixes |
+| T063 | 1 | initial implementation |
+
+### Harness notes
+- Parallel groups used: A (2 subagents: T062 + T063)
+- Subagent issues: none — both returned valid YAML with CI pass
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Document `development` as base branch in harness preflight | skills/harness/harness/SKILL.md |
+| planning | Mark T060 explicitly skipped in S026 run when T059 pending | .factory/planning/sprints.md |
+
+### Next actions
+- [ ] Merge PR #105 then #106 (eller rebase T062 på T063) til `development`
+- [ ] `/run-sprint S025` eller `/run-task T059` for at unblock T060
+- [ ] `/run-task T060` efter T059 merged
+
+---
+
+## Task T063 — Email delivery history UI — 2026-06-11
+
+**Sprint:** S026 | **Milestone:** M012 | **Status:** done
+**Branch:** `feature/S026/T063-email-delivery-history-ui`
+**PR:** https://github.com/eskobar95/mercflow/pull/105
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+EmailSettingsPage shell with Delivery history tab — paginated table, status badges, expandable errors, resend, and /settings/email route wired.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+T064 (already done)
+
+---
+
+## Task T062 — Email branding UI + preview modal — 2026-06-11
+
+**Sprint:** S026 | **Milestone:** M012 | **Status:** done
+**Branch:** `feature/S026/T062-email-branding-ui`
+**PR:** https://github.com/eskobar95/mercflow/pull/106
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Email settings branding tab with HTTPS validation, debounced preview, modal HTML preview, and notification-module preview API.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+none
+
+---
+
 ## 2026-06-04 — Sprint S004 merged to development
 
 **PR:** https://github.com/eskobar95/mercflow/pull/62  
