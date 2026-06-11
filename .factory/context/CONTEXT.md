@@ -287,15 +287,17 @@
 
 ## Subscription system (two types)
 
-**Meaning:** MercFlow manages two distinct subscription models:
+**Meaning:** MercFlow manages two distinct subscription models, both backed by Stripe and handled in `subscription-module`:
 
-1. **Product subscriptions** — recurring purchase of a specific product on a schedule (weekly, monthly). Customer signs up on storefront, MercFlow handles renewal scheduling and triggers Stripe charges.
+1. **Product subscriptions** — recurring purchase of a specific product on a schedule (weekly, monthly). Customer signs up on storefront; MercFlow handles renewal scheduling via BullMQ (`mercflow:subscriptions` queue) and triggers Stripe charges.
 
-2. **Membership club** — subscription to a tier that grants member-specific prices, exclusive products, or perks. Separate from product repeat-purchase. Closer to Shopify's "selling plans" / membership apps.
+2. **Membership club (single tier)** — customer pays a monthly/annual Stripe subscription to become a "club member". Members get: (a) per-product member price configured by admin, (b) fallback % discount for products without a specific member price. Implemented via Medusa `customer_group` ("Klub-medlemmer") + Medusa `price_list`. `subscription-module` manages Stripe subscription status and syncs Medusa customer group membership.
 
-**Not:** Medusa's built-in "subscription" concept (does not exist in v2 meaningfully). Not the current `subscription-module` read-only admin view (that is v1 scaffolding — will be expanded).
+**Club pricing model:** Two-level lookup — (1) specific member price per variant (Medusa price list entry), (2) fallback tenant-level % discount if no specific price is set, (3) listepris if no fallback configured.
 
-**Current state:** `@mercflow/subscription-module` exists with `subscription` table — read-only admin view. Full subscription logic (scheduling, renewal, member pricing) is not yet implemented.
+**Not:** Medusa's built-in "subscription" concept (does not exist in v2 meaningfully). Not multiple membership tiers (v1 is single tier only). Not the current `subscription-module` read-only admin view (that is v1 scaffolding — will be expanded). Not a billing engine — Stripe handles payments, MercFlow records state.
+
+**Current state:** `@mercflow/subscription-module` exists with `subscription` table — read-only admin view. Full subscription logic (scheduling, renewal, member pricing) is not yet implemented. Planned as M015.
 
 ---
 
@@ -312,6 +314,55 @@
 **Meaning:** MercFlow provides a unified shipping provider interface in `connector-module`. Shipmondo is the current implementation. New carriers (GLS, PostNord, etc.) implement the same interface. Tenant-admin configures which carrier is active per store.
 
 **Not:** A direct Medusa fulfillment-provider-per-carrier pattern where each carrier is registered separately in `medusa-config.ts`. MercFlow wraps this behind a single `mercflow-shipping` provider that delegates to the configured carrier.
+
+---
+
+## Platform Console (operator tool)
+
+**Meaning:** A separate internal React + Vite application (`apps/platform-console/`) for the MercFlow team only — not accessible to tenants. Deployed at `console.mercflow.shop` (not public). Auth via Google OAuth (MercFlow team's Google Workspace). Bypasses tenant RLS to give cross-tenant visibility.
+
+**Sections (v1):** Tenant management (list, provision, suspend), BullMQ queue monitor (all queues: notifications, subscriptions, feed-invalidation, webhooks, sitemap), email delivery overview across tenants, SES domain status per tenant, system health (Hetzner, Neon, Redis), Sentry error feed grouped by `store_id`, audit log.
+
+**Not:** Part of Store Admin. Not accessible to merchants. Not built in Next.js (no SSR/SEO needed). Not a Medusa admin-ui extension — completely separate codebase and auth.
+
+**See:** M014 (planned)
+
+---
+
+## Store Admin
+
+**Meaning:** The per-tenant admin UI (`packages/admin-ui`) that merchants use to manage their store — products, orders, customers, settings. Accessed at `admin.{tenant-domain}` or via a tenant-specific URL. Auth via Medusa admin JWT. Only sees data for the authenticated tenant's `store_id`.
+
+**Not:** The Platform Console. Not a super-admin interface. Tenants cannot see other tenants' data.
+
+---
+
+## BullMQ event bus (MercFlow platform-wide)
+
+**Meaning:** MercFlow replaces Medusa's default Redis event bus with a custom BullMQ-based event bus module (`packages/mercflow-event-bus/`) that implements Medusa's `IEventBusService` interface. All Medusa events (`order.placed`, `product.updated`, etc.) become BullMQ jobs — with retry, DLQ, and full observability in Platform Console.
+
+**Queue naming convention:**
+- `mercflow:notifications` — transactional emails
+- `mercflow:subscriptions` — renewal checks, Stripe charges
+- `mercflow:feed-invalidation` — Google Shopping XML regeneration
+- `mercflow:sitemap` — sitemap cache invalidation
+- `mercflow:webhooks` — Stripe + Shipmondo HMAC-verified processing
+
+**Not:** Medusa's default `@medusajs/event-bus-redis` (fire-and-forget pubsub). Not a separate message broker (Kafka, RabbitMQ) — BullMQ on existing Redis is sufficient.
+
+**Worker:** Runs as a separate process `apps/worker/` — independent from the HTTP server. Same codebase, different entrypoint. Enables independent scaling of job processing.
+
+**See:** ADR-010 (to be written), T058 (M012 — first implementation)
+
+---
+
+## Admin Shell & Navigation (M013)
+
+**Meaning:** Structured sidebar navigation in Store Admin that organises all features into a clear hierarchy. Mirrors Shopify's admin navigation model: Orders, Products (Products, Categories, Inventory), Customers, Settings (General, Email, Shipping, Custom Data, Payments, Integrations). Settings sub-sections link to all MercFlow module settings pages.
+
+**Not:** A redesign of individual pages — only navigation structure and settings organisation. Not the Platform Console navigation (separate system).
+
+**See:** M013 (planned — next after M012)
 
 ---
 
