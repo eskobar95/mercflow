@@ -133,7 +133,14 @@ export const settingsSidebarSection: SidebarNavSection = {
   items: [
     { label: "Overview", to: SETTINGS_PATHS.root, end: true, icon: IconSettings },
     { label: "General", to: SETTINGS_PATHS.general, icon: IconSettings },
-    { label: "Email", to: SETTINGS_PATHS.email, icon: IconEmail },
+    {
+      label: "Communications",
+      to: SETTINGS_PATHS.email,
+      icon: IconEmail,
+      subItems: [
+        { label: "Email", to: SETTINGS_PATHS.email, end: true, icon: IconEmail },
+      ],
+    },
     {
       label: "Shipping",
       to: SETTINGS_PATHS.shippingPackaging,

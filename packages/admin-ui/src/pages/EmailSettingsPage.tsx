@@ -8,7 +8,7 @@ import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
 import { EmailBrandingTab } from "./email-settings/EmailBrandingTab"
 import { EmailDeliveryHistoryTab } from "./email-settings/EmailDeliveryHistoryTab"
-import { EmailSettingsDomainTabPlaceholder } from "./email-settings/EmailSettingsDomainTabPlaceholder"
+import { EmailDomainTab } from "./email-settings/EmailDomainTab"
 import { EmailSettingsTabNav } from "./email-settings/EmailSettingsTabNav"
 
 export function EmailSettingsPage(): ReactNode {
@@ -38,7 +38,7 @@ export function EmailSettingsPage(): ReactNode {
 
       <EmailSettingsTabNav />
 
-      {activeTab === "domain" ? <EmailSettingsDomainTabPlaceholder /> : null}
+      {activeTab === "domain" ? <EmailDomainTab /> : null}
       {activeTab === "branding" ? <EmailBrandingTab /> : null}
       {activeTab === "delivery-history" ? <EmailDeliveryHistoryTab /> : null}
     </div>
