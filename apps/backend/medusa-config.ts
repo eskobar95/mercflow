@@ -68,5 +68,8 @@ export default defineConfig({
     {
       resolve: "@mercflow/packaging-module",
     },
+    {
+      resolve: "@mercflow/notification-module",
+    },
   ],
 })
