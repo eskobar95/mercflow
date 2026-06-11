@@ -260,6 +260,88 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "settings/general",
+        handle: { title: "General settings" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { PlaceholderPage } = await import("@/pages/PlaceholderPage")
+          return {
+            Component: () => (
+              <PlaceholderPage
+                title="General settings"
+                description="Workspace defaults — store name, locales, taxes, shipping zones, currencies, and the notifications operators receive."
+                fallback={{ label: "Back to settings", to: "/settings" }}
+              />
+            ),
+          }
+        },
+      },
+      {
+        path: "settings/email",
+        handle: { title: "Email settings" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { PlaceholderPage } = await import("@/pages/PlaceholderPage")
+          return {
+            Component: () => (
+              <PlaceholderPage
+                title="Email"
+                description="Sending domain, branding, delivery history, and transactional email defaults."
+                fallback={{ label: "Back to settings", to: "/settings" }}
+              />
+            ),
+          }
+        },
+      },
+      {
+        path: "settings/shipping/packaging",
+        handle: { title: "Packaging" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { PackagingSettingsPage } = await import("@/pages/PackagingSettingsPage")
+          return { Component: PackagingSettingsPage }
+        },
+      },
+      {
+        path: "settings/shipping/carriers",
+        handle: { title: "Carriers" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { ShipmondoConnectorSettingsPage } = await import(
+            "@/pages/ShipmondoConnectorSettingsPage"
+          )
+          return { Component: ShipmondoConnectorSettingsPage }
+        },
+      },
+      {
+        path: "settings/payments",
+        handle: { title: "Payments" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { StripeConnectorSettingsPage } = await import("@/pages/StripeConnectorSettingsPage")
+          return { Component: StripeConnectorSettingsPage }
+        },
+      },
+      {
+        path: "settings/store-details",
+        handle: { title: "Store details" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { PlaceholderPage } = await import("@/pages/PlaceholderPage")
+          return {
+            Component: () => (
+              <PlaceholderPage
+                title="Store details"
+                description="Domain, branding, legal pages, and the public identity your storefront presents to customers."
+                fallback={{ label: "Back to settings", to: "/settings" }}
+              />
+            ),
+          }
+        },
+      },
+      {
+        path: "settings/seo",
+        handle: { title: "SEO" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { RedirectToSeoOrganisation } = await import("@/routing/settingsRedirects")
+          return { Component: RedirectToSeoOrganisation }
+        },
+      },
+      {
         path: "settings/custom-data",
         handle: { title: "Custom data" } satisfies AppRouteHandle,
         lazy: async () => {
@@ -271,8 +353,8 @@ export const router = createBrowserRouter([
         path: "settings/packaging",
         handle: { title: "Packaging" } satisfies AppRouteHandle,
         lazy: async () => {
-          const { PackagingSettingsPage } = await import("@/pages/PackagingSettingsPage")
-          return { Component: PackagingSettingsPage }
+          const { RedirectToShippingPackaging } = await import("@/routing/settingsRedirects")
+          return { Component: RedirectToShippingPackaging }
         },
       },
       {
@@ -349,8 +431,8 @@ export const router = createBrowserRouter([
         path: "settings/connectors/stripe",
         handle: { title: "Stripe connector" } satisfies AppRouteHandle,
         lazy: async () => {
-          const { StripeConnectorSettingsPage } = await import("@/pages/StripeConnectorSettingsPage")
-          return { Component: StripeConnectorSettingsPage }
+          const { RedirectToPayments } = await import("@/routing/settingsRedirects")
+          return { Component: RedirectToPayments }
         },
       },
       {
@@ -365,10 +447,8 @@ export const router = createBrowserRouter([
         path: "settings/connectors/shipmondo",
         handle: { title: "Shipmondo" } satisfies AppRouteHandle,
         lazy: async () => {
-          const { ShipmondoConnectorSettingsPage } = await import(
-            "@/pages/ShipmondoConnectorSettingsPage"
-          )
-          return { Component: ShipmondoConnectorSettingsPage }
+          const { RedirectToShippingCarriers } = await import("@/routing/settingsRedirects")
+          return { Component: RedirectToShippingCarriers }
         },
       },
       {
@@ -385,16 +465,8 @@ export const router = createBrowserRouter([
         path: "settings/workspace",
         handle: { title: "Workspace" } satisfies AppRouteHandle,
         lazy: async () => {
-          const { PlaceholderPage } = await import("@/pages/PlaceholderPage")
-          return {
-            Component: () => (
-              <PlaceholderPage
-                title="Workspace"
-                description="Store name, logo, default currency, timezone, and the languages your storefront speaks — all in one place."
-                fallback={{ label: "Open Connectors", to: "/settings/connectors" }}
-              />
-            ),
-          }
+          const { RedirectToStoreDetails } = await import("@/routing/settingsRedirects")
+          return { Component: RedirectToStoreDetails }
         },
       },
       {

@@ -11,7 +11,6 @@ import {
   IconContent,
   IconFeed,
   IconInventory,
-  IconPackaging,
   IconSettings,
 } from "@/components/ui/icons"
 import {
@@ -19,7 +18,6 @@ import {
   feedSidebarSection,
   inventorySidebarSection,
   primarySidebarNav,
-  shippingSidebarSection,
   settingsSidebarSection,
   type SidebarNavItem,
   type SidebarSubItem,
@@ -61,6 +59,25 @@ type TileSource = {
 /* ─────────────────────────────────────────────────────────────────────── */
 /* Build the root tile list                                               */
 /* ─────────────────────────────────────────────────────────────────────── */
+
+function flattenSettingsSubItems(items: SidebarNavItem[]): SidebarSubItem[] {
+  const flattened: SidebarSubItem[] = []
+  for (const item of items) {
+    if (item.subItems && item.subItems.length > 0) {
+      for (const sub of item.subItems) {
+        flattened.push(sub)
+      }
+    } else {
+      flattened.push({
+        label: item.label,
+        to: item.to,
+        end: item.end,
+        icon: item.icon,
+      })
+    }
+  }
+  return flattened
+}
 
 function buildRootTiles(): TileSource[] {
   const primary: TileSource[] = primarySidebarNav.map((item) => ({
@@ -118,32 +135,11 @@ function buildRootTiles(): TileSource[] {
       ),
     },
     {
-      key: "shipping-group",
-      label: "Shipping",
-      icon: IconPackaging,
-      drillTo: "shipping",
-      subItems: shippingSidebarSection.items.map(
-        (item): SidebarSubItem => ({
-          label: item.label,
-          to: item.to,
-          end: item.end,
-          icon: item.icon,
-        })
-      ),
-    },
-    {
       key: "settings-group",
       label: "Settings",
       icon: IconSettings,
       drillTo: "settings",
-      subItems: settingsSidebarSection.items.map(
-        (item): SidebarSubItem => ({
-          label: item.label,
-          to: item.to,
-          end: item.end,
-          icon: item.icon,
-        })
-      ),
+      subItems: flattenSettingsSubItems(settingsSidebarSection.items),
     },
   ]
 }

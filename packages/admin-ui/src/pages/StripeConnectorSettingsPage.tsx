@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button"
 import { Card } from "@/components/ui/Card"
 import { PageHeader } from "@/components/ui/PageHeader"
 import { Spinner } from "@/components/ui/Spinner"
+import { SETTINGS_PATHS } from "@/config/settingsSections"
 import { CONNECTOR_CATALOG } from "@/features/connectors/connectorsCatalog"
 
 import { StripeApiKeysCard } from "./StripeApiKeysCard"
@@ -62,9 +63,9 @@ export function StripeConnectorSettingsPage(): ReactNode {
             </Button>
             <Link
               className="inline-flex h-10 items-center rounded-full px-5 text-sm font-semibold text-content-secondary hover:text-content-primary"
-              to="/settings/connectors"
+              to={SETTINGS_PATHS.root}
             >
-              Back to connectors
+              Back to settings
             </Link>
           </div>
         </Card>
@@ -81,8 +82,8 @@ export function StripeConnectorSettingsPage(): ReactNode {
         title={stripeCatalog.name}
         description={stripeCatalog.description}
         breadcrumbs={[
-          { label: "Connectors", href: "/settings/connectors" },
-          { label: "Stripe", href: "/settings/connectors/stripe" },
+          { label: "Settings", href: SETTINGS_PATHS.root },
+          { label: "Payments", href: SETTINGS_PATHS.payments },
         ]}
       />
 
@@ -119,9 +120,9 @@ export function StripeConnectorSettingsPage(): ReactNode {
         <div className="flex gap-4">
           <Link
             className="text-sm font-semibold text-interactive-primary underline-offset-2 hover:underline"
-            to="/settings/connectors"
+            to={SETTINGS_PATHS.root}
           >
-            ← Back to connectors
+            ← Back to settings
           </Link>
         </div>
       </div>

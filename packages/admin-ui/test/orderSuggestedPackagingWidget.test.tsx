@@ -246,7 +246,7 @@ describe("OrderSuggestedPackagingWidget", (): void => {
     expect(await screen.findByText(/No packaging type fits this order/)).toBeInTheDocument()
     expect(screen.getByRole("link", { name: /Settings → Packaging/ })).toHaveAttribute(
       "href",
-      "/settings/packaging",
+      "/settings/shipping/packaging",
     )
   })
 

@@ -106,7 +106,7 @@ export function OrderSuggestedPackagingWidget({
         <p className="mt-4 text-sm text-content-secondary">
           No packaging type fits this order.{" "}
           <Link
-            to="/settings/packaging"
+            to="/settings/shipping/packaging"
             className="font-medium text-interactive-primary hover:text-interactive-primary-hover"
           >
             Add or adjust types in Settings → Packaging
@@ -173,7 +173,7 @@ export function OrderSuggestedPackagingWidget({
             <p className="text-sm text-content-secondary">
               No active packaging types yet.{" "}
               <Link
-                to="/settings/packaging"
+                to="/settings/shipping/packaging"
                 className="font-medium text-interactive-primary hover:text-interactive-primary-hover"
               >
                 Create one in Settings → Packaging

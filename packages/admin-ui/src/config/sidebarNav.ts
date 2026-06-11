@@ -6,6 +6,7 @@ import {
   IconCategories,
   IconConnectors,
   IconCustomers,
+  IconEmail,
   IconFeed,
   IconGlobals,
   IconInventory,
@@ -22,6 +23,7 @@ import {
   IconWorkspace,
   type IconComponent,
 } from "@/components/ui/icons"
+import { SETTINGS_PATHS } from "@/config/settingsSections"
 
 export type SidebarNavItem = {
   label: string
@@ -113,37 +115,53 @@ export const contentSidebarSection: SidebarNavSection = {
   ],
 }
 
-export const shippingSidebarSection: SidebarNavSection = {
-  label: "Shipping",
-  items: [
-    {
-      label: "Packaging",
-      to: "/settings/packaging",
-      end: true,
-      icon: IconPackaging,
-    },
-  ],
-}
+const seoSettingsSubItems: SidebarSubItem[] = [
+  { label: "Organisation", to: "/settings/seo/organisation", icon: IconGlobals },
+  { label: "Structured data", to: "/settings/seo/structured-data", icon: IconGlobals },
+  { label: "Slugs", to: "/settings/seo/slug", icon: IconGlobals },
+  { label: "Redirects", to: "/settings/seo/redirects", icon: IconGlobals },
+  { label: "Sitemap", to: "/settings/seo/sitemap", icon: IconGlobals },
+  { label: "Robots.txt", to: "/settings/seo/robots", icon: IconGlobals },
+]
 
 /**
- * Settings is now a fleshed-out section with the destinations a workspace
- * owner reaches most often: general workspace config, integrations,
- * teammates and billing. Workspace / Team / Billing route to placeholder
- * pages until those features land.
+ * Settings sub-navigation — nested groups for Shipping and SEO (M013).
+ * Landing page lives at `/settings`; each domain has a dedicated route.
  */
 export const settingsSidebarSection: SidebarNavSection = {
   label: "Settings",
   items: [
-    { label: "General", to: "/settings", end: true, icon: IconSettings },
-    { label: "Custom data", to: "/settings/custom-data", icon: IconCustomData },
-    { label: "SEO — Organisation", to: "/settings/seo/organisation", icon: IconSettings },
-    { label: "SEO — Structured data", to: "/settings/seo/structured-data", icon: IconSettings },
-    { label: "SEO — Slugs", to: "/settings/seo/slug", icon: IconSettings },
-    { label: "SEO — Redirects", to: "/settings/seo/redirects", icon: IconSettings },
-    { label: "SEO — Sitemap", to: "/settings/seo/sitemap", icon: IconSettings },
-    { label: "SEO — Robots.txt", to: "/settings/seo/robots", icon: IconSettings },
-    { label: "Connectors", to: "/settings/connectors", icon: IconConnectors },
-    { label: "Workspace", to: "/settings/workspace", icon: IconWorkspace },
+    { label: "Overview", to: SETTINGS_PATHS.root, end: true, icon: IconSettings },
+    { label: "General", to: SETTINGS_PATHS.general, icon: IconSettings },
+    { label: "Email", to: SETTINGS_PATHS.email, icon: IconEmail },
+    {
+      label: "Shipping",
+      to: SETTINGS_PATHS.shippingPackaging,
+      icon: IconPackaging,
+      subItems: [
+        {
+          label: "Packaging",
+          to: SETTINGS_PATHS.shippingPackaging,
+          end: true,
+          icon: IconPackaging,
+        },
+        {
+          label: "Carriers",
+          to: SETTINGS_PATHS.shippingCarriers,
+          icon: IconConnectors,
+        },
+      ],
+    },
+    { label: "Payments", to: SETTINGS_PATHS.payments, icon: IconBilling },
+    { label: "Custom data", to: SETTINGS_PATHS.customData, icon: IconCustomData },
+    {
+      label: "SEO",
+      to: SETTINGS_PATHS.seo,
+      icon: IconGlobals,
+      subItems: seoSettingsSubItems,
+    },
+    { label: "Integrations", to: SETTINGS_PATHS.integrations, icon: IconConnectors },
+    { label: "Store details", to: SETTINGS_PATHS.storeDetails, icon: IconWorkspace },
     { label: "Team", to: "/settings/team", icon: IconTeam },
     { label: "Billing", to: "/settings/billing", icon: IconBilling },
   ],
