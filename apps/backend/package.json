@@ -2,7 +2,7 @@
   "name": "@mercflow/backend",
   "version": "0.1.0",
   "private": true,
-  "description": "MercFlow Medusa v2 backend — registers MercFlow modules and hosts the admin API.",
+  "description": "MercFlow Medusa v2 backend \u2014 registers MercFlow modules and hosts the admin API.",
   "scripts": {
     "dev": "medusa develop",
     "start": "medusa start",
@@ -30,14 +30,20 @@
     "@mercflow/notification-module": "workspace:*",
     "@mercflow/seo-module": "workspace:*",
     "@mercflow/subscription-module": "workspace:*",
-    "@sentry/node": "^10.56.0"
+    "@sentry/node": "^10.56.0",
+    "@react-email/components": "^0.0.31",
+    "@react-email/render": "^1.0.4",
+    "bullmq": "5.13.0",
+    "ioredis": "^5.4.2",
+    "react": "^18.3.1"
   },
   "devDependencies": {
     "@medusajs/cli": "workspace:*",
     "@types/node": "^22.10.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
-    "vitest": "^3.2.0"
+    "vitest": "^3.2.0",
+    "@types/react": "^18.3.18"
   },
   "engines": {
     "node": ">=20"

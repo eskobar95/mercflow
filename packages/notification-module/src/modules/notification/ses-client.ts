@@ -249,7 +249,3 @@ export function createSESClientFromEnv(): ISESClient {
   }
   return new StubSESClient()
 }
-
-export function createSESClientFromEnv(): ISESClient {
-  return new StubSESClient()
-}

@@ -32,6 +32,7 @@ function buildEmailConfig(overrides?: Partial<EmailConfigRecord>): EmailConfigRe
     ses_domain_status: "pending",
     ses_identity_arn: null,
     fallback_from: "noreply@mail.mercflow.com",
+    dns_records: null,
     created_at: new Date("2026-06-11T12:00:00.000Z"),
     updated_at: new Date("2026-06-11T12:00:00.000Z"),
     deleted_at: null,
@@ -65,7 +66,11 @@ const TestTemplate: FC<TemplateProps & { headline?: string }> = ({ headline }) =
   createElement("div", null, headline ?? "MercFlow")
 
 function buildSesClientMock(sendEmail: ISESClient["sendEmail"]): ISESClient {
-  return { sendEmail }
+  return {
+    sendEmail,
+    createEmailIdentity: vi.fn(),
+    getEmailIdentity: vi.fn(),
+  }
 }
 
 describe("notification worker helpers", (): void => {
