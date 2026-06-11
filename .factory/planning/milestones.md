@@ -464,7 +464,7 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 **Dependencies:** M013 (navigation patterns established), M012 (BullMQ + notification infrastructure active)
 
 **Definition of done:**
-- [ ] `apps/platform-console/` deploys to `console.mercflow.shop` with IP allowlist
+- [ ] `apps/platform-console/` deploys to `console.mercflow.shop` with IP allowlist — **deferred (2026-06-11):** Traefik IPs + compose service not configured yet; scaffold only; see T067 deferred table
 - [ ] Google OAuth restricts access to `@mercflow.shop` domain
 - [ ] Tenant list + provision form + suspend action functional
 - [ ] All BullMQ queues visible with job counts, DLQ size, failed job detail, manual retry

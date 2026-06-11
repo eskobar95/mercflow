@@ -1739,7 +1739,9 @@ Platform Console Vite app (:5174), `/platform/health` with Clerk JWT + platformD
 T068, T069, T070
 
 ### Follow-up (human, post-merge)
-Production checklist in `apps/platform-console/README.md` — revert gmail.com override, mercflow.shop domain, Hetzner Traefik + Neon owner role.
+Production checklist in `apps/platform-console/README.md` — revert gmail.com override, mercflow.shop domain, Neon `mercflow_owner` role.
+
+**Deferred — do not do yet (2026-06-11):** Traefik operator IPs in `platform-console.yml`, `platform-console` compose service, DNS `console.mercflow.shop`. Wait for explicit go-live HITL after S030+ feature work or a dedicated deploy decision.
 
 ---
 

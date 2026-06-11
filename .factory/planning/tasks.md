@@ -3340,6 +3340,18 @@ Kræver at operatøren tilføjer `mercflow-platform` Clerk app (gratis, ~2 min),
 - [x] Sidebar placeholder-sektioner renderes (Tenants, Queues, Email, System, Audit)
 - [x] `pnpm typecheck` + `pnpm lint` grøn
 
+### Deferred — human HITL, not now (2026-06-11)
+
+Scaffold er merged og kører lokalt. **Vent med Hetzner production deploy** indtil vi aktivt går live med console:
+
+| Item | Status | When |
+|------|--------|------|
+| Traefik operator **/32 IPs** i `platform-console.yml` | Config scaffold committed; **IPs not set** | Human HITL før `console.mercflow.shop` go-live |
+| **`platform-console` Docker Compose service** + static build deploy | **Not in compose yet** | Same HITL slice — efter console features (S030+) eller eksplicit deploy-beslutning |
+| DNS `console.mercflow.shop` → Hetzner | Not done | Same go-live gate |
+
+Continue S030 feature work (T068/T069) against local dev; production infra steps stay in README checklist + RUNBOOK until deliberate go-live.
+
 ---
 
 ## T068 — Tenant management: list + provision + suspend + audit log

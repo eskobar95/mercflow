@@ -101,12 +101,14 @@ Complete every item before exposing `console.mercflow.shop` or `/platform/*` on 
 | 3 | Session token includes **`email`** claim | Clerk → Configure → Sessions → Customize session token |
 | 4 | Set **`PLATFORM_DATABASE_URL`** to Neon role with **BYPASSRLS** (`mercflow_owner`) | `infra/.env` on VPS — not the tenant-scoped `mercflow_app` connection |
 | 5 | Set **`PLATFORM_CORS=https://console.mercflow.shop`** | `infra/.env` |
-| 6 | Add operator workstation **/32 IPs** to Traefik allowlist | `infra/traefik/dynamic/platform-console.yml` → `platform-console-ipallowlist.sourceRange` |
-| 7 | DNS **`console.mercflow.shop`** → Hetzner VPS | DNS provider |
-| 8 | Deploy static console build + enable **`platform-console`** compose service | `infra/docker-compose.yml` (service TBD post-scaffold) |
+| 6 | Add operator workstation **/32 IPs** to Traefik allowlist | `infra/traefik/dynamic/platform-console.yml` → `platform-console-ipallowlist.sourceRange` — **deferred until go-live HITL** |
+| 7 | DNS **`console.mercflow.shop`** → Hetzner VPS | DNS provider — **deferred until go-live HITL** |
+| 8 | Deploy static console build + enable **`platform-console`** compose service | `infra/docker-compose.yml` — **service not added yet; deferred until go-live HITL** |
 | 9 | Verify login with real **`@mercflow.shop`** account and `/platform/health` shows BYPASSRLS | Browser + `curl` with Clerk JWT |
 
 Traefik IP allowlist is **not enforced in local dev** (no Traefik). It applies only when `platform-console.yml` is deployed on Hetzner.
+
+**Deferred (2026-06-11):** Steps 6–8 (Traefik IPs, DNS, compose service) wait for an explicit go-live decision — continue local/S030 feature work first. See T067 deferred notes in `.factory/planning/tasks.md`.
 
 See also `infra/RUNBOOK.md` — **Platform Console access (T067)**.
 
