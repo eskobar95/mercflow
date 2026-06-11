@@ -3346,11 +3346,12 @@ Kræver at operatøren tilføjer `mercflow-platform` Clerk app (gratis, ~2 min),
 
 **Sprint:** S030
 **Milestone:** M014
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T067
 **Branch:** feature/S030/T068-platform-tenant-management
+**PR:** https://github.com/eskobar95/mercflow/pull/113
 **PRD journey:** J001, J005 (PRD-platform-console.md)
 
 ### Slice objective
@@ -3365,12 +3366,12 @@ Operatorer kan se alle tenants, provisionere en ny tenant via UI (med progress l
 
 ### Definition of done
 
-- [ ] Tenant liste viser alle stores fra DB
-- [ ] Provision form opretter ny tenant end-to-end (calls provision script)
-- [ ] Suspend revokerer API keys og markerer store `is_disabled`
-- [ ] Audit log entry oprettes ved provision + suspend
-- [ ] `platform_audit_log` har ingen `store_id` kolonne (det er by design)
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] Tenant liste viser alle stores fra DB
+- [x] Provision form opretter ny tenant end-to-end (calls provision script)
+- [x] Suspend revokerer API keys og markerer store `is_disabled`
+- [x] Audit log entry oprettes ved provision + suspend
+- [x] `platform_audit_log` har ingen `store_id` kolonne (det er by design)
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 
@@ -3378,11 +3379,12 @@ Operatorer kan se alle tenants, provisionere en ny tenant via UI (med progress l
 
 **Sprint:** S030
 **Milestone:** M014
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T067
 **Branch:** feature/S030/T069-platform-queue-monitor
+**PR:** https://github.com/eskobar95/mercflow/pull/112
 **PRD journey:** J002 (PRD-platform-console.md)
 
 ### Slice objective
@@ -3397,12 +3399,12 @@ Operatorer kan se alle BullMQ køer med live job-counts, DLQ-størrelse markeret
 
 ### Definition of done
 
-- [ ] Alle aktive BullMQ køer vises med korrekte counts
-- [ ] DLQ > 0 vises tydeligt (rød badge)
-- [ ] Fejlet job viser full error message + stack trace
-- [ ] Retry enqueuer job igen (verificeres manuelt)
-- [ ] Data refreshes hvert 10s
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] Alle aktive BullMQ køer vises med korrekte counts
+- [x] DLQ > 0 vises tydeligt (rød badge)
+- [x] Fejlet job viser full error message + stack trace
+- [x] Retry enqueuer job igen (verificeres manuelt)
+- [x] Data refreshes hvert 10s
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 

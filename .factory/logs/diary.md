@@ -1763,6 +1763,100 @@ Production checklist in `apps/platform-console/README.md` — revert gmail.com o
 | T067 | done | #107 |
 
 ### Next actions
-- [ ] Merge PR #107 to `development`
-- [ ] `/run-sprint S030` — T068 + T069 parallel
+- [x] Merge PR #107 to `development`
+- [x] `/run-sprint S030` — T068 + T069 parallel
 - [ ] Human: Hetzner production checklist before console.mercflow.shop
+
+---
+
+## Task T068 — Tenant management — 2026-06-11
+
+**Sprint:** S030 | **Milestone:** M014 | **Status:** done
+**Branch:** `feature/S030/T068-platform-tenant-management`
+**PR:** https://github.com/eskobar95/mercflow/pull/113
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Platform tenant list, SSE provision, suspend with audit log, and platform-console Tenants UI shipped with green CI.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+T070
+
+---
+
+## Task T069 — BullMQ queue monitor — 2026-06-11
+
+**Sprint:** S030 | **Milestone:** M014 | **Status:** done
+**Branch:** `feature/S030/T069-platform-queue-monitor`
+**PR:** https://github.com/eskobar95/mercflow/pull/112
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Platform queue monitor with /platform/queues API, live stats, DLQ drill-down, manual retry, and React Query polling UI.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none
+
+---
+
+## Sprint retro — S030 — 2026-06-11
+
+**Milestone:** M014
+**Duration:** session
+**Tasks:** 2/2 done, 0 blocked
+
+### What went well
+- T067 dependency cleared (PR #107 merged); both parallel tasks shipped in one session
+- Group A parallel dispatch completed without cross-branch conflicts
+- CI green on both PRs (#112, #113) on first iteration
+
+### What failed or slowed down
+- Harness preflight still references `dev` branch; MercFlow uses `development` (ADR-002)
+- T068 needed one revision cycle; T069 landed on first pass
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T068 | done | Task T068 — 2026-06-11 |
+| T069 | done | Task T069 — 2026-06-11 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T068 | 1 | review feedback addressed in revision 1 |
+| T069 | 0 | — |
+
+### Harness notes
+- Parallel groups used: A (T068 + T069)
+- Subagent issues: none
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Use `development` not `dev` in preflight + close skills | skills/harness/harness/SKILL.md |
+| skill | Lead should commit planning sync to development after sprint retro | skills/harness/retro/SKILL.md |
+
+### Next actions
+- [ ] Merge PR #112 and #113 to `development`
+- [ ] `/run-sprint S031` — T070 (email health + system metrics + audit log UI)
+- [ ] `/milestone-review M014` after S031
