@@ -1412,3 +1412,115 @@ T057, T058, T062, T063
 **Approver:** human
 **Note:** `mail.mercflow.shop` verified in SES (eu-north-1); IAM user `mercflow` with keys in `apps/backend/.env`; production SES (50k/day quota, no sandbox banner). Fallback domain corrected to `mercflow.shop` (not `.com`).
 **Next:** `/run-sprint S024` (T057 + T058 parallel)
+
+---
+
+## Task T067 — Platform Console scaffold — 2026-06-11
+
+**Sprint:** S029 | **Status:** skipped
+**Reason:** HITL — awaiting human checkpoint before implement; also blocked by T066 (todo)
+
+---
+
+## Sprint retro — S029 — 2026-06-11
+
+**Milestone:** M014
+**Duration:** session (preflight only — no dispatch)
+**Tasks:** 0/1 done, 1 blocked/skipped
+
+### What went well
+- Preflight caught dual blockers before wasted subagent dispatch (HITL gate + T066 dependency)
+
+### What failed or slowed down
+- S029 cannot start until S028 T066 is done and T067 HITL is approved
+- Harness preflight references `dev` branch; MercFlow uses `development` (ADR-002)
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T067 | skipped | Task T067 — 2026-06-11 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| — | — | — |
+
+### Harness notes
+- Parallel groups used: none (solo HITL task skipped)
+- Subagent issues: none — no dispatch
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Preflight should check `Blocked by` deps and report upstream sprint (S028/T066) | skills/harness/harness/SKILL.md |
+| skill | Use `development` not `dev` in preflight checklist (ADR-002) | skills/harness/harness/SKILL.md |
+
+### Next actions
+- [x] `/run-sprint S028` — complete T066 (T065 done; T064 done)
+- [ ] `/hitl-checkpoint T067` — approve after `PLATFORM_CLERK_PUBLISHABLE_KEY` + `PLATFORM_CLERK_SECRET_KEY` + Traefik IP allowlist documented
+- [ ] `/run-sprint S029` — retry after HITL gate clears (T066 dependency resolved)
+
+---
+
+## Task T066 — Breadcrumb component + detail page wiring — 2026-06-11
+
+**Sprint:** S028 | **Milestone:** M013 | **Status:** done
+**Branch:** `feature/S028/T066-breadcrumb-detail-pages`
+**PR:** https://github.com/eskobar95/mercflow/pull/99 (merged `c11cc88`)
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Planning sync — work already merged to `development` before harness dispatch. Breadcrumb component, detail page wiring, orders list URL-state preservation, settings breadcrumbs.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass (merged) |
+| Review (task fit) | pass (merged) |
+| Review (thermo-nuclear) | pass (merged) |
+| CI | pass (merged) |
+| Revision cycles | 0 |
+
+### Unblocked
+T067 (HITL gate remains)
+
+---
+
+## Sprint retro — S028 — 2026-06-11
+
+**Milestone:** M013
+**Duration:** session (planning sync — no subagent dispatch)
+**Tasks:** 2/2 done, 0 blocked
+
+### What went well
+- Both S028 tasks (T065, T066) already merged via PR #98 and #99; harness run closed planning gap quickly
+
+### What failed or slowed down
+- tasks.md lagged behind `development` — T066 still marked `todo` after PR #99 merge
+
+### Task log index
+| Task | Final status | PR |
+|------|--------------|-----|
+| T065 | done | #98 |
+| T066 | done | #99 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| — | — | — |
+
+### Harness notes
+- Parallel groups used: none (both tasks pre-merged)
+- Subagent issues: none — planning sync only
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Preflight should detect merged PRs on `development` and auto-sync task status before dispatch | skills/harness/harness/SKILL.md |
+| command | Add `/sync-planning` to reconcile tasks.md with merged branches | commands/harness/sync-planning.md |
+
+### Next actions
+- [ ] `/milestone-review M013` — S027+S028 complete
+- [ ] `/hitl-checkpoint T067` — Clerk platform keys + Traefik IP allowlist
+- [ ] `/run-sprint S029` — retry after HITL approval

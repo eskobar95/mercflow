@@ -16,6 +16,8 @@
 > Updated: 2026-06-11 (S027–S034 added — M013 Admin Shell, M014 Platform Console, M015 Subscription System; ADR-011 Clerk auth)
 > Updated: 2026-06-11 (S027 done — T064 Clerk auth + AppShell; PR #96 merged `3fe6dc0`)
 > Updated: 2026-06-11 (S023 done — T056 notification-module; PR #97 merged `d7194a4`; T057 HITL approved)
+> Updated: 2026-06-11 (`/run-sprint S029` — blocked: T067 HITL + blocked by T066)
+> Updated: 2026-06-11 (`/run-sprint S028` — planning sync; T065+T066 already merged PR #98, #99)
 
 | ID | Milestone | Goal | Tasks | Status |
 |----|-----------|------|-------|--------|
@@ -46,8 +48,8 @@
 | S025 | M012 | order-confirmation template + order.placed subscriber + domain admin UI | T059, T061 | planned |
 | S026 | M012 | Remaining templates + branding UI + delivery history UI | T060, T062, T063 | planned |
 | S027 | M013 | Clerk auth integration (Store Admin) + AppShell + sidebar (HITL) | T064 | done |
-| S028 | M013 | Settings landing page + route reorganisation + breadcrumbs | T065, T066 | planned |
-| S029 | M014 | Platform Console scaffold + Clerk auth + /platform/ backend skeleton (HITL) | T067 | planned |
+| S028 | M013 | Settings landing page + route reorganisation + breadcrumbs | T065, T066 | done |
+| S029 | M014 | Platform Console scaffold + Clerk auth + /platform/ backend skeleton (HITL) | T067 | blocked |
 | S030 | M014 | Tenant management + BullMQ queue monitor (parallel) | T068, T069 | planned |
 | S031 | M014 | Email health + system metrics + audit log UI | T070 | planned |
 | S032 | M015 | subscription-module foundation: models, migrations, RLS, service, admin API | T071 | planned |
