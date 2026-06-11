@@ -4,13 +4,14 @@ import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 import { useAdjustStateWhenSnapshotChanges } from "@/lib/react/useAdjustStateWhenKeyChanges"
 
 import { listAdminSubscriptions } from "./subscriptionsApi"
-import type { AdminSubscriptionListResponse } from "./types"
+import type { AdminSubscriptionListResponse, AdminSubscriptionRow } from "./types"
 
 export function useAdminSubscriptions(enabled: boolean): {
   data: AdminSubscriptionListResponse | null
   loading: boolean
   errorMessage: string | null
   refresh: () => Promise<void>
+  replaceRow: (row: AdminSubscriptionRow) => void
 } {
   const [data, setData] = useState<AdminSubscriptionListResponse | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
@@ -33,6 +34,18 @@ export function useAdminSubscriptions(enabled: boolean): {
     }
   }, [])
 
+  const replaceRow = useCallback((row: AdminSubscriptionRow): void => {
+    setData((previous) => {
+      if (previous === null) {
+        return previous
+      }
+      return {
+        ...previous,
+        data: previous.data.map((entry) => (entry.id === row.id ? row : entry)),
+      }
+    })
+  }, [])
+
   useAdjustStateWhenSnapshotChanges([enabled], () => {
     if (!enabled || resolveMedusaAdminBackendUrl() === null) {
       setLoading(false)
@@ -51,5 +64,5 @@ export function useAdminSubscriptions(enabled: boolean): {
     void refresh()
   }, [enabled, refresh])
 
-  return { data, loading, errorMessage, refresh }
+  return { data, loading, errorMessage, refresh, replaceRow }
 }

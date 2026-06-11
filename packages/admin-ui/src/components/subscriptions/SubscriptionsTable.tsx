@@ -4,6 +4,7 @@ import { Link } from "react-router-dom"
 
 import { DataTable } from "@/components/ui/list/DataTable"
 import { ListEmptyState } from "@/components/ui/list/ListEmptyState"
+import { SubscriptionIntervalBadge } from "@/components/subscriptions/SubscriptionIntervalBadge"
 import { SubscriptionStatusBadge } from "@/components/subscriptions/SubscriptionStatusBadge"
 import type { AdminSubscriptionRow } from "@/features/subscriptions"
 import {
@@ -16,9 +17,8 @@ type SubCol =
   | "customer"
   | "product"
   | "status"
-  | "cycle"
+  | "interval"
   | "renewal"
-  | "discount"
 
 const SUB_COLUMNS: ListColumnDef<AdminSubscriptionRow, SubCol>[] = [
   {
@@ -41,7 +41,21 @@ const SUB_COLUMNS: ListColumnDef<AdminSubscriptionRow, SubCol>[] = [
     header: "Product / variant",
     sortable: true,
     getSortValue: (r) => r.product_label ?? "",
-    renderCell: (r) => r.product_label ?? r.variant_id,
+    renderCell: (r) => (
+      <Link
+        to={`/subscriptions/${encodeURIComponent(r.id)}`}
+        className="text-content-primary hover:text-interactive-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
+      >
+        {r.product_label ?? r.variant_id}
+      </Link>
+    ),
+  },
+  {
+    id: "interval",
+    header: "Interval",
+    sortable: true,
+    getSortValue: (r) => r.interval,
+    renderCell: (r) => <SubscriptionIntervalBadge interval={r.interval} />,
   },
   {
     id: "status",
@@ -49,13 +63,6 @@ const SUB_COLUMNS: ListColumnDef<AdminSubscriptionRow, SubCol>[] = [
     sortable: true,
     getSortValue: (r) => r.status,
     renderCell: (r) => <SubscriptionStatusBadge status={r.status} />,
-  },
-  {
-    id: "cycle",
-    header: "Cycle (weeks)",
-    sortable: true,
-    getSortValue: (r) => r.cycle_weeks,
-    renderCell: (r) => r.cycle_weeks,
   },
   {
     id: "renewal",
@@ -84,18 +91,6 @@ const SUB_COLUMNS: ListColumnDef<AdminSubscriptionRow, SubCol>[] = [
         </time>
       )
     },
-  },
-  {
-    id: "discount",
-    header: "Discount",
-    sortable: true,
-    getSortValue: (r) => r.discount_percent ?? -1,
-    renderCell: (r) =>
-      r.discount_percent == null ? (
-        <span className="text-content-tertiary">—</span>
-      ) : (
-        <span className="text-content-secondary">{`${r.discount_percent}%`}</span>
-      ),
   },
 ]
 

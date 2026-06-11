@@ -84,8 +84,15 @@ export const primarySidebarNav: SidebarNavItem[] = [
       { label: "Categories", to: "/product-categories", icon: IconCategories },
     ],
   },
-  { label: "Customers", to: "/customers", icon: IconCustomers },
-  { label: "Subscriptions", to: "/subscriptions", icon: IconSubscriptions },
+  {
+    label: "Customers",
+    to: "/customers",
+    icon: IconCustomers,
+    subItems: [
+      { label: "Customers", to: "/customers", end: true, icon: IconCustomers },
+      { label: "Subscriptions", to: "/subscriptions", icon: IconSubscriptions },
+    ],
+  },
 ]
 
 export const feedSidebarSection: SidebarNavSection = {

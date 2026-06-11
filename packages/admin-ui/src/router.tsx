@@ -92,6 +92,14 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "subscriptions/:subscriptionId",
+        handle: { title: "Subscription" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { SubscriptionDetailPage } = await import("@/pages/SubscriptionDetailPage")
+          return { Component: SubscriptionDetailPage }
+        },
+      },
+      {
         path: "subscriptions",
         handle: { title: "Subscriptions" } satisfies AppRouteHandle,
         lazy: async () => {
