@@ -35,7 +35,7 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 | M010 | Fulfillment Intelligence | Merchant packaging catalog; bin-packing suggestion on order fulfillment; Shipmondo dimensions auto-fill | M009 | done |
 | M011 | Fulfillment Packaging Persistence | Confirmed packaging per fulfillment persisted and restored on order detail | M010 | done |
 | M012 | Notification System | Transactional email on Amazon SES; per-tenant domain identity; React Email templates; BullMQ delivery queue; admin domain + branding + delivery history | M011 | planned |
-| M013 | Admin Shell & Navigation | Unified sidebar with grouped hierarchy; Settings sub-sections; breadcrumbs; collapse/drawer on narrow viewports | M012 | planned |
+| M013 | Admin Shell & Navigation | Unified sidebar with grouped hierarchy; Settings sub-sections; breadcrumbs; collapse/drawer on narrow viewports | M012 | done |
 | M014 | Platform Console | Internal operator tool at `console.mercflow.shop`; tenant provisioning; BullMQ queue monitor; cross-tenant email health; system metrics; audit log | M013 | planned |
 | M015 | Subscription System | Product subscriptions with automatic renewal via BullMQ + Stripe; single-tier Customer Club with member pricing (per-product + fallback %) | M014 | planned |
 
@@ -424,8 +424,8 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 
 | Sprint | Goal | Tasks | Status |
 |--------|------|-------|--------|
-| S027 | Clerk auth integration + AppShell + sidebar (HITL) | T064 | planned |
-| S028 | Settings landing + sub-nav + breadcrumbs | T065, T066 | planned |
+| S027 | Clerk auth integration + AppShell + sidebar (HITL) | T064 | done |
+| S028 | Settings landing + sub-nav + breadcrumbs | T065, T066 | done |
 
 **Dependencies:** M012 (Settings → Email must exist before navigation reorganisation)
 
