@@ -125,3 +125,19 @@ export type UpdateRenewalTimestampInput = {
   current_period_start?: Date
   current_period_end?: Date
 }
+
+export type CompleteRenewalSuccessInput = {
+  order_id: string
+  amount: number
+  currency: string
+  stripe_payment_intent_id: string
+  renewed_at: Date
+}
+
+export type RecordRenewalFailureInput = {
+  order_id: string
+  amount: number
+  currency: string
+  stripe_payment_intent_id?: string | null
+  error_message: string
+}

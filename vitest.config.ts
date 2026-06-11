@@ -21,6 +21,7 @@ export default defineConfig({
       "packages/subscription-module",
       "packages/connector-module",
       "apps/backend",
+      "apps/worker",
       "packages/admin-ui",
     ],
   },

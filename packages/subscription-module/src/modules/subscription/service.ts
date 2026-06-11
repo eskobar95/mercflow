@@ -16,6 +16,8 @@ import type {
   SubscriptionRecord,
   SubscriptionRenewalLogRecord,
   SubscriptionStatus,
+  CompleteRenewalSuccessInput,
+  RecordRenewalFailureInput,
   UpdateRenewalTimestampInput,
 } from "./types"
 import {
@@ -376,6 +378,113 @@ class SubscriptionModuleService extends MedusaService({
           },
           context
         )
+      )
+
+      return toSubscriptionRecord(updated as Record<string, unknown>)
+    })
+  }
+
+  async listDueRenewals(
+    storeId: string,
+    asOf: Date = new Date()
+  ): Promise<SubscriptionRecord[]> {
+    if (Number.isNaN(asOf.getTime())) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "asOf must be a valid date"
+      )
+    }
+
+    return this.withTenant(storeId, async (context) => {
+      const rows = await this.listMercflowSubscriptions(
+        {
+          store_id: storeId,
+          status: "active",
+          next_renewal_at: { $lte: asOf },
+        },
+        { order: { next_renewal_at: "ASC" } },
+        context
+      )
+
+      return rows.map((row) => toSubscriptionRecord(row as Record<string, unknown>))
+    })
+  }
+
+  async completeRenewalSuccess(
+    storeId: string,
+    subscriptionId: string,
+    input: CompleteRenewalSuccessInput
+  ): Promise<SubscriptionRecord> {
+    if (Number.isNaN(input.renewed_at.getTime())) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "renewed_at must be a valid date"
+      )
+    }
+
+    return this.withTenant(storeId, async (context) => {
+      const existing = await this.requireSubscription(storeId, subscriptionId, context)
+      const periodStart = input.renewed_at
+      const periodEnd = advanceRenewalDate(periodStart, existing.interval)
+      const nextRenewalAt = advanceRenewalDate(periodStart, existing.interval)
+
+      const updated = unwrapCreated(
+        await this.updateMercflowSubscriptions(
+          { id: subscriptionId, store_id: storeId },
+          {
+            status: "active",
+            current_period_start: periodStart,
+            current_period_end: periodEnd,
+            next_renewal_at: nextRenewalAt,
+          },
+          context
+        )
+      )
+
+      await this.createMercflowSubscriptionRenewalLogs(
+        {
+          subscription_id: subscriptionId,
+          order_id: input.order_id,
+          amount: input.amount,
+          currency: input.currency,
+          status: "success",
+          stripe_payment_intent_id: input.stripe_payment_intent_id,
+          error_message: null,
+        },
+        context
+      )
+
+      return toSubscriptionRecord(updated as Record<string, unknown>)
+    })
+  }
+
+  async recordRenewalFailure(
+    storeId: string,
+    subscriptionId: string,
+    input: RecordRenewalFailureInput
+  ): Promise<SubscriptionRecord> {
+    return this.withTenant(storeId, async (context) => {
+      await this.requireSubscription(storeId, subscriptionId, context)
+
+      const updated = unwrapCreated(
+        await this.updateMercflowSubscriptions(
+          { id: subscriptionId, store_id: storeId },
+          { status: "past_due" },
+          context
+        )
+      )
+
+      await this.createMercflowSubscriptionRenewalLogs(
+        {
+          subscription_id: subscriptionId,
+          order_id: input.order_id,
+          amount: input.amount,
+          currency: input.currency,
+          status: "failed",
+          stripe_payment_intent_id: input.stripe_payment_intent_id ?? null,
+          error_message: input.error_message,
+        },
+        context
       )
 
       return toSubscriptionRecord(updated as Record<string, unknown>)

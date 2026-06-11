@@ -1,5 +1,10 @@
 import type { MedusaContainer } from "@medusajs/framework"
 import { registerNotificationTemplates } from "@mercflow/notification-module/templates"
+import {
+  startSubscriptionRenewalWorker,
+  stopSubscriptionRenewalWorker,
+  type SubscriptionRenewalWorkerHandle,
+} from "@mercflow/worker"
 
 import {
   startNotificationWorker,
@@ -19,7 +24,8 @@ function ensureNotificationTemplatesRegistered(): void {
   templatesRegistered = true
 }
 
-let activeHandle: NotificationWorkerHandle | null = null
+let activeNotificationHandle: NotificationWorkerHandle | null = null
+let activeSubscriptionRenewalHandle: SubscriptionRenewalWorkerHandle | null = null
 let shutdownHooksRegistered = false
 
 function registerShutdownHooks(): void {
@@ -37,21 +43,37 @@ function registerShutdownHooks(): void {
 }
 
 export async function startWorkers(container: MedusaContainer): Promise<void> {
-  if (activeHandle !== null) {
+  if (activeNotificationHandle !== null && activeSubscriptionRenewalHandle !== null) {
     return
   }
 
   ensureNotificationTemplatesRegistered()
-  activeHandle = await startNotificationWorker(container)
+
+  if (activeNotificationHandle === null) {
+    activeNotificationHandle = await startNotificationWorker(container)
+  }
+
+  if (activeSubscriptionRenewalHandle === null) {
+    const handle = await startSubscriptionRenewalWorker(container)
+    if (handle !== null) {
+      activeSubscriptionRenewalHandle = handle
+    }
+  }
+
   registerShutdownHooks()
 }
 
 export async function stopWorkers(): Promise<void> {
-  if (activeHandle === null) {
-    return
+  const notificationHandle = activeNotificationHandle
+  const subscriptionRenewalHandle = activeSubscriptionRenewalHandle
+  activeNotificationHandle = null
+  activeSubscriptionRenewalHandle = null
+
+  if (notificationHandle !== null) {
+    await stopNotificationWorker(notificationHandle)
   }
 
-  const handle = activeHandle
-  activeHandle = null
-  await stopNotificationWorker(handle)
+  if (subscriptionRenewalHandle !== null) {
+    await stopSubscriptionRenewalWorker(subscriptionRenewalHandle)
+  }
 }
