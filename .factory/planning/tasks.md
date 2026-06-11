@@ -6,6 +6,7 @@
 > Updated: 2026-06-04 (S003 merged — T008–T012; PR #60; closeout `.factory/logs/sprints/S003-closeout-2026-06-04.md`)
 > Updated: 2026-06-04 (M000 review + acceptance sync; S003 active)
 > Updated: 2026-06-08 (all M000–M005 tasks done; PR #63 unified list pages merged outside Factory — logged for traceability)
+> Updated: 2026-06-11 (T064 done — Clerk auth + AppShell; branch feature/S027/T064-clerk-auth-appshell-sidebar)
 
 ---
 
@@ -3154,11 +3155,12 @@ Merchant kan se leveringshistorik for alle transaktionelle emails og kan gensend
 
 **Sprint:** S027
 **Milestone:** M013
-**Status:** todo
+**Status:** done
 **Mode:** HITL
 **Parallel group:** solo
 **Blocked by:** T063
 **Branch:** feature/S027/T064-clerk-auth-appshell-sidebar
+**PR:** https://github.com/eskobar95/mercflow/pull/96
 **PRD journey:** J001, J003 (PRD-admin-shell-navigation.md)
 **ADRs:** ADR-011
 

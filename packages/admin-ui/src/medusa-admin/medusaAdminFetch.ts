@@ -2,6 +2,8 @@
  * Shared Medusa Admin HTTP helpers for the Vite admin client.
  */
 
+import { adminTokenStore } from "./adminTokenStore"
+
 export function resolveMedusaAdminBackendUrl(): string | null {
   const raw = import.meta.env.VITE_MEDUSA_ADMIN_BACKEND_URL
   if (typeof raw !== "string" || raw.trim() === "") {
@@ -14,9 +16,9 @@ export function buildMedusaAdminJsonHeaders(): HeadersInit {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   }
-  const token = import.meta.env.VITE_MEDUSA_ADMIN_BEARER_TOKEN
-  if (typeof token === "string" && token.trim() !== "") {
-    headers["Authorization"] = `Bearer ${token.trim()}`
+  const token = adminTokenStore.get()
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`
   }
   return headers
 }

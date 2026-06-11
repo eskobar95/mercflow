@@ -14,6 +14,7 @@
 > Updated: 2026-06-10 (S021 done — PR #91 T053 Shipmondo label + packaging autofill)
 > Updated: 2026-06-10 (S018 merged to `development` — PRs #86 `6d89f1b`, #87 `b0ade41`)
 > Updated: 2026-06-11 (S027–S034 added — M013 Admin Shell, M014 Platform Console, M015 Subscription System; ADR-011 Clerk auth)
+> Updated: 2026-06-11 (S027 done — T064 Clerk auth + AppShell; PR pending merge to development)
 
 | ID | Milestone | Goal | Tasks | Status |
 |----|-----------|------|-------|--------|
@@ -43,7 +44,7 @@
 | S024 | M012 | SES domain identity (HITL) + BullMQ worker infrastructure | T057, T058 | planned |
 | S025 | M012 | order-confirmation template + order.placed subscriber + domain admin UI | T059, T061 | planned |
 | S026 | M012 | Remaining templates + branding UI + delivery history UI | T060, T062, T063 | planned |
-| S027 | M013 | Clerk auth integration (Store Admin) + AppShell + sidebar (HITL) | T064 | planned |
+| S027 | M013 | Clerk auth integration (Store Admin) + AppShell + sidebar (HITL) | T064 | done |
 | S028 | M013 | Settings landing page + route reorganisation + breadcrumbs | T065, T066 | planned |
 | S029 | M014 | Platform Console scaffold + Clerk auth + /platform/ backend skeleton (HITL) | T067 | planned |
 | S030 | M014 | Tenant management + BullMQ queue monitor (parallel) | T068, T069 | planned |

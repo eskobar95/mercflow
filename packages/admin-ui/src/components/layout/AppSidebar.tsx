@@ -1,9 +1,10 @@
 import { type ReactNode, useRef, useState } from "react"
 import { NavLink, useLocation, useResolvedPath } from "react-router-dom"
 
+import { useClerkSession } from "@/components/auth/ClerkAuthGuard"
 import { UserAccountButton } from "@/components/layout/UserAccountButton"
 import { BrandAvatar } from "@/components/ui/BrandAvatar"
-import { IconChevronRight, IconSearch } from "@/components/ui/icons"
+import { IconChevronRight, IconSearch, IconSidebarCollapse } from "@/components/ui/icons"
 import {
   contentSidebarSection,
   feedSidebarSection,
@@ -18,6 +19,10 @@ import {
 
 type AppSidebarProps = {
   onNavigate?: () => void
+  /** Whether the sidebar is collapsed to icon-only mode. */
+  collapsed?: boolean
+  /** Called when the user toggles the collapse state. */
+  onCollapseToggle?: () => void
 }
 
 /**
@@ -246,53 +251,89 @@ function Section({
   )
 }
 
-export function AppSidebar({ onNavigate }: AppSidebarProps): ReactNode {
+export function AppSidebar({
+  onNavigate,
+  collapsed = false,
+  onCollapseToggle,
+}: AppSidebarProps): ReactNode {
+  const clerkSession = useClerkSession()
+  const workspaceName = clerkSession?.orgName ?? "MercFlow"
+  const workspaceSubLabel = clerkSession?.orgName ? clerkSession.displayName : "Workspace"
+
   return (
     <aside
-      className="flex h-full w-60 shrink-0 flex-col bg-surface-sidebar"
+      className={[
+        "flex h-full shrink-0 flex-col bg-surface-sidebar transition-[width] duration-200",
+        collapsed ? "w-14" : "w-60",
+      ].join(" ")}
       aria-label="Main navigation"
     >
-      <div className="flex h-16 shrink-0 items-center gap-3 px-4">
+      {/* Header: brand + workspace identity + search + collapse toggle */}
+      <div className="flex h-16 shrink-0 items-center gap-2 px-3">
         <BrandAvatar size={32} />
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-content-onSidebar">
-            MercFlow
-          </p>
-          <p className="truncate text-2xs font-medium text-content-onSidebarMuted">
-            Workspace
-          </p>
-        </div>
-        {/*
-          Global search lives in the sidebar header (Linear pattern) so the page
-          chrome bar only carries page identity + contextual actions. Keyboard:
-          ⌘K opens the same surface once the command palette ships.
-        */}
-        <button
-          type="button"
-          aria-label="Search MercFlow"
-          title="Search  ⌘K"
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-content-onSidebarMuted transition-[background-color,color,transform] duration-150 hover:bg-surface-sidebarHover hover:text-content-onSidebar focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-[0.94] motion-reduce:transition-none motion-reduce:active:scale-100"
-          style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
-        >
-          <IconSearch size={17} />
-        </button>
+        {!collapsed ? (
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-content-onSidebar">
+              {workspaceName}
+            </p>
+            <p className="truncate text-2xs font-medium text-content-onSidebarMuted">
+              {workspaceSubLabel}
+            </p>
+          </div>
+        ) : null}
+
+        {!collapsed ? (
+          /*
+           * Global search lives in the sidebar header (Linear pattern) so the
+           * page chrome bar only carries page identity + contextual actions.
+           * ⌘K opens the same surface once the command palette ships.
+           */
+          <button
+            type="button"
+            aria-label="Search MercFlow"
+            title="Search  ⌘K"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-content-onSidebarMuted transition-[background-color,color,transform] duration-150 hover:bg-surface-sidebarHover hover:text-content-onSidebar focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-[0.94] motion-reduce:transition-none motion-reduce:active:scale-100"
+            style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
+          >
+            <IconSearch size={17} />
+          </button>
+        ) : null}
+
+        {onCollapseToggle ? (
+          <button
+            type="button"
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            onClick={onCollapseToggle}
+            className={[
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-content-onSidebarMuted transition-[background-color,color,transform] duration-150 hover:bg-surface-sidebarHover hover:text-content-onSidebar focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-[0.94] motion-reduce:transition-none motion-reduce:active:scale-100",
+              collapsed ? "rotate-180" : "",
+            ].join(" ")}
+            style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
+          >
+            <IconSidebarCollapse size={17} />
+          </button>
+        ) : null}
       </div>
 
-      <nav
-        className="flex flex-1 flex-col overflow-y-auto px-3 pb-6"
-        aria-label="Application"
-      >
-        <div className="flex flex-col gap-0.5">
-          {primarySidebarNav.map((item) => (
-            <NavEntry key={item.to} item={item} onNavigate={onNavigate} />
-          ))}
-        </div>
-        <Section section={feedSidebarSection} onNavigate={onNavigate} />
-        <Section section={inventorySidebarSection} onNavigate={onNavigate} />
-        <Section section={contentSidebarSection} onNavigate={onNavigate} />
-        <Section section={shippingSidebarSection} onNavigate={onNavigate} />
-        <Section section={settingsSidebarSection} onNavigate={onNavigate} />
-      </nav>
+      {/* Navigation — hidden in collapsed mode (icon-only future iteration) */}
+      {!collapsed ? (
+        <nav
+          className="flex flex-1 flex-col overflow-y-auto px-3 pb-6"
+          aria-label="Application"
+        >
+          <div className="flex flex-col gap-0.5">
+            {primarySidebarNav.map((item) => (
+              <NavEntry key={item.to} item={item} onNavigate={onNavigate} />
+            ))}
+          </div>
+          <Section section={feedSidebarSection} onNavigate={onNavigate} />
+          <Section section={inventorySidebarSection} onNavigate={onNavigate} />
+          <Section section={contentSidebarSection} onNavigate={onNavigate} />
+          <Section section={shippingSidebarSection} onNavigate={onNavigate} />
+          <Section section={settingsSidebarSection} onNavigate={onNavigate} />
+        </nav>
+      ) : null}
 
       <UserAccountButton />
     </aside>

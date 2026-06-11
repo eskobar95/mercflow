@@ -46,6 +46,16 @@ export const authenticate = (
     const actorTypes = Array.isArray(actorType) ? actorType : [actorType]
     const req_ = req as AuthenticatedMedusaRequest
 
+    // Allow upstream middlewares (e.g. Clerk JWT verification) to pre-populate
+    // auth_context. When the actor_id is already set and the actor type is
+    // permitted, skip the built-in JWT/session checks entirely.
+    if (
+      req_.auth_context?.actor_id &&
+      isActorTypePermitted(actorTypes, req_.auth_context.actor_type)
+    ) {
+      return next()
+    }
+
     // We only allow authenticating using a secret API key on the admin
     const isExclusivelyUser =
       actorTypes.length === 1 && actorTypes[0] === ADMIN_ACTOR_TYPE
