@@ -62,6 +62,7 @@ describe("AppSidebar", (): void => {
 
     expect(screen.getByRole("button", { name: /^Shipping$/i })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /^SEO$/i })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /^Communications$/i })).toBeInTheDocument()
   })
 
   it("reveals sub-items when an expandable parent is toggled open", (): void => {
@@ -102,6 +103,23 @@ describe("AppSidebar", (): void => {
     expect(screen.getByRole("link", { name: "Carriers" })).toHaveAttribute(
       "href",
       SETTINGS_PATHS.shippingCarriers,
+    )
+  })
+
+  it("auto-expands Communications when the email settings route is active", (): void => {
+    renderSidebar([SETTINGS_PATHS.email])
+
+    const navRoots = screen.getAllByRole("complementary", { name: /Main navigation/i })
+    expect(navRoots[0]).toBeDefined()
+    const sidebarRoot = navRoots[0] as HTMLElement
+    const communicationsButton = within(sidebarRoot).getByRole("button", {
+      name: /^Communications$/i,
+    })
+    expect(communicationsButton).toHaveAttribute("aria-expanded", "true")
+
+    expect(screen.getByRole("link", { name: "Email" })).toHaveAttribute(
+      "href",
+      SETTINGS_PATHS.email,
     )
   })
 
