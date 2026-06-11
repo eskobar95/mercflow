@@ -16,6 +16,7 @@ import {
 } from "../lib/rate-limit/request-keys"
 import { sentryStoreIdMiddleware } from "../lib/sentry-store-id-middleware"
 import { storeRouteVersionRedirectMiddleware } from "../lib/store-route-versioning/store-route-version-redirect"
+import { clerkAdminAuthMiddleware } from "../lib/clerk-admin-auth/clerk-admin-auth-middleware"
 import { tenantBootstrapMiddleware } from "../lib/tenant-isolation/tenant-bootstrap-middleware"
 import { tenantIsolationMiddleware } from "../lib/tenant-isolation/tenant-middleware"
 
@@ -58,7 +59,7 @@ export default defineMiddlewares({
     },
     {
       matcher: "/admin*",
-      middlewares: [tenantIsolationMiddleware],
+      middlewares: [clerkAdminAuthMiddleware, tenantIsolationMiddleware],
     },
     {
       matcher: "/store*",
