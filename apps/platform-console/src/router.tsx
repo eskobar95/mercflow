@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom"
 import { PlatformShell } from "@/components/layout/PlatformShell"
 import { PlatformHomePage } from "@/pages/PlatformHomePage"
 import { PlatformPlaceholderPage } from "@/pages/PlatformPlaceholderPage"
+import { PlatformQueuesPage } from "@/pages/PlatformQueuesPage"
 
 export const platformRouter = createBrowserRouter([
   {
@@ -21,12 +22,7 @@ export const platformRouter = createBrowserRouter([
       },
       {
         path: "queues",
-        element: (
-          <PlatformPlaceholderPage
-            title="Queues"
-            description="Monitor BullMQ queues, DLQ size, and failed job retries."
-          />
-        ),
+        element: <PlatformQueuesPage />,
       },
       {
         path: "email",
