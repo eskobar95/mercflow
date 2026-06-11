@@ -1766,3 +1766,68 @@ Production checklist in `apps/platform-console/README.md` — revert gmail.com o
 - [ ] Merge PR #107 to `development`
 - [ ] `/run-sprint S030` — T068 + T069 parallel
 - [ ] Human: Hetzner production checklist before console.mercflow.shop
+
+---
+
+## Task T070 — Email health + system metrics + audit log UI — 2026-06-11
+
+**Sprint:** S031 | **Milestone:** M014 | **Status:** done
+**Branch:** `feature/S031/T070-platform-email-system-audit`
+**PR:** https://github.com/eskobar95/mercflow/pull/111
+**Mode:** AFK
+**Parallel group:** B
+
+### Outcome
+Cross-tenant platform email/system/audit APIs and Platform Console pages with 30s metrics refresh.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+T071
+
+---
+
+## Sprint retro — S031 — 2026-06-11
+
+**Milestone:** M014
+**Duration:** session (T070 harness dispatch)
+**Tasks:** 1/1 done, 0 blocked
+
+### What went well
+- Solo sprint completed in one subagent pass with CI green on PR #111
+- Backend platform routes + three console pages delivered end-to-end
+
+### What failed or slowed down
+- One revision cycle (verify/lint fixes before review)
+- Harness `dev` vs MercFlow `development` branch naming mismatch (ADR-002)
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T070 | done | Task T070 — 2026-06-11 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T070 | 1 | lint/type fixes in revision 1 |
+
+### Harness notes
+- Parallel groups used: B (solo)
+- Subagent issues: none
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Default integration branch to `development` in implement/close skills | `.cursor/skills/harness/implement/SKILL.md` |
+| skill | Preflight should check `development` when `dev` missing | `.cursor/skills/harness/harness/SKILL.md` |
+
+### Next actions
+- [ ] Merge PR #111 to `development`
+- [ ] `/run-sprint S032` — T071 subscription-module foundation

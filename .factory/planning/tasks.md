@@ -3411,11 +3411,12 @@ Operatorer kan se alle BullMQ køer med live job-counts, DLQ-størrelse markeret
 
 **Sprint:** S031
 **Milestone:** M014
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** T067
 **Branch:** feature/S031/T070-platform-email-system-audit
+**PR:** https://github.com/eskobar95/mercflow/pull/111
 **PRD journey:** J003, J004 (PRD-platform-console.md)
 
 ### Slice objective

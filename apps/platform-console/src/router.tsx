@@ -1,8 +1,11 @@
 import { createBrowserRouter, Navigate } from "react-router-dom"
 
 import { PlatformShell } from "@/components/layout/PlatformShell"
+import { PlatformAuditPage } from "@/pages/PlatformAuditPage"
+import { PlatformEmailPage } from "@/pages/PlatformEmailPage"
 import { PlatformHomePage } from "@/pages/PlatformHomePage"
 import { PlatformPlaceholderPage } from "@/pages/PlatformPlaceholderPage"
+import { PlatformSystemPage } from "@/pages/PlatformSystemPage"
 import { PlatformTenantsPage } from "@/pages/PlatformTenantsPage"
 
 export const platformRouter = createBrowserRouter([
@@ -24,33 +27,9 @@ export const platformRouter = createBrowserRouter([
           />
         ),
       },
-      {
-        path: "email",
-        element: (
-          <PlatformPlaceholderPage
-            title="Email"
-            description="Cross-tenant delivery history and SES domain health."
-          />
-        ),
-      },
-      {
-        path: "system",
-        element: (
-          <PlatformPlaceholderPage
-            title="System"
-            description="Hetzner, Neon, and Redis operational metrics."
-          />
-        ),
-      },
-      {
-        path: "audit",
-        element: (
-          <PlatformPlaceholderPage
-            title="Audit"
-            description="Operator action history across the platform."
-          />
-        ),
-      },
+      { path: "email", element: <PlatformEmailPage /> },
+      { path: "system", element: <PlatformSystemPage /> },
+      { path: "audit", element: <PlatformAuditPage /> },
       { path: "*", element: <Navigate to="/" replace /> },
     ],
   },
