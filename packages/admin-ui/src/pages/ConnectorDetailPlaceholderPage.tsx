@@ -1,9 +1,12 @@
 import type { ReactNode } from "react"
-import { Link, Navigate, useParams } from "react-router-dom"
+import { Navigate, useParams } from "react-router-dom"
 
+import { Breadcrumb } from "@/components/ui/Breadcrumb"
 import { Card } from "@/components/ui/Card"
 import { CONNECTOR_CATALOG } from "@/features/connectors/connectorsCatalog"
 import { CONNECTOR_SLUGS, type ConnectorSlug } from "@/features/connectors/types"
+
+import { settingsConnectorBreadcrumbs } from "@/config/settingsBreadcrumbs"
 
 function parseConnectorSlugParam(raw: string | undefined): ConnectorSlug | null {
   if (!raw) {
@@ -28,12 +31,13 @@ export function ConnectorDetailPlaceholderPage(): ReactNode {
 
   return (
     <div className="p-6">
-      <Link
-        to="/settings/connectors"
-        className="text-sm font-medium text-interactive-primary hover:text-interactive-primary-hover"
-      >
-        ← Connectors
-      </Link>
+      <Breadcrumb
+        items={
+          slug === null
+            ? settingsConnectorBreadcrumbs("Unknown connector")
+            : settingsConnectorBreadcrumbs(CONNECTOR_CATALOG[slug].name)
+        }
+      />
 
       {slug === null ? (
         <div className="mt-6" role="alert">

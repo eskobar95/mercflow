@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useReducer } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 
 import type { SortDirection } from "@/components/ui/list/ListSortControl"
 import type { RowActionItem } from "@/components/ui/list/RowActionsMenu"
@@ -11,6 +11,11 @@ import {
 } from "@/features/orders/orderListBulkFulfillment"
 import { deriveOrderFilterBuckets } from "@/features/orders/orderFilterCategories"
 import type { OrdersListSortColumn } from "@/features/orders/orderListSortValues"
+import {
+  buildOrdersListDetailPath,
+  parseOrdersListSearchParams,
+  type OrdersListUrlSnapshot,
+} from "@/features/orders/ordersListUrlState"
 import type { OrderListRow } from "@/features/orders/orderTypes"
 import { useListFilters } from "@/hooks/useListFilters"
 import { useListRowSelection } from "@/hooks/useListRowSelection"
@@ -50,6 +55,29 @@ const INITIAL_UI_STATE: OrdersListUiState = {
   page: 1,
   pageSize: 10,
   sort: INITIAL_SORT,
+}
+
+function buildInitialUiState(searchParams: URLSearchParams): OrdersListUiState {
+  const parsed = parseOrdersListSearchParams(searchParams)
+  return {
+    ...INITIAL_UI_STATE,
+    page: parsed.page ?? INITIAL_UI_STATE.page,
+    pageSize: parsed.pageSize ?? INITIAL_UI_STATE.pageSize,
+    dateFrom: parsed.dateFrom ?? INITIAL_UI_STATE.dateFrom,
+    dateTo: parsed.dateTo ?? INITIAL_UI_STATE.dateTo,
+    sort: parsed.sort ?? INITIAL_UI_STATE.sort,
+  }
+}
+
+function buildInitialFilters(searchParams: URLSearchParams): {
+  searchDraft: string
+  activeFilters: ReturnType<typeof useListFilters>["activeFilters"]
+} {
+  const parsed = parseOrdersListSearchParams(searchParams)
+  return {
+    searchDraft: parsed.search ?? "",
+    activeFilters: parsed.activeFilters ?? [],
+  }
 }
 
 function ordersListUiReducer(
@@ -113,6 +141,7 @@ export function useOrdersListPageModel(): {
   onSortControlChange: (column: OrdersListSortColumn, direction: SortDirection) => void
   runBulkFulfillment: () => Promise<void>
   getRowActions: (row: OrderListRow) => RowActionItem[]
+  buildOrderDetailPath: (orderId: string) => string
   resetAllFilters: () => void
   clearFilterDates: () => void
   sortControlColumn: OrdersListSortColumn
@@ -120,13 +149,24 @@ export function useOrdersListPageModel(): {
   resetPage: () => void
 } {
   const navigate = useNavigate()
-  const [ui, dispatch] = useReducer(ordersListUiReducer, INITIAL_UI_STATE)
+  const [searchParams] = useSearchParams()
+  const initialFilters = useMemo(() => buildInitialFilters(searchParams), [searchParams])
+  const [ui, dispatch] = useReducer(
+    ordersListUiReducer,
+    searchParams,
+    buildInitialUiState,
+  )
 
   const resetPage = useCallback((): void => {
     dispatch({ type: "setPage", page: 1 })
   }, [])
 
-  const filters = useListFilters({ onPageReset: resetPage, debounceMs: 300 })
+  const filters = useListFilters({
+    onPageReset: resetPage,
+    debounceMs: 300,
+    initialSearchDraft: initialFilters.searchDraft,
+    initialActiveFilters: initialFilters.activeFilters,
+  })
 
   const { statusBucket, paymentBucket } = useMemo(
     () => deriveOrderFilterBuckets(filters.activeFilters),
@@ -213,19 +253,6 @@ export function useOrdersListPageModel(): {
     }
   }, [clearSelection, refetch, selectedRows])
 
-  const getRowActions = useCallback(
-    (row: OrderListRow): RowActionItem[] => [
-      {
-        id: "view",
-        label: "View",
-        onSelect: () => {
-          navigate(`/orders/${encodeURIComponent(row.id)}`)
-        },
-      },
-    ],
-    [navigate],
-  )
-
   const clearFilterDates = useCallback((): void => {
     dispatch({ type: "clearDates" })
   }, [])
@@ -251,6 +278,45 @@ export function useOrdersListPageModel(): {
     dispatch({ type: "setDateTo", value })
   }, [])
 
+  const listSnapshot = useMemo(
+    (): OrdersListUrlSnapshot => ({
+      search: filters.debouncedSearch,
+      activeFilters: filters.activeFilters,
+      page: ui.page,
+      pageSize: ui.pageSize,
+      dateFrom: ui.dateFrom,
+      dateTo: ui.dateTo,
+      sort: ui.sort,
+    }),
+    [
+      filters.activeFilters,
+      filters.debouncedSearch,
+      ui.dateFrom,
+      ui.dateTo,
+      ui.page,
+      ui.pageSize,
+      ui.sort,
+    ],
+  )
+
+  const buildOrderDetailPath = useCallback(
+    (orderId: string): string => buildOrdersListDetailPath(orderId, listSnapshot),
+    [listSnapshot],
+  )
+
+  const getRowActions = useCallback(
+    (row: OrderListRow): RowActionItem[] => [
+      {
+        id: "view",
+        label: "View",
+        onSelect: () => {
+          navigate(buildOrderDetailPath(row.id))
+        },
+      },
+    ],
+    [navigate, buildOrderDetailPath],
+  )
+
   return {
     filters,
     rows,
@@ -270,6 +336,7 @@ export function useOrdersListPageModel(): {
     onSortControlChange,
     runBulkFulfillment,
     getRowActions,
+    buildOrderDetailPath,
     resetAllFilters,
     clearFilterDates,
     sortControlColumn,

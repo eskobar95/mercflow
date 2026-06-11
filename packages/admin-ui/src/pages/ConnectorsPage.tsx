@@ -1,8 +1,10 @@
 import type { ReactNode } from "react"
-import { Link } from "react-router-dom"
 
 import { ConnectorOverviewGrid } from "@/components/connectors/ConnectorOverviewGrid"
+import { PageHeader } from "@/components/ui/PageHeader"
 import { useAdminConnectors } from "@/hooks/useAdminConnectors"
+
+import { settingsIntegrationsBreadcrumbs } from "@/config/settingsBreadcrumbs"
 
 /**
  * Settings → Connectors overview (live data from `GET /admin/connectors`).
@@ -12,24 +14,11 @@ export function ConnectorsPage(): ReactNode {
 
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <Link
-          to="/settings"
-          className="text-sm font-medium text-interactive-primary hover:text-interactive-primary-hover"
-        >
-          ← Settings
-        </Link>
-        <div className="mt-4 flex flex-col gap-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-content-tertiary">
-            Integrations
-          </p>
-          <h1 className="text-2xl font-semibold text-content-primary">Connectors</h1>
-          <p className="max-w-2xl text-sm text-content-secondary">
-            Review third-party integrations, their activation state, and open each connector&apos;s
-            configuration workspace.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Connectors"
+        description="Review third-party integrations, their activation state, and open each connector's configuration workspace."
+        breadcrumbs={settingsIntegrationsBreadcrumbs()}
+      />
 
       {state.status === "loading" ? (
         <div className="grid gap-4 md:grid-cols-2">

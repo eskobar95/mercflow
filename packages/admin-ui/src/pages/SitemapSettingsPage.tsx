@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button"
 import { Card } from "@/components/ui/Card"
 import { FormField } from "@/components/ui/FormField"
 import { Input } from "@/components/ui/Input"
+import { settingsSeoBreadcrumbs } from "@/config/settingsBreadcrumbs"
 import {
   getAdminSitemapConfig,
   getAdminSitemapPreview,
@@ -247,7 +248,11 @@ export function SitemapSettingsPage(): ReactNode {
   if (phase === "loading") {
     return (
       <div className="space-y-6">
-        <PageHeader title="SEO — Sitemap" description="Configure sitemap priorities and exclusions." />
+        <PageHeader
+          title="SEO — Sitemap"
+          description="Configure sitemap priorities and exclusions."
+          breadcrumbs={settingsSeoBreadcrumbs("Sitemap")}
+        />
         <p className="text-content-secondary">Loading…</p>
       </div>
     )
@@ -256,7 +261,11 @@ export function SitemapSettingsPage(): ReactNode {
   if (phase === "error") {
     return (
       <div className="space-y-6">
-        <PageHeader title="SEO — Sitemap" description="Configure sitemap priorities and exclusions." />
+        <PageHeader
+          title="SEO — Sitemap"
+          description="Configure sitemap priorities and exclusions."
+          breadcrumbs={settingsSeoBreadcrumbs("Sitemap")}
+        />
         <p className="text-content-danger" role="alert">
           {message}
         </p>
@@ -272,6 +281,7 @@ export function SitemapSettingsPage(): ReactNode {
       <PageHeader
         title="SEO — Sitemap"
         description="Priority and changefreq per page type, exclusions, preview, and manual regeneration."
+        breadcrumbs={settingsSeoBreadcrumbs("Sitemap")}
       />
       {message ? (
         <p className="text-content-secondary" role="status">

@@ -23,6 +23,8 @@ type UseListFiltersResult = {
 type UseListFiltersArgs = {
   onPageReset: () => void
   debounceMs?: number
+  initialSearchDraft?: string
+  initialActiveFilters?: ActiveFilter[]
 }
 
 /**
@@ -32,9 +34,11 @@ type UseListFiltersArgs = {
 export function useListFilters({
   onPageReset,
   debounceMs = 300,
+  initialSearchDraft = "",
+  initialActiveFilters = [],
 }: UseListFiltersArgs): UseListFiltersResult {
-  const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>([])
-  const [searchDraft, setSearchDraft] = useState("")
+  const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>(initialActiveFilters)
+  const [searchDraft, setSearchDraft] = useState(initialSearchDraft)
   const debouncedSearch = useDebouncedValue(searchDraft, debounceMs)
 
   const resetPage = useCallback((): void => {

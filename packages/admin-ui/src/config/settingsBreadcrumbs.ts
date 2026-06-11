@@ -1,0 +1,47 @@
+import type { BreadcrumbItem } from "@/components/ui/Breadcrumb"
+
+import { SETTINGS_PATHS } from "@/config/settingsSections"
+
+function settingsRoot(): BreadcrumbItem {
+  return { label: "Settings", href: SETTINGS_PATHS.root }
+}
+
+export function settingsBreadcrumb(label: string): BreadcrumbItem[] {
+  return [settingsRoot(), { label }]
+}
+
+export function settingsCustomDataBreadcrumbs(): BreadcrumbItem[] {
+  return settingsBreadcrumb("Custom data")
+}
+
+export function settingsPackagingBreadcrumbs(): BreadcrumbItem[] {
+  return [
+    settingsRoot(),
+    { label: "Shipping", href: SETTINGS_PATHS.shippingPackaging },
+    { label: "Packaging" },
+  ]
+}
+
+export function settingsWorkspaceBreadcrumbs(): BreadcrumbItem[] {
+  return settingsBreadcrumb("Workspace")
+}
+
+export function settingsIntegrationsBreadcrumbs(): BreadcrumbItem[] {
+  return [settingsRoot(), { label: "Integrations", href: SETTINGS_PATHS.integrations }]
+}
+
+export function settingsSeoBreadcrumbs(pageLabel: string): BreadcrumbItem[] {
+  return [
+    settingsRoot(),
+    { label: "SEO", href: SETTINGS_PATHS.seo },
+    { label: pageLabel },
+  ]
+}
+
+export function settingsConnectorBreadcrumbs(connectorLabel: string): BreadcrumbItem[] {
+  return [
+    settingsRoot(),
+    { label: "Integrations", href: SETTINGS_PATHS.integrations },
+    { label: connectorLabel },
+  ]
+}

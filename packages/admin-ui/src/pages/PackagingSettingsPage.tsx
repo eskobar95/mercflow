@@ -6,6 +6,8 @@ import { DataTable } from "@/components/ui/list/DataTable"
 import { ListEmptyState } from "@/components/ui/list/ListEmptyState"
 import { PageHeader } from "@/components/ui/PageHeader"
 
+import { settingsPackagingBreadcrumbs } from "@/config/settingsBreadcrumbs"
+
 import { usePackagingSettingsPage } from "./usePackagingSettingsPage"
 
 export function PackagingSettingsPage(): ReactNode {
@@ -50,6 +52,7 @@ export function PackagingSettingsPage(): ReactNode {
       <PageHeader
         title="Packaging"
         description="Register boxes, envelopes, and bags used when fulfilling orders."
+        breadcrumbs={settingsPackagingBreadcrumbs()}
         actions={
           <Button
             type="button"

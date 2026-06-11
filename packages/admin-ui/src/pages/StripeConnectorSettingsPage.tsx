@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button"
 import { Card } from "@/components/ui/Card"
 import { PageHeader } from "@/components/ui/PageHeader"
 import { Spinner } from "@/components/ui/Spinner"
+import { settingsConnectorBreadcrumbs } from "@/config/settingsBreadcrumbs"
 import { SETTINGS_PATHS } from "@/config/settingsSections"
 import { CONNECTOR_CATALOG } from "@/features/connectors/connectorsCatalog"
 
@@ -53,7 +54,10 @@ export function StripeConnectorSettingsPage(): ReactNode {
   if (loadState.status === "error") {
     return (
       <div className="p-6" role="alert">
-        <PageHeader title="Stripe" breadcrumbs={[]} />
+        <PageHeader
+          title="Stripe"
+          breadcrumbs={settingsConnectorBreadcrumbs("Stripe")}
+        />
         <Card className="mt-6 p-6">
           <p className="font-medium text-content-primary">Could not reach the backend.</p>
           <p className="mt-2 text-sm text-content-secondary">{loadState.message}</p>
@@ -81,10 +85,7 @@ export function StripeConnectorSettingsPage(): ReactNode {
       <PageHeader
         title={stripeCatalog.name}
         description={stripeCatalog.description}
-        breadcrumbs={[
-          { label: "Settings", href: SETTINGS_PATHS.root },
-          { label: "Payments", href: SETTINGS_PATHS.payments },
-        ]}
+        breadcrumbs={settingsConnectorBreadcrumbs(stripeCatalog.name)}
       />
 
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-4 py-10 sm:px-6 lg:max-w-5xl lg:gap-12">

@@ -9,6 +9,7 @@ import { DataTable } from "@/components/ui/list/DataTable"
 import { ListEmptyState } from "@/components/ui/list/ListEmptyState"
 import type { ListColumnDef, ListSortState } from "@/components/ui/list/types"
 import type { RowActionItem } from "@/components/ui/list/RowActionsMenu"
+import { settingsSeoBreadcrumbs } from "@/config/settingsBreadcrumbs"
 import {
   createAdminRedirect,
   deleteAdminRedirect,
@@ -203,6 +204,7 @@ export function RedirectsListPage(): ReactNode {
       <PageHeader
         title="SEO — Redirects"
         description="301 redirects for your storefront. Auto redirects are created when product or category handles change."
+        breadcrumbs={settingsSeoBreadcrumbs("Redirects")}
       />
 
       <Card className="space-y-4">

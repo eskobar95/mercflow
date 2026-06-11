@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/Checkbox"
 import { FormField } from "@/components/ui/FormField"
 import { Input } from "@/components/ui/Input"
 import { Textarea } from "@/components/ui/Textarea"
+import { settingsSeoBreadcrumbs } from "@/config/settingsBreadcrumbs"
 import { getAdminRobotsConfig, putAdminRobotsConfig } from "@/features/seo/robotsApi"
 import type { RobotsConfigDto, RobotsRuleDto } from "@/features/seo/types"
 
@@ -175,7 +176,11 @@ export function RobotsSettingsPage(): ReactNode {
   if (phase === "loading") {
     return (
       <div className="space-y-6">
-        <PageHeader title="SEO — Robots.txt" description="Manage crawl rules for search engines." />
+        <PageHeader
+          title="SEO — Robots.txt"
+          description="Manage crawl rules for search engines."
+          breadcrumbs={settingsSeoBreadcrumbs("Robots.txt")}
+        />
         <p className="text-content-secondary">Loading…</p>
       </div>
     )
@@ -184,7 +189,11 @@ export function RobotsSettingsPage(): ReactNode {
   if (phase === "error") {
     return (
       <div className="space-y-6">
-        <PageHeader title="SEO — Robots.txt" description="Manage crawl rules for search engines." />
+        <PageHeader
+          title="SEO — Robots.txt"
+          description="Manage crawl rules for search engines."
+          breadcrumbs={settingsSeoBreadcrumbs("Robots.txt")}
+        />
         <p className="text-content-danger" role="alert">
           {message}
         </p>
@@ -200,6 +209,7 @@ export function RobotsSettingsPage(): ReactNode {
       <PageHeader
         title="SEO — Robots.txt"
         description="Structured allow/block rules or freetext override. Sitemap line is added automatically."
+        breadcrumbs={settingsSeoBreadcrumbs("Robots.txt")}
       />
       {message ? (
         <p className="text-content-secondary" role="status">

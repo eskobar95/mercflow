@@ -1,12 +1,14 @@
 import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 
+import { Breadcrumb, type BreadcrumbItem } from "@/components/ui/Breadcrumb"
 import { IconArrowRight } from "@/components/ui/icons"
 
 type PlaceholderPageProps = {
   title: string
   /** What lives here, folded into a single sentence. */
   description: string
+  breadcrumbs?: BreadcrumbItem[]
   /**
    * Optional route-aware fallback CTA — points to a route that *is* shipped
    * so the visitor lands somewhere useful instead of looping back home.
@@ -36,11 +38,13 @@ const DEFAULT_FALLBACK = {
 export function PlaceholderPage({
   title,
   description,
+  breadcrumbs,
   fallback = DEFAULT_FALLBACK,
 }: PlaceholderPageProps): ReactNode {
   return (
     <div className="px-4 py-12 md:px-8 md:py-16">
       <div className="mx-auto flex max-w-xl flex-col items-start">
+        {breadcrumbs && breadcrumbs.length > 0 ? <Breadcrumb items={breadcrumbs} className="mb-4" /> : null}
         <h2 className="text-2xl font-semibold tracking-tight text-content-primary md:text-3xl">
           {title}
         </h2>
