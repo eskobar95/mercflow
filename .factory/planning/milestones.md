@@ -7,6 +7,7 @@
 > Updated: 2026-06-10 (M011 added — Fulfillment Packaging Persistence; T054, T055 / S022)
 > Updated: 2026-06-10 (M008–M010 marked done; S019–S021 + PR #93 merged)
 > Updated: 2026-06-10 (S018 merged to `development` — PRs #86 `6d89f1b`, #87 `b0ade41`; M009 ready for milestone review)
+> Updated: 2026-06-11 (M013, M014, M015 added — `/to-prd` session)
 
 ---
 
@@ -33,6 +34,9 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 | M010 | Fulfillment Intelligence | Merchant packaging catalog; bin-packing suggestion on order fulfillment; Shipmondo dimensions auto-fill | M009 | done |
 | M011 | Fulfillment Packaging Persistence | Confirmed packaging per fulfillment persisted and restored on order detail | M010 | done |
 | M012 | Notification System | Transactional email on Amazon SES; per-tenant domain identity; React Email templates; BullMQ delivery queue; admin domain + branding + delivery history | M011 | planned |
+| M013 | Admin Shell & Navigation | Unified sidebar with grouped hierarchy; Settings sub-sections; breadcrumbs; collapse/drawer on narrow viewports | M012 | planned |
+| M014 | Platform Console | Internal operator tool at `console.mercflow.shop`; tenant provisioning; BullMQ queue monitor; cross-tenant email health; system metrics; audit log | M013 | planned |
+| M015 | Subscription System | Product subscriptions with automatic renewal via BullMQ + Stripe; single-tier Customer Club with member pricing (per-product + fallback %) | M014 | planned |
 
 ---
 
@@ -406,6 +410,79 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 
 ---
 
+---
+
+## M013 — Admin Shell & Navigation
+
+**Outcome:** Merchants can find any feature in ≤ 2 clicks. The sidebar groups features into clear domains (Orders, Products, Customers, Content, Settings). Settings has a landing page with sub-section cards. Breadcrumbs on all detail pages. Sidebar collapses to icon-only on medium viewports and to a drawer on mobile.
+
+**PRD:** `.factory/context/PRD-admin-shell-navigation.md`
+
+**Sprints in this milestone:** TBD — awaiting `/to-backlog`
+
+**Dependencies:** M012 (Settings → Email must exist before navigation reorganisation)
+
+**Definition of done:**
+- [ ] Sidebar groups: Home, Orders, Products, Categories, Inventory, Customers, Content, Settings
+- [ ] Settings landing page with cards for all sub-sections (General, Email, Shipping, Payments, Custom Data, SEO, Integrations, Store details)
+- [ ] Breadcrumbs on all detail pages (Order #1234, Product name, etc.)
+- [ ] Sidebar collapse persisted in localStorage; icon-only mode shows tooltips
+- [ ] Mobile drawer at < 768px viewport
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `/milestone-review M013` grøn
+
+---
+
+## M014 — Platform Console
+
+**Outcome:** MercFlow team has an internal operator tool at `console.mercflow.shop`. Operators can provision new tenants, monitor all BullMQ queues (with DLQ drill-down and manual retry), view cross-tenant email delivery health, check Hetzner/Neon/Redis system metrics, and see a full audit log of operator actions. Access restricted to `@mercflow.shop` Google accounts.
+
+**PRD:** `.factory/context/PRD-platform-console.md`
+**ADR:** ADR-010 (BullMQ event bus — covers queue observability foundation)
+
+**Architecture:** Separate React + Vite app at `apps/platform-console/`. Backend `/platform/` API routes bypass tenant RLS.
+
+**Sprints in this milestone:** TBD — awaiting `/to-backlog`
+
+**Dependencies:** M013 (navigation patterns established), M012 (BullMQ + notification infrastructure active)
+
+**Definition of done:**
+- [ ] `apps/platform-console/` deploys to `console.mercflow.shop` with IP allowlist
+- [ ] Google OAuth restricts access to `@mercflow.shop` domain
+- [ ] Tenant list + provision form + suspend action functional
+- [ ] All BullMQ queues visible with job counts, DLQ size, failed job detail, manual retry
+- [ ] Cross-tenant email delivery history searchable by email / order ID
+- [ ] System metrics: Hetzner CPU/RAM, Neon connections, Redis memory — refresh ≤ 30s
+- [ ] `platform_audit_log` records all operator actions
+- [ ] `/milestone-review M014` grøn
+
+---
+
+## M015 — Subscription System
+
+**Outcome:** Merchants can offer product subscriptions (weekly/bi-weekly/monthly/quarterly) with automatic renewal via BullMQ + Stripe. A single-tier Customer Club is purchasable as a Stripe subscription — club members see member prices (per-product explicit price or fallback % discount). Merchants manage subscriptions and club configuration from Store Admin.
+
+**PRD:** `.factory/context/PRD-subscription-system.md`
+
+**Architecture:** New `packages/subscription-module` (DML). New `subscription-renewal` BullMQ queue in `apps/worker`. Pricing via Medusa `price_list` + `customer_group`.
+
+**Sprints in this milestone:** TBD — awaiting `/to-backlog`
+
+**Dependencies:** M014 (BullMQ + Stripe infrastructure patterns), M012 (notification emails for subscription events)
+
+**Definition of done:**
+- [ ] Customer can subscribe to a product on product page (interval selector)
+- [ ] Renewal worker processes due subscriptions hourly; idempotency key prevents double-charge
+- [ ] Merchant can pause/cancel/resume any subscription from Store Admin
+- [ ] Club membership purchasable via Stripe; activates `club_members` customer group within 30s
+- [ ] Per-product member price editable in Product → Pricing tab
+- [ ] Club fallback discount % configurable in Settings → Subscriptions
+- [ ] Stripe webhook HMAC verification on all subscription webhook handlers
+- [ ] `packages/subscription-module/README.md` complete
+- [ ] `/milestone-review M015` grøn
+
+---
+
 ## Dependency graph
 
 ```mermaid
@@ -422,6 +499,9 @@ flowchart LR
   M009 --> M010
   M010 --> M011
   M011 --> M012
+  M012 --> M013
+  M013 --> M014
+  M014 --> M015
 ```
 
 ---

@@ -88,12 +88,15 @@ that carry a tenant context (admin JWT routes + store routes with `Host` resolut
 
 | Service | Purpose | Where |
 |---------|---------|--------|
-| Stripe | Payments config | `connector-module` |
-| Shipmondo | Shipping rules config | `connector-module` |
-| Plunk | Email | `connector-module` |
+| Stripe | Payments + subscription billing | `connector-module`, `subscription-module` |
+| Shipmondo | Shipping label + dimensions auto-fill | `connector-module`, `packaging-module` |
+| Amazon SES | Transactional email (per-tenant domain) | `notification-module` |
+| Google OAuth | Platform Console authentication | `apps/platform-console/` |
+| Hetzner Cloud API | System metrics for Platform Console | `apps/platform-console/` |
 | GTM | Analytics tag | `connector-module` |
+| BullMQ / Redis | Platform-wide event bus + job queues | `apps/worker/`, all modules emitting events |
 
-Storefront consumes SEO/feed/metadata via backend public routes.
+Storefront consumes SEO/feed/metadata/subscriptions via backend public routes.
 
 ---
 
@@ -102,7 +105,9 @@ Storefront consumes SEO/feed/metadata via backend public routes.
 ```
 mercflow/
 ├── apps/
-│   └── backend/            # App shell — module registration, startup hooks, route re-exports
+│   ├── backend/            # App shell — module registration, startup hooks, route re-exports
+│   ├── worker/             # M012+ — BullMQ worker process (separate Node process)
+│   └── platform-console/  # M014 — Internal operator tool (React + Vite, Google OAuth)
 ├── packages/
 │   ├── medusa-fork/        # M0 — Medusa v2.14.1 source as workspace packages
 │   │   ├── framework/      #   @medusajs/framework
@@ -121,7 +126,8 @@ mercflow/
 │   ├── inventory-module/   # Suppliers, POs, inventory dashboard (Batch 2)
 │   ├── metafield-module/   # M008 — tenant-defined metafield definitions + values
 │   ├── packaging-module/   # M010–M011 — packaging catalog + fulfillment suggestion + persistence
-│   └── notification-module/ # M012 — transactional email via Amazon SES + BullMQ
+│   ├── notification-module/ # M012 — transactional email via Amazon SES + BullMQ
+│   └── subscription-module/ # M015 — product subscriptions + Customer Club + renewal worker
 ├── .factory/context/       # PRD, TECHSPEC, CONTEXT, ADR
 ├── .factory/planning/      # milestones, sprints, tasks (Factory harness)
 └── infra/                  # Docker Compose, Traefik config (ADR-006)
@@ -187,6 +193,7 @@ BDD: optional under `.factory/specs/` — link to PRD journeys when used.
 | Module | Milestone | Responsibility |
 |--------|-----------|----------------|
 | `notification-module` | **M012** | Transactional email on Amazon SES. Per-tenant domain identity (DKIM/SPF). React Email templates. BullMQ delivery queue with retry + DLQ. `EmailConfig` + `EmailDelivery` models. Admin: domain setup, branding variables, delivery history. |
+| `subscription-module` (full) | **M015** | Product subscriptions: `subscription`, `subscription_renewal_log`, `subscription_config` models. BullMQ `subscription-renewal` queue. Stripe manual PaymentIntent per renewal. Customer Club: `club_members` customer_group + Medusa price list. Club configuration in Settings. Per-product member price in Product → Pricing tab. |
 
 ---
 
@@ -203,6 +210,7 @@ BDD: optional under `.factory/specs/` — link to PRD journeys when used.
 | [ADR-007](ADR/ADR-007-medusa-fork-platform-ownership.md) | 2026-06-09 | Fork Medusa v2.14.1 — full platform ownership, local workspace packages | accepted |
 | [ADR-008](ADR/ADR-008-metafield-storage-model.md) | 2026-06-10 | Metafield storage: typed columns + `is_primary` two-tier form presentation | accepted |
 | [ADR-009](ADR/ADR-009-notification-ses-per-tenant.md) | 2026-06-11 | Notification: Amazon SES per-tenant domain identities + BullMQ + React Email | accepted |
+| [ADR-010](ADR/ADR-010-bullmq-platform-event-bus.md) | 2026-06-11 | BullMQ replaces Medusa's default event bus platform-wide; `apps/worker/` separate process | accepted |
 | PRD-api-hardening | 2026-06-08 | API hardening: pagination max, error shape, /v1/ store route versioning — see PRD-api-hardening.md | accepted |
 
 ---
