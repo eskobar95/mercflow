@@ -4,9 +4,9 @@ import { PlatformShell } from "@/components/layout/PlatformShell"
 import { PlatformAuditPage } from "@/pages/PlatformAuditPage"
 import { PlatformEmailPage } from "@/pages/PlatformEmailPage"
 import { PlatformHomePage } from "@/pages/PlatformHomePage"
-import { PlatformPlaceholderPage } from "@/pages/PlatformPlaceholderPage"
 import { PlatformQueuesPage } from "@/pages/PlatformQueuesPage"
 import { PlatformSystemPage } from "@/pages/PlatformSystemPage"
+import { PlatformTenantsPage } from "@/pages/PlatformTenantsPage"
 
 export const platformRouter = createBrowserRouter([
   {
@@ -16,12 +16,7 @@ export const platformRouter = createBrowserRouter([
       { index: true, element: <PlatformHomePage /> },
       {
         path: "tenants",
-        element: (
-          <PlatformPlaceholderPage
-            title="Tenants"
-            description="List stores, provision new tenants, and suspend misbehaving shops."
-          />
-        ),
+        element: <PlatformTenantsPage />,
       },
       {
         path: "queues",

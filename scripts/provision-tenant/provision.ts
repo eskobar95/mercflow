@@ -56,6 +56,7 @@ export async function provisionTenant(
     currency: args.currency,
     databaseUrl: env.databaseUrl,
   })
+  onProgress?.("store", `Store created (${storeId})`)
 
   const salesChannelName = `${args.name} Channel`
   let salesChannelId: string
@@ -67,6 +68,7 @@ export async function provisionTenant(
   try {
     const salesChannel = await createSalesChannel(adminClient, salesChannelName)
     salesChannelId = salesChannel.id
+    onProgress?.("sales_channel", `Sales channel created (${salesChannelId})`)
 
     await updateStoreDefaultSalesChannel(adminClient, storeId, salesChannelId)
 
@@ -76,6 +78,7 @@ export async function provisionTenant(
     )
     publishableApiKeyId = apiKey.id
     publishableApiKeyToken = apiKey.token
+    onProgress?.("api_key", "Publishable API key created")
 
     await linkPublishableKeyToSalesChannel(
       adminClient,
@@ -98,6 +101,7 @@ export async function provisionTenant(
       userJwt,
     })
     adminUserId = accepted.userId
+    onProgress?.("admin_user", `Admin user created (${adminUserId})`)
   } catch (error) {
     const message =
       error instanceof MedusaAdminRequestError
@@ -115,6 +119,7 @@ export async function provisionTenant(
     args.domain,
     env.backendUrl,
   )
+  onProgress?.("routing", `Traefik route written (${path.basename(traefikRouteFile)})`)
 
   return {
     storeId,

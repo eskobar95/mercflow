@@ -71,5 +71,8 @@ export default defineConfig({
     {
       resolve: "@mercflow/notification-module",
     },
+    {
+      resolve: "./src/modules/platform",
+    },
   ],
 })

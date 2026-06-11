@@ -3346,11 +3346,12 @@ Kræver at operatøren tilføjer `mercflow-platform` Clerk app (gratis, ~2 min),
 
 **Sprint:** S030
 **Milestone:** M014
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T067
 **Branch:** feature/S030/T068-platform-tenant-management
+**PR:** https://github.com/eskobar95/mercflow/pull/113
 **PRD journey:** J001, J005 (PRD-platform-console.md)
 
 ### Slice objective
