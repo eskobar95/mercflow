@@ -3211,11 +3211,12 @@ Kræver at operatøren opretter Clerk-konto + to apps (`mercflow-store-admin`, `
 
 **Sprint:** S028
 **Milestone:** M013
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T064
 **Branch:** feature/S028/T065-settings-landing-sub-nav
+**PR:** #98
 **PRD journey:** J001, J004 (PRD-admin-shell-navigation.md)
 **ADRs:** ADR-011
 
