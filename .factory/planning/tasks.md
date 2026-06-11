@@ -7,6 +7,7 @@
 > Updated: 2026-06-04 (M000 review + acceptance sync; S003 active)
 > Updated: 2026-06-08 (all M000–M005 tasks done; PR #63 unified list pages merged outside Factory — logged for traceability)
 > Updated: 2026-06-11 (T064 done — Clerk auth + AppShell; branch feature/S027/T064-clerk-auth-appshell-sidebar)
+> Updated: 2026-06-11 (S025 done — T059 PR #108, T061 PR #109; T060 unblocked)
 
 ---
 
@@ -2963,12 +2964,13 @@ BullMQ notification worker kører i `apps/backend`, henter `send-email` jobs fra
 
 **Sprint:** S025
 **Milestone:** M012
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none (T058 merged PR #103 `eea674c`)
 **Unblocked by:** T058 (PR #103 merged `eea674c`)
 **Branch:** feature/S025/T059-order-confirmation-template
+**PR:** https://github.com/eskobar95/mercflow/pull/108
 **PRD journey:** J003 (PRD-notification-system.md)
 **ADRs:** ADR-009
 
@@ -3016,7 +3018,8 @@ En kunde modtager automatisk en ordrebekræftelse med butikslogo, ordreresumé o
 **Status:** todo
 **Mode:** AFK
 **Parallel group:** A
-**Blocked by:** T059
+**Blocked by:** none (T059 done PR #108)
+**Unblocked by:** T059 (PR #108)
 **Branch:** feature/S026/T060-remaining-notification-templates
 **PRD journey:** J005 (PRD-notification-system.md)
 **ADRs:** ADR-009
@@ -3051,12 +3054,13 @@ Alle v1 transaktionelle emails er aktive: shipping update med tracking link, ord
 
 **Sprint:** S025
 **Milestone:** M012
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** B
 **Blocked by:** none (T057 merged PR #104 `33a98d2`)
 **Unblocked by:** T057 (PR #104 merged `33a98d2`)
 **Branch:** feature/S025/T061-email-domain-settings-ui
+**PR:** https://github.com/eskobar95/mercflow/pull/109
 **PRD journey:** J001 (PRD-notification-system.md)
 
 ### Slice objective

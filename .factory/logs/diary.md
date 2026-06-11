@@ -1612,3 +1612,97 @@ T059
 **Note:** #103 merged after conflict resolution with #104 (`apps/backend/package.json`, `pnpm-lock.yaml`).
 
 **Unblocked:** T059, T061 (S025)
+
+---
+
+## Task T059 — order-confirmation template + order.placed subscriber — 2026-06-11
+
+**Sprint:** S025 | **Milestone:** M012 | **Status:** done
+**Branch:** `feature/S025/T059-order-confirmation-template`
+**PR:** https://github.com/eskobar95/mercflow/pull/108
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Order-confirmation React Email templates, order.placed subscriber, snapshot + integration tests, and email preview script shipped with all CI checks green.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+T060
+
+---
+
+## Task T061 — Admin UI: Settings → Email → Domain tab — 2026-06-11
+
+**Sprint:** S025 | **Milestone:** M012 | **Status:** done
+**Branch:** `feature/S025/T061-email-domain-settings-ui`
+**PR:** https://github.com/eskobar95/mercflow/pull/109
+**Mode:** AFK
+**Parallel group:** B
+
+### Outcome
+Email domain tab with DNS setup, copy-to-clipboard records, status polling, and Communications sidebar group.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none
+
+---
+
+## Sprint retro — S025 — 2026-06-11
+
+**Milestone:** M012
+**Duration:** session
+**Tasks:** 2/2 done, 0 blocked
+
+### What went well
+- Group A (T059) og Group B (T061) kørte sekventielt uden revision loops
+- Begge PRs grønne CI på første merge-kandidat (#108, #109)
+- T059 unblocked T060 for S026
+
+### What failed or slowed down
+- Preflight: `dev` branch mangler — MercFlow bruger `development` (ADR-002)
+- Subagents opdaterede tasks.md på feature branches; lead synkede planning på `development`
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T059 | done | Task T059 — 2026-06-11 |
+| T061 | done | Task T061 — 2026-06-11 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T059 | 0 | — |
+| T061 | 0 | — |
+
+### Harness notes
+- Parallel groups used: A (T059), B (T061) — sekventiel per harness regel
+- Subagent issues: none
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Treat `development` as satisfying preflight `dev` check for MercFlow | skills/harness/harness/SKILL.md |
+| command | Note sprint tasks may update tasks.md on feature branches — lead must merge planning sync | commands/harness/run-sprint.md |
+
+### Next actions
+- [ ] Merge PR #108 + #109 to `development`
+- [ ] `/run-sprint S026` — T060 (remaining templates; T062/T063 already done)
+- [ ] Human: review order-confirmation email preview + domain setup flow
