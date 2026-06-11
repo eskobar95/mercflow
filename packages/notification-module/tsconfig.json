@@ -16,6 +16,6 @@
     "rootDir": ".",
     "baseUrl": "."
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "medusa-config.ts", "vitest.config.ts", "test/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "scripts/**/*.ts", "medusa-config.ts", "vitest.config.ts", "test/**/*.ts"],
   "exclude": ["src/**/migrations/**"]
 }
