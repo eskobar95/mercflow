@@ -3160,7 +3160,7 @@ Merchant kan se leveringshistorik for alle transaktionelle emails og kan gensend
 **Parallel group:** solo
 **Blocked by:** T063
 **Branch:** feature/S027/T064-clerk-auth-appshell-sidebar
-**PR:** (pending — see below)
+**PR:** https://github.com/eskobar95/mercflow/pull/96
 **PRD journey:** J001, J003 (PRD-admin-shell-navigation.md)
 **ADRs:** ADR-011
 
