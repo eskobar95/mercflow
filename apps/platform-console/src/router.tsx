@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom"
 import { PlatformShell } from "@/components/layout/PlatformShell"
 import { PlatformHomePage } from "@/pages/PlatformHomePage"
 import { PlatformPlaceholderPage } from "@/pages/PlatformPlaceholderPage"
+import { PlatformTenantsPage } from "@/pages/PlatformTenantsPage"
 
 export const platformRouter = createBrowserRouter([
   {
@@ -12,12 +13,7 @@ export const platformRouter = createBrowserRouter([
       { index: true, element: <PlatformHomePage /> },
       {
         path: "tenants",
-        element: (
-          <PlatformPlaceholderPage
-            title="Tenants"
-            description="List stores, provision new tenants, and suspend misbehaving shops."
-          />
-        ),
+        element: <PlatformTenantsPage />,
       },
       {
         path: "queues",
