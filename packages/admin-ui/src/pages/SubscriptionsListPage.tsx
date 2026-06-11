@@ -1,10 +1,14 @@
 import { useCallback, useMemo, useState, type ReactNode } from "react"
+import { useNavigate } from "react-router-dom"
 
 import { AddFilterMenu } from "@/components/list-filter/AddFilterMenu"
 import { ListFilterBar } from "@/components/list-filter/ListFilterBar"
 import { ListPageShell } from "@/components/list-page/ListPageShell"
 import { usePageChrome } from "@/components/layout/pageChrome"
+import { SubscriptionCancelDialog } from "@/components/subscriptions/SubscriptionCancelDialog"
+import { SubscriptionPauseDialog } from "@/components/subscriptions/SubscriptionPauseDialog"
 import { DataTable } from "@/components/ui/list/DataTable"
+import type { RowActionItem } from "@/components/ui/list/RowActionsMenu"
 import { ListEmptyState } from "@/components/ui/list/ListEmptyState"
 import { ListPagination } from "@/components/ui/list/ListPagination"
 import type { SortDirection } from "@/components/ui/list/ListSortControl"
@@ -12,8 +16,14 @@ import { ListSortControl } from "@/components/ui/list/ListSortControl"
 import { compareSortValues, type ListSortState } from "@/components/ui/list/types"
 import { Spinner } from "@/components/ui/Spinner"
 
+import { applyOptimisticSubscriptionStatus } from "@/features/subscriptions/applyOptimisticSubscriptionStatus"
 import { useAdminSubscriptions } from "@/features/subscriptions"
 import { SUBSCRIPTION_FILTER_CATEGORIES } from "@/features/subscriptions/subscriptionFilterCategories"
+import {
+  subscriptionCanCancel,
+  subscriptionCanPause,
+  subscriptionCanResume,
+} from "@/features/subscriptions/subscriptionUi"
 import {
   SUBSCRIPTION_LIST_COLUMNS,
   SUBSCRIPTION_LIST_SORT_OPTIONS,
@@ -21,6 +31,8 @@ import {
   subscriptionMatchesStatusFilter,
   type SubscriptionListSortColumn,
 } from "@/features/subscriptions/subscriptionsListColumns"
+import type { AdminSubscriptionRow } from "@/features/subscriptions/types"
+import { useSubscriptionStatusActions } from "@/features/subscriptions/useSubscriptionStatusActions"
 import { useListFilters } from "@/hooks/useListFilters"
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
@@ -42,13 +54,16 @@ function SubscriptionsBackendMissingNotice(): ReactNode {
 }
 
 function SubscriptionsListPageContent(): ReactNode {
-  const { data, loading, errorMessage, refresh } = useAdminSubscriptions(true)
+  const navigate = useNavigate()
+  const { data, loading, errorMessage, refresh, replaceRow } = useAdminSubscriptions(true)
 
   const [page, setPage] = useState(1)
   const [sort, setSort] = useState<ListSortState<SubscriptionListSortColumn>>({
     column: "renewal",
     direction: "asc",
   })
+  const [pauseTarget, setPauseTarget] = useState<AdminSubscriptionRow | null>(null)
+  const [cancelTarget, setCancelTarget] = useState<AdminSubscriptionRow | null>(null)
 
   const resetPage = useCallback((): void => {
     setPage(1)
@@ -102,6 +117,28 @@ function SubscriptionsListPageContent(): ReactNode {
     return sortedRows.slice(start, start + LIST_PAGE_SIZE)
   }, [page, sortedRows])
 
+  const onOptimisticStatus = useCallback(
+    (subscriptionId: string, status: string): void => {
+      const row = data?.data.find((entry) => entry.id === subscriptionId)
+      if (row === undefined) {
+        return
+      }
+      replaceRow(applyOptimisticSubscriptionStatus(row, status))
+    },
+    [data?.data, replaceRow]
+  )
+
+  const onRevert = useCallback((): void => {
+    void refresh()
+  }, [refresh])
+
+  const { actionError, isMutating, clearActionError, pause, cancel, resume } =
+    useSubscriptionStatusActions({
+      onOptimisticStatus,
+      onConfirmedUpdate: replaceRow,
+      onRevert,
+    })
+
   const onRequestSort = useCallback((columnId: SubscriptionListSortColumn): void => {
     setSort((previous) => {
       if (previous.column !== columnId) {
@@ -124,6 +161,53 @@ function SubscriptionsListPageContent(): ReactNode {
       resetPage()
     },
     [resetPage],
+  )
+
+  const getRowActions = useCallback(
+    (row: AdminSubscriptionRow): RowActionItem[] => {
+      const actions: RowActionItem[] = [
+        {
+          id: "view",
+          label: "View details",
+          onSelect: () => {
+            navigate(`/subscriptions/${encodeURIComponent(row.id)}`)
+          },
+        },
+      ]
+      if (subscriptionCanResume(row.status)) {
+        actions.push({
+          id: "resume",
+          label: "Resume",
+          onSelect: () => {
+            clearActionError()
+            void resume(row.id)
+          },
+        })
+      }
+      if (subscriptionCanPause(row.status)) {
+        actions.push({
+          id: "pause",
+          label: "Pause",
+          onSelect: () => {
+            clearActionError()
+            setPauseTarget(row)
+          },
+        })
+      }
+      if (subscriptionCanCancel(row.status)) {
+        actions.push({
+          id: "cancel",
+          label: "Cancel",
+          destructive: true,
+          onSelect: () => {
+            clearActionError()
+            setCancelTarget(row)
+          },
+        })
+      }
+      return actions
+    },
+    [clearActionError, navigate, resume]
   )
 
   const listControls = useMemo(
@@ -215,52 +299,108 @@ function SubscriptionsListPageContent(): ReactNode {
   )
 
   return (
-    <ListPageShell
-      listControls={listControls}
-      filterBar={filterBar}
-      footerScrollKey={`${pagedRows.length}:${loading}:${errorMessage ?? ""}`}
-      pagination={(footerFloating) => (
-        <ListPagination
-          aria-label="Subscriptions pagination"
-          className={cn(
-            "border-t border-border-subtle",
-            transitionShadowEnter,
-            footerFloating ? "shadow-md" : "shadow-none",
-          )}
-          currentPage={page}
-          pageSize={LIST_PAGE_SIZE}
-          totalItems={filteredRows.length}
-          onPageChange={setPage}
-          onPageSizeChange={() => {}}
-          pageSizeOptions={[LIST_PAGE_SIZE]}
-        />
-      )}
-    >
-      {errorMessage !== null ? (
-        <div className="border-b border-border-subtle px-4 py-4 text-sm text-feedback-danger-content">
-          {errorMessage}
-        </div>
-      ) : null}
-
-      <DataTable
-        aria-label="Subscriptions"
-        columns={SUBSCRIPTION_LIST_COLUMNS}
-        data={pagedRows}
-        getRowId={(row) => row.id}
-        sortState={sort}
-        onRequestSort={onRequestSort}
-        hasRowActions={false}
-        isLoading={loading && errorMessage === null}
-        fillHeight
-        emptyState={
-          <ListEmptyState
-            bare
-            title="No subscriptions"
-            description="When customers subscribe via the storefront, their subscription rows appear here."
+    <>
+      <ListPageShell
+        listControls={listControls}
+        filterBar={filterBar}
+        footerScrollKey={`${pagedRows.length}:${loading}:${errorMessage ?? ""}`}
+        pagination={(footerFloating) => (
+          <ListPagination
+            aria-label="Subscriptions pagination"
+            className={cn(
+              "border-t border-border-subtle",
+              transitionShadowEnter,
+              footerFloating ? "shadow-md" : "shadow-none",
+            )}
+            currentPage={page}
+            pageSize={LIST_PAGE_SIZE}
+            totalItems={filteredRows.length}
+            onPageChange={setPage}
+            onPageSizeChange={() => {}}
+            pageSizeOptions={[LIST_PAGE_SIZE]}
           />
-        }
+        )}
+      >
+        {errorMessage !== null ? (
+          <div className="border-b border-border-subtle px-4 py-4 text-sm text-feedback-danger-content">
+            {errorMessage}
+          </div>
+        ) : null}
+
+        {actionError !== null ? (
+          <div className="border-b border-border-subtle px-4 py-3 text-sm text-feedback-danger-content">
+            {actionError}
+          </div>
+        ) : null}
+
+        <DataTable
+          aria-label="Subscriptions"
+          columns={SUBSCRIPTION_LIST_COLUMNS}
+          data={pagedRows}
+          getRowId={(row) => row.id}
+          sortState={sort}
+          onRequestSort={onRequestSort}
+          getRowActions={getRowActions}
+          hasRowActions
+          isLoading={loading && errorMessage === null}
+          fillHeight
+          onRowClick={(row) => {
+            navigate(`/subscriptions/${encodeURIComponent(row.id)}`)
+          }}
+          emptyState={
+            <ListEmptyState
+              bare
+              title="No subscriptions"
+              description="When customers subscribe via the storefront, their subscription rows appear here."
+            />
+          }
+        />
+      </ListPageShell>
+
+      <SubscriptionPauseDialog
+        open={pauseTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPauseTarget(null)
+          }
+        }}
+        productLabel={pauseTarget?.product_label ?? null}
+        isSubmitting={isMutating}
+        onConfirm={(resumeDate) => {
+          if (pauseTarget === null) {
+            return
+          }
+          void (async (): Promise<void> => {
+            const ok = await pause(pauseTarget.id, resumeDate)
+            if (ok) {
+              setPauseTarget(null)
+            }
+          })()
+        }}
       />
-    </ListPageShell>
+
+      <SubscriptionCancelDialog
+        open={cancelTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setCancelTarget(null)
+          }
+        }}
+        productLabel={cancelTarget?.product_label ?? null}
+        isSubmitting={isMutating}
+        onConfirm={() => {
+          if (cancelTarget === null) {
+            return
+          }
+          void (async (): Promise<void> => {
+            const ok = await cancel(cancelTarget.id)
+            if (ok) {
+              setCancelTarget(null)
+            }
+          })()
+        }}
+      />
+    </>
   )
 }
 

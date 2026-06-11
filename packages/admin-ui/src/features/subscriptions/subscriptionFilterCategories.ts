@@ -5,9 +5,8 @@ import type { CanonicalSubscriptionUiStatus } from "@/features/subscriptions/typ
 const SUBSCRIPTION_STATUS_VALUES: CanonicalSubscriptionUiStatus[] = [
   "active",
   "paused",
-  "on_hold",
   "cancelled",
-  "expired",
+  "past_due",
 ]
 
 export const SUBSCRIPTION_FILTER_CATEGORIES: FilterCategory[] = [
@@ -22,11 +21,13 @@ export const SUBSCRIPTION_FILTER_CATEGORIES: FilterCategory[] = [
       tone:
         status === "active"
           ? "success"
-          : status === "paused" || status === "on_hold"
+          : status === "paused"
             ? "warning"
-            : status === "cancelled" || status === "expired"
+            : status === "cancelled"
               ? "danger"
-              : "neutral",
+              : status === "past_due"
+                ? "danger"
+                : "neutral",
     })),
   },
 ]

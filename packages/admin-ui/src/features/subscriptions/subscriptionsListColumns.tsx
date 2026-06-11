@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom"
 
+import { SubscriptionIntervalBadge } from "@/components/subscriptions/SubscriptionIntervalBadge"
 import { SubscriptionStatusBadge } from "@/components/subscriptions/SubscriptionStatusBadge"
 import type { SortOption } from "@/components/ui/list/ListSortControl"
 import type { ListColumnDef } from "@/components/ui/list/types"
@@ -10,17 +11,15 @@ export type SubscriptionListSortColumn =
   | "customer"
   | "product"
   | "status"
-  | "cycle"
+  | "interval"
   | "renewal"
-  | "discount"
 
 export const SUBSCRIPTION_LIST_SORT_OPTIONS: SortOption<SubscriptionListSortColumn>[] = [
   { id: "customer", label: "Customer" },
   { id: "product", label: "Product" },
   { id: "status", label: "Status" },
-  { id: "cycle", label: "Cycle" },
+  { id: "interval", label: "Interval" },
   { id: "renewal", label: "Next renewal" },
-  { id: "discount", label: "Discount" },
 ]
 
 export const SUBSCRIPTION_LIST_COLUMNS: ListColumnDef<
@@ -47,7 +46,21 @@ export const SUBSCRIPTION_LIST_COLUMNS: ListColumnDef<
     header: "Product / variant",
     sortable: true,
     getSortValue: (row) => row.product_label ?? "",
-    renderCell: (row) => row.product_label ?? row.variant_id,
+    renderCell: (row) => (
+      <Link
+        to={`/subscriptions/${encodeURIComponent(row.id)}`}
+        className="text-content-primary hover:text-interactive-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
+      >
+        {row.product_label ?? row.variant_id}
+      </Link>
+    ),
+  },
+  {
+    id: "interval",
+    header: "Interval",
+    sortable: true,
+    getSortValue: (row) => row.interval,
+    renderCell: (row) => <SubscriptionIntervalBadge interval={row.interval} />,
   },
   {
     id: "status",
@@ -55,15 +68,6 @@ export const SUBSCRIPTION_LIST_COLUMNS: ListColumnDef<
     sortable: true,
     getSortValue: (row) => row.status,
     renderCell: (row) => <SubscriptionStatusBadge status={row.status} />,
-  },
-  {
-    id: "cycle",
-    header: "Cycle (weeks)",
-    sortable: true,
-    align: "right",
-    getSortValue: (row) => row.cycle_weeks,
-    cellClassName: "tabular-nums",
-    renderCell: (row) => row.cycle_weeks,
   },
   {
     id: "renewal",
@@ -93,20 +97,6 @@ export const SUBSCRIPTION_LIST_COLUMNS: ListColumnDef<
       )
     },
   },
-  {
-    id: "discount",
-    header: "Discount",
-    sortable: true,
-    align: "right",
-    getSortValue: (row) => row.discount_percent ?? -1,
-    cellClassName: "tabular-nums",
-    renderCell: (row) =>
-      row.discount_percent == null ? (
-        <span className="text-content-tertiary">—</span>
-      ) : (
-        <span className="text-content-secondary">{`${row.discount_percent}%`}</span>
-      ),
-  },
 ]
 
 export function subscriptionMatchesStatusFilter(
@@ -118,7 +108,12 @@ export function subscriptionMatchesStatusFilter(
     return true
   }
   const canonical = canonicalSubscriptionUiStatus(row.status)
-  const matches = activeStatusIds.includes(canonical)
+  const matches = activeStatusIds.some((statusId) => {
+    if (statusId === "past_due") {
+      return canonical === "past_due" || canonical === "pending_payment"
+    }
+    return statusId === canonical
+  })
   return operator === "is" ? matches : !matches
 }
 

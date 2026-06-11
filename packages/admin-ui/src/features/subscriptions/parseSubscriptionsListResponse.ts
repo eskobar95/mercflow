@@ -1,66 +1,74 @@
-import type { AdminSubscriptionListResponse, AdminSubscriptionRow } from "./types"
+import type { AdminSubscriptionListResponse, AdminSubscriptionRow, SubscriptionInterval } from "./types"
+import { SUBSCRIPTION_INTERVALS } from "./types"
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
+}
+
+function pickNullableString(value: unknown): string | null {
+  if (typeof value === "string") {
+    return value
+  }
+  if (value === null) {
+    return null
+  }
+  return null
+}
+
+function pickInterval(value: unknown): SubscriptionInterval | null {
+  if (typeof value !== "string") {
+    return null
+  }
+  return SUBSCRIPTION_INTERVALS.includes(value as SubscriptionInterval)
+    ? (value as SubscriptionInterval)
+    : null
 }
 
 function pickRow(value: unknown): AdminSubscriptionRow | null {
   if (!isRecord(value)) {
     return null
   }
+
   const id = value.id
+  const store_id = value.store_id
   const customer_id = value.customer_id
-  const status = value.status
-  const cycle_weeks = value.cycle_weeks
+  const product_id = value.product_id
   const variant_id = value.variant_id
+  const status = value.status
+  const interval = pickInterval(value.interval)
+  const current_period_start = value.current_period_start
+  const current_period_end = value.current_period_end
+
   if (
     typeof id !== "string" ||
+    typeof store_id !== "string" ||
     typeof customer_id !== "string" ||
-    typeof status !== "string" ||
+    typeof product_id !== "string" ||
     typeof variant_id !== "string" ||
-    typeof cycle_weeks !== "number"
+    typeof status !== "string" ||
+    interval === null ||
+    typeof current_period_start !== "string" ||
+    typeof current_period_end !== "string"
   ) {
     return null
   }
 
-  let next_renewal_at: string | null = null
-  if (typeof value.next_renewal_at === "string") {
-    next_renewal_at = value.next_renewal_at
-  } else if (value.next_renewal_at === null) {
-    next_renewal_at = null
-  }
-
-  let discount_percent: number | null = null
-  if (typeof value.discount_percent === "number") {
-    discount_percent = value.discount_percent
-  } else if (value.discount_percent === null) {
-    discount_percent = null
-  }
-
-  let customer_display: string | null = null
-  if (typeof value.customer_display === "string") {
-    customer_display = value.customer_display
-  } else if (value.customer_display === null) {
-    customer_display = null
-  }
-
-  let product_label: string | null = null
-  if (typeof value.product_label === "string") {
-    product_label = value.product_label
-  } else if (value.product_label === null) {
-    product_label = null
-  }
-
   return {
     id,
+    store_id,
     customer_id,
-    status,
-    cycle_weeks,
-    next_renewal_at,
+    product_id,
     variant_id,
-    discount_percent,
-    customer_display,
-    product_label,
+    interval,
+    status,
+    stripe_subscription_id: pickNullableString(value.stripe_subscription_id),
+    current_period_start,
+    current_period_end,
+    next_renewal_at: pickNullableString(value.next_renewal_at),
+    cancelled_at: pickNullableString(value.cancelled_at),
+    pause_requested_at: pickNullableString(value.pause_requested_at),
+    customer_display: pickNullableString(value.customer_display),
+    product_label: pickNullableString(value.product_label),
   }
 }
 
@@ -83,7 +91,11 @@ export function parseSubscriptionsListEnvelope(
     data.push(row)
   }
 
-  if (typeof value.count !== "number" || typeof value.limit !== "number" || typeof value.offset !== "number") {
+  if (
+    typeof value.count !== "number" ||
+    typeof value.limit !== "number" ||
+    typeof value.offset !== "number"
+  ) {
     return null
   }
 
@@ -93,4 +105,14 @@ export function parseSubscriptionsListEnvelope(
     limit: value.limit,
     offset: value.offset,
   }
+}
+
+export function parseSubscriptionRow(value: unknown): AdminSubscriptionRow | null {
+  if (!isRecord(value)) {
+    return null
+  }
+  if (!isRecord(value.data)) {
+    return pickRow(value)
+  }
+  return pickRow(value.data)
 }
