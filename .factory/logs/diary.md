@@ -1193,3 +1193,148 @@ none
 - [x] HITL post-merge: sandbox POST /shipments PASS — shipment `58028292`, parcels `weight:2000g, 30×20×10cm` (300×200×100mm input)
 - [ ] Deploy PR #91 to `api.mercflow.shop` + fix local backend MikroORM startup for fuld Admin UI E2E
 - [ ] `/run-sprint S022` — M011 Shipping Settings (T054, T055)
+
+---
+
+## Task T053 follow-up — Local Shipmondo E2E fixes — 2026-06-10
+
+**Sprint:** S021 | **Milestone:** M010 | **Status:** done
+**Branch:** `feature/S021/shipmondo-e2e-local-fixes` (deleted after merge)
+**PR:** https://github.com/eskobar95/mercflow/pull/93 — merged `b891b26`
+**Mode:** HITL (local E2E validated pre-PR)
+
+### Outcome
+Thermo-nuclear optimeringer + harness close: MikroORM utils dedupe, order/connector fixes, reproducible `shipmondo:e2e-setup` seed, planning sync T050–T052 done.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass (typecheck, focused tests, react-doctor:ci 100/100) |
+| Review (thermo-nuclear) | pass (blockers fixed pre-PR) |
+| Close | PR #93 opened |
+| CI | pass (all checks green after Docker Hub rerun) |
+
+### Unblocked
+none (M010 complete; next sprint S022 not yet in tasks.md)
+
+### Next actions
+- [x] CI green on PR #93
+- [x] Merged PR #93 to `development` (`b891b26`)
+- [ ] Human: set `E2E_ADMIN_PASSWORD` in `.env` for local `pnpm shipmondo:e2e-setup`
+- [ ] `/run-sprint S022` or `/to-backlog` for M011
+
+---
+
+## Sprint retro — M010 Fulfillment Intelligence — 2026-06-10
+
+**Milestone:** M010
+**Sprints:** S019, S020, S021
+**Tasks:** 4/4 done (T050–T053), 0 blocked
+
+### What went well
+- Fuldt vertical slice: packaging-module → settings UI → order widget → Shipmondo label E2E
+- PR #93 lukkede lokal dev-gap (MikroORM dedupe, reproducible `shipmondo:e2e-setup`)
+
+### Task log index
+| Task | Final status | PR |
+|------|--------------|-----|
+| T050 | done | #88 |
+| T051 | done | #89 |
+| T052 | done | #90 |
+| T053 | done | #91 + #93 |
+
+### Next actions
+- [x] `/to-backlog` — M011 Fulfillment Packaging Persistence (T054, T055 / S022)
+- [x] `/run-sprint S022` — start T054
+
+---
+
+## Task T054 — shipment_packaging model, migration, RLS, upsert service, admin API — 2026-06-10
+
+**Sprint:** S022 | **Milestone:** M011 | **Status:** done
+**Branch:** `feature/S022/T054-shipment-packaging-model`
+**PR:** https://github.com/eskobar95/mercflow/pull/94
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Added shipment_packaging model with RLS, upsert service with dimension snapshot, GET/PUT admin API, tests, and README.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+T055
+
+---
+
+## Task T055 — persist + restore confirmed packaging on reload — 2026-06-10
+
+**Sprint:** S022 | **Milestone:** M011 | **Status:** done
+**Branch:** `feature/S022/T055-order-packaging-persist-ui`
+**PR:** https://github.com/eskobar95/mercflow/pull/95
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Order detail persists packaging choice via shipment-packaging API, restores on reload, and wires persisted id into Shipmondo label flow.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none
+
+---
+
+## Sprint retro — S022 — 2026-06-10
+
+**Milestone:** M011
+**Duration:** session
+**Tasks:** 2/2 done, 0 blocked
+
+### What went well
+- Sekventiel slice T054→T055 leverede fuld persistence-loop: model/API → admin UI restore/save
+- CI grøn på begge PRs (#94, #95) uden revision loops
+
+### What failed or slowed down
+- Subagent-transcripts opdaterede langsomt; lead måtte inferere status fra branch/PR/CI
+- T055 branched fra `development` før T054 merge — afhængighed håndteres via parallel PRs
+
+### Task log index
+| Task | Final status | PR |
+|------|--------------|-----|
+| T054 | done | #94 |
+| T055 | done | #95 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T054 | 0 | — |
+| T055 | 0 | — |
+
+### Harness notes
+- Parallel groups used: A (sequential dispatch: T054 then T055)
+- Subagent issues: transcript lag; implementation completed via shared workspace
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Document `development` as base branch (not `dev`) in implement/close skills | skills/harness/implement/SKILL.md |
+| skill | Note T055 should rebase on T054 branch when T054 not yet merged | skills/harness/harness/SKILL.md |
+
+### Next actions
+- [x] Merge PR #94 then #95 to `development` (`2662cc9`, `115d3fa`)
+- [ ] `/milestone-review M011` after merge
