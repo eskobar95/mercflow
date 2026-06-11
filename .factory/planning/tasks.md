@@ -3379,11 +3379,12 @@ Operatorer kan se alle tenants, provisionere en ny tenant via UI (med progress l
 
 **Sprint:** S030
 **Milestone:** M014
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T067
 **Branch:** feature/S030/T069-platform-queue-monitor
+**PR:** https://github.com/eskobar95/mercflow/pull/112
 **PRD journey:** J002 (PRD-platform-console.md)
 
 ### Slice objective

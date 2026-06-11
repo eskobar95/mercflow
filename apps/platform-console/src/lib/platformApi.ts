@@ -1,3 +1,9 @@
+import type {
+  PlatformQueueJobsResponse,
+  PlatformQueueRetryResponse,
+  PlatformQueuesResponse,
+} from "@/types/platformQueues"
+
 const DEFAULT_BACKEND_URL = "http://localhost:9000"
 
 export function resolvePlatformBackendUrl(): string {
@@ -29,6 +35,58 @@ export async function fetchPlatformHealth(
   getToken: () => Promise<string | null>,
 ): Promise<Response> {
   return fetchPlatformApi("/platform/health", getToken)
+}
+
+export async function fetchPlatformQueues(
+  getToken: () => Promise<string | null>,
+): Promise<PlatformQueuesResponse> {
+  const response = await fetchPlatformApi("/platform/queues", getToken)
+
+  if (!response.ok) {
+    const body = (await response.json().catch(() => null)) as { message?: string } | null
+    throw new Error(body?.message ?? `Queues API returned ${response.status}`)
+  }
+
+  return (await response.json()) as PlatformQueuesResponse
+}
+
+export async function fetchPlatformQueueJobs(
+  queueName: string,
+  getToken: () => Promise<string | null>,
+): Promise<PlatformQueueJobsResponse> {
+  const encoded = encodeURIComponent(queueName)
+  const response = await fetchPlatformApi(
+    `/platform/queues/${encoded}/jobs?status=failed`,
+    getToken,
+  )
+
+  if (!response.ok) {
+    const body = (await response.json().catch(() => null)) as { message?: string } | null
+    throw new Error(body?.message ?? `Queue jobs API returned ${response.status}`)
+  }
+
+  return (await response.json()) as PlatformQueueJobsResponse
+}
+
+export async function retryPlatformQueueJob(
+  queueName: string,
+  jobId: string,
+  getToken: () => Promise<string | null>,
+): Promise<PlatformQueueRetryResponse> {
+  const encodedQueue = encodeURIComponent(queueName)
+  const encodedJob = encodeURIComponent(jobId)
+  const response = await fetchPlatformApi(
+    `/platform/queues/${encodedQueue}/jobs/${encodedJob}/retry`,
+    getToken,
+    { method: "POST" },
+  )
+
+  if (!response.ok) {
+    const body = (await response.json().catch(() => null)) as { message?: string } | null
+    throw new Error(body?.message ?? `Queue retry API returned ${response.status}`)
+  }
+
+  return (await response.json()) as PlatformQueueRetryResponse
 }
 
 export type PlatformEmailDelivery = {

@@ -5,6 +5,7 @@ import { PlatformAuditPage } from "@/pages/PlatformAuditPage"
 import { PlatformEmailPage } from "@/pages/PlatformEmailPage"
 import { PlatformHomePage } from "@/pages/PlatformHomePage"
 import { PlatformPlaceholderPage } from "@/pages/PlatformPlaceholderPage"
+import { PlatformQueuesPage } from "@/pages/PlatformQueuesPage"
 import { PlatformSystemPage } from "@/pages/PlatformSystemPage"
 import { PlatformTenantsPage } from "@/pages/PlatformTenantsPage"
 
@@ -20,12 +21,7 @@ export const platformRouter = createBrowserRouter([
       },
       {
         path: "queues",
-        element: (
-          <PlatformPlaceholderPage
-            title="Queues"
-            description="Monitor BullMQ queues, DLQ size, and failed job retries."
-          />
-        ),
+        element: <PlatformQueuesPage />,
       },
       { path: "email", element: <PlatformEmailPage /> },
       { path: "system", element: <PlatformSystemPage /> },
