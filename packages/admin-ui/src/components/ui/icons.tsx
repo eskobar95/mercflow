@@ -127,6 +127,16 @@ export function IconGlobals({ size = 18, ...rest }: IconProps): ReactNode {
   )
 }
 
+/** Envelope — email / notification settings. */
+export function IconEmail({ size = 18, ...rest }: IconProps): ReactNode {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <rect x="3" y="5.5" width="18" height="13" rx="2" />
+      <path d="m3 7.5 9 6.5 9-6.5" />
+    </svg>
+  )
+}
+
 export function IconConnectors({ size = 18, ...rest }: IconProps): ReactNode {
   return (
     <svg {...baseProps(size, rest)}>

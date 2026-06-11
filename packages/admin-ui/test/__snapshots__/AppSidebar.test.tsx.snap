@@ -601,52 +601,6 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
       <p
         class="px-3 pb-2 text-2xs font-medium uppercase tracking-label text-content-onSidebarMuted"
       >
-        Shipping
-      </p>
-      <div
-        class="flex flex-col gap-0.5"
-      >
-        <a
-          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
-          href="/settings/packaging"
-        >
-          <svg
-            aria-hidden="true"
-            class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
-            fill="none"
-            focusable="false"
-            height="18"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.75"
-            viewBox="0 0 24 24"
-            width="18"
-          >
-            <path
-              d="M4 8.5 12 5l8 3.5v11L12 22l-8-3.5z"
-            />
-            <path
-              d="M4 8.5 12 12l8-3.5"
-            />
-            <path
-              d="M12 12v10"
-            />
-          </svg>
-          <span
-            class="truncate"
-          >
-            Packaging
-          </span>
-        </a>
-      </div>
-    </div>
-    <div
-      class="mt-6"
-    >
-      <p
-        class="px-3 pb-2 text-2xs font-medium uppercase tracking-label text-content-onSidebarMuted"
-      >
         Settings
       </p>
       <div
@@ -681,7 +635,207 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
           <span
             class="truncate"
           >
+            Overview
+          </span>
+        </a>
+        <a
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
+          href="/settings/general"
+        >
+          <svg
+            aria-hidden="true"
+            class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
+            fill="none"
+            focusable="false"
+            height="18"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.75"
+            viewBox="0 0 24 24"
+            width="18"
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="2.5"
+            />
+            <path
+              d="M19.5 12a7.6 7.6 0 0 0-.1-1.3l1.7-1.3-1.5-2.6-2 .8a7.5 7.5 0 0 0-2.2-1.3l-.3-2.1h-3l-.3 2.1a7.5 7.5 0 0 0-2.2 1.3l-2-.8L5.9 9.4l1.7 1.3a7.6 7.6 0 0 0 0 2.6L5.9 14.6l1.5 2.6 2-.8a7.5 7.5 0 0 0 2.2 1.3l.3 2.1h3l.3-2.1a7.5 7.5 0 0 0 2.2-1.3l2 .8 1.5-2.6-1.7-1.3a7.6 7.6 0 0 0 .1-1.3z"
+            />
+          </svg>
+          <span
+            class="truncate"
+          >
             General
+          </span>
+        </a>
+        <a
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
+          href="/settings/email"
+        >
+          <svg
+            aria-hidden="true"
+            class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
+            fill="none"
+            focusable="false"
+            height="18"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.75"
+            viewBox="0 0 24 24"
+            width="18"
+          >
+            <rect
+              height="13"
+              rx="2"
+              width="18"
+              x="3"
+              y="5.5"
+            />
+            <path
+              d="m3 7.5 9 6.5 9-6.5"
+            />
+          </svg>
+          <span
+            class="truncate"
+          >
+            Email
+          </span>
+        </a>
+        <div
+          class="flex flex-col"
+        >
+          <button
+            aria-expanded="false"
+            class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent w-full justify-between text-content-onSidebar hover:bg-surface-sidebarHover"
+            type="button"
+          >
+            <span
+              class="flex min-w-0 items-center gap-3"
+            >
+              <svg
+                aria-hidden="true"
+                class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
+                fill="none"
+                focusable="false"
+                height="18"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.75"
+                viewBox="0 0 24 24"
+                width="18"
+              >
+                <path
+                  d="M4 8.5 12 5l8 3.5v11L12 22l-8-3.5z"
+                />
+                <path
+                  d="M4 8.5 12 12l8-3.5"
+                />
+                <path
+                  d="M12 12v10"
+                />
+              </svg>
+              <span
+                class="truncate"
+              >
+                Shipping
+              </span>
+            </span>
+            <svg
+              aria-hidden="true"
+              class="shrink-0 text-content-onSidebarMuted transition-transform duration-200 rotate-0"
+              fill="none"
+              focusable="false"
+              height="12"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.75"
+              viewBox="0 0 24 24"
+              width="12"
+            >
+              <path
+                d="m9 6 6 6-6 6"
+              />
+            </svg>
+          </button>
+          <div
+            aria-hidden="true"
+            class="grid transition-[grid-template-rows,opacity] duration-200"
+            style="grid-template-rows: 0fr; opacity: 0; transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);"
+          >
+            <div
+              class="min-h-0 overflow-hidden"
+            >
+              <ul
+                class="relative ml-[19px] mt-0.5 flex flex-col gap-0.5 border-l border-border-onSidebar pl-2 pt-0.5"
+              >
+                <li>
+                  <a
+                    class="group/sub flex h-8 items-center rounded-md px-2.5 text-sm transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent font-medium text-content-onSidebarMuted hover:bg-surface-sidebarHover hover:text-content-onSidebar"
+                    href="/settings/shipping/packaging"
+                  >
+                    <span
+                      class="truncate"
+                    >
+                      Packaging
+                    </span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="group/sub flex h-8 items-center rounded-md px-2.5 text-sm transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent font-medium text-content-onSidebarMuted hover:bg-surface-sidebarHover hover:text-content-onSidebar"
+                    href="/settings/shipping/carriers"
+                  >
+                    <span
+                      class="truncate"
+                    >
+                      Carriers
+                    </span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <a
+          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
+          href="/settings/payments"
+        >
+          <svg
+            aria-hidden="true"
+            class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
+            fill="none"
+            focusable="false"
+            height="18"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.75"
+            viewBox="0 0 24 24"
+            width="18"
+          >
+            <rect
+              height="14"
+              rx="2.5"
+              width="18"
+              x="3"
+              y="5"
+            />
+            <path
+              d="M3 10h18"
+            />
+            <path
+              d="M7 15h3"
+            />
+          </svg>
+          <span
+            class="truncate"
+          >
+            Payments
           </span>
         </a>
         <a
@@ -717,198 +871,153 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
             Custom data
           </span>
         </a>
-        <a
-          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
-          href="/settings/seo/organisation"
+        <div
+          class="flex flex-col"
         >
-          <svg
+          <button
+            aria-expanded="false"
+            class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent w-full justify-between text-content-onSidebar hover:bg-surface-sidebarHover"
+            type="button"
+          >
+            <span
+              class="flex min-w-0 items-center gap-3"
+            >
+              <svg
+                aria-hidden="true"
+                class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
+                fill="none"
+                focusable="false"
+                height="18"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.75"
+                viewBox="0 0 24 24"
+                width="18"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="8.25"
+                />
+                <path
+                  d="M3.75 12h16.5"
+                />
+                <path
+                  d="M12 3.75c2.4 2.5 3.5 5.3 3.5 8.25s-1.1 5.75-3.5 8.25c-2.4-2.5-3.5-5.3-3.5-8.25S9.6 6.25 12 3.75z"
+                />
+              </svg>
+              <span
+                class="truncate"
+              >
+                SEO
+              </span>
+            </span>
+            <svg
+              aria-hidden="true"
+              class="shrink-0 text-content-onSidebarMuted transition-transform duration-200 rotate-0"
+              fill="none"
+              focusable="false"
+              height="12"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.75"
+              viewBox="0 0 24 24"
+              width="12"
+            >
+              <path
+                d="m9 6 6 6-6 6"
+              />
+            </svg>
+          </button>
+          <div
             aria-hidden="true"
-            class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
-            fill="none"
-            focusable="false"
-            height="18"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.75"
-            viewBox="0 0 24 24"
-            width="18"
+            class="grid transition-[grid-template-rows,opacity] duration-200"
+            style="grid-template-rows: 0fr; opacity: 0; transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);"
           >
-            <circle
-              cx="12"
-              cy="12"
-              r="2.5"
-            />
-            <path
-              d="M19.5 12a7.6 7.6 0 0 0-.1-1.3l1.7-1.3-1.5-2.6-2 .8a7.5 7.5 0 0 0-2.2-1.3l-.3-2.1h-3l-.3 2.1a7.5 7.5 0 0 0-2.2 1.3l-2-.8L5.9 9.4l1.7 1.3a7.6 7.6 0 0 0 0 2.6L5.9 14.6l1.5 2.6 2-.8a7.5 7.5 0 0 0 2.2 1.3l.3 2.1h3l.3-2.1a7.5 7.5 0 0 0 2.2-1.3l2 .8 1.5-2.6-1.7-1.3a7.6 7.6 0 0 0 .1-1.3z"
-            />
-          </svg>
-          <span
-            class="truncate"
-          >
-            SEO — Organisation
-          </span>
-        </a>
-        <a
-          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
-          href="/settings/seo/structured-data"
-        >
-          <svg
-            aria-hidden="true"
-            class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
-            fill="none"
-            focusable="false"
-            height="18"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.75"
-            viewBox="0 0 24 24"
-            width="18"
-          >
-            <circle
-              cx="12"
-              cy="12"
-              r="2.5"
-            />
-            <path
-              d="M19.5 12a7.6 7.6 0 0 0-.1-1.3l1.7-1.3-1.5-2.6-2 .8a7.5 7.5 0 0 0-2.2-1.3l-.3-2.1h-3l-.3 2.1a7.5 7.5 0 0 0-2.2 1.3l-2-.8L5.9 9.4l1.7 1.3a7.6 7.6 0 0 0 0 2.6L5.9 14.6l1.5 2.6 2-.8a7.5 7.5 0 0 0 2.2 1.3l.3 2.1h3l.3-2.1a7.5 7.5 0 0 0 2.2-1.3l2 .8 1.5-2.6-1.7-1.3a7.6 7.6 0 0 0 .1-1.3z"
-            />
-          </svg>
-          <span
-            class="truncate"
-          >
-            SEO — Structured data
-          </span>
-        </a>
-        <a
-          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
-          href="/settings/seo/slug"
-        >
-          <svg
-            aria-hidden="true"
-            class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
-            fill="none"
-            focusable="false"
-            height="18"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.75"
-            viewBox="0 0 24 24"
-            width="18"
-          >
-            <circle
-              cx="12"
-              cy="12"
-              r="2.5"
-            />
-            <path
-              d="M19.5 12a7.6 7.6 0 0 0-.1-1.3l1.7-1.3-1.5-2.6-2 .8a7.5 7.5 0 0 0-2.2-1.3l-.3-2.1h-3l-.3 2.1a7.5 7.5 0 0 0-2.2 1.3l-2-.8L5.9 9.4l1.7 1.3a7.6 7.6 0 0 0 0 2.6L5.9 14.6l1.5 2.6 2-.8a7.5 7.5 0 0 0 2.2 1.3l.3 2.1h3l.3-2.1a7.5 7.5 0 0 0 2.2-1.3l2 .8 1.5-2.6-1.7-1.3a7.6 7.6 0 0 0 .1-1.3z"
-            />
-          </svg>
-          <span
-            class="truncate"
-          >
-            SEO — Slugs
-          </span>
-        </a>
-        <a
-          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
-          href="/settings/seo/redirects"
-        >
-          <svg
-            aria-hidden="true"
-            class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
-            fill="none"
-            focusable="false"
-            height="18"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.75"
-            viewBox="0 0 24 24"
-            width="18"
-          >
-            <circle
-              cx="12"
-              cy="12"
-              r="2.5"
-            />
-            <path
-              d="M19.5 12a7.6 7.6 0 0 0-.1-1.3l1.7-1.3-1.5-2.6-2 .8a7.5 7.5 0 0 0-2.2-1.3l-.3-2.1h-3l-.3 2.1a7.5 7.5 0 0 0-2.2 1.3l-2-.8L5.9 9.4l1.7 1.3a7.6 7.6 0 0 0 0 2.6L5.9 14.6l1.5 2.6 2-.8a7.5 7.5 0 0 0 2.2 1.3l.3 2.1h3l.3-2.1a7.5 7.5 0 0 0 2.2-1.3l2 .8 1.5-2.6-1.7-1.3a7.6 7.6 0 0 0 .1-1.3z"
-            />
-          </svg>
-          <span
-            class="truncate"
-          >
-            SEO — Redirects
-          </span>
-        </a>
-        <a
-          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
-          href="/settings/seo/sitemap"
-        >
-          <svg
-            aria-hidden="true"
-            class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
-            fill="none"
-            focusable="false"
-            height="18"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.75"
-            viewBox="0 0 24 24"
-            width="18"
-          >
-            <circle
-              cx="12"
-              cy="12"
-              r="2.5"
-            />
-            <path
-              d="M19.5 12a7.6 7.6 0 0 0-.1-1.3l1.7-1.3-1.5-2.6-2 .8a7.5 7.5 0 0 0-2.2-1.3l-.3-2.1h-3l-.3 2.1a7.5 7.5 0 0 0-2.2 1.3l-2-.8L5.9 9.4l1.7 1.3a7.6 7.6 0 0 0 0 2.6L5.9 14.6l1.5 2.6 2-.8a7.5 7.5 0 0 0 2.2 1.3l.3 2.1h3l.3-2.1a7.5 7.5 0 0 0 2.2-1.3l2 .8 1.5-2.6-1.7-1.3a7.6 7.6 0 0 0 .1-1.3z"
-            />
-          </svg>
-          <span
-            class="truncate"
-          >
-            SEO — Sitemap
-          </span>
-        </a>
-        <a
-          class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
-          href="/settings/seo/robots"
-        >
-          <svg
-            aria-hidden="true"
-            class="shrink-0 text-content-onSidebarMuted transition-colors group-hover/nav:text-content-onSidebar"
-            fill="none"
-            focusable="false"
-            height="18"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.75"
-            viewBox="0 0 24 24"
-            width="18"
-          >
-            <circle
-              cx="12"
-              cy="12"
-              r="2.5"
-            />
-            <path
-              d="M19.5 12a7.6 7.6 0 0 0-.1-1.3l1.7-1.3-1.5-2.6-2 .8a7.5 7.5 0 0 0-2.2-1.3l-.3-2.1h-3l-.3 2.1a7.5 7.5 0 0 0-2.2 1.3l-2-.8L5.9 9.4l1.7 1.3a7.6 7.6 0 0 0 0 2.6L5.9 14.6l1.5 2.6 2-.8a7.5 7.5 0 0 0 2.2 1.3l.3 2.1h3l.3-2.1a7.5 7.5 0 0 0 2.2-1.3l2 .8 1.5-2.6-1.7-1.3a7.6 7.6 0 0 0 .1-1.3z"
-            />
-          </svg>
-          <span
-            class="truncate"
-          >
-            SEO — Robots.txt
-          </span>
-        </a>
+            <div
+              class="min-h-0 overflow-hidden"
+            >
+              <ul
+                class="relative ml-[19px] mt-0.5 flex flex-col gap-0.5 border-l border-border-onSidebar pl-2 pt-0.5"
+              >
+                <li>
+                  <a
+                    class="group/sub flex h-8 items-center rounded-md px-2.5 text-sm transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent font-medium text-content-onSidebarMuted hover:bg-surface-sidebarHover hover:text-content-onSidebar"
+                    href="/settings/seo/organisation"
+                  >
+                    <span
+                      class="truncate"
+                    >
+                      Organisation
+                    </span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="group/sub flex h-8 items-center rounded-md px-2.5 text-sm transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent font-medium text-content-onSidebarMuted hover:bg-surface-sidebarHover hover:text-content-onSidebar"
+                    href="/settings/seo/structured-data"
+                  >
+                    <span
+                      class="truncate"
+                    >
+                      Structured data
+                    </span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="group/sub flex h-8 items-center rounded-md px-2.5 text-sm transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent font-medium text-content-onSidebarMuted hover:bg-surface-sidebarHover hover:text-content-onSidebar"
+                    href="/settings/seo/slug"
+                  >
+                    <span
+                      class="truncate"
+                    >
+                      Slugs
+                    </span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="group/sub flex h-8 items-center rounded-md px-2.5 text-sm transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent font-medium text-content-onSidebarMuted hover:bg-surface-sidebarHover hover:text-content-onSidebar"
+                    href="/settings/seo/redirects"
+                  >
+                    <span
+                      class="truncate"
+                    >
+                      Redirects
+                    </span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="group/sub flex h-8 items-center rounded-md px-2.5 text-sm transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent font-medium text-content-onSidebarMuted hover:bg-surface-sidebarHover hover:text-content-onSidebar"
+                    href="/settings/seo/sitemap"
+                  >
+                    <span
+                      class="truncate"
+                    >
+                      Sitemap
+                    </span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="group/sub flex h-8 items-center rounded-md px-2.5 text-sm transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent font-medium text-content-onSidebarMuted hover:bg-surface-sidebarHover hover:text-content-onSidebar"
+                    href="/settings/seo/robots"
+                  >
+                    <span
+                      class="truncate"
+                    >
+                      Robots.txt
+                    </span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
         <a
           class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
           href="/settings/connectors"
@@ -942,12 +1051,12 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
           <span
             class="truncate"
           >
-            Connectors
+            Integrations
           </span>
         </a>
         <a
           class="group/nav relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent text-content-onSidebar hover:bg-surface-sidebarHover"
-          href="/settings/workspace"
+          href="/settings/store-details"
         >
           <svg
             aria-hidden="true"
@@ -981,7 +1090,7 @@ exports[`AppSidebar > matches the structural snapshot 1`] = `
           <span
             class="truncate"
           >
-            Workspace
+            Store details
           </span>
         </a>
         <a

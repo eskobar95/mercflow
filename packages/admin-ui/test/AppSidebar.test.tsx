@@ -7,9 +7,10 @@ import { AppSidebar } from "@/components/layout/AppSidebar"
 import {
   contentSidebarSection,
   primarySidebarNav,
-  shippingSidebarSection,
   settingsSidebarSection,
+  type SidebarNavItem,
 } from "@/config/sidebarNav"
+import { SETTINGS_PATHS } from "@/config/settingsSections"
 
 function renderSidebar(
   initialEntries?: string[],
@@ -23,11 +24,14 @@ function renderSidebar(
   )
 }
 
+function settingsLeafItems(items: SidebarNavItem[]): SidebarNavItem[] {
+  return items.filter((item) => !item.subItems || item.subItems.length === 0)
+}
+
 describe("AppSidebar", (): void => {
   it("renders leaf items as links and expandable parents as buttons", (): void => {
     renderSidebar()
 
-    // Top-level: each leaf item is a link, each parent with subItems is a button.
     for (const item of primarySidebarNav) {
       if (item.subItems && item.subItems.length > 0) {
         expect(
@@ -39,19 +43,25 @@ describe("AppSidebar", (): void => {
       }
     }
 
-    // Content + Shipping + Settings sections render their section labels and leaf links.
     expect(screen.getByText("Content")).toBeInTheDocument()
-    expect(screen.getByText("Shipping")).toBeInTheDocument()
     expect(screen.getByText("Settings")).toBeInTheDocument()
 
-    for (const item of [
-      ...contentSidebarSection.items,
-      ...shippingSidebarSection.items,
-      ...settingsSidebarSection.items,
-    ]) {
+    for (const item of contentSidebarSection.items) {
       const link = screen.getByRole("link", { name: item.label })
       expect(link).toHaveAttribute("href", item.to)
     }
+
+    const settingsSection = screen.getByText("Settings").closest("div")
+    expect(settingsSection).toBeTruthy()
+
+    for (const item of settingsLeafItems(settingsSidebarSection.items)) {
+      const links = within(settingsSection as HTMLElement).getAllByRole("link")
+      const match = links.find((link) => link.getAttribute("href") === item.to)
+      expect(match, `missing settings link for ${item.label}`).toBeDefined()
+    }
+
+    expect(screen.getByRole("button", { name: /^Shipping$/i })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /^SEO$/i })).toBeInTheDocument()
   })
 
   it("reveals sub-items when an expandable parent is toggled open", (): void => {
@@ -60,16 +70,12 @@ describe("AppSidebar", (): void => {
     const navRoots = screen.getAllByRole("complementary", { name: /Main navigation/i })
     expect(navRoots[0]).toBeDefined()
     const sidebarRoot = navRoots[0] as HTMLElement
-    const productsButtons = screen.getAllByRole("button", { name: /^Products$/i })
-    expect(productsButtons[0]).toBeDefined()
     const productsButton = within(sidebarRoot).getByRole("button", { name: /^Products$/i })
-    // /orders → Products parent should be collapsed by default.
     expect(productsButton).toHaveAttribute("aria-expanded", "false")
 
     fireEvent.click(productsButton)
     expect(productsButton).toHaveAttribute("aria-expanded", "true")
 
-    // Sub-items are real navigable links.
     expect(screen.getByRole("link", { name: "Catalogue" })).toHaveAttribute(
       "href",
       "/products"
@@ -80,34 +86,44 @@ describe("AppSidebar", (): void => {
     )
   })
 
+  it("auto-expands Shipping when a packaging route is active", (): void => {
+    renderSidebar([SETTINGS_PATHS.shippingPackaging])
+
+    const navRoots = screen.getAllByRole("complementary", { name: /Main navigation/i })
+    expect(navRoots[0]).toBeDefined()
+    const sidebarRoot = navRoots[0] as HTMLElement
+    const shippingButton = within(sidebarRoot).getByRole("button", { name: /^Shipping$/i })
+    expect(shippingButton).toHaveAttribute("aria-expanded", "true")
+
+    expect(screen.getByRole("link", { name: "Packaging" })).toHaveAttribute(
+      "href",
+      SETTINGS_PATHS.shippingPackaging,
+    )
+    expect(screen.getByRole("link", { name: "Carriers" })).toHaveAttribute(
+      "href",
+      SETTINGS_PATHS.shippingCarriers,
+    )
+  })
+
   it("auto-expands the parent when its child route is active", (): void => {
     renderSidebar(["/product-categories"])
 
     const navRoots = screen.getAllByRole("complementary", { name: /Main navigation/i })
     expect(navRoots[0]).toBeDefined()
     const sidebarRoot = navRoots[0] as HTMLElement
-    const productsButtons = screen.getAllByRole("button", { name: /^Products$/i })
-    expect(productsButtons[0]).toBeDefined()
     const productsButton = within(sidebarRoot).getByRole("button", { name: /^Products$/i })
     expect(productsButton).toHaveAttribute("aria-expanded", "true")
 
-    // Active sub-item carries aria-current.
     const categoriesLinks = screen.getAllByRole("link", { name: "Categories" })
     const categoriesActive = categoriesLinks.filter(
       (link) => link.getAttribute("aria-current") === "page"
     )
     expect(categoriesActive).toHaveLength(1)
-    const categoriesLink = categoriesLinks.find(
-      (el) => el.getAttribute("aria-current") === "page"
-    )
-    expect(categoriesLink).toBeDefined()
-    expect(categoriesLink!).toHaveAttribute("href", "/product-categories")
   })
 
   it("matches the structural snapshot", (): void => {
     const { container } = renderSidebar()
 
-    // Restrict to the <aside> so we don't snapshot the temporary scroll container.
     const aside = within(container).getByRole("complementary", {
       name: /main navigation/i,
     })
