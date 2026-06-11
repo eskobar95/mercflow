@@ -14,4 +14,9 @@ describe("listSubscriptionsQuerySchema", (): void => {
     const parsed = listSubscriptionsQuerySchema.parse({ customer_id: "cus_test" })
     expect(parsed.customer_id).toBe("cus_test")
   })
+
+  it("accepts status filter", (): void => {
+    const parsed = listSubscriptionsQuerySchema.parse({ status: "paused" })
+    expect(parsed.status).toBe("paused")
+  })
 })

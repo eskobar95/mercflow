@@ -12,6 +12,6 @@
     "isolatedModules": true,
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "medusa-config.ts", "vitest.config.ts"],
+  "include": ["src/**/*.ts", "medusa-config.ts", "vitest.config.ts", "test/**/*.ts"],
   "exclude": ["**/node_modules", "**/dist"]
 }

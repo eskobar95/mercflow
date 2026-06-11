@@ -1,15 +1,17 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { refetchEntity } from "@medusajs/framework/http"
 import { MedusaError } from "@medusajs/utils"
+import { refetchEntity } from "@medusajs/framework/http"
 
 import {
   resolveAdminListLimit,
   resolveAdminListOffset,
 } from "../../../../http/admin-list-limit"
+import { subscriptionToAdminListJson } from "../../../../http/subscription-json"
 import { sendZodError } from "../../../../http/zod-error"
 import { enrichSubscriptionsForAdmin } from "../../../enrich-subscriptions"
 import { listSubscriptionsQuerySchema } from "../../../../../modules/subscription/http-schemas"
 import { SUBSCRIPTION_MODULE } from "../../../../../modules/subscription"
+import { resolveMercflowStoreId } from "../../../../../modules/subscription/resolve-store-id"
 import type SubscriptionModuleService from "../../../../../modules/subscription/service"
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void> => {
@@ -28,6 +30,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
 
   const limit = Math.min(resolveAdminListLimit(parsed.data.limit), 100)
   const offset = resolveAdminListOffset(parsed.data.offset)
+  const storeId = resolveMercflowStoreId(req)
 
   const customer = await refetchEntity({
     entity: "customer",
@@ -46,16 +49,16 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
     SUBSCRIPTION_MODULE
   ) as SubscriptionModuleService
 
-  const [subscriptions, count] = await service.listAndCountSubscriptions(
-    { customer_id: customerId },
-    {
-      skip: offset,
-      take: limit,
-      order: { next_renewal_at: "ASC" },
-    }
+  const { subscriptions, count } = await service.listSubscriptions(
+    storeId,
+    { customer_id: customerId, status: parsed.data.status },
+    { limit, offset }
   )
 
-  const data = await enrichSubscriptionsForAdmin(req.scope, subscriptions)
+  const labels = await enrichSubscriptionsForAdmin(req.scope, subscriptions)
+  const data = subscriptions.map((row, index) =>
+    subscriptionToAdminListJson(row, labels[index])
+  )
 
   res.status(200).json({
     data,

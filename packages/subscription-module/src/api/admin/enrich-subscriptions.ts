@@ -1,27 +1,7 @@
 import type { MedusaContainer } from "@medusajs/framework/types"
 import { refetchEntity } from "@medusajs/framework/http"
 
-import type { AdminSubscriptionListItem } from "../../modules/subscription/types"
-
-type SubscriptionRow = {
-  id: string
-  customer_id: string
-  status: string
-  cycle_weeks: number
-  next_renewal_at: Date | string | null
-  variant_id: string
-  discount_percent: number | null
-}
-
-function isoOrNull(value: Date | string | null | undefined): string | null {
-  if (value == null) {
-    return null
-  }
-  if (value instanceof Date) {
-    return value.toISOString()
-  }
-  return value
-}
+import type { SubscriptionRecord } from "../../modules/subscription/types"
 
 function buildCustomerDisplay(payload: {
   email?: string | null
@@ -68,13 +48,18 @@ function buildVariantLabel(payload: {
   return "Product variant"
 }
 
+export type SubscriptionAdminLabels = {
+  customer_display: string
+  product_label: string
+}
+
 /**
  * Enriches persisted subscription rows with Medusa customer + variant labels for admin tables.
  */
 export async function enrichSubscriptionsForAdmin(
   scope: MedusaContainer,
-  rows: SubscriptionRow[]
-): Promise<AdminSubscriptionListItem[]> {
+  rows: SubscriptionRecord[]
+): Promise<SubscriptionAdminLabels[]> {
   const customerCache = new Map<string, string>()
   const variantCache = new Map<string, string>()
 
@@ -127,22 +112,11 @@ export async function enrichSubscriptionsForAdmin(
     return label
   }
 
-  const out: AdminSubscriptionListItem[] = []
+  const out: SubscriptionAdminLabels[] = []
   for (const row of rows) {
     const customerDisplay = await hydrateCustomer(row.customer_id)
     const productLabel = await hydrateVariant(row.variant_id)
-
-    out.push({
-      id: row.id,
-      customer_id: row.customer_id,
-      status: row.status,
-      cycle_weeks: row.cycle_weeks,
-      next_renewal_at: isoOrNull(row.next_renewal_at),
-      variant_id: row.variant_id,
-      discount_percent: row.discount_percent,
-      customer_display: customerDisplay,
-      product_label: productLabel,
-    })
+    out.push({ customer_display: customerDisplay, product_label: productLabel })
   }
 
   return out

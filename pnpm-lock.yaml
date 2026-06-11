@@ -1183,6 +1183,9 @@ importers:
       '@medusajs/medusa':
         specifier: workspace:*
         version: link:../medusa-fork/medusa
+      '@medusajs/types':
+        specifier: workspace:*
+        version: link:../medusa-fork/types
       '@medusajs/utils':
         specifier: workspace:*
         version: link:../medusa-fork/utils
