@@ -279,16 +279,8 @@ export const router = createBrowserRouter([
         path: "settings/email",
         handle: { title: "Email settings" } satisfies AppRouteHandle,
         lazy: async () => {
-          const { PlaceholderPage } = await import("@/pages/PlaceholderPage")
-          return {
-            Component: () => (
-              <PlaceholderPage
-                title="Email"
-                description="Sending domain, branding, delivery history, and transactional email defaults."
-                fallback={{ label: "Back to settings", to: "/settings" }}
-              />
-            ),
-          }
+          const { EmailSettingsPage } = await import("@/pages/EmailSettingsPage")
+          return { Component: EmailSettingsPage }
         },
       },
       {
