@@ -13,6 +13,7 @@
 > Updated: 2026-06-10 (S019–S020 done — PRs #88–#90)
 > Updated: 2026-06-10 (S021 done — PR #91 T053 Shipmondo label + packaging autofill)
 > Updated: 2026-06-10 (S018 merged to `development` — PRs #86 `6d89f1b`, #87 `b0ade41`)
+> Updated: 2026-06-11 (S027–S034 added — M013 Admin Shell, M014 Platform Console, M015 Subscription System; ADR-011 Clerk auth)
 
 | ID | Milestone | Goal | Tasks | Status |
 |----|-----------|------|-------|--------|
@@ -42,6 +43,14 @@
 | S024 | M012 | SES domain identity (HITL) + BullMQ worker infrastructure | T057, T058 | planned |
 | S025 | M012 | order-confirmation template + order.placed subscriber + domain admin UI | T059, T061 | planned |
 | S026 | M012 | Remaining templates + branding UI + delivery history UI | T060, T062, T063 | planned |
+| S027 | M013 | Clerk auth integration (Store Admin) + AppShell + sidebar (HITL) | T064 | planned |
+| S028 | M013 | Settings landing page + route reorganisation + breadcrumbs | T065, T066 | planned |
+| S029 | M014 | Platform Console scaffold + Clerk auth + /platform/ backend skeleton (HITL) | T067 | planned |
+| S030 | M014 | Tenant management + BullMQ queue monitor (parallel) | T068, T069 | planned |
+| S031 | M014 | Email health + system metrics + audit log UI | T070 | planned |
+| S032 | M015 | subscription-module foundation: models, migrations, RLS, service, admin API | T071 | planned |
+| S033 | M015 | BullMQ renewal worker + subscription admin UI (parallel) | T072, T073 | planned |
+| S034 | M015 | Customer Club Stripe setup (HITL) + per-product member price UI (parallel) | T074, T075 | planned |
 
 ---
 
@@ -101,6 +110,29 @@
 
 - **S022:** T054 (model + API) → T055 (order detail UI) — sequential; T055 blocked by T054.
 - **PRD:** OQ-01 in `PRD-fulfillment-intelligence.md` — `shipment_packaging` join table in packaging-module.
+
+---
+
+## S027–S028 — M013 Admin Shell & Navigation
+
+- **S027:** T064 (Clerk auth + AppShell + sidebar) — solo, **HITL**. Operatøren opretter Clerk `mercflow-store-admin` + `mercflow-platform` apps og leverer API keys. Medusa admin JWT-middleware erstattes i fork.
+- **S028 group A:** T065 (settings landing + sub-nav + route reorganisation) og T066 (breadcrumbs + detail page wiring) — parallelt; begge blokkeret af T064, indbyrdes uafhængige.
+
+---
+
+## S029–S031 — M014 Platform Console
+
+- **S029:** T067 (console scaffold + Clerk + /platform/ backend) — solo, **HITL**. Kræver `mercflow-platform` Clerk app (oprettet i S027 HITL) + Hetzner IP allowlist.
+- **S030 group A:** T068 (tenant management + audit log) og T069 (BullMQ queue monitor) — parallelt; begge blokkeret af T067, indbyrdes uafhængige.
+- **S031:** T070 (email health + system metrics + audit log UI) — solo; blokkeret af T067 (backend routes); kan starte tidligt i S031 da T068/T069 er parallelle i S030.
+
+---
+
+## S032–S034 — M015 Subscription System
+
+- **S032:** T071 (subscription-module foundation) — solo; prerequisite for alt i M015.
+- **S033 group A:** T072 (BullMQ renewal worker) og T073 (subscription admin UI) — parallelt; begge blokkeret af T071, indbyrdes uafhængige.
+- **S034 group A:** T074 (Customer Club Stripe + settings UI — **HITL**) og T075 (per-produkt Club-pris) — parallelt; begge blokkeret af T071. T075 er AFK og kan starte straks T071 er done.
 
 ---
 

@@ -3144,5 +3144,468 @@ Merchant kan se leveringshistorik for alle transaktionelle emails og kan gensend
 
 ---
 
-<!-- Total: T001–T063 | AFK: 52 | HITL: 9 (T003, T008, T013, T023, T027, T033, T036, T053, T057) | Cancelled: T029 -->
-<!-- Sprints: S001–S026 | Milestones: M000–M012 -->
+---
+
+## M013 — Admin Shell & Navigation
+
+---
+
+## T064 — Clerk auth integration (Store Admin) + AppShell + sidebar navigation
+
+**Sprint:** S027
+**Milestone:** M013
+**Status:** todo
+**Mode:** HITL
+**Parallel group:** solo
+**Blocked by:** T063
+**Branch:** feature/S027/T064-clerk-auth-appshell-sidebar
+**PRD journey:** J001, J003 (PRD-admin-shell-navigation.md)
+**ADRs:** ADR-011
+
+### Slice objective
+
+Medusa's admin JWT-middleware er erstattet med Clerk JWT-validering. Merchants logger ind via Clerk (email + Google). Clerk `org_id` mappes til `store_id` og bruges af `TenantIsolationSubscriber`. AppShell leverer den nye sidebar med NavGroup/NavItem-hierarki, collapse til icon-rail, og mobil drawer.
+
+### HITL reason
+
+Kræver at operatøren opretter Clerk-konto + to apps (`mercflow-store-admin`, `mercflow-platform`), konfigurerer Google social provider, opretter JWT-template med `store_id`-claim, og uploader `CLERK_PUBLISHABLE_KEY` + `CLERK_SECRET_KEY` til `.env` / infra-secrets. Clerk-konto er gratis og tager ~5 minutter — ingen Google Cloud projekt kræves.
+
+### Layers in scope
+
+- **Fork:** `packages/medusa-fork/medusa/` — erstat Medusa admin JWT-middleware med Clerk JWT-validering via `@clerk/backend`. JWT-claim `org_id` → `TenantContext.run(orgId, next)`.
+- **Backend:** `apps/backend/` — `CLERK_SECRET_KEY` i env; `@clerk/backend` som dependency.
+- **UI:** `packages/admin-ui/` — `@clerk/react` provider wraps hele appen. `<SignIn>` component erstatter Medusa login-side. `useOrganization()` hook til aktiv store.
+- **UI:** AppShell component med struktureret sidebar:
+  - `NavGroup` (label + icon + children) og `NavItem` (icon, label, active state)
+  - Grupper: Home, Orders, Products (Products/Categories/Inventory), Customers, Content, Settings
+  - Collapse til 48px icon-rail (persisted i localStorage); tooltip on hover
+  - Mobil drawer ved < 768px (hamburger icon, overlay)
+- **Design tokens:** ingen nye — brug eksisterende surface + border tokens
+
+### Context / assumptions
+
+- Guapo Medusa admin user migreres manuelt til Clerk org (HITL step — agent kan skrive migrations-script men operatøren kører det).
+- Clerk JWT-template sættes op i Clerk dashboard (ikke i kode) — agent dokumenterer de nøjagtige felter i task-notes.
+- Mobil drawer bruger Radix Dialog eller Sheet primitive.
+- Ingen role-based navigation hiding i v1 (deferred).
+- Home viser placeholder: "Welcome to MercFlow" + 3 quick-action cards.
+
+### Definition of done
+
+- [ ] `POST /admin/` routes kræver Clerk JWT (Medusa JWT afvist med 401)
+- [ ] Merchant logger ind via Clerk `<SignIn>` → redirectes til admin
+- [ ] `org_id` fra JWT bruges korrekt som `store_id` i `TenantContext`
+- [ ] Sidebar viser alle 6 grupper med korrekte ruter
+- [ ] Collapse/expand persisted i localStorage — virker efter page reload
+- [ ] Mobil drawer åbner og lukker korrekt
+- [ ] Home placeholder vises ved `/`
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T065 — Settings landing page + sub-navigation + route reorganisation
+
+**Sprint:** S028
+**Milestone:** M013
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T064
+**Branch:** feature/S028/T065-settings-landing-sub-nav
+**PRD journey:** J001, J004 (PRD-admin-shell-navigation.md)
+**ADRs:** ADR-011
+
+### Slice objective
+
+Alle settings-sider er samlet under `/settings` med en landing page der viser sub-sektioner som klik-kort. Settings-navigationen i sidebar viser nested items (Shipping → Packaging / Carriers).
+
+### Layers in scope
+
+- **UI:** `packages/admin-ui/` — `/settings` landing page: grid af kort (icon, titel, beskrivelse, link) for alle sub-sektioner: General, Email, Shipping (→ Packaging, Carriers), Payments, Custom Data, SEO, Integrations, Store details
+- Settings sidebar sub-nav: NavGroup "Settings" med nested NavItems; Shipping-gruppen viser Packaging og Carriers som indrykkede children
+- Route reorganisation: eksisterende settings-sider flyttes til korrekte paths:
+  - `/settings/email` (M012 domain/branding/delivery)
+  - `/settings/shipping/packaging` (M010)
+  - `/settings/custom-data` (M008)
+  - `/settings/seo` (M001/M002)
+  - Gamle paths → redirect eller opdaterede NavItem links
+- No new pages created — existing pages moved/rewired only
+
+### Definition of done
+
+- [ ] `/settings` landing page viser ≥ 7 sub-sektion-kort med korrekte links
+- [ ] Settings sub-nav i sidebar viser Shipping med nested Packaging + Carriers
+- [ ] Alle eksisterende settings-sider tilgængelige via nye URL paths
+- [ ] Ingen 404 på kendte settings-routes
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T066 — Breadcrumb component + detail page wiring
+
+**Sprint:** S028
+**Milestone:** M013
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T064
+**Branch:** feature/S028/T066-breadcrumb-detail-pages
+**PRD journey:** J002 (PRD-admin-shell-navigation.md)
+
+### Slice objective
+
+Alle detail-sider og second-level sider har breadcrumbs der viser hierarki og linker tilbage til list med URL-state preserveret.
+
+### Layers in scope
+
+- **UI:** `packages/admin-ui/` — `<Breadcrumb>` base component: `items: { label: string; href?: string }[]`; renders som horizontal chain med separator; sidste item er ikke klikbar
+- Wire breadcrumbs ind på:
+  - Order detail: `Orders / #1234`
+  - Product detail: `Products / {product title}`
+  - Category detail: `Categories / {category name}`
+  - Settings sub-pages: `Settings / Email`, `Settings / Shipping / Packaging`
+- List-links i breadcrumbs bevarer URL params (filters, pagination) via `useSearchParams`
+
+### Definition of done
+
+- [ ] Breadcrumb vises på Order detail, Product detail, Category detail, alle settings sub-pages
+- [ ] Breadcrumb "Orders" link bevarer aktive filters via URL state
+- [ ] Keyboard navigerbar (links er korrekte `<a>` tags)
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## M014 — Platform Console
+
+---
+
+## T067 — Platform Console app scaffold + Clerk auth + `/platform/` backend skeleton
+
+**Sprint:** S029
+**Milestone:** M014
+**Status:** todo
+**Mode:** HITL
+**Parallel group:** solo
+**Blocked by:** T066
+**Branch:** feature/S029/T067-platform-console-scaffold
+**PRD journey:** — (PRD-platform-console.md)
+**ADRs:** ADR-011
+
+### Slice objective
+
+`apps/platform-console/` eksisterer som en kørende React+Vite app. Operators logger ind via Clerk (`mercflow-platform` app). `/platform/` API routes er scaffoldet med BYPASSRLS DB-forbindelse og Clerk JWT-validering. IP allowlist dokumenteret i Traefik-config.
+
+### HITL reason
+
+Kræver at operatøren tilføjer `mercflow-platform` Clerk app (gratis, ~2 min), konfigurerer `@mercflow.shop` email-domain check i kode, og angiver `PLATFORM_CLERK_PUBLISHABLE_KEY` + `PLATFORM_CLERK_SECRET_KEY`. Kræver desuden Traefik IP allowlist konfiguration på Hetzner.
+
+### Layers in scope
+
+- **New app:** `apps/platform-console/` — Vite + React + TypeScript + `@clerk/react`. Port 5174 i development.
+- **Auth:** `<ClerkProvider>` med `mercflow-platform` publishable key. `<SignIn>` komponent. Middleware: check at `user.primaryEmailAddress` ender på `@mercflow.shop` (app-level, ingen Clerk paid feature kræves).
+- **Layout:** Simpel shell — left sidebar (Tenants, Queues, Email, System, Audit), topbar med Clerk `<UserButton>`.
+- **Backend:** `apps/backend/` — ny route-fil `/platform/index.ts` mountet på `/platform/`. Separat `platformDb` connection der kører som `mercflow_owner` (BYPASSRLS). Clerk JWT-validering via `@clerk/backend` med `PLATFORM_CLERK_SECRET_KEY`.
+- **Infra:** `infra/traefik/` — IP allowlist middleware dokumenteret (ikke enforced i development — kun production).
+- **Design tokens:** `@mercflow/design-tokens` inkluderes — konsistent visuel stil uden at importere admin-ui components.
+
+### Definition of done
+
+- [ ] `apps/platform-console/` starter med `pnpm dev --filter @mercflow/platform-console`
+- [ ] Login via Clerk virker; ikke-@mercflow.shop emails afvises med 403
+- [ ] `/platform/` routes returnerer 401 uden Clerk JWT; 200 med gyldigt JWT
+- [ ] `platformDb` forbindelsen kører som `mercflow_owner` (BYPASSRLS verificeret via test-query)
+- [ ] Sidebar placeholder-sektioner renderes (Tenants, Queues, Email, System, Audit)
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T068 — Tenant management: list + provision + suspend + audit log
+
+**Sprint:** S030
+**Milestone:** M014
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T067
+**Branch:** feature/S030/T068-platform-tenant-management
+**PRD journey:** J001, J005 (PRD-platform-console.md)
+
+### Slice objective
+
+Operatorer kan se alle tenants, provisionere en ny tenant via UI (med progress log), og suspendere en eksisterende tenant. Alle handlinger logges i `platform_audit_log`.
+
+### Layers in scope
+
+- **DB:** `platform_audit_log` tabel (uden `store_id`, uden RLS — platform-level): `id`, `operator_email`, `action`, `entity_type`, `entity_id`, `metadata` (jsonb), `created_at`. DML i `apps/backend/` (ikke i et separat modul).
+- **Backend:** `/platform/tenants` routes: `GET` (list alle stores), `POST /provision` (kalder eksisterende provision-script internt), `PUT /:id/suspend` (sætter `is_disabled` + revokerer Publishable API keys), audit log entry ved alle writes.
+- **UI:** `apps/platform-console/` — Tenants side: tabel (store name, domain, status badge, created_at, actions dropdown). Provision form: shop name, domain, admin email, currency, timezone → progress log (Server-Sent Events eller polling). Suspend confirmation modal med reason-felt.
+
+### Definition of done
+
+- [ ] Tenant liste viser alle stores fra DB
+- [ ] Provision form opretter ny tenant end-to-end (calls provision script)
+- [ ] Suspend revokerer API keys og markerer store `is_disabled`
+- [ ] Audit log entry oprettes ved provision + suspend
+- [ ] `platform_audit_log` har ingen `store_id` kolonne (det er by design)
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T069 — BullMQ queue monitor: live stats + DLQ drill-down + manual retry
+
+**Sprint:** S030
+**Milestone:** M014
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T067
+**Branch:** feature/S030/T069-platform-queue-monitor
+**PRD journey:** J002 (PRD-platform-console.md)
+
+### Slice objective
+
+Operatorer kan se alle BullMQ køer med live job-counts, DLQ-størrelse markeret i rød, og kan drill-down på fejlede jobs med fuld error-detalje og manuel retry.
+
+### Layers in scope
+
+- **Backend:** `/platform/queues` routes: `GET` (alle køer med stats: active, waiting, completed_24h, failed, dlq_size via BullMQ `Queue` API), `GET /:name/jobs?status=failed` (job liste), `POST /:name/jobs/:id/retry` (re-enqueue job). Data polles fra BullMQ Redis-instansen (samme Redis som workers).
+- **UI:** `apps/platform-console/` — Queues side: kort per kø (navn, stats, DLQ badge rød hvis > 0). Klik → job-liste tabel (job ID, data preview, error message, attempts, created_at). Klik på job → full detail overlay med stack trace. Retry-knap med optimistisk UI.
+- **Polling:** client-side refresh hvert 10s via React Query eller SWR.
+
+### Definition of done
+
+- [ ] Alle aktive BullMQ køer vises med korrekte counts
+- [ ] DLQ > 0 vises tydeligt (rød badge)
+- [ ] Fejlet job viser full error message + stack trace
+- [ ] Retry enqueuer job igen (verificeres manuelt)
+- [ ] Data refreshes hvert 10s
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T070 — Email health + system metrics + audit log UI
+
+**Sprint:** S031
+**Milestone:** M014
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** B
+**Blocked by:** T067
+**Branch:** feature/S031/T070-platform-email-system-audit
+**PRD journey:** J003, J004 (PRD-platform-console.md)
+
+### Slice objective
+
+Operatorer kan søge i email-leveringshistorik på tværs af alle tenants, se system-sundhed (Hetzner CPU, Neon connections, Redis memory), og se audit log over operatør-handlinger.
+
+### Layers in scope
+
+- **Backend:** `/platform/email/deliveries` (cross-tenant søgning — `platformDb` BYPASSRLS), `/platform/email/domains` (SES status per tenant via notification-module `EmailConfig`), `/platform/system/metrics` (Hetzner Cloud API + Neon API + Redis `INFO` kommando), `/platform/audit` (læs `platform_audit_log`).
+- **UI:** `apps/platform-console/` — 
+  - Email side: søgefelt (email/order ID), tabel med tenant, recipient, template type, status, sent_at; row expand: SES error code + beskrivelse.
+  - System side: 6 metric-kort (Hetzner CPU %, RAM %, Neon connections, Redis used/max, uptime), refresh hvert 30s.
+  - Audit side: tabel (operator, action, entity, timestamp) med dato-filter.
+
+### Context / assumptions
+
+- Hetzner Cloud API: `GET /v1/servers/:id/metrics` — kræver `HETZNER_API_TOKEN` i env.
+- Neon API: `GET /v2/projects/:id/branches/:id/endpoints` → connection count. Kræver `NEON_API_KEY`.
+- Redis: `INFO memory` kommando via ioredis.
+
+### Definition of done
+
+- [ ] Cross-tenant email søgning returnerer korrekte rows (inkl. rows fra andre tenants)
+- [ ] System metrics refreshes hvert 30s med data fra Hetzner + Neon + Redis
+- [ ] Audit log viser actions fra T068 provision/suspend tests
+- [ ] Ingen `store_id` filter på platform routes (by design — cross-tenant)
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## M015 — Subscription System
+
+---
+
+## T071 — `subscription-module` foundation: models, migrations, RLS, service, admin API
+
+**Sprint:** S032
+**Milestone:** M015
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** solo
+**Blocked by:** T070
+**Branch:** feature/S032/T071-subscription-module-foundation
+**PRD journey:** J001 (PRD-subscription-system.md)
+
+### Slice objective
+
+`subscription-module` eksisterer med DML-modeller, migrationer, RLS, og et fuldt service-lag. Admin API routes lader merchant liste, hente, pause, cancel og resume subscriptions.
+
+### Layers in scope
+
+- **Module:** `packages/subscription-module/` — DML modeller:
+  - `subscription`: id, store_id, customer_id, product_id, variant_id, interval (enum), status (enum), stripe_subscription_id (nullable), current_period_start, current_period_end, next_renewal_at, cancelled_at, pause_requested_at
+  - `subscription_renewal_log`: id, subscription_id, order_id, amount, currency, status (enum), stripe_payment_intent_id (nullable), error_message, created_at
+  - `subscription_config`: id, store_id, club_enabled, club_stripe_product_id, club_price_monthly, club_price_annual, club_fallback_discount_pct, club_name
+- **Migrations:** Medusa DML tooling. Decision log comment. `down()` implementeret.
+- **RLS:** `store_id NOT NULL` + RLS policy på `subscription` og `subscription_config`. `subscription_renewal_log` scopes via subscription_id join (ikke direkte store_id).
+- **Service:** `MedusaService` extension. Metoder: `createSubscription`, `listSubscriptions`, `getSubscription`, `pauseSubscription`, `cancelSubscription`, `resumeSubscription`, `updateRenewalTimestamp`.
+- **Backend:** `/admin/subscriptions` routes: `GET` (list med filters: status, customer_id), `GET /:id` (detail + renewal log), `POST /:id/pause`, `POST /:id/cancel`, `POST /:id/resume`. Zod-validering på alle writes.
+- **Module registration:** subscription-module registreres i `apps/backend/medusa-config.ts`.
+
+### Definition of done
+
+- [ ] `pnpm migration:run` — nul fejl lokalt
+- [ ] RLS policy verificeret: anden tenant kan ikke se subscriptions
+- [ ] Alle 6 service-metoder har unit tests
+- [ ] Admin API routes returnerer korrekte svar (smoke test via curl)
+- [ ] `packages/subscription-module/README.md` oprettet med field definitions + API reference
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T072 — BullMQ renewal worker: cron + charge + failure handler + idempotency
+
+**Sprint:** S033
+**Milestone:** M015
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T071
+**Branch:** feature/S033/T072-subscription-renewal-worker
+**PRD journey:** J002 (PRD-subscription-system.md)
+**ADRs:** ADR-010
+
+### Slice objective
+
+BullMQ `subscription-renewal` kø i `apps/worker/` kører cron hvert time og processer forfaldne subscriptions: opretter Medusa draft order, opkræver via Stripe PaymentIntent, logger resultat, og sender notification-events ved succes og fejl.
+
+### Layers in scope
+
+- **Worker:** `apps/worker/` — ny kø `subscription-renewal`:
+  - `process-due-renewals` (cron job, hvert time): query `subscription WHERE next_renewal_at <= now() AND status = 'active'`; enqueue `charge-subscription` job per subscription
+  - `charge-subscription`: opret Medusa draft order for variant → opret Stripe PaymentIntent (idempotency key: `${subscription_id}_${next_renewal_at.toISOString()}`); ved succes: confirm order, advance `next_renewal_at`, log renewal_log (success); emit `subscription.renewed` event
+  - `handle-renewal-failure`: ved PaymentIntent failure: subscription status → `past_due`, log renewal_log (failed); emit `subscription.renewal_failed` event → notification-module trigger
+- **Notification events:** `subscription.renewed` og `subscription.renewal_failed` emittet via BullMQ event bus (ADR-010) — notification-module lytter (T060-scope).
+- **Idempotency:** duplicate `charge-subscription` job med samme idempotency key → Stripe returnerer existing PaymentIntent (ingen double-charge).
+
+### Definition of done
+
+- [ ] Cron job finder forfaldne subscriptions korrekt
+- [ ] Double-charge test: to jobs med samme idempotency key → kun ét Stripe opkald
+- [ ] Renewal log entry oprettes ved succes og fejl
+- [ ] `subscription.renewal_failed` event emittet og synligt i BullMQ queues
+- [ ] `pnpm test apps/worker/` grøn (unit tests på job-handlers med Stripe mocked)
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T073 — Subscription admin UI: list + detail + pause/cancel/resume
+
+**Sprint:** S033
+**Milestone:** M015
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T071
+**Branch:** feature/S033/T073-subscription-admin-ui
+**PRD journey:** J003 (PRD-subscription-system.md)
+
+### Slice objective
+
+Merchants kan se og administrere alle subscriptions fra Store Admin — søge efter kunde, se renewal-log, og pause/cancel/resume med ét klik.
+
+### Layers in scope
+
+- **UI:** `packages/admin-ui/` — Subscriptions side (under Customers i M013 sidebar):
+  - Liste: tabel (customer email, product/variant, interval badge, status badge, next renewal date, actions dropdown)
+  - Søgning: customer email input
+  - Status filter: Active / Paused / Cancelled / Past Due
+  - Detail side: subscription info header + renewal log tabel (date, amount, status, order link)
+  - Actions: Pause (confirm modal med optional resume-date picker), Cancel (confirm modal), Resume (direkte)
+  - Optimistisk UI på status-skift
+- **Navigation:** Subscriptions NavItem tilføjes under Customers i AppShell (T064) ved `import` af route
+
+### Definition of done
+
+- [ ] Subscription liste viser korrekte data for test-subscriptions
+- [ ] Pause → status skifter til Paused; Resume → Active
+- [ ] Cancel → status Cancelled (irreversibel — confirm modal)
+- [ ] Renewal log viser historik per subscription
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T074 — Customer Club: Stripe webhook + `club_members` group activation + Settings config UI
+
+**Sprint:** S034
+**Milestone:** M015
+**Status:** todo
+**Mode:** HITL
+**Parallel group:** A
+**Blocked by:** T071
+**Branch:** feature/S034/T074-customer-club-stripe-setup
+**PRD journey:** J004, J005 (PRD-subscription-system.md)
+
+### HITL reason
+
+Kræver Stripe webhook endpoint opsat med HMAC-signatur verificering, og live Stripe product ID til club membership oprettet i Stripe dashboard. Kræver `STRIPE_CLUB_WEBHOOK_SECRET` og `STRIPE_SECRET_KEY` i env.
+
+### Slice objective
+
+Merchants kan konfigurere en Customer Club (navn, månedspris, fallback % rabat). Stripe-webhook aktiverer/deaktiverer `club_members` customer_group for kunden ved membership-oprettelse og -annullering.
+
+### Layers in scope
+
+- **Backend:** `/store/club-membership/webhook` — Stripe webhook handler. HMAC verification (`stripe.webhooks.constructEvent`). Events: `customer.subscription.created` (→ add to club_members group), `customer.subscription.deleted` (→ remove from group). Idempotency: check om customer allerede i group før add.
+- **Backend:** `/admin/subscription-config` — `GET` og `PUT` routes for `subscription_config` (club_enabled, club_name, club_price_monthly, club_price_annual, club_fallback_discount_pct). Kaller Stripe API for at oprette/opdatere Stripe Product+Price ved save.
+- **UI:** `packages/admin-ui/` — Settings → Subscriptions side: toggle "Enable Customer Club", form (club name, monthly price, annual price, fallback discount %). Save opretter/opdaterer Stripe Product. Readonly preview: "Customers see X DKK/month or Y DKK/year".
+
+### Definition of done
+
+- [ ] Stripe webhook HMAC verification virker (test med `stripe listen --forward-to`)
+- [ ] `customer.subscription.created` → customer tilføjet til `club_members` group inden 30s
+- [ ] `customer.subscription.deleted` → customer fjernet fra group
+- [ ] Settings form gemmer `subscription_config` korrekt
+- [ ] Stripe Product oprettes via API (ikke hardkodet product ID)
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T075 — Per-produkt Club-pris: Product → Pricing tab + Medusa price_list upsert
+
+**Sprint:** S034
+**Milestone:** M015
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T071
+**Branch:** feature/S034/T075-product-club-price-ui
+**PRD journey:** J006 (PRD-subscription-system.md)
+
+### Slice objective
+
+Merchants kan sætte en eksplicit Club-pris på et produkt direkte fra Product-formularen → Pricing-tab. Club-prisen gemmes som Medusa price_list entry knyttet til `club_members` customer_group og returneres korrekt via Medusa's pricing API.
+
+### Layers in scope
+
+- **UI:** `packages/admin-ui/` — Product detail → Pricing tab: ny sektion "Club member price" (kun synlig når `subscription_config.club_enabled = true`). Felt per variant: "Member price (DKK)". Placeholder: "No member price — fallback discount applies".
+- **Backend:** `PUT /admin/products/:id/club-pricing` — Zod-valideret body `{ variant_id, amount, currency_code }`. Upsert Medusa price_list entry for `club_members` customer_group. `DELETE /admin/products/:id/club-pricing/:variant_id` — fjern explicit member price (fallback % aktiveres igen).
+
+### Definition of done
+
+- [ ] Club member price felt vises kun når club er aktiveret
+- [ ] Gem → Medusa price_list entry oprettet/opdateret korrekt
+- [ ] Medusa's `GET /store/products/:id` returnerer korrekt pris ved `customer_group_id=club_members` i context
+- [ ] Slet member price → fallback % aktiveres (verificeret via store pricing API)
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+<!-- Total: T001–T075 | AFK: 59 | HITL: 12 (T003, T008, T013, T023, T027, T033, T036, T053, T057, T064, T067, T074) | Cancelled: T029 -->
+<!-- Sprints: S001–S034 | Milestones: M000–M015 -->

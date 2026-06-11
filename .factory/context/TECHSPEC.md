@@ -211,6 +211,7 @@ BDD: optional under `.factory/specs/` — link to PRD journeys when used.
 | [ADR-008](ADR/ADR-008-metafield-storage-model.md) | 2026-06-10 | Metafield storage: typed columns + `is_primary` two-tier form presentation | accepted |
 | [ADR-009](ADR/ADR-009-notification-ses-per-tenant.md) | 2026-06-11 | Notification: Amazon SES per-tenant domain identities + BullMQ + React Email | accepted |
 | [ADR-010](ADR/ADR-010-bullmq-platform-event-bus.md) | 2026-06-11 | BullMQ replaces Medusa's default event bus platform-wide; `apps/worker/` separate process | accepted |
+| [ADR-011](ADR/ADR-011-authentication-strategy.md) | 2026-06-11 | Clerk (free) for Store Admin (org = store, JWT org_id → store_id) + Platform Console; Medusa native for customers | accepted |
 | PRD-api-hardening | 2026-06-08 | API hardening: pagination max, error shape, /v1/ store route versioning — see PRD-api-hardening.md | accepted |
 
 ---

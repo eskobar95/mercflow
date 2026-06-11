@@ -8,6 +8,7 @@
 > Updated: 2026-06-10 (M008–M010 marked done; S019–S021 + PR #93 merged)
 > Updated: 2026-06-10 (S018 merged to `development` — PRs #86 `6d89f1b`, #87 `b0ade41`; M009 ready for milestone review)
 > Updated: 2026-06-11 (M013, M014, M015 added — `/to-prd` session)
+> Updated: 2026-06-11 (M013–M015 sprints + tasks added — `/to-backlog`; ADR-011 Clerk auth)
 
 ---
 
@@ -414,20 +415,30 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 
 ## M013 — Admin Shell & Navigation
 
-**Outcome:** Merchants can find any feature in ≤ 2 clicks. The sidebar groups features into clear domains (Orders, Products, Customers, Content, Settings). Settings has a landing page with sub-section cards. Breadcrumbs on all detail pages. Sidebar collapses to icon-only on medium viewports and to a drawer on mobile.
+**Outcome:** Merchants can find any feature in ≤ 2 clicks. The sidebar groups features into clear domains (Orders, Products, Customers, Content, Settings). Settings has a landing page with sub-section cards. Breadcrumbs on all detail pages. Sidebar collapses to icon-only on medium viewports and to a drawer on mobile. Medusa admin JWT replaced by Clerk (ADR-011).
 
 **PRD:** `.factory/context/PRD-admin-shell-navigation.md`
+**ADR:** ADR-011 (authentication strategy — Clerk)
 
-**Sprints in this milestone:** TBD — awaiting `/to-backlog`
+**Sprints in this milestone:**
+
+| Sprint | Goal | Tasks | Status |
+|--------|------|-------|--------|
+| S027 | Clerk auth integration + AppShell + sidebar (HITL) | T064 | planned |
+| S028 | Settings landing + sub-nav + breadcrumbs | T065, T066 | planned |
 
 **Dependencies:** M012 (Settings → Email must exist before navigation reorganisation)
 
+**HITL gate (T064):** Operator creates two Clerk apps (`mercflow-store-admin`, `mercflow-platform`) + configures Google social provider + sets up JWT template with `store_id` claim. Clerk free tier. ~5 min setup, no Google Cloud required.
+
 **Definition of done:**
-- [ ] Sidebar groups: Home, Orders, Products, Categories, Inventory, Customers, Content, Settings
-- [ ] Settings landing page with cards for all sub-sections (General, Email, Shipping, Payments, Custom Data, SEO, Integrations, Store details)
-- [ ] Breadcrumbs on all detail pages (Order #1234, Product name, etc.)
-- [ ] Sidebar collapse persisted in localStorage; icon-only mode shows tooltips
-- [ ] Mobile drawer at < 768px viewport
+- [ ] Medusa admin JWT middleware replaced by Clerk JWT validation in fork (T064)
+- [ ] `org_id` JWT claim used as `store_id` for RLS (T064)
+- [ ] Sidebar groups: Home, Orders, Products (Products/Categories/Inventory), Customers, Content, Settings (T064)
+- [ ] Settings landing page with cards for all sub-sections (T065)
+- [ ] Breadcrumbs on all detail pages — Order #1234, Product name, Category name (T066)
+- [ ] Sidebar collapse persisted in localStorage; icon-only mode shows tooltips (T064)
+- [ ] Mobile drawer at < 768px viewport (T064)
 - [ ] `pnpm react-doctor:admin-ui` 0 issues
 - [ ] `/milestone-review M013` grøn
 
@@ -440,9 +451,15 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 **PRD:** `.factory/context/PRD-platform-console.md`
 **ADR:** ADR-010 (BullMQ event bus — covers queue observability foundation)
 
-**Architecture:** Separate React + Vite app at `apps/platform-console/`. Backend `/platform/` API routes bypass tenant RLS.
+**Architecture:** Separate React + Vite app at `apps/platform-console/`. Backend `/platform/` API routes bypass tenant RLS. Auth: separate Clerk app `mercflow-platform` with `@mercflow.shop` domain restriction.
 
-**Sprints in this milestone:** TBD — awaiting `/to-backlog`
+**Sprints in this milestone:**
+
+| Sprint | Goal | Tasks | Status |
+|--------|------|-------|--------|
+| S029 | Console scaffold + Clerk auth + /platform/ backend skeleton (HITL) | T067 | planned |
+| S030 | Tenant management + BullMQ queue monitor (parallel) | T068, T069 | planned |
+| S031 | Email health + system metrics + audit log UI | T070 | planned |
 
 **Dependencies:** M013 (navigation patterns established), M012 (BullMQ + notification infrastructure active)
 
@@ -466,7 +483,13 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 
 **Architecture:** New `packages/subscription-module` (DML). New `subscription-renewal` BullMQ queue in `apps/worker`. Pricing via Medusa `price_list` + `customer_group`.
 
-**Sprints in this milestone:** TBD — awaiting `/to-backlog`
+**Sprints in this milestone:**
+
+| Sprint | Goal | Tasks | Status |
+|--------|------|-------|--------|
+| S032 | subscription-module foundation: models, migrations, RLS, service, admin API | T071 | planned |
+| S033 | BullMQ renewal worker + subscription admin UI (parallel) | T072, T073 | planned |
+| S034 | Customer Club Stripe setup (HITL) + per-product member price (parallel) | T074, T075 | planned |
 
 **Dependencies:** M014 (BullMQ + Stripe infrastructure patterns), M012 (notification emails for subscription events)
 
