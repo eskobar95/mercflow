@@ -95,6 +95,7 @@ interface ISESClient {
 |--------|------|-------------|
 | GET | `/admin/notification-config` | Get or create email config (`?store_id=`) |
 | PUT | `/admin/notification-config/branding` | Update logo, color, from_name, reply_to, support_email |
+| GET | `/admin/notification-config/preview/:template` | Render HTML preview (`order-confirmation`; optional branding query overrides) |
 | GET | `/admin/email-deliveries` | List deliveries (`?limit&offset&store_id=`) |
 | POST | `/admin/email-deliveries/:id/resend` | Resend a delivery (202 Accepted) |
 

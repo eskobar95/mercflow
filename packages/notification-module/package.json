@@ -13,6 +13,7 @@
     "./mercflow-admin-notification-config-branding-api": "./src/integrations/mercflow-admin-notification-config-branding-api.ts",
     "./mercflow-admin-notification-config-domain-api": "./src/integrations/mercflow-admin-notification-config-domain-api.ts",
     "./mercflow-admin-notification-config-domain-status-api": "./src/integrations/mercflow-admin-notification-config-domain-status-api.ts",
+    "./mercflow-admin-notification-config-preview-api": "./src/integrations/mercflow-admin-notification-config-preview-api.ts",
     "./mercflow-admin-email-deliveries-api": "./src/integrations/mercflow-admin-email-deliveries-api.ts",
     "./mercflow-admin-email-deliveries-resend-api": "./src/integrations/mercflow-admin-email-deliveries-resend-api.ts"
   },
