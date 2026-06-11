@@ -11,7 +11,8 @@
     "./mercflow-customer-subscriptions-api": "./src/integrations/mercflow-customer-subscriptions-api.ts",
     "./mercflow-subscriptions-pause-api": "./src/integrations/mercflow-subscriptions-pause-api.ts",
     "./mercflow-subscriptions-cancel-api": "./src/integrations/mercflow-subscriptions-cancel-api.ts",
-    "./mercflow-subscriptions-resume-api": "./src/integrations/mercflow-subscriptions-resume-api.ts"
+    "./mercflow-subscriptions-resume-api": "./src/integrations/mercflow-subscriptions-resume-api.ts",
+    "./mercflow-product-club-pricing-api": "./src/integrations/mercflow-product-club-pricing-api.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
