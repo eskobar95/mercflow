@@ -3365,12 +3365,12 @@ Operatorer kan se alle tenants, provisionere en ny tenant via UI (med progress l
 
 ### Definition of done
 
-- [ ] Tenant liste viser alle stores fra DB
-- [ ] Provision form opretter ny tenant end-to-end (calls provision script)
-- [ ] Suspend revokerer API keys og markerer store `is_disabled`
-- [ ] Audit log entry oprettes ved provision + suspend
-- [ ] `platform_audit_log` har ingen `store_id` kolonne (det er by design)
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] Tenant liste viser alle stores fra DB
+- [x] Provision form opretter ny tenant end-to-end (calls provision script)
+- [x] Suspend revokerer API keys og markerer store `is_disabled`
+- [x] Audit log entry oprettes ved provision + suspend
+- [x] `platform_audit_log` har ingen `store_id` kolonne (det er by design)
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 
@@ -3378,11 +3378,12 @@ Operatorer kan se alle tenants, provisionere en ny tenant via UI (med progress l
 
 **Sprint:** S030
 **Milestone:** M014
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T067
 **Branch:** feature/S030/T069-platform-queue-monitor
+**PR:** https://github.com/eskobar95/mercflow/pull/112
 **PRD journey:** J002 (PRD-platform-console.md)
 
 ### Slice objective
