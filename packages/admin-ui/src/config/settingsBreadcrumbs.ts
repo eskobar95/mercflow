@@ -45,3 +45,7 @@ export function settingsConnectorBreadcrumbs(connectorLabel: string): Breadcrumb
     { label: connectorLabel },
   ]
 }
+
+export function settingsEmailBreadcrumbs(): BreadcrumbItem[] {
+  return settingsBreadcrumb("Email")
+}
