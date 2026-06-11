@@ -4,6 +4,102 @@
 
 ---
 
+## Sprint retro — S026 — 2026-06-11
+
+**Milestone:** M012
+**Duration:** session
+**Tasks:** 2/3 done, 1 blocked (T060)
+
+### What went well
+- T062 og T063 kørt parallelt med grøn CI på begge PRs (#105, #106)
+- Email settings shell etableret; branding preview API tilføjet i notification-module (T062)
+- Delivery history tab med pagination, resend og expandable errors (T063)
+
+### What failed or slowed down
+- T060 ikke dispatchbar — blokeret af T059 (S025, afhænger af T058 worker infrastructure)
+- Harness preflight refererer stadig til `dev`; repo bruger `development`
+- Parallel T062/T063 risikerer merge-konflikt på EmailSettingsPage — koordiner merge-rækkefølge
+
+### Task log index
+| Task | Final status | PR |
+|------|--------------|-----|
+| T060 | blocked (T059) | — |
+| T062 | done | #106 |
+| T063 | done | #105 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T062 | 1 | eslint/react-doctor fixes |
+| T063 | 1 | initial implementation |
+
+### Harness notes
+- Parallel groups used: A (2 subagents: T062 + T063)
+- Subagent issues: none — both returned valid YAML with CI pass
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Document `development` as base branch in harness preflight | skills/harness/harness/SKILL.md |
+| planning | Mark T060 explicitly skipped in S026 run when T059 pending | .factory/planning/sprints.md |
+
+### Next actions
+- [ ] Merge PR #105 then #106 (eller rebase T062 på T063) til `development`
+- [ ] `/run-sprint S025` eller `/run-task T059` for at unblock T060
+- [ ] `/run-task T060` efter T059 merged
+
+---
+
+## Task T063 — Email delivery history UI — 2026-06-11
+
+**Sprint:** S026 | **Milestone:** M012 | **Status:** done
+**Branch:** `feature/S026/T063-email-delivery-history-ui`
+**PR:** https://github.com/eskobar95/mercflow/pull/105
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+EmailSettingsPage shell with Delivery history tab — paginated table, status badges, expandable errors, resend, and /settings/email route wired.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+T064 (already done)
+
+---
+
+## Task T062 — Email branding UI + preview modal — 2026-06-11
+
+**Sprint:** S026 | **Milestone:** M012 | **Status:** done
+**Branch:** `feature/S026/T062-email-branding-ui`
+**PR:** https://github.com/eskobar95/mercflow/pull/106
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Email settings branding tab with HTTPS validation, debounced preview, modal HTML preview, and notification-module preview API.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+none
+
+---
+
 ## 2026-06-04 — Sprint S004 merged to development
 
 **PR:** https://github.com/eskobar95/mercflow/pull/62  
@@ -1412,3 +1508,97 @@ T057, T058, T062, T063
 **Approver:** human
 **Note:** `mail.mercflow.shop` verified in SES (eu-north-1); IAM user `mercflow` with keys in `apps/backend/.env`; production SES (50k/day quota, no sandbox banner). Fallback domain corrected to `mercflow.shop` (not `.com`).
 **Next:** `/run-sprint S024` (T057 + T058 parallel)
+
+---
+
+## Task T057 — SES domain identity management — 2026-06-11
+
+**Sprint:** S024 | **Milestone:** M012 | **Status:** done
+**Branch:** `cursor/s024-t057-ses-domain-identity-dc6a`
+**PR:** https://github.com/eskobar95/mercflow/pull/104
+**Mode:** AFK (HITL approved)
+**Parallel group:** A
+
+### Outcome
+SES domain identity via sesv2 client, setupDomain/checkDomainStatus, dns_records migration, admin domain routes, and 15min BullMQ polling worker
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 2 |
+
+### Unblocked
+T061
+
+---
+
+## Task T058 — BullMQ notification worker infrastructure — 2026-06-11
+
+**Sprint:** S024 | **Milestone:** M012 | **Status:** done
+**Branch:** `cursor/s024-t058-notification-worker-dc6a`
+**PR:** https://github.com/eskobar95/mercflow/pull/103
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+BullMQ notification worker with retry/DLQ, React Email template renderer, backend bootstrap, unit tests, and RUNBOOK DLQ monitoring
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+T059
+
+---
+
+## Sprint retro — S024 — 2026-06-11
+
+**Milestone:** M012
+**Duration:** session
+**Tasks:** 2/2 done, 0 blocked
+
+### What went well
+- T057 og T058 kørte parallelt uden merge-konflikter
+- HITL checkpoint for T057 var klar inden sprint-start
+- Begge PRs med grøn CI (lint, test, typecheck, backend migrations)
+
+### What failed or slowed down
+- T057 krævede 2 revision cycles (sesv2 API + dns_records migration)
+- PR #103 Playwright smoke hang i pending længe efter øvrige checks var grønne
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T057 | done | Task T057 — 2026-06-11 |
+| T058 | done | Task T058 — 2026-06-11 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T057 | 2 | sesv2 client + migration fix |
+| T058 | 1 | CI fix iteration 1 |
+
+### Harness notes
+- Parallel groups used: A (T057 + T058)
+- Subagent issues: none
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Document `development` as base branch (not `dev`) in implement/close/harness preflight | skills/harness/implement/SKILL.md |
+| command | Note cloud agent branch prefix `cursor/*-dc6a` vs task metadata `feature/S*` | commands/harness/run-sprint.md |
+
+### Next actions
+- [ ] Merge PR #103 + #104 to `development`
+- [ ] `/run-sprint S025` — T059 (order-confirmation) + T061 (Domain admin UI)
+- [ ] Human: review open PRs on `development`

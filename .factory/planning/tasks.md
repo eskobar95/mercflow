@@ -2851,14 +2851,15 @@ Order detail gemmer merchant's packaging-valg (suggestion accept eller override)
 
 **Sprint:** S024
 **Milestone:** M012
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **HITL approved:** 2026-06-11 — mail.mercflow.shop verified (eu-north-1); IAM user mercflow + AWS_* in apps/backend/.env; production SES (50k/day quota, no sandbox banner)
 **HITL reason:** AWS SES account prerequisites kræver menneskelig handling inden T057 kan køre end-to-end: (1) IAM-bruger med SES send+identity permissions, (2) SES sandbox exit for production sending, (3) `mail.mercflow.shop` verificeret som fallback sending domain (PRD OQ-04)
 **Parallel group:** A
 **Blocked by:** none
 **Unblocked by:** T056 (PR #97 merged `d7194a4`)
-**Branch:** feature/S024/T057-ses-domain-identity
+**Branch:** cursor/s024-t057-ses-domain-identity-dc6a
+**PR:** #104
 **PRD journey:** J001 (PRD-notification-system.md)
 **ADRs:** ADR-009
 
@@ -3083,12 +3084,13 @@ Merchant kan konfigurere og verificere deres sending domain i admin. DNS records
 
 **Sprint:** S026
 **Milestone:** M012
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Unblocked by:** T056 (PR #97 merged `d7194a4`)
 **Branch:** feature/S026/T062-email-branding-ui
+**PR:** https://github.com/eskobar95/mercflow/pull/106
 **PRD journey:** J002 (PRD-notification-system.md)
 
 ### Slice objective
@@ -3117,12 +3119,13 @@ Merchant kan tilpasse emailbranding (logo, farve, butiksnavns, reply-to, support
 
 **Sprint:** S026
 **Milestone:** M012
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Unblocked by:** T056 (PR #97 merged `d7194a4`)
 **Branch:** feature/S026/T063-email-delivery-history-ui
+**PR:** https://github.com/eskobar95/mercflow/pull/105
 **PRD journey:** J004 (PRD-notification-system.md)
 
 ### Slice objective
