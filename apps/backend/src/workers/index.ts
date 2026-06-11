@@ -1,10 +1,23 @@
 import type { MedusaContainer } from "@medusajs/framework"
+import { registerNotificationTemplates } from "@mercflow/notification-module/templates"
 
 import {
   startNotificationWorker,
   stopNotificationWorker,
+  templateRegistry,
   type NotificationWorkerHandle,
 } from "./notification-worker"
+
+let templatesRegistered = false
+
+function ensureNotificationTemplatesRegistered(): void {
+  if (templatesRegistered) {
+    return
+  }
+
+  registerNotificationTemplates(templateRegistry)
+  templatesRegistered = true
+}
 
 let activeHandle: NotificationWorkerHandle | null = null
 let shutdownHooksRegistered = false
@@ -28,6 +41,7 @@ export async function startWorkers(container: MedusaContainer): Promise<void> {
     return
   }
 
+  ensureNotificationTemplatesRegistered()
   activeHandle = await startNotificationWorker(container)
   registerShutdownHooks()
 }

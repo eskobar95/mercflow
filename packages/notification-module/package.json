@@ -7,6 +7,7 @@
   "main": "src/modules/notification/index.ts",
   "exports": {
     ".": "./src/modules/notification/index.ts",
+    "./templates": "./src/templates/index.ts",
     "./types": "./src/modules/notification/types.ts",
     "./ses-client": "./src/modules/notification/ses-client.ts",
     "./mercflow-admin-notification-config-api": "./src/integrations/mercflow-admin-notification-config-api.ts",
@@ -19,6 +20,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "email:preview": "tsx scripts/email-preview.ts",
     "test": "vitest run",
     "db:generate": "medusa db:generate notification",
     "db:migrate": "medusa db:migrate",
@@ -31,13 +33,18 @@
     "@medusajs/medusa": "workspace:*",
     "@medusajs/types": "workspace:*",
     "@medusajs/utils": "workspace:*",
+    "@react-email/components": "^0.0.31",
+    "@react-email/render": "^1.0.4",
     "bullmq": "5.13.0",
     "ioredis": "^5.4.2",
+    "react": "^18.3.1",
     "zod": "^4.0.0"
   },
   "devDependencies": {
     "@medusajs/cli": "workspace:*",
     "@types/node": "^22.10.1",
+    "@types/react": "^18.3.18",
+    "tsx": "^4.20.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
     "vitest": "^3.2.0"
