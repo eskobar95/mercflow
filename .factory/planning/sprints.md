@@ -14,7 +14,7 @@
 > Updated: 2026-06-10 (S021 done — PR #91 T053 Shipmondo label + packaging autofill)
 > Updated: 2026-06-10 (S018 merged to `development` — PRs #86 `6d89f1b`, #87 `b0ade41`)
 > Updated: 2026-06-11 (S027–S034 added — M013 Admin Shell, M014 Platform Console, M015 Subscription System; ADR-011 Clerk auth)
-> Updated: 2026-06-11 (S027 done — T064 Clerk auth + AppShell; PR pending merge to development)
+> Updated: 2026-06-11 (S027 done — T064 Clerk auth + AppShell; PR #96 merged `3fe6dc0`)
 
 | ID | Milestone | Goal | Tasks | Status |
 |----|-----------|------|-------|--------|
