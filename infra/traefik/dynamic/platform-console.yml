@@ -1,0 +1,49 @@
+# Platform Console (T067) — production routing + IP allowlist
+#
+# Enforced on Hetzner only when this file is deployed with docker compose.
+# Local development (Vite :5174, Medusa :9000) does not load Traefik.
+#
+# Before production deploy:
+#   1. Add operator home/office IPs to `sourceRange` below.
+#   2. Ensure DNS: console.mercflow.shop → Hetzner VPS (46.225.226.143).
+#   3. Add a `platform-console` service to infra/docker-compose.yml when the
+#      static console build is containerised (T067 scaffold documents only).
+#
+# See infra/RUNBOOK.md — "Platform Console access".
+
+http:
+  middlewares:
+    platform-console-ipallowlist:
+      ipAllowList:
+        sourceRange:
+          - "46.225.226.143/32"
+          # Operator workstations (add /32 CIDRs as needed):
+          # - "203.0.113.10/32"
+
+  routers:
+    platform-console:
+      rule: Host(`console.mercflow.shop`)
+      entryPoints:
+        - websecure
+      middlewares:
+        - platform-console-ipallowlist
+      service: platform-console
+      tls:
+        certResolver: letsencrypt
+
+    platform-api:
+      rule: Host(`api.mercflow.shop`) && PathPrefix(`/platform`)
+      entryPoints:
+        - websecure
+      middlewares:
+        - platform-console-ipallowlist
+      service: medusa
+      priority: 100
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    platform-console:
+      loadBalancer:
+        servers:
+          - url: http://platform-console:80

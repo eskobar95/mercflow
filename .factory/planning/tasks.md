@@ -3304,13 +3304,14 @@ Alle detail-sider og second-level sider har breadcrumbs der viser hierarki og li
 
 **Sprint:** S029
 **Milestone:** M014
-**Status:** todo
-**Mode:** HITL
+**Status:** in-progress
+**Mode:** AFK
 **Parallel group:** solo
 **Blocked by:** T066
 **Branch:** feature/S029/T067-platform-console-scaffold
 **PRD journey:** — (PRD-platform-console.md)
 **ADRs:** ADR-011
+**HITL approved:** 2026-06-11 — Traefik allowlist documented as part of T067 implementering; Clerk mercflow-platform keys in local .env; Hetzner deploy efter PR merge
 
 ### Slice objective
 

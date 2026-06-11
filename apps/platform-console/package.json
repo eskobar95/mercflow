@@ -1,0 +1,36 @@
+{
+  "name": "@mercflow/platform-console",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MercFlow internal Platform Console — operator tool for cross-tenant operations",
+  "type": "module",
+  "scripts": {
+    "prebuild": "pnpm --filter @mercflow/design-tokens build",
+    "build": "vite build",
+    "dev": "vite --port 5174 --strictPort",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@clerk/react": "^6.9.0",
+    "@mercflow/design-tokens": "workspace:*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "6.30.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.15",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10",
+    "vitest": "^3.2.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

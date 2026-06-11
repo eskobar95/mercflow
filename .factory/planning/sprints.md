@@ -49,7 +49,7 @@
 | S026 | M012 | Remaining templates + branding UI + delivery history UI | T060, T062, T063 | planned |
 | S027 | M013 | Clerk auth integration (Store Admin) + AppShell + sidebar (HITL) | T064 | done |
 | S028 | M013 | Settings landing page + route reorganisation + breadcrumbs | T065, T066 | planned |
-| S029 | M014 | Platform Console scaffold + Clerk auth + /platform/ backend skeleton (HITL) | T067 | planned |
+| S029 | M014 | Platform Console scaffold + Clerk auth + /platform/ backend skeleton (HITL) | T067 | active |
 | S030 | M014 | Tenant management + BullMQ queue monitor (parallel) | T068, T069 | planned |
 | S031 | M014 | Email health + system metrics + audit log UI | T070 | planned |
 | S032 | M015 | subscription-module foundation: models, migrations, RLS, service, admin API | T071 | planned |
