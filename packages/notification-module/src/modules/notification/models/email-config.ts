@@ -14,6 +14,7 @@ export const MercflowEmailConfig = model
     ses_domain_status: model.enum(["pending", "verified", "failed"]).default("pending"),
     ses_identity_arn: model.text().nullable(),
     fallback_from: model.text().nullable(),
+    dns_records: model.json().nullable(),
   })
   .indexes([
     {

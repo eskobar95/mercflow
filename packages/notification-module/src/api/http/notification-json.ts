@@ -14,6 +14,7 @@ export function emailConfigToAdminJson(config: EmailConfigRecord): Record<string
     ses_domain_status: config.ses_domain_status,
     ses_identity_arn: config.ses_identity_arn,
     fallback_from: config.fallback_from,
+    dns_records: config.dns_records,
     created_at: config.created_at,
     updated_at: config.updated_at,
   }

@@ -9,6 +9,23 @@ export const EMAIL_DELIVERY_STATUSES = [
 ] as const
 export type EmailDeliveryStatus = (typeof EMAIL_DELIVERY_STATUSES)[number]
 
+export type DkimCnameRecord = {
+  type: "CNAME"
+  name: string
+  value: string
+}
+
+export type SpfTxtRecord = {
+  type: "TXT"
+  name: string
+  value: string
+}
+
+export type DomainDnsRecords = {
+  dkim: DkimCnameRecord[]
+  spf: SpfTxtRecord
+}
+
 export type EmailConfigRecord = {
   id: string
   store_id: string
@@ -22,9 +39,23 @@ export type EmailConfigRecord = {
   ses_domain_status: SesDomainStatus
   ses_identity_arn: string | null
   fallback_from: string | null
+  dns_records: DomainDnsRecords | null
   created_at: string | Date
   updated_at: string | Date
   deleted_at: string | Date | null
+}
+
+export type SetupDomainResult = {
+  domain: string
+  records: DomainDnsRecords
+  ses_domain_status: SesDomainStatus
+  fallback_from: string
+}
+
+export type DomainStatusResult = {
+  status: SesDomainStatus
+  records: DomainDnsRecords | null
+  fallback_from: string
 }
 
 export type EmailDeliveryRecord = {
@@ -78,6 +109,9 @@ export const NOTIFICATION_MODULE = "notification"
 export const NOTIFICATION_QUEUE_NAME = "mercflow:notifications"
 export const NOTIFICATION_DLQ_NAME = "mercflow:notifications:dead"
 export const SEND_EMAIL_JOB_NAME = "send-email"
+export const CHECK_PENDING_DOMAINS_JOB_NAME = "check-pending-domains"
+export const DOMAIN_STATUS_POLL_INTERVAL_MS = 15 * 60 * 1000
+export const DOMAIN_STATUS_POLL_SCHEDULER_ID = "notification-domain-status-poll"
 
 export const NOTIFICATION_JOB_RETRY_OPTIONS = {
   attempts: 3,
@@ -97,4 +131,4 @@ export type TemplateProps = Record<string, unknown> & {
   supportEmail?: string | null
 }
 
-export const DEFAULT_FALLBACK_FROM = "noreply@mail.mercflow.com"
+export const DEFAULT_FALLBACK_FROM = "noreply@mail.mercflow.shop"

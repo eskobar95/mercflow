@@ -38,6 +38,7 @@ describe("NotificationModuleService.enqueueEmail idempotency", (): void => {
         .mockResolvedValueOnce(null)
         .mockResolvedValueOnce({ id: jobId }),
       addSendEmailJob: vi.fn().mockResolvedValue(undefined),
+      scheduleDomainStatusPolling: vi.fn().mockResolvedValue(undefined),
     }
 
     vi.spyOn(

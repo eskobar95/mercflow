@@ -11,6 +11,8 @@
     "./ses-client": "./src/modules/notification/ses-client.ts",
     "./mercflow-admin-notification-config-api": "./src/integrations/mercflow-admin-notification-config-api.ts",
     "./mercflow-admin-notification-config-branding-api": "./src/integrations/mercflow-admin-notification-config-branding-api.ts",
+    "./mercflow-admin-notification-config-domain-api": "./src/integrations/mercflow-admin-notification-config-domain-api.ts",
+    "./mercflow-admin-notification-config-domain-status-api": "./src/integrations/mercflow-admin-notification-config-domain-status-api.ts",
     "./mercflow-admin-email-deliveries-api": "./src/integrations/mercflow-admin-email-deliveries-api.ts",
     "./mercflow-admin-email-deliveries-resend-api": "./src/integrations/mercflow-admin-email-deliveries-resend-api.ts"
   },
@@ -22,6 +24,8 @@
     "db:rollback": "medusa db:rollback --modules notification"
   },
   "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.840.0",
+    "@aws-sdk/client-sts": "^3.840.0",
     "@medusajs/framework": "workspace:*",
     "@medusajs/medusa": "workspace:*",
     "@medusajs/types": "workspace:*",

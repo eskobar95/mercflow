@@ -21,6 +21,17 @@ export const updateEmailConfigBrandingBodySchema = z
   })
   .strict()
 
+export const setupDomainBodySchema = z
+  .object({
+    domain: z
+      .string()
+      .trim()
+      .min(3)
+      .max(253)
+      .regex(/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/i),
+  })
+  .strict()
+
 export const resendEmailParamsSchema = z
   .object({
     id: z.string().min(1),

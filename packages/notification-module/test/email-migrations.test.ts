@@ -9,6 +9,10 @@ const emailConfigsMigrationPath = join(
   __dirname,
   "../src/modules/notification/migrations/Migration20260611100000CreateEmailConfigs.ts"
 )
+const emailConfigsDnsRecordsMigrationPath = join(
+  __dirname,
+  "../src/modules/notification/migrations/Migration20260611120000AddEmailConfigsDnsRecords.ts"
+)
 const emailDeliveriesMigrationPath = join(
   __dirname,
   "../src/modules/notification/migrations/Migration20260611110000CreateEmailDeliveries.ts"
@@ -22,6 +26,15 @@ describe("Migration20260611100000CreateEmailConfigs", (): void => {
     expect(source).toContain("current_setting('app.tenant_id', true)")
     expect(source).toContain("MIGRATION DECISION LOG")
     expect(source).toContain("IDX_email_configs_store_unique")
+  })
+})
+
+describe("Migration20260611120000AddEmailConfigsDnsRecords", (): void => {
+  it("adds dns_records jsonb column to email_configs", (): void => {
+    const source = readFileSync(emailConfigsDnsRecordsMigrationPath, "utf8")
+    expect(source).toContain('"dns_records"')
+    expect(source).toContain("jsonb")
+    expect(source).toContain("MIGRATION DECISION LOG")
   })
 })
 

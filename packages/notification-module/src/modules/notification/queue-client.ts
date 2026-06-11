@@ -3,6 +3,9 @@ import IORedis from "ioredis"
 
 import type { SendEmailJobPayload } from "./types"
 import {
+  CHECK_PENDING_DOMAINS_JOB_NAME,
+  DOMAIN_STATUS_POLL_INTERVAL_MS,
+  DOMAIN_STATUS_POLL_SCHEDULER_ID,
   NOTIFICATION_JOB_RETRY_OPTIONS,
   NOTIFICATION_QUEUE_NAME,
   SEND_EMAIL_JOB_NAME,
@@ -11,6 +14,7 @@ import {
 export type NotificationQueueClient = {
   getJob(jobId: string): Promise<{ id: string } | null>
   addSendEmailJob(jobId: string, payload: SendEmailJobPayload): Promise<void>
+  scheduleDomainStatusPolling(): Promise<void>
 }
 
 export function buildEmailJobId(
@@ -44,6 +48,20 @@ export function createBullMQNotificationQueueClient(
         jobId,
         ...NOTIFICATION_JOB_RETRY_OPTIONS,
       })
+    },
+    async scheduleDomainStatusPolling(): Promise<void> {
+      await queue.add(
+        CHECK_PENDING_DOMAINS_JOB_NAME,
+        {},
+        {
+          jobId: DOMAIN_STATUS_POLL_SCHEDULER_ID,
+          repeat: {
+            every: DOMAIN_STATUS_POLL_INTERVAL_MS,
+          },
+          removeOnComplete: true,
+          removeOnFail: 100,
+        }
+      )
     },
   }
 }
