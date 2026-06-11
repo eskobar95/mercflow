@@ -457,7 +457,7 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 
 | Sprint | Goal | Tasks | Status |
 |--------|------|-------|--------|
-| S029 | Console scaffold + Clerk auth + /platform/ backend skeleton (HITL) | T067 | planned |
+| S029 | Console scaffold + Clerk auth + /platform/ backend skeleton (HITL) | T067 | done |
 | S030 | Tenant management + BullMQ queue monitor (parallel) | T068, T069 | planned |
 | S031 | Email health + system metrics + audit log UI | T070 | planned |
 

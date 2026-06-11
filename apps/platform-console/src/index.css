@@ -1,0 +1,11 @@
+@import "@mercflow/design-tokens/mercflow-tokens.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply min-h-screen bg-surface-appCanvas font-sans text-base text-content-primary antialiased;
+  }
+}

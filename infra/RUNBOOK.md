@@ -218,6 +218,21 @@ Re-running with the same `--domain` fails if a Traefik route file already contai
 - You need vendor-independent SQL dumps outside Neon, or
 - Compliance requires off-platform backup files you control directly.
 
+## Platform Console access (T067)
+
+Production routes live in `infra/traefik/dynamic/platform-console.yml`:
+
+- `console.mercflow.shop` — static Platform Console UI (IP allowlist enforced)
+- `api.mercflow.shop/platform/*` — operator API (same allowlist)
+
+Before first deploy:
+
+1. Add operator workstation `/32` CIDRs to `platform-console-ipallowlist.sourceRange`.
+2. Set `PLATFORM_CLERK_SECRET_KEY`, `PLATFORM_DATABASE_URL` (mercflow_owner), and `PLATFORM_CORS` in `infra/.env`.
+3. Containerise `apps/platform-console` and register the `platform-console` compose service (scaffold documents Traefik only).
+
+Local development does not use Traefik — run Vite on `:5174` and Medusa on `:9000`.
+
 ## Troubleshooting
 
 | Symptom | Action |

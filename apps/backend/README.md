@@ -27,6 +27,21 @@ From the **repository root** after `pnpm install`:
 
 MercFlow does **not** serve Medusa's bundled dashboard from this process. `@mercflow/admin-ui` is the only admin interface.
 
+## Platform Console (`/platform/*`)
+
+Internal operator API for `@mercflow/platform-console`. Auth uses a **separate** Clerk app (`mercflow-platform`) via `PLATFORM_CLERK_SECRET_KEY`. Routes bypass tenant RLS through `PLATFORM_DATABASE_URL`.
+
+| Variable | Purpose |
+| --- | --- |
+| `PLATFORM_CLERK_SECRET_KEY` | Clerk secret for **mercflow-platform** (not `CLERK_SECRET_KEY`) |
+| `PLATFORM_DATABASE_URL` | BYPASSRLS DB role (`mercflow_owner` in prod; local Docker `mercflow` OK for dev) |
+| `PLATFORM_CORS` | Console origin (dev: `http://localhost:5174`; prod: `https://console.mercflow.shop`) |
+| `PLATFORM_ALLOWED_EMAIL_DOMAIN` | Operator email suffix (prod: `mercflow.shop`) |
+
+Smoke test: `GET /platform/health` with `Authorization: Bearer <clerk-session-jwt>` → `200` with `db.bypassrls`. Without JWT → `401`.
+
+Full setup, local overrides, and **before production checklist**: `apps/platform-console/README.md` and `infra/RUNBOOK.md`.
+
 ## Environment
 
 | Variable | Purpose |

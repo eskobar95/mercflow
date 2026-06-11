@@ -1600,7 +1600,7 @@ T059
 
 ### Next actions
 - [x] Merge PR #103 + #104 to `development` (2026-06-11 — #104 `33a98d2`, #103 `eea674c`)
-- [ ] `/run-sprint S025` — T059 (order-confirmation) + T061 (Domain admin UI)
+- [x] `/run-sprint S025` — T059 (order-confirmation) + T061 (Domain admin UI)
 - [ ] Human: review merged notification infrastructure on `development`
 
 ---
@@ -1703,6 +1703,66 @@ none
 | command | Note sprint tasks may update tasks.md on feature branches — lead must merge planning sync | commands/harness/run-sprint.md |
 
 ### Next actions
-- [ ] Merge PR #108 + #109 to `development`
+- [x] Merge PR #108 + #109 to `development`
 - [ ] `/run-sprint S026` — T060 (remaining templates; T062/T063 already done)
 - [ ] Human: review order-confirmation email preview + domain setup flow
+
+---
+
+## HITL approved — T067 — 2026-06-11
+
+**Approver:** human
+**Note:** Traefik allowlist dokumenteres som del af T067-implementering; Clerk mercflow-platform keys i lokal .env; Hetzner deploy efter PR merge.
+**Next:** PR from `feature/S029/T067-platform-console-scaffold`
+
+---
+
+## Task T067 — Platform Console scaffold — 2026-06-11
+
+**Sprint:** S029 | **Milestone:** M014 | **Status:** done
+**Branch:** `feature/S029/T067-platform-console-scaffold`
+**PR:** https://github.com/eskobar95/mercflow/pull/107
+**Mode:** AFK (HITL approved)
+
+### Outcome
+Platform Console Vite app (:5174), `/platform/health` with Clerk JWT + platformDb BYPASSRLS check, Traefik IP allowlist scaffold. Local smoke verified (mercflow-platform Clerk, session email claim, Overview health green).
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass (local typecheck + platform-auth tests) |
+| Review | pass (session) |
+| CI | pending → merge after green |
+| Local smoke | pass — DB role mercflow, BYPASSRLS yes |
+
+### Unblocked
+T068, T069, T070
+
+### Follow-up (human, post-merge)
+Production checklist in `apps/platform-console/README.md` — revert gmail.com override, mercflow.shop domain, Hetzner Traefik + Neon owner role.
+
+---
+
+## Sprint retro — S029 — 2026-06-11
+
+**Milestone:** M014
+**Duration:** session (T067 implement + local setup)
+**Tasks:** 1/1 done, 0 blocked
+
+### What went well
+- End-to-end local smoke: mercflow-platform Clerk, JWT email claim, `/platform/health`, sidebar shell
+- Production checklist documented in platform-console README + RUNBOOK
+
+### What failed or slowed down
+- Initial local setup reused store-admin Clerk keys (separate user DB)
+- `noget@mercflow.shop` test user had no mailbox; gmail.com dev override needed temporarily
+
+### Task log index
+| Task | Final status | PR |
+|------|--------------|-----|
+| T067 | done | #107 |
+
+### Next actions
+- [ ] Merge PR #107 to `development`
+- [ ] `/run-sprint S030` — T068 + T069 parallel
+- [ ] Human: Hetzner production checklist before console.mercflow.shop

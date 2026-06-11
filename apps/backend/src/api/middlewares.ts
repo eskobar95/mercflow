@@ -17,6 +17,8 @@ import {
 import { sentryStoreIdMiddleware } from "../lib/sentry-store-id-middleware"
 import { storeRouteVersionRedirectMiddleware } from "../lib/store-route-versioning/store-route-version-redirect"
 import { clerkAdminAuthMiddleware } from "../lib/clerk-admin-auth/clerk-admin-auth-middleware"
+import { clerkPlatformAuthMiddleware } from "../lib/platform-auth/clerk-platform-auth-middleware"
+import { platformCorsMiddleware } from "../lib/platform-auth/platform-cors-middleware"
 import { tenantBootstrapMiddleware } from "../lib/tenant-isolation/tenant-bootstrap-middleware"
 import { tenantIsolationMiddleware } from "../lib/tenant-isolation/tenant-middleware"
 
@@ -56,6 +58,10 @@ export default defineMiddlewares({
     {
       matcher: "/*",
       middlewares: [tenantBootstrapMiddleware, sentryStoreIdMiddleware],
+    },
+    {
+      matcher: "/platform*",
+      middlewares: [platformCorsMiddleware, clerkPlatformAuthMiddleware],
     },
     {
       matcher: "/admin*",
