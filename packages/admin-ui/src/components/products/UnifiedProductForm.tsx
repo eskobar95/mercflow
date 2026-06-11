@@ -18,6 +18,9 @@ import { useUnifiedCatalogProductShipping } from "@/hooks/products/useUnifiedCat
 
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
+import { useClubPricingSection } from "@/features/subscriptions/useClubPricingSection"
+
+import { ProductClubPricingSection } from "./ProductClubPricingSection"
 import { UnifiedProductDetailsSection } from "./UnifiedProductDetailsSection"
 import { UnifiedProductPricingSection } from "./UnifiedProductPricingSection"
 import { UnifiedProductShippingSection } from "./UnifiedProductShippingSection"
@@ -92,6 +95,12 @@ export function UnifiedProductForm({ mode, productId }: Props): ReactNode {
     enabled: hasBackend,
   })
 
+  const clubPricing = useClubPricingSection({
+    productId: mode === "edit" ? productId : undefined,
+    variantRows: variantRowsPreview,
+    enabled: hasBackend && mode === "edit",
+  })
+
   const selectedCategories = useMemo(
     () => categories.filter((category) => selectedCategoryIds.has(category.id)),
     [categories, selectedCategoryIds]
@@ -105,7 +114,7 @@ export function UnifiedProductForm({ mode, productId }: Props): ReactNode {
         ? "Create product"
         : "Edit product"
 
-  const isFormDirty = isCatalogDirty || metafields.isDirty
+  const isFormDirty = isCatalogDirty || metafields.isDirty || clubPricing.isDirty
 
   useUnsavedFormGuard({
     isDirty: isFormDirty,
@@ -141,6 +150,21 @@ export function UnifiedProductForm({ mode, productId }: Props): ReactNode {
           await metafields.persist(savedProductId)
         } else if (metafields.state.status === "ready") {
           metafields.markSaved(metafields.state.drafts)
+        }
+
+        if (clubPricing.isDirty) {
+          try {
+            await clubPricing.persist(savedProductId)
+          } catch (clubError: unknown) {
+            if (clubError instanceof Error) {
+              toast({
+                variant: "error",
+                title: "Club member prices not saved",
+                description: clubError.message,
+              })
+            }
+            throw clubError
+          }
         }
       }
 
@@ -262,6 +286,19 @@ export function UnifiedProductForm({ mode, productId }: Props): ReactNode {
               variantRowsPreview={variantRowsPreview}
               fieldErrors={fieldErrors}
               updateEconomicsRow={updateEconomicsRow}
+            />
+          ) : null}
+
+          {hasDefinedOptions ? (
+            <ProductClubPricingSection
+              baseId={baseId}
+              variantRowsPreview={variantRowsPreview}
+              loadState={clubPricing.loadState}
+              fieldErrors={clubPricing.fieldErrors}
+              drafts={clubPricing.drafts}
+              disabled={isSubmitting || isLoadingProductDetail}
+              onMemberPriceChange={clubPricing.updateMemberPrice}
+              onRetry={clubPricing.reload}
             />
           ) : null}
 
