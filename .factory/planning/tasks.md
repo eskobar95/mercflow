@@ -3531,11 +3531,12 @@ BullMQ `subscription-renewal` kø i `apps/worker/` kører cron hvert time og pro
 
 **Sprint:** S033
 **Milestone:** M015
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T071
 **Branch:** feature/S033/T073-subscription-admin-ui
+**PR:** https://github.com/eskobar95/mercflow/pull/116
 **PRD journey:** J003 (PRD-subscription-system.md)
 
 ### Slice objective

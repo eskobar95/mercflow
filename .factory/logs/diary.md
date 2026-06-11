@@ -1991,3 +1991,96 @@ T072, T073, T074
 - [ ] Merge PR #115 to `development`
 - [ ] `/run-sprint S033` — T072 + T073 (parallel)
 - [ ] `/milestone-review M015` after S034
+
+---
+
+## Task T072 — BullMQ renewal worker — 2026-06-11
+
+**Sprint:** S033 | **Milestone:** M015 | **Status:** done
+**Branch:** `feature/S033/T072-subscription-renewal-worker`
+**PR:** https://github.com/eskobar95/mercflow/pull/117
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Added @mercflow/worker with hourly subscription renewal cron, Stripe charge idempotency, failure handling, and domain events on mercflow:subscriptions
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none
+
+---
+
+## Task T073 — Subscription admin UI — 2026-06-11
+
+**Sprint:** S033 | **Milestone:** M015 | **Status:** done
+**Branch:** `feature/S033/T073-subscription-admin-ui`
+**PR:** https://github.com/eskobar95/mercflow/pull/116
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Subscription admin list + detail with pause/cancel/resume, renewal log, optimistic UI, and Customers sidebar nav
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none
+
+---
+
+## Sprint retro — S033 — 2026-06-11
+
+**Milestone:** M015
+**Duration:** session
+**Tasks:** 2/2 done, 0 blocked
+
+### What went well
+- Parallel group A completed both tasks with zero revision cycles
+- T072 worker and T073 admin UI landed independently without merge conflicts
+- CI green on first pass for both PRs (#116, #117)
+
+### What failed or slowed down
+- Nothing — clean sprint run
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T072 | done | Task T072 — 2026-06-11 |
+| T073 | done | Task T073 — 2026-06-11 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T072 | 0 | — |
+| T073 | 0 | — |
+
+### Harness notes
+- Parallel groups used: A (2 subagents)
+- Subagent issues: none
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Default integration branch to `development` in implement/close skills | `.cursor/skills/harness/implement/SKILL.md` |
+| skill | Preflight should check `development` when `dev` missing | `.cursor/skills/harness/harness/SKILL.md` |
+
+### Next actions
+- [ ] Merge PR #116 and #117 to `development`
+- [ ] `/run-sprint S034` — T074 (HITL) + T075 (AFK)
+- [ ] `/milestone-review M015` after S034
