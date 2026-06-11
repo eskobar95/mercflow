@@ -3495,11 +3495,12 @@ Operatorer kan søge i email-leveringshistorik på tværs af alle tenants, se sy
 
 **Sprint:** S033
 **Milestone:** M015
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T071
 **Branch:** feature/S033/T072-subscription-renewal-worker
+**PR:** https://github.com/eskobar95/mercflow/pull/117
 **PRD journey:** J002 (PRD-subscription-system.md)
 **ADRs:** ADR-010
 
