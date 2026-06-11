@@ -1338,3 +1338,77 @@ none
 ### Next actions
 - [x] Merge PR #94 then #95 to `development` (`2662cc9`, `115d3fa`)
 - [ ] `/milestone-review M011` after merge
+
+---
+
+## Task T056 — notification-module foundation — 2026-06-11
+
+**Sprint:** S023 | **Milestone:** M012 | **Status:** done
+**Branch:** `feature/S023/T056-notification-module-foundation`
+**PR:** https://github.com/eskobar95/mercflow/pull/97 (merged `d7194a4`)
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Added `@mercflow/notification-module` with `email_configs`/`email_deliveries`, RLS, `NotificationService`, BullMQ `enqueueEmail` idempotency, admin API routes, tests, and backend registration.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+T057, T058, T062, T063
+
+---
+
+## Sprint retro — S023 — 2026-06-11
+
+**Milestone:** M012
+**Duration:** session
+**Tasks:** 1/1 done, 0 blocked
+
+### What went well
+- Solo foundation slice T056 leverede fuld vertical stack: DML, migrations, RLS, service, BullMQ enqueue, admin API, tests, README
+- Reference patterns fra `packaging-module` gav hurtig scaffold
+
+### What failed or slowed down
+- Første subagent-dispatch hang ~25 min med staged filer uden commit; lead måtte interrupt+resume
+- Harness preflight refererer til `dev` branch — projektet bruger `development`
+
+### Task log index
+| Task | Final status | PR |
+|------|--------------|-----|
+| T056 | done | #97 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T056 | 1 | eslint migration-ignore fix i revision 1 |
+
+### Harness notes
+- Parallel groups used: A (solo T056)
+- Subagent issues: initial stall; completed efter interrupt+resume
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Document `development` as base branch (not `dev`) in implement/close/harness preflight | skills/harness/implement/SKILL.md |
+| skill | Add subagent stall detection + auto-interrupt efter N min uden transcript output | skills/harness/harness/SKILL.md |
+
+### Next actions
+- [x] Merge PR #97 to `development` (`d7194a4`)
+- [x] HITL checkpoint T057 — 2026-06-11
+- [ ] `/run-sprint S024`
+
+---
+
+## HITL approved — T057 — 2026-06-11
+
+**Approver:** human
+**Note:** `mail.mercflow.shop` verified in SES (eu-north-1); IAM user `mercflow` with keys in `apps/backend/.env`; production SES (50k/day quota, no sandbox banner). Fallback domain corrected to `mercflow.shop` (not `.com`).
+**Next:** `/run-sprint S024` (T057 + T058 parallel)

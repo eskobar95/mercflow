@@ -46,7 +46,7 @@ Each tenant provides a sending domain. MercFlow registers it as an SES domain id
 - **Shared platform domain forever:** destroys deliverability reputation (one bad actor penalizes all) and brand trust (merchants can't send from their own domain)
 - **Shared-then-BYOD hybrid:** defers the harder infrastructure work; per-tenant is the correct model and not significantly more complex to implement
 
-**Fallback (before verification):** Emails sent from `noreply@mail.mercflow.com` until tenant domain is verified. Admin shows clear warning. Emails are never held — order confirmations cannot wait for DNS propagation.
+**Fallback (before verification):** Emails sent from `noreply@mail.mercflow.shop` until tenant domain is verified. Admin shows clear warning. Emails are never held — order confirmations cannot wait for DNS propagation.
 
 ### Queue: BullMQ (existing Redis)
 
@@ -118,7 +118,7 @@ Medusa event (order.placed)
 
 **Accepted tradeoffs:**
 - AWS SES domain verification requires DNS access from each tenant (1–48h propagation)
-- MercFlow must maintain `mail.mercflow.com` as a verified fallback sending domain (one-time HITL setup)
+- MercFlow must maintain `mail.mercflow.shop` as a verified fallback sending domain (one-time HITL setup)
 - Template updates require a MercFlow code deploy — merchants cannot self-serve template changes in v1
 - SES bounce/complaint webhook (SNS) is deferred to v1.1 — delivery status updates are API-level only in v1
 

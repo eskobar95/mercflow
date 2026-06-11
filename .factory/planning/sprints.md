@@ -15,6 +15,7 @@
 > Updated: 2026-06-10 (S018 merged to `development` — PRs #86 `6d89f1b`, #87 `b0ade41`)
 > Updated: 2026-06-11 (S027–S034 added — M013 Admin Shell, M014 Platform Console, M015 Subscription System; ADR-011 Clerk auth)
 > Updated: 2026-06-11 (S027 done — T064 Clerk auth + AppShell; PR #96 merged `3fe6dc0`)
+> Updated: 2026-06-11 (S023 done — T056 notification-module; PR #97 merged `d7194a4`; T057 HITL approved)
 
 | ID | Milestone | Goal | Tasks | Status |
 |----|-----------|------|-------|--------|
@@ -40,7 +41,7 @@
 | S020 | M010 | Settings → Packaging UI + Order fulfillment suggestion widget | T051, T052 | done |
 | S021 | M010 | Shipmondo connector: packaging dimensions auto-fill (HITL) | T053 | done |
 | S022 | M011 | Persist + restore confirmed packaging per fulfillment | T054, T055 | done |
-| S023 | M012 | notification-module foundation: models, migrations, RLS, service, admin API | T056 | planned |
+| S023 | M012 | notification-module foundation: models, migrations, RLS, service, admin API | T056 | done |
 | S024 | M012 | SES domain identity (HITL) + BullMQ worker infrastructure | T057, T058 | planned |
 | S025 | M012 | order-confirmation template + order.placed subscriber + domain admin UI | T059, T061 | planned |
 | S026 | M012 | Remaining templates + branding UI + delivery history UI | T060, T062, T063 | planned |

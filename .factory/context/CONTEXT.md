@@ -273,7 +273,7 @@
 
 **Templates (v1):** `order-confirmation`, `shipping-update`, `order-cancellation`, `customer-welcome` — all React Email (JSX → HTML). MercFlow owns template structure; merchants configure variables only.
 
-**Fallback:** Before tenant domain is verified (DNS propagation), emails sent from `noreply@mail.mercflow.com` with admin warning. Never queued and held — order confirmations must send immediately.
+**Fallback:** Before tenant domain is verified (DNS propagation), emails sent from `noreply@mail.mercflow.shop` with admin warning. Never queued and held — order confirmations must send immediately.
 
 **Retry:** BullMQ — 3 attempts, exponential backoff (30s → 5m → 30m). Permanently failed jobs → dead-letter queue `mercflow:notifications:dead`. BetterStack alert on DLQ size > 0.
 
