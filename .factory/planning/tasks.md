@@ -3606,11 +3606,12 @@ Merchants kan konfigurere en Customer Club (navn, månedspris, fallback % rabat)
 
 **Sprint:** S034
 **Milestone:** M015
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T071
 **Branch:** feature/S034/T075-product-club-price-ui
+**PR:** https://github.com/eskobar95/mercflow/pull/118
 **PRD journey:** J006 (PRD-subscription-system.md)
 
 ### Slice objective

@@ -2084,3 +2084,77 @@ none
 - [ ] Merge PR #116 and #117 to `development`
 - [ ] `/run-sprint S034` — T074 (HITL) + T075 (AFK)
 - [ ] `/milestone-review M015` after S034
+
+---
+
+## Task T074 — Customer Club Stripe setup — 2026-06-11
+
+**Sprint:** S034 | **Status:** skipped
+**Reason:** HITL — awaiting human checkpoint before implement (`/hitl-checkpoint T074`)
+
+---
+
+## Task T075 — Per-product club member price UI — 2026-06-11
+
+**Sprint:** S034 | **Milestone:** M015 | **Status:** done
+**Branch:** `feature/S034/T075-product-club-price-ui`
+**PR:** https://github.com/eskobar95/mercflow/pull/118
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Club member price API (price_list upsert/delete) + Product edit Pricing section gated on `club_enabled`
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none
+
+---
+
+## Sprint retro — S034 — 2026-06-11
+
+**Milestone:** M015
+**Duration:** session
+**Tasks:** 1/2 done, 0 blocked (1 HITL skipped)
+
+### What went well
+- T075 implemented end-to-end with zero revision cycles; CI green on first pass (PR #118)
+- Club pricing backend + admin UI integrated with existing subscription-module foundation
+
+### What failed or slowed down
+- T074 skipped — HITL checkpoint required for Stripe webhook secrets and live Stripe product setup
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T074 | skipped (HITL) | Task T074 — 2026-06-11 |
+| T075 | done | Task T075 — 2026-06-11 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T075 | 0 | — |
+
+### Harness notes
+- Parallel groups used: A (1 AFK subagent; 1 HITL skipped)
+- Subagent issues: none
+- Base branch: `development` (no `dev` branch in repo)
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Default integration branch to `development` in implement/close skills | `.cursor/skills/harness/implement/SKILL.md` |
+| skill | Preflight should accept `development` when `dev` missing | `.cursor/skills/harness/harness/SKILL.md` |
+
+### Next actions
+- [ ] Human: `/hitl-checkpoint T074` then re-run `/run-sprint S034` or `/run-task T074`
+- [ ] Merge PR #118 to `development`
+- [ ] `/milestone-review M015` after T074 done
