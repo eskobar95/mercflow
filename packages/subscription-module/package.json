@@ -2,13 +2,16 @@
   "name": "@mercflow/subscription-module",
   "version": "0.1.0",
   "private": true,
-  "description": "MercFlow Medusa v2 module: subscription persistence and read-only admin APIs.",
+  "description": "MercFlow Medusa v2 module: subscription lifecycle, renewal logs, club config, and admin APIs.",
   "main": "src/modules/subscription/index.ts",
   "exports": {
     ".": "./src/modules/subscription/index.ts",
     "./mercflow-subscriptions-collection-api": "./src/integrations/mercflow-subscriptions-collection-api.ts",
     "./mercflow-subscriptions-detail-api": "./src/integrations/mercflow-subscriptions-detail-api.ts",
-    "./mercflow-customer-subscriptions-api": "./src/integrations/mercflow-customer-subscriptions-api.ts"
+    "./mercflow-customer-subscriptions-api": "./src/integrations/mercflow-customer-subscriptions-api.ts",
+    "./mercflow-subscriptions-pause-api": "./src/integrations/mercflow-subscriptions-pause-api.ts",
+    "./mercflow-subscriptions-cancel-api": "./src/integrations/mercflow-subscriptions-cancel-api.ts",
+    "./mercflow-subscriptions-resume-api": "./src/integrations/mercflow-subscriptions-resume-api.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -20,6 +23,7 @@
   "dependencies": {
     "@medusajs/framework": "workspace:*",
     "@medusajs/medusa": "workspace:*",
+    "@medusajs/types": "workspace:*",
     "@medusajs/utils": "workspace:*",
     "zod": "^4.0.0"
   },

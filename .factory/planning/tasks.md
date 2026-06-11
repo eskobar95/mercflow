@@ -3456,11 +3456,12 @@ Operatorer kan søge i email-leveringshistorik på tværs af alle tenants, se sy
 
 **Sprint:** S032
 **Milestone:** M015
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** solo
 **Blocked by:** T070
 **Branch:** feature/S032/T071-subscription-module-foundation
+**PR:** https://github.com/eskobar95/mercflow/pull/115
 **PRD journey:** J001 (PRD-subscription-system.md)
 
 ### Slice objective

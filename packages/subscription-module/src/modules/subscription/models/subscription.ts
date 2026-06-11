@@ -1,16 +1,32 @@
 import { model } from "@medusajs/framework/utils"
 
-/**
- * Mirrors the Guapo `subscription` table migrated into MercFlow.
- * Lifecycle transitions stay out of this read-only overview slice — no service helpers change state here.
- */
-export const Subscription = model.define("subscription", {
-  id: model.id().primaryKey(),
-  customer_id: model.text(),
-  /** Stored as lowercase snake (e.g. active, paused, on_hold); UI maps to badges. */
-  status: model.text(),
-  cycle_weeks: model.number(),
-  next_renewal_at: model.dateTime().nullable(),
-  variant_id: model.text(),
-  discount_percent: model.number().nullable(),
-})
+export const MercflowSubscription = model
+  .define("subscription", {
+    id: model.id().primaryKey(),
+    store_id: model.text().index("IDX_subscription_store_id"),
+    customer_id: model.text().index("IDX_subscription_customer_id"),
+    product_id: model.text(),
+    variant_id: model.text(),
+    interval: model
+      .enum(["weekly", "biweekly", "monthly", "quarterly"])
+      .default("monthly"),
+    status: model
+      .enum(["active", "paused", "cancelled", "past_due", "pending_payment"])
+      .default("active"),
+    stripe_subscription_id: model.text().nullable(),
+    current_period_start: model.dateTime(),
+    current_period_end: model.dateTime(),
+    next_renewal_at: model.dateTime(),
+    cancelled_at: model.dateTime().nullable(),
+    pause_requested_at: model.dateTime().nullable(),
+  })
+  .indexes([
+    {
+      name: "IDX_subscription_store_status",
+      on: ["store_id", "status"],
+    },
+    {
+      name: "IDX_subscription_store_customer",
+      on: ["store_id", "customer_id"],
+    },
+  ])
