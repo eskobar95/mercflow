@@ -43,6 +43,7 @@ function RoutedMainOutlet(): ReactNode {
 export function AdminShell(): ReactNode {
   const [moreSheetOpen, setMoreSheetOpen] = useState(false)
   const [navSheetWillChange, setNavSheetWillChange] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const title = useRouteTitle()
   const location = useLocation()
 
@@ -94,7 +95,10 @@ export function AdminShell(): ReactNode {
 
       {/* Desktop sidebar — fixed left rail. */}
       <div className="hidden md:flex md:shrink-0">
-        <AppSidebar />
+        <AppSidebar
+          collapsed={sidebarCollapsed}
+          onCollapseToggle={() => setSidebarCollapsed((c) => !c)}
+        />
       </div>
 
       {/* Mobile drawer — backdrop + sheet. Both stay mounted so transitions can play in both directions. */}

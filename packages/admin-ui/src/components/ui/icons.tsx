@@ -362,4 +362,25 @@ export function IconFeed({ size = 18, ...rest }: IconProps): ReactNode {
   )
 }
 
+/** Sidebar collapse/expand — two chevrons pointing left. */
+export function IconSidebarCollapse({ size = 18, ...rest }: IconProps): ReactNode {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <path d="M11 17l-5-5 5-5" />
+      <path d="M18 17l-5-5 5-5" />
+    </svg>
+  )
+}
+
+/** Sign-out / log-out — arrow exiting a box. */
+export function IconLogOut({ size = 18, ...rest }: IconProps): ReactNode {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+  )
+}
+
 export type IconComponent = (props: IconProps) => ReactNode
