@@ -2906,12 +2906,13 @@ Merchant kan sætte deres sending domain op i MercFlow og modtager de 4 DNS reco
 
 **Sprint:** S024
 **Milestone:** M012
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Unblocked by:** T056 (PR #97 merged `d7194a4`)
-**Branch:** feature/S024/T058-notification-worker
+**Branch:** cursor/s024-t058-notification-worker-dc6a
+**PR:** #103
 **PRD journey:** J003 (PRD-notification-system.md)
 **ADRs:** ADR-009
 

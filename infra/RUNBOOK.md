@@ -109,6 +109,18 @@ Or use API with `BETTERSTACK_UPTIME_API_TOKEN` (see `infra/observability/uptime-
 Sentry initializes via `apps/backend/src/instrumentation.ts` when `SENTRY_DSN` is set.
 `sentryStoreIdMiddleware` tags errors with `store_id`.
 
+### Notification DLQ monitoring (T058)
+
+The BullMQ notification worker retries failed `send-email` jobs three times (30s exponential backoff), then moves exhausted jobs to the dead-letter queue `mercflow:notifications:dead` and sets `email_deliveries.status = dead_letter`.
+
+**Better Stack:** add an uptime or custom metric alert when the DLQ queue depth is greater than zero (Redis key prefix `bull:mercflow:notifications:dead`). Investigate template/SES errors in worker logs before replaying or discarding dead-letter jobs.
+
+**Local check:**
+
+```bash
+redis-cli -u "$REDIS_URL" LLEN bull:mercflow:notifications:dead:wait
+```
+
 ## Backup & restore
 
 MercFlow production does **not** use Hetzner Object Storage or a pg_dump cron (T029 cancelled).
@@ -213,6 +225,7 @@ Re-running with the same `--domain` fails if a Traefik route file already contai
 | Medusa crash loop | `docker compose logs medusa-backend` — check `NEON_DATABASE_URL`, Neon allowlist, Redis |
 | `EADDRINUSE` locally | `lsof -i :9000` and kill stale process |
 | Worker not processing | Confirm `medusa-worker` healthy; check `REDIS_URL` and `MEDUSA_WORKER_MODE=worker` |
+| Notification DLQ growing | Better Stack → alert on Redis depth for `mercflow:notifications:dead`; inspect worker logs, fix SES/template errors, replay or discard dead-letter jobs |
 | Grafana empty | Wait 2 min; check Prometheus targets at `http://prometheus:9090/targets` from Grafana network |
 | Neon connection timeout | Update [Neon allowlist](https://console.neon.tech/app/projects/withered-salad-42833300) with current VPS IP |
 
