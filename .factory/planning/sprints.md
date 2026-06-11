@@ -15,7 +15,7 @@
 > Updated: 2026-06-10 (S018 merged to `development` — PRs #86 `6d89f1b`, #87 `b0ade41`)
 > Updated: 2026-06-11 (S027–S034 added — M013 Admin Shell, M014 Platform Console, M015 Subscription System; ADR-011 Clerk auth)
 > Updated: 2026-06-11 (S027 done — T064 Clerk auth + AppShell; PR #96 merged `3fe6dc0`)
-> Updated: 2026-06-11 (S024 done — T057 SES domain identity PR #104, T058 BullMQ worker PR #103)
+> Updated: 2026-06-11 (S024 merged to `development` — PR #104 `33a98d2`, PR #103 `eea674c`)
 
 > Updated: 2026-06-11 (S026 partial — T062/T063 done PR #105/#106; T060 blocked by T059)
 
@@ -87,11 +87,10 @@
 ## S023–S026 — M012 Notification System
 
 - **S023:** T056 (module foundation) — solo; prerequisite for alt i M012.
-- **S024:**
-  - Group A: T057 (SES domain identity — **HITL**; AWS prerequisites) og T058 (BullMQ worker infrastructure) — parallelt; begge afhænger kun af T056.
+- **S024:** done — T057 (PR #104 `33a98d2`) + T058 (PR #103 `eea674c`) merged to `development` 2026-06-11. PR #103 required merge conflict resolution after #104.
 - **S025:**
-  - Group A: T059 (order-confirmation template + `order.placed` subscriber) — blokkeret af T058.
-  - Group B: T061 (Admin UI — Domain tab) — blokkeret af T057.
+  - Group A: T059 (order-confirmation template + `order.placed` subscriber) — runnable (T058 merged).
+  - Group B: T061 (Admin UI — Domain tab) — runnable (T057 merged).
   - T059 og T061 er indbyrdes uafhængige og kører parallelt i S025.
 - **S026:**
   - Group A: T060 (øvrige templates + subscribers) — blokkeret af T059.

@@ -538,12 +538,12 @@ flowchart LR
 
 **Sprints i dette milestone:**
 
-| Sprint | Goal | Tasks |
-|--------|------|-------|
-| S023 | notification-module foundation: models, migrations, RLS, service, admin API | T056 |
-| S024 | SES domain identity (HITL) + BullMQ worker infrastructure | T057, T058 |
-| S025 | order-confirmation template + subscriber + domain admin UI | T059, T061 |
-| S026 | Remaining templates + branding UI + delivery history UI | T060, T062, T063 |
+| Sprint | Goal | Tasks | Status |
+|--------|------|-------|--------|
+| S023 | notification-module foundation: models, migrations, RLS, service, admin API | T056 | done |
+| S024 | SES domain identity (HITL) + BullMQ worker infrastructure | T057, T058 | done |
+| S025 | order-confirmation template + subscriber + domain admin UI | T059, T061 | planned |
+| S026 | Remaining templates + branding UI + delivery history UI | T060, T062, T063 | blocked |
 
 **Dependencies:** M011
 
@@ -551,8 +551,8 @@ flowchart LR
 
 **Definition of done:**
 - [ ] Order confirmation email sent within 30s of `order.placed` (p95)
-- [ ] Per-tenant SES domain identity setup flow works end-to-end (DNS records shown in admin)
-- [ ] BullMQ retry + DLQ active; BetterStack alert on DLQ size > 0
+- [x] Per-tenant SES domain identity setup flow works end-to-end (DNS records shown in admin) — backend/API done (S024); admin UI tab pending T061 (S025)
+- [x] BullMQ retry + DLQ active; BetterStack alert on DLQ size > 0 — worker + RUNBOOK done (S024); BetterStack alert config pending ops
 - [ ] Idempotency: duplicate `order.placed` events never send duplicate emails
 - [ ] Zero cross-tenant emails (integration test)
 - [ ] Admin: domain setup tab, branding tab with preview, delivery history with resend

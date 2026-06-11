@@ -1499,7 +1499,7 @@ T057, T058, T062, T063
 ### Next actions
 - [x] Merge PR #97 to `development` (`d7194a4`)
 - [x] HITL checkpoint T057 — 2026-06-11
-- [ ] `/run-sprint S024`
+- [x] `/run-sprint S024`
 
 ---
 
@@ -1599,6 +1599,16 @@ T059
 | command | Note cloud agent branch prefix `cursor/*-dc6a` vs task metadata `feature/S*` | commands/harness/run-sprint.md |
 
 ### Next actions
-- [ ] Merge PR #103 + #104 to `development`
+- [x] Merge PR #103 + #104 to `development` (2026-06-11 — #104 `33a98d2`, #103 `eea674c`)
 - [ ] `/run-sprint S025` — T059 (order-confirmation) + T061 (Domain admin UI)
-- [ ] Human: review open PRs on `development`
+- [ ] Human: review merged notification infrastructure on `development`
+
+---
+
+## S024 merged to development — 2026-06-11
+
+**PRs:** [#104](https://github.com/eskobar95/mercflow/pull/104) `33a98d2` (T057 SES domain identity), [#103](https://github.com/eskobar95/mercflow/pull/103) `eea674c` (T058 BullMQ worker)
+
+**Note:** #103 merged after conflict resolution with #104 (`apps/backend/package.json`, `pnpm-lock.yaml`).
+
+**Unblocked:** T059, T061 (S025)

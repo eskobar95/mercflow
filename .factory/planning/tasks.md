@@ -2859,7 +2859,8 @@ Order detail gemmer merchant's packaging-valg (suggestion accept eller override)
 **Blocked by:** none
 **Unblocked by:** T056 (PR #97 merged `d7194a4`)
 **Branch:** cursor/s024-t057-ses-domain-identity-dc6a
-**PR:** #104
+**PR:** https://github.com/eskobar95/mercflow/pull/104
+**Merged:** `development` @ `33a98d2` (2026-06-11)
 **PRD journey:** J001 (PRD-notification-system.md)
 **ADRs:** ADR-009
 
@@ -2894,11 +2895,11 @@ Merchant kan sætte deres sending domain op i MercFlow og modtager de 4 DNS reco
 ### Definition of done
 
 - [x] HITL: AWS prerequisites on checklist completed (IAM + sandbox + mail.mercflow.shop)
-- [ ] `setupDomain` returnerer korrekte DNS records for test-domain
-- [ ] `checkDomainStatus` opdaterer status korrekt
-- [ ] Admin API returnerer korrekte records og status
-- [ ] Unit test med mock SES grøn
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] `setupDomain` returnerer korrekte DNS records for test-domain
+- [x] `checkDomainStatus` opdaterer status korrekt
+- [x] Admin API returnerer korrekte records og status
+- [x] Unit test med mock SES grøn
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 
@@ -2912,7 +2913,8 @@ Merchant kan sætte deres sending domain op i MercFlow og modtager de 4 DNS reco
 **Blocked by:** none
 **Unblocked by:** T056 (PR #97 merged `d7194a4`)
 **Branch:** cursor/s024-t058-notification-worker-dc6a
-**PR:** #103
+**PR:** https://github.com/eskobar95/mercflow/pull/103
+**Merged:** `development` @ `eea674c` (2026-06-11)
 **PRD journey:** J003 (PRD-notification-system.md)
 **ADRs:** ADR-009
 
@@ -2948,12 +2950,12 @@ BullMQ notification worker kører i `apps/backend`, henter `send-email` jobs fra
 
 ### Definition of done
 
-- [ ] Worker starter og behandler test-job uden fejl
-- [ ] Retry konfigureret og verificeret i unit test
-- [ ] DLQ modtager job efter 3 mislykkede forsøg
-- [ ] `EmailDelivery.status` opdateres korrekt (sent / failed / dead_letter)
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
-- [ ] `infra/RUNBOOK.md` opdateret med DLQ monitoring note
+- [x] Worker starter og behandler test-job uden fejl
+- [x] Retry konfigureret og verificeret i unit test
+- [x] DLQ modtager job efter 3 mislykkede forsøg
+- [x] `EmailDelivery.status` opdateres korrekt (sent / failed / dead_letter)
+- [x] `pnpm typecheck` + `pnpm lint` grøn
+- [x] `infra/RUNBOOK.md` opdateret med DLQ monitoring note
 
 ---
 
@@ -2964,7 +2966,8 @@ BullMQ notification worker kører i `apps/backend`, henter `send-email` jobs fra
 **Status:** todo
 **Mode:** AFK
 **Parallel group:** A
-**Blocked by:** T058
+**Blocked by:** none (T058 merged PR #103 `eea674c`)
+**Unblocked by:** T058 (PR #103 merged `eea674c`)
 **Branch:** feature/S025/T059-order-confirmation-template
 **PRD journey:** J003 (PRD-notification-system.md)
 **ADRs:** ADR-009
@@ -3051,7 +3054,8 @@ Alle v1 transaktionelle emails er aktive: shipping update med tracking link, ord
 **Status:** todo
 **Mode:** AFK
 **Parallel group:** B
-**Blocked by:** T057
+**Blocked by:** none (T057 merged PR #104 `33a98d2`)
+**Unblocked by:** T057 (PR #104 merged `33a98d2`)
 **Branch:** feature/S025/T061-email-domain-settings-ui
 **PRD journey:** J001 (PRD-notification-system.md)
 
