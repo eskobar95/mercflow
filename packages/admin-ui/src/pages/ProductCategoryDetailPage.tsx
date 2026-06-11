@@ -2,6 +2,8 @@ import type { ReactNode } from "react"
 import { useMemo } from "react"
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 
+import { Breadcrumb } from "@/components/ui/Breadcrumb"
+
 import { CategoryContentTab } from "@/components/category-content/CategoryContentTab"
 import { CategoryMetafieldsSection } from "@/components/metafields/CategoryMetafieldsSection"
 import { CategoryOverviewSummary } from "@/components/product-categories/CategoryOverviewSummary"
@@ -12,6 +14,7 @@ import { buildHierarchyRowsFromCategories } from "@/features/product-categories/
 import { buildParentCategorySelectOptions } from "@/features/product-categories/buildParentCategorySelectOptions"
 import { collectSelfAndDescendantCategoryIds } from "@/features/product-categories/collectCategoryDescendants"
 import { useProductCategoryTreePicklist } from "@/hooks/useProductCategoryTreePicklist"
+import { useListReturnHref } from "@/hooks/useListReturnHref"
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
 type CategoryTabId = "overview" | "content"
@@ -19,6 +22,7 @@ type CategoryTabId = "overview" | "content"
 export function ProductCategoryDetailPage(): ReactNode {
   const { categoryId } = useParams<{ categoryId: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
+  const categoriesListHref = useListReturnHref("/product-categories")
   const hasBackend = resolveMedusaAdminBackendUrl() !== null
   const navigate = useNavigate()
 
@@ -121,14 +125,14 @@ export function ProductCategoryDetailPage(): ReactNode {
 
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <Link
-          to="/product-categories"
-          className="text-sm font-medium text-interactive-primary hover:text-interactive-primary-hover"
-        >
-          ← Product categories
-        </Link>
-        <h1 className="mt-2 text-2xl font-semibold text-content-primary">{title}</h1>
+      <Breadcrumb
+        items={[
+          { label: "Categories", href: categoriesListHref },
+          { label: title },
+        ]}
+      />
+      <div className="mb-6 mt-3">
+        <h1 className="text-2xl font-semibold text-content-primary">{title}</h1>
         <p className="mt-1 text-sm text-content-tertiary">
           Details from Medusa Admin product-category APIs (Medusa-compatible session or bearer token required).
         </p>

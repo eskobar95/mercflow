@@ -17,7 +17,7 @@ import {
   ORDER_FILTER_CATEGORIES,
 } from "@/features/orders/orderFilterCategories"
 import {
-  ORDER_LIST_COLUMNS,
+  createOrderListColumns,
   ORDER_LIST_SORT_OPTIONS,
 } from "@/features/orders/orderListColumns"
 import type { OrdersListSortColumn } from "@/features/orders/orderListSortValues"
@@ -51,12 +51,18 @@ export function OrdersListPageView({ model }: OrdersListPageViewProps): ReactNod
     onSortControlChange,
     runBulkFulfillment,
     getRowActions,
+    buildOrderDetailPath,
     resetAllFilters,
     clearFilterDates,
     sortControlColumn,
     sortControlDirection,
     resetPage,
   } = model
+
+  const columns = useMemo(
+    () => createOrderListColumns(buildOrderDetailPath),
+    [buildOrderDetailPath],
+  )
 
   const listControls = useMemo(
     () => (
@@ -241,7 +247,7 @@ export function OrdersListPageView({ model }: OrdersListPageViewProps): ReactNod
 
       <DataTable<OrderListRow, OrdersListSortColumn>
         aria-label="Orders list"
-        columns={ORDER_LIST_COLUMNS}
+        columns={columns}
         data={rows}
         getRowId={(row) => row.id}
         sortState={ui.sort}

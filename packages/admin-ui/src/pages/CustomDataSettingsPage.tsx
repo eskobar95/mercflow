@@ -10,6 +10,8 @@ import { PageHeader } from "@/components/ui/PageHeader"
 import { Select } from "@/components/ui/Select"
 import type { CustomDataEntityKey, CustomDataListTab } from "@/features/metafields/types"
 
+import { settingsCustomDataBreadcrumbs } from "@/config/settingsBreadcrumbs"
+
 import { useCustomDataSettingsPage } from "./useCustomDataSettingsPage"
 
 function listTabButtonClass(isActive: boolean): string {
@@ -77,6 +79,7 @@ export function CustomDataSettingsPage(): ReactNode {
       <PageHeader
         title="Custom data"
         description="Define structured fields for products and categories — no code required."
+        breadcrumbs={settingsCustomDataBreadcrumbs()}
         actions={
           <div className="flex flex-wrap gap-2">
             <Button

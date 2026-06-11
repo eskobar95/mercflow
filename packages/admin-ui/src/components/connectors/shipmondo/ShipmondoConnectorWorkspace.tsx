@@ -1,7 +1,9 @@
 import { type ReactNode } from "react"
-import { Link } from "react-router-dom"
 
 import { ShipmondoShippingRulesSection } from "@/components/connectors/shipmondo/ShipmondoShippingRulesSection"
+import { PageHeader } from "@/components/ui/PageHeader"
+
+import { settingsConnectorBreadcrumbs } from "@/config/settingsBreadcrumbs"
 
 import { ShipmondoCredentialsCard } from "./ShipmondoCredentialsCard"
 import { ShipmondoRecentTestsCard } from "./ShipmondoRecentTestsCard"
@@ -31,35 +33,19 @@ export function ShipmondoConnectorWorkspace(): ReactNode {
 
   return (
     <div className="p-6">
-      <Link
-        to="/settings/connectors"
-        className="text-sm font-medium text-interactive-primary hover:text-interactive-primary-hover"
-      >
-        ← Connectors
-      </Link>
-
-      <div className="mt-4 space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-content-tertiary">
-          Integrations
-        </p>
-        <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-          <div className="space-y-1">
-            <h1 className="text-2xl font-semibold text-content-primary">Shipmondo</h1>
-            <p className="max-w-2xl text-sm text-content-secondary">
-              Store your Shipmondo API credentials securely, control whether rates are exposed to
-              shoppers, and probe the live API without leaving the admin.
-            </p>
-          </div>
-          <div className="text-sm text-content-secondary">
-            <p>
-              Last probe:{" "}
-              <span className="font-medium text-content-primary">
-                {snapshot ? formatLastTestedAt(snapshot.lastTestedAt) : "—"}
-              </span>
-            </p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title="Shipmondo"
+        description="Store your Shipmondo API credentials securely, control whether rates are exposed to shoppers, and probe the live API without leaving the admin."
+        breadcrumbs={settingsConnectorBreadcrumbs("Shipmondo")}
+        actions={
+          <p className="text-sm text-content-secondary">
+            Last probe:{" "}
+            <span className="font-medium text-content-primary">
+              {snapshot ? formatLastTestedAt(snapshot.lastTestedAt) : "—"}
+            </span>
+          </p>
+        }
+      />
 
       {isLoading ? (
         <div className="mt-8 h-64 animate-pulse rounded-md border border-border-subtle bg-surface-subtle" />

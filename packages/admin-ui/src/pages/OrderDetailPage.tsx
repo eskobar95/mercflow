@@ -1,6 +1,7 @@
 import { type ReactNode } from "react"
 import { Link, useParams } from "react-router-dom"
 
+import { Breadcrumb } from "@/components/ui/Breadcrumb"
 import { Card } from "@/components/ui/Card"
 import { MainLoadingFallback } from "@/components/ui/MainLoadingFallback"
 import { OrderCustomerCard } from "@/components/orders/OrderCustomerCard"
@@ -12,11 +13,13 @@ import { OrderFulfillmentSection } from "@/components/orders/OrderFulfillmentSec
 import { OrderInternalNotesPanel } from "@/components/orders/OrderInternalNotesPanel"
 import { OrderStatusTimeline } from "@/components/orders/OrderStatusTimeline"
 import { useOrderDetail } from "@/hooks/useOrderDetail"
+import { useListReturnHref } from "@/hooks/useListReturnHref"
 import { formatAdminCurrency } from "@/utils/formatAdminCurrency"
 import { buildOrderTimeline } from "@/utils/buildOrderTimeline"
 
 export function OrderDetailPage(): ReactNode {
   const { orderId } = useParams<{ orderId: string }>()
+  const ordersListHref = useListReturnHref("/orders")
   const { order, isLoading, errorMessage, refetch } = useOrderDetail(orderId)
   if (isLoading && order === null && errorMessage === null) {
     return (
@@ -44,7 +47,7 @@ export function OrderDetailPage(): ReactNode {
               Retry
             </button>
             <Link
-              to="/orders"
+              to={ordersListHref}
               className="rounded-md bg-interactive-primary px-3 py-1.5 text-sm font-medium text-content-inverse focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
             >
               Back to orders
@@ -64,19 +67,18 @@ export function OrderDetailPage(): ReactNode {
   }
 
   const timeline = buildOrderTimeline(order)
+  const displayLabel = `#${order.displayId}`
 
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <Link
-          to="/orders"
-          className="text-sm font-medium text-interactive-primary hover:text-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
-        >
-          ← Orders
-        </Link>
-      </div>
+      <Breadcrumb
+        items={[
+          { label: "Orders", href: ordersListHref },
+          { label: displayLabel },
+        ]}
+      />
 
-      <header className="mb-6 flex flex-col gap-3 border-b border-border-subtle pb-6 lg:flex-row lg:items-start lg:justify-between">
+      <header className="mb-6 mt-4 flex flex-col gap-3 border-b border-border-subtle pb-6 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h1 className="text-xl font-semibold tracking-tight text-content-primary">
             Order #{order.displayId}

@@ -5,6 +5,7 @@ import { ProductContentTab } from "@/components/product-content/ProductContentTa
 import { ProductGalleryStrip } from "@/components/products/ProductGalleryStrip"
 import { ProductVariantsTable } from "@/components/products/ProductVariantsTable"
 import { Badge } from "@/components/ui/Badge"
+import { Breadcrumb } from "@/components/ui/Breadcrumb"
 import { Card } from "@/components/ui/Card"
 
 import type { ProductListRow } from "@/data/mockProducts"
@@ -12,6 +13,7 @@ import { MOCK_PRODUCTS } from "@/data/mockProducts"
 
 import type { DetailVariantRow } from "@/hooks/products/useAdminProductDetail"
 import { buildVariantRows, useAdminProductDetail } from "@/hooks/products/useAdminProductDetail"
+import { useListReturnHref } from "@/hooks/useListReturnHref"
 
 import { resolveMedusaAssetUrl } from "@/lib/products/resolveMedusaAssetUrl"
 import { previewPlainText } from "@/lib/text/previewPlainText"
@@ -35,6 +37,7 @@ function mockVariantFallback(row: ProductListRow): DetailVariantRow[] {
 export function ProductDetailPage(): ReactNode {
   const { productId } = useParams<{ productId: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
+  const productsListHref = useListReturnHref("/products")
   const hasBackend = resolveMedusaAdminBackendUrl() !== null
 
   const tab: DetailTabId =
@@ -135,14 +138,14 @@ export function ProductDetailPage(): ReactNode {
 
   return (
     <div className="p-4 md:p-6">
-      <div className="mb-6">
-        <Link
-          to="/products"
-          className="text-sm font-medium text-interactive-primary hover:text-interactive-primary-hover"
-        >
-          ← Products
-        </Link>
-        <div className="mt-3 flex flex-wrap items-center gap-3">
+      <Breadcrumb
+        items={[
+          { label: "Products", href: productsListHref },
+          { label: title },
+        ]}
+      />
+      <div className="mb-6 mt-3">
+        <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-2xl font-semibold tracking-tight text-content-primary">{title}</h1>
           <Badge variant="neutral" className="capitalize">
             {statusLabel}

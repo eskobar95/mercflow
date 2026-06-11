@@ -19,7 +19,10 @@ export const ORDER_LIST_SORT_OPTIONS: SortOption<OrdersListSortColumn>[] = [
   { id: "total", label: "Total" },
 ]
 
-export const ORDER_LIST_COLUMNS: ListColumnDef<OrderListRow, OrdersListSortColumn>[] = [
+export function createOrderListColumns(
+  buildOrderDetailPath: (orderId: string) => string,
+): ListColumnDef<OrderListRow, OrdersListSortColumn>[] {
+  return [
   {
     id: "displayId",
     header: "Order #",
@@ -28,7 +31,7 @@ export const ORDER_LIST_COLUMNS: ListColumnDef<OrderListRow, OrdersListSortColum
     getSortValue: ORDER_LIST_SORT_VALUE_GETTERS.displayId,
     renderCell: (row) => (
       <Link
-        to={`/orders/${encodeURIComponent(row.id)}`}
+        to={buildOrderDetailPath(row.id)}
         className="text-interactive-primary hover:text-interactive-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus"
       >
         #{row.displayId}
@@ -86,3 +89,4 @@ export const ORDER_LIST_COLUMNS: ListColumnDef<OrderListRow, OrdersListSortColum
     ),
   },
 ]
+}

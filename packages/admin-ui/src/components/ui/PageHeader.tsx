@@ -1,17 +1,13 @@
 import type { ReactNode } from "react"
-import { Link } from "react-router-dom"
+
+import { Breadcrumb, type BreadcrumbItem } from "@/components/ui/Breadcrumb"
 
 import { cn } from "@/lib/cn"
-
-type PageHeaderBreadcrumb = {
-  label: string
-  href?: string
-}
 
 type PageHeaderProps = {
   title: string
   description?: string
-  breadcrumbs?: PageHeaderBreadcrumb[]
+  breadcrumbs?: BreadcrumbItem[]
   actions?: ReactNode
   className?: string
 }
@@ -33,35 +29,7 @@ export function PageHeader({
         className,
       )}
     >
-      {breadcrumbs && breadcrumbs.length > 0 ? (
-        <nav aria-label="Breadcrumb" className="mb-2">
-          <ol className="flex flex-wrap items-center gap-1 text-xs text-content-tertiary">
-            {breadcrumbs.map((crumb, index) => {
-              const isLast = index === breadcrumbs.length - 1
-              return (
-                <li key={`${crumb.label}-${index}`} className="inline-flex items-center gap-1">
-                  {index > 0 ? <span aria-hidden>/</span> : null}
-                  {crumb.href && !isLast ? (
-                    <Link
-                      to={crumb.href}
-                      className="font-medium text-content-secondary hover:text-content-primary"
-                    >
-                      {crumb.label}
-                    </Link>
-                  ) : (
-                    <span
-                      className={isLast ? "font-medium text-content-secondary" : ""}
-                      aria-current={isLast ? "page" : undefined}
-                    >
-                      {crumb.label}
-                    </span>
-                  )}
-                </li>
-              )
-            })}
-          </ol>
-        </nav>
-      ) : null}
+      {breadcrumbs && breadcrumbs.length > 0 ? <Breadcrumb items={breadcrumbs} /> : null}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <h1 className="text-xl font-semibold text-content-primary sm:text-2xl">
@@ -76,3 +44,5 @@ export function PageHeader({
     </header>
   )
 }
+
+export type { BreadcrumbItem as PageHeaderBreadcrumb }
