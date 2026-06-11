@@ -50,7 +50,7 @@ MercFlow currently relies on Medusa's built-in notification infrastructure for t
 Each tenant provides a sending domain (e.g. `guapo.dk`). MercFlow registers this domain as an SES identity in our AWS account and returns DKIM + SPF records for the tenant to add to their DNS. Once verified:
 - Emails send from `noreply@guapo.dk` (or tenant-configured address)
 - SES configuration set per tenant for delivery metrics
-- Before verification: fallback to `noreply@mail.mercflow.com` with visible warning in admin
+- Before verification: fallback to `noreply@mail.mercflow.shop` with visible warning in admin
 
 ### React Email templates (JSX → HTML)
 
@@ -297,6 +297,6 @@ Per-tenant variables passed as props: `{ logoUrl, brandColor, storeName, support
 | # | Question | Decision |
 |---|----------|----------|
 | OQ-01 | SES bounce/complaint handling — SNS webhook to update `email_deliveries.status`? | Yes — register SES notification topic → MercFlow `POST /webhooks/ses` endpoint updates delivery status. Defer to v1.1 if delivery history is admin-only (no customer-facing bounce management). |
-| OQ-02 | Domain fallback behavior before verification: send from shared domain or queue and hold? | **Send from shared** (`noreply@mail.mercflow.com`) with clear admin warning. Do not hold — order confirmations cannot wait for DNS propagation. |
+| OQ-02 | Domain fallback behavior before verification: send from shared domain or queue and hold? | **Send from shared** (`noreply@mail.mercflow.shop`) with clear admin warning. Do not hold — order confirmations cannot wait for DNS propagation. |
 | OQ-03 | Where does the BullMQ worker run — same process as HTTP server or separate? | **Same process** in v1 (simpler ops). Extract to `apps/worker` if queue processing becomes a bottleneck. |
-| OQ-04 | `mercflow.com` SES domain — needs to be set up in AWS before any tenant can use fallback sending. | **Infrastructure prerequisite** (HITL): MercFlow team verifies `mail.mercflow.com` in SES before M012 ships. Tracked as T-infra-001. |
+| OQ-04 | `mercflow.shop` SES domain — needs to be set up in AWS before any tenant can use fallback sending. | **Infrastructure prerequisite** (HITL): MercFlow team verifies `mail.mercflow.shop` in SES before M012 ships. **Done** 2026-06-11 (eu-north-1). |

@@ -547,7 +547,7 @@ flowchart LR
 
 **Dependencies:** M011
 
-**Infrastructure prerequisite (HITL):** MercFlow team verifies `mail.mercflow.com` in AWS SES as fallback sending domain before M012 ships. Tracked as OQ-04 in PRD.
+**Infrastructure prerequisite (HITL):** MercFlow team verifies `mail.mercflow.shop` in AWS SES as fallback sending domain before M012 ships. Tracked as OQ-04 in PRD. **Done** 2026-06-11 (eu-north-1).
 
 **Definition of done:**
 - [ ] Order confirmation email sent within 30s of `order.placed` (p95)

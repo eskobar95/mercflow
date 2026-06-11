@@ -2852,10 +2852,12 @@ Order detail gemmer merchant's packaging-valg (suggestion accept eller override)
 **Sprint:** S024
 **Milestone:** M012
 **Status:** todo
-**Mode:** HITL
-**HITL reason:** AWS SES account prerequisites kræver menneskelig handling inden T057 kan køre end-to-end: (1) IAM-bruger med SES send+identity permissions, (2) SES sandbox exit for production sending, (3) `mail.mercflow.com` verificeret som fallback sending domain (PRD OQ-04)
+**Mode:** AFK
+**HITL approved:** 2026-06-11 — mail.mercflow.shop verified (eu-north-1); IAM user mercflow + AWS_* in apps/backend/.env; production SES (50k/day quota, no sandbox banner)
+**HITL reason:** AWS SES account prerequisites kræver menneskelig handling inden T057 kan køre end-to-end: (1) IAM-bruger med SES send+identity permissions, (2) SES sandbox exit for production sending, (3) `mail.mercflow.shop` verificeret som fallback sending domain (PRD OQ-04)
 **Parallel group:** A
-**Blocked by:** T056
+**Blocked by:** none
+**Unblocked by:** T056 (PR #97 merged `d7194a4`)
 **Branch:** feature/S024/T057-ses-domain-identity
 **PRD journey:** J001 (PRD-notification-system.md)
 **ADRs:** ADR-009
@@ -2885,12 +2887,12 @@ Merchant kan sætte deres sending domain op i MercFlow og modtager de 4 DNS reco
 ### Context for implementing agent
 
 - HITL checkpoint INDEN test: AWS IAM credentials skal være i `.env`; SES sandbox exit kan tage 24h
-- `fallback_from` sættes automatisk til `noreply@mail.mercflow.com` i EmailConfig ved oprettelse
+- `fallback_from` sættes automatisk til `noreply@mail.mercflow.shop` i EmailConfig ved oprettelse
 - Hvis `ses_domain_status != 'verified'`: `from_email` i leveringer bruger `fallback_from` automatisk (logik i worker, T058)
 
 ### Definition of done
 
-- [ ] HITL: AWS prerequisites on checklist completed (IAM + sandbox + mail.mercflow.com)
+- [x] HITL: AWS prerequisites on checklist completed (IAM + sandbox + mail.mercflow.shop)
 - [ ] `setupDomain` returnerer korrekte DNS records for test-domain
 - [ ] `checkDomainStatus` opdaterer status korrekt
 - [ ] Admin API returnerer korrekte records og status
@@ -2906,7 +2908,8 @@ Merchant kan sætte deres sending domain op i MercFlow og modtager de 4 DNS reco
 **Status:** todo
 **Mode:** AFK
 **Parallel group:** A
-**Blocked by:** T056
+**Blocked by:** none
+**Unblocked by:** T056 (PR #97 merged `d7194a4`)
 **Branch:** feature/S024/T058-notification-worker
 **PRD journey:** J003 (PRD-notification-system.md)
 **ADRs:** ADR-009
@@ -3061,7 +3064,7 @@ Merchant kan konfigurere og verificere deres sending domain i admin. DNS records
 - DNS records tabel: Type (CNAME/TXT), Name, Value — copy-to-clipboard per row
 - Verifikationsstatus badge: Pending (gul) / Verified (grøn) / Failed (rød)
 - Auto-refresh: `useInterval(checkStatus, 30_000)` mens status = pending
-- Fallback info: "Emails send from noreply@mail.mercflow.com until verified"
+- Fallback info: "Emails send from noreply@mail.mercflow.shop until verified"
 - Settings sidebar: "Email" under Communications sektion
 
 ### Definition of done
@@ -3082,7 +3085,8 @@ Merchant kan konfigurere og verificere deres sending domain i admin. DNS records
 **Status:** todo
 **Mode:** AFK
 **Parallel group:** A
-**Blocked by:** T056
+**Blocked by:** none
+**Unblocked by:** T056 (PR #97 merged `d7194a4`)
 **Branch:** feature/S026/T062-email-branding-ui
 **PRD journey:** J002 (PRD-notification-system.md)
 
@@ -3115,7 +3119,8 @@ Merchant kan tilpasse emailbranding (logo, farve, butiksnavns, reply-to, support
 **Status:** todo
 **Mode:** AFK
 **Parallel group:** A
-**Blocked by:** T056
+**Blocked by:** none
+**Unblocked by:** T056 (PR #97 merged `d7194a4`)
 **Branch:** feature/S026/T063-email-delivery-history-ui
 **PRD journey:** J004 (PRD-notification-system.md)
 
