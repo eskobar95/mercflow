@@ -3399,12 +3399,12 @@ Operatorer kan se alle BullMQ køer med live job-counts, DLQ-størrelse markeret
 
 ### Definition of done
 
-- [ ] Alle aktive BullMQ køer vises med korrekte counts
-- [ ] DLQ > 0 vises tydeligt (rød badge)
-- [ ] Fejlet job viser full error message + stack trace
-- [ ] Retry enqueuer job igen (verificeres manuelt)
-- [ ] Data refreshes hvert 10s
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] Alle aktive BullMQ køer vises med korrekte counts
+- [x] DLQ > 0 vises tydeligt (rød badge)
+- [x] Fejlet job viser full error message + stack trace
+- [x] Retry enqueuer job igen (verificeres manuelt)
+- [x] Data refreshes hvert 10s
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 
