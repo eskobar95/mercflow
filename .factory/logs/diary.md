@@ -1769,6 +1769,31 @@ Production checklist in `apps/platform-console/README.md` — revert gmail.com o
 
 ---
 
+## Task T070 — Email health + system metrics + audit log UI — 2026-06-11
+
+**Sprint:** S031 | **Milestone:** M014 | **Status:** done
+**Branch:** `feature/S031/T070-platform-email-system-audit`
+**PR:** https://github.com/eskobar95/mercflow/pull/111
+**Mode:** AFK
+**Parallel group:** B
+
+### Outcome
+Cross-tenant platform email/system/audit APIs and Platform Console pages with 30s metrics refresh.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+T071
+
+---
+
 ## Task T068 — Tenant management — 2026-06-11
 
 **Sprint:** S030 | **Milestone:** M014 | **Status:** done
@@ -1790,7 +1815,7 @@ Platform tenant list, SSE provision, suspend with audit log, and platform-consol
 | Revision cycles | 1 |
 
 ### Unblocked
-T070
+none (T070 already merged via PR #111)
 
 ---
 
@@ -1828,11 +1853,11 @@ none
 ### What went well
 - T067 dependency cleared (PR #107 merged); both parallel tasks shipped in one session
 - Group A parallel dispatch completed without cross-branch conflicts
-- CI green on both PRs (#112, #113) on first iteration
+- CI green on both PRs (#112, #113) after merge conflict resolution with T070 (#111)
 
 ### What failed or slowed down
 - Harness preflight still references `dev` branch; MercFlow uses `development` (ADR-002)
-- T068 needed one revision cycle; T069 landed on first pass
+- T068 needed one revision cycle; merge conflicts with S031/T070 required manual resolution
 
 ### Task log index
 | Task | Final status | See diary section |
@@ -1857,6 +1882,46 @@ none
 | skill | Lead should commit planning sync to development after sprint retro | skills/harness/retro/SKILL.md |
 
 ### Next actions
-- [ ] Merge PR #112 and #113 to `development`
-- [ ] `/run-sprint S031` — T070 (email health + system metrics + audit log UI)
-- [ ] `/milestone-review M014` after S031
+- [x] Merge PR #112 to `development`
+- [ ] Merge PR #113 and #114 to `development`
+- [ ] `/milestone-review M014` after S030 PRs merged
+
+---
+
+## Sprint retro — S031 — 2026-06-11
+
+**Milestone:** M014
+**Duration:** session (T070 harness dispatch)
+**Tasks:** 1/1 done, 0 blocked
+
+### What went well
+- Solo sprint completed in one subagent pass with CI green on PR #111
+- Backend platform routes + three console pages delivered end-to-end
+
+### What failed or slowed down
+- One revision cycle (verify/lint fixes before review)
+- Harness `dev` vs MercFlow `development` branch naming mismatch (ADR-002)
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T070 | done | Task T070 — 2026-06-11 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T070 | 1 | lint/type fixes in revision 1 |
+
+### Harness notes
+- Parallel groups used: B (solo)
+- Subagent issues: none
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Default integration branch to `development` in implement/close skills | `.cursor/skills/harness/implement/SKILL.md` |
+| skill | Preflight should check `development` when `dev` missing | `.cursor/skills/harness/harness/SKILL.md` |
+
+### Next actions
+- [x] Merge PR #111 to `development`
+- [ ] `/run-sprint S032` — T071 subscription-module foundation

@@ -53,7 +53,7 @@
 | S028 | M013 | Settings landing page + route reorganisation + breadcrumbs | T065, T066 | planned |
 | S029 | M014 | Platform Console scaffold + Clerk auth + /platform/ backend skeleton (HITL) | T067 | done |
 | S030 | M014 | Tenant management + BullMQ queue monitor (parallel) | T068, T069 | done |
-| S031 | M014 | Email health + system metrics + audit log UI | T070 | planned |
+| S031 | M014 | Email health + system metrics + audit log UI | T070 | done |
 | S032 | M015 | subscription-module foundation: models, migrations, RLS, service, admin API | T071 | planned |
 | S033 | M015 | BullMQ renewal worker + subscription admin UI (parallel) | T072, T073 | planned |
 | S034 | M015 | Customer Club Stripe setup (HITL) + per-product member price UI (parallel) | T074, T075 | planned |
