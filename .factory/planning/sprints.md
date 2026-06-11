@@ -16,6 +16,7 @@
 > Updated: 2026-06-11 (S027–S034 added — M013 Admin Shell, M014 Platform Console, M015 Subscription System; ADR-011 Clerk auth)
 > Updated: 2026-06-11 (S027 done — T064 Clerk auth + AppShell; PR #96 merged `3fe6dc0`)
 > Updated: 2026-06-11 (S024 merged to `development` — PR #104 `33a98d2`, PR #103 `eea674c`)
+> Updated: 2026-06-11 (S029 T067 done — PR #107; local smoke + production checklist in platform-console README)
 
 > Updated: 2026-06-11 (S025 done — T059 PR #108, T061 PR #109; `/run-sprint S025`)
 
@@ -49,7 +50,7 @@
 | S026 | M012 | Remaining templates + branding UI + delivery history UI | T060, T062, T063 | planned |
 | S027 | M013 | Clerk auth integration (Store Admin) + AppShell + sidebar (HITL) | T064 | done |
 | S028 | M013 | Settings landing page + route reorganisation + breadcrumbs | T065, T066 | planned |
-| S029 | M014 | Platform Console scaffold + Clerk auth + /platform/ backend skeleton (HITL) | T067 | active |
+| S029 | M014 | Platform Console scaffold + Clerk auth + /platform/ backend skeleton (HITL) | T067 | done |
 | S030 | M014 | Tenant management + BullMQ queue monitor (parallel) | T068, T069 | planned |
 | S031 | M014 | Email health + system metrics + audit log UI | T070 | planned |
 | S032 | M015 | subscription-module foundation: models, migrations, RLS, service, admin API | T071 | planned |
