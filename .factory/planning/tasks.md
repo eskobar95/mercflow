@@ -3606,7 +3606,7 @@ Merchants kan konfigurere en Customer Club (navn, månedspris, fallback % rabat)
 
 **Sprint:** S034
 **Milestone:** M015
-**Status:** todo
+**Status:** in-review
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T071
