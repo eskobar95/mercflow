@@ -2166,3 +2166,72 @@ none
 **Approver:** human
 **Note:** Stripe test credentials supplied for local dev harness. Production model: per-store connector_config (connector-module); env vars are dev fallback only. Implement T074 must resolve secret_key + webhook_secret from connector row via mercflowResolveStripeSecretKey / connector decrypt — not hardcode merchant secrets in env for production paths.
 **Next:** `/run-task T074` or `/run-sprint S034`
+
+---
+
+## Task T074 — Customer Club Stripe setup — 2026-06-12
+
+**Sprint:** S034 | **Milestone:** M015 | **Status:** done
+**Branch:** `feature/S034/T074-customer-club-stripe-setup`
+**PR:** https://github.com/eskobar95/mercflow/pull/119
+**Mode:** AFK (HITL approved 2026-06-11)
+**Parallel group:** A
+
+### Outcome
+Customer Club Stripe webhook (HMAC), club_members group sync, subscription-config API + Settings UI with dynamic Stripe Product creation via connector credentials
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none
+
+---
+
+## Sprint retro — S034 — 2026-06-12 (complete)
+
+**Milestone:** M015
+**Duration:** session (T074 completion after HITL approval)
+**Tasks:** 2/2 done, 0 blocked
+
+### What went well
+- T074 completed with zero revision cycles after HITL approval; CI green on first pass (PR #119)
+- Existing branch work from prior session accelerated closeout
+- T075 already done (PR #118) from prior run
+
+### What failed or slowed down
+- First S034 run skipped T074 pending HITL — resolved via human checkpoint
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T074 | done | Task T074 — 2026-06-12 |
+| T075 | done | Task T075 — 2026-06-11 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T074 | 0 | — |
+| T075 | 0 | — |
+
+### Harness notes
+- Requested sprint S035 not in planning — executed S034 (active, T074 runnable)
+- Base branch: `development` (no `dev` branch)
+- Single subagent dispatch for T074 group A
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| command | Clarify sprint ID validation — report nearest active sprint when requested ID missing | `.cursor/commands/harness/run-sprint.md` |
+
+### Next actions
+- [ ] Merge PR #119 to `development`
+- [ ] Merge PR #118 to `development` (if not already merged)
+- [ ] `/milestone-review M015`
+- [ ] Plan next sprint via `/to-backlog` (S035+ not yet defined)

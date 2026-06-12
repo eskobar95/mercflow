@@ -56,7 +56,7 @@
 | S031 | M014 | Email health + system metrics + audit log UI | T070 | done |
 | S032 | M015 | subscription-module foundation: models, migrations, RLS, service, admin API | T071 | done |
 | S033 | M015 | BullMQ renewal worker + subscription admin UI (parallel) | T072, T073 | done |
-| S034 | M015 | Customer Club Stripe setup (HITL) + per-product member price UI (parallel) | T074, T075 | active |
+| S034 | M015 | Customer Club Stripe setup (HITL) + per-product member price UI (parallel) | T074, T075 | done |
 
 ---
 
