@@ -3225,7 +3225,7 @@ Kræver at operatøren opretter Clerk-konto + to apps (`mercflow-store-admin`, `
 
 **Sprint:** S028
 **Milestone:** M013
-**Status:** done
+**Status:** done — superseded by T076 (M016)
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T064
@@ -3339,6 +3339,18 @@ Kræver at operatøren tilføjer `mercflow-platform` Clerk app (gratis, ~2 min),
 - [x] `platformDb` forbindelsen kører som `mercflow_owner` (BYPASSRLS verificeret via test-query — local: `mercflow` superuser)
 - [x] Sidebar placeholder-sektioner renderes (Tenants, Queues, Email, System, Audit)
 - [x] `pnpm typecheck` + `pnpm lint` grøn
+
+### Deferred — human HITL, not now (2026-06-11)
+
+Scaffold er merged og kører lokalt. **Vent med Hetzner production deploy** indtil vi aktivt går live med console:
+
+| Item | Status | When |
+|------|--------|------|
+| Traefik operator **/32 IPs** i `platform-console.yml` | Config scaffold committed; **IPs not set** | Human HITL før `console.mercflow.shop` go-live |
+| **`platform-console` Docker Compose service** + static build deploy | **Not in compose yet** | Same HITL slice — efter console features (S030+) eller eksplicit deploy-beslutning |
+| DNS `console.mercflow.shop` → Hetzner | Not done | Same go-live gate |
+
+Continue S030 feature work (T068/T069) against local dev; production infra steps stay in README checklist + RUNBOOK until deliberate go-live.
 
 ---
 
@@ -3570,16 +3582,18 @@ Merchants kan se og administrere alle subscriptions fra Store Admin — søge ef
 
 **Sprint:** S034
 **Milestone:** M015
-**Status:** todo
-**Mode:** HITL
+**Status:** done
+**Mode:** AFK
+**HITL approved:** 2026-06-11 — Stripe test credentials supplied for local dev; production uses connector-module encrypted credentials (Settings → Connectors → Stripe), not merchant secrets in env.
 **Parallel group:** A
 **Blocked by:** T071
 **Branch:** feature/S034/T074-customer-club-stripe-setup
+**PR:** https://github.com/eskobar95/mercflow/pull/119
 **PRD journey:** J004, J005 (PRD-subscription-system.md)
 
 ### HITL reason
 
-Kræver Stripe webhook endpoint opsat med HMAC-signatur verificering, og live Stripe product ID til club membership oprettet i Stripe dashboard. Kræver `STRIPE_CLUB_WEBHOOK_SECRET` og `STRIPE_SECRET_KEY` i env.
+Kræver Stripe webhook endpoint med HMAC-signaturverificering og Club membership Stripe Product oprettet via API ved save. **Produktion:** `secret_key` + `webhook_secret` fra per-store `connector_config` (connector-module). **Lokal dev:** env-fallback (`STRIPE_API_KEY` / `STRIPE_SECRET_KEY`) eller Admin → Connectors → Stripe; webhook test via `stripe listen --forward-to`.
 
 ### Slice objective
 
@@ -3606,11 +3620,12 @@ Merchants kan konfigurere en Customer Club (navn, månedspris, fallback % rabat)
 
 **Sprint:** S034
 **Milestone:** M015
-**Status:** in-review
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T071
 **Branch:** feature/S034/T075-product-club-price-ui
+**PR:** https://github.com/eskobar95/mercflow/pull/118
 **PRD journey:** J006 (PRD-subscription-system.md)
 
 ### Slice objective
@@ -3633,5 +3648,133 @@ Merchants kan sætte en eksplicit Club-pris på et produkt direkte fra Product-f
 
 ---
 
-<!-- Total: T001–T075 | AFK: 59 | HITL: 12 (T003, T008, T013, T023, T027, T033, T036, T053, T057, T064, T067, T074) | Cancelled: T029 -->
-<!-- Sprints: S001–S034 | Milestones: M000–M015 -->
+## M016 — Settings Architecture
+
+---
+
+## T076 — SettingsShell layout + `settingsNav.ts` config + `/settings` redirect
+
+**Sprint:** S035
+**Milestone:** M016
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** solo
+**Blocked by:** T064 (AppShell + router foundation)
+**Branch:** feature/S035/T076-settings-shell
+**PRD journey:** J001, J002 (PRD-settings-architecture.md)
+**ADRs:** ADR-012
+
+### Slice objective
+
+Alle `/settings/*` routes er pakket ind i en `SettingsShell` layout der viser en persistent sekundær sidebar med 8 grupperinger. `/settings` redirecter automatisk til `/settings/general`. Ingen card-landing page eksisterer mere.
+
+### Layers in scope
+
+- **UI:** `packages/admin-ui/`
+  - `src/config/settingsNav.ts` — ny SSOT: `SETTINGS_NAV_GROUPS` typed config (group label + icon + items array) for alle 8 grupper (Store, Sales, Shipping, Customers, Communication, Team, Apps, Developers)
+  - `src/components/layout/SettingsShell.tsx` — layout-komponent: to-kolonne layout (sekundær sidebar venstre + `<Outlet />` højre); sidebar renderer `SETTINGS_NAV_GROUPS`; aktiv gruppe auto-expanded; aktiv item highlighted via `useMatch`
+  - `src/router.tsx` — `/settings` nested layout route bruger `SettingsShell`; index route redirecter til `/settings/general` via `<Navigate to="/settings/general" replace />`
+  - `src/config/settingsSections.ts` — `SETTINGS_LANDING_SECTIONS` og `SETTINGS_PATHS` depreceres / erstattes af `settingsNav.ts`
+  - `src/pages/SettingsPage.tsx` (card grid) — fjernes; erstattes af redirect
+
+### Definition of done
+
+- [ ] `/settings` redirecter til `/settings/general` — ingen card landing page
+- [ ] `SettingsShell` vises på alle `/settings/*` routes med persistent sidebar
+- [ ] Alle 8 grupper synlige i sidebar: Store, Sales, Shipping, Customers, Communication, Team, Apps, Developers
+- [ ] Aktiv sub-item highlighted; aktiv gruppe auto-expanded
+- [ ] `SETTINGS_LANDING_SECTIONS` fjernet — ingen imports tilbage i kodebasen
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T077 — Settings route remapping + placeholder pages for alle nye sektioner
+
+**Sprint:** S036
+**Milestone:** M016
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T076
+**Branch:** feature/S036/T077-settings-route-remapping
+**PRD journey:** J001, J004 (PRD-settings-architecture.md)
+**ADRs:** ADR-012
+
+### Slice objective
+
+Alle eksisterende settings-sider er korrekt placeret i de nye grupper i `SettingsShell`. 6 nye sektioner uden feature-sider får clean placeholder-screens. Ingen 404s på hverken gamle eller nye paths.
+
+### Layers in scope
+
+- **UI:** `packages/admin-ui/`
+  - `src/pages/settings/SettingsPlaceholderPage.tsx` — genbrugelig placeholder: `title` + `description` props; "Coming soon" callout; korrekt breadcrumb/sidebar active state
+  - Nye placeholder-routes i `router.tsx`:
+    - `/settings/policies` → `SettingsPlaceholderPage` ("Policies")
+    - `/settings/taxes` → `SettingsPlaceholderPage` ("Taxes")
+    - `/settings/checkout` → `SettingsPlaceholderPage` ("Checkout")
+    - `/settings/customer-accounts` → `SettingsPlaceholderPage` ("Customer accounts")
+    - `/settings/returns` → `SettingsPlaceholderPage` ("Returns")
+    - `/settings/notifications` → `SettingsPlaceholderPage` ("Notifications")
+  - `/settings/team` → eksisterende `TeamSettingsPage` (route tilføjes hvis mangler)
+  - Redirects i `router.tsx` for gamle paths der ændrer sig:
+    - `/settings/connectors` → `/settings/apps`
+    - `/settings/store-details` → `/settings/general`
+  - `SETTINGS_NAV_GROUPS` i `settingsNav.ts` opdateres med korrekte ikoner + paths for alle items (verificeres mod eksisterende ikonbibliotek i `components/ui/icons`)
+
+### Definition of done
+
+- [ ] Alle 6 nye placeholder-routes returnerer clean placeholder page (ingen 404)
+- [ ] `/settings/team` viser `TeamSettingsPage`
+- [ ] `/settings/connectors` → `/settings/apps` redirect virker
+- [ ] `/settings/store-details` → `/settings/general` redirect virker
+- [ ] `SettingsPlaceholderPage` har korrekt title, description og "Coming soon" markering
+- [ ] Alle sidebar-items i alle 8 grupper har korrekte paths + ikoner
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T078 — `/settings/apps` overview page med connector status
+
+**Sprint:** S036
+**Milestone:** M016
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T076
+**Branch:** feature/S036/T078-settings-apps-overview
+**PRD journey:** J003 (PRD-settings-architecture.md)
+**ADRs:** ADR-012
+
+### Slice objective
+
+Merchant kan åbne Settings → Apps → Overview og se alle 4 connectors (Stripe, Shipmondo, Plunk, GTM) med status-badge (Connected / Error / Not configured) og et link til den kontekstuelle konfigurations-side.
+
+### Layers in scope
+
+- **Backend** (connector-module, kun hvis nødvendigt):
+  - Tjek `GET /admin/connectors` i connector-module — returnerer det en liste med connector-objekter?
+  - Hvis ja og der ikke er et `status` felt: tilføj `status: "connected" | "error" | "not_configured"` til response-shape (service-layer logik: credentials present + last_verified_at inden for 24h = connected; credentials present + error = error; ingen credentials = not_configured)
+  - Hvis endpoint ikke eksisterer: tilføj simpelt `GET /admin/connectors` route der returnerer `{ connectors: ConnectorStatus[] }`
+- **UI:** `packages/admin-ui/`
+  - `src/pages/settings/AppsOverviewSettingsPage.tsx` — liste af connector-kort: navn, ikon, status-badge, beskrivelse, "Configure" link → kontekstuel settings-side
+  - Status-badge: grøn (Connected), rød (Error), grå (Not configured)
+  - "Configure" links: Stripe → `/settings/payments`; Shipmondo → `/settings/shipping/carriers`; Plunk → `/settings/notifications`; GTM → eksisterende GTM-page
+  - Route i `router.tsx`: `/settings/apps` → `AppsOverviewSettingsPage`
+  - Erstatter `ConnectorsPage.tsx` som primær connector-oversigt
+
+### Definition of done
+
+- [ ] `/settings/apps` viser alle 4 connectors med korrekt navn + ikon
+- [ ] Status-badge afspejler faktisk connector-tilstand (Connected / Error / Not configured)
+- [ ] "Configure" link for hver connector navigerer til korrekt kontekstuel side
+- [ ] `GET /admin/connectors` returnerer status-felt (tilføjet eller bekræftet eksisterende)
+- [ ] Ingen cross-tenant connector data (eksisterende connector-module RLS dækker)
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+<!-- Total: T001–T078 | AFK: 62 | HITL: 12 (T003, T008, T013, T023, T027, T033, T036, T053, T057, T064, T067, T074) | Cancelled: T029 -->
+<!-- Sprints: S001–S036 | Milestones: M000–M016 -->

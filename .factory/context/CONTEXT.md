@@ -366,4 +366,53 @@
 
 ---
 
+## Settings — MercFlow Store Admin
+
+**Meaning:** The `/settings` section of Store Admin. A full MercFlow-owned UI that wraps Medusa-core APIs and MercFlow module APIs in MercFlow's own design system and UX patterns. Merchants never see raw Medusa pages — all settings live inside MercFlow admin.
+
+**Navigation model:** Persistent secondary sidebar sub-navigation (Model A — Shopify/Linear pattern). Clicking "Settings" in the main nav opens a settings shell with:
+- Left: grouped sub-nav (always visible while in settings)
+- Right: the active settings page content
+
+**Sidebar grouping:**
+
+```
+Settings
+├── Butik
+│   ├── Generelt          (store name, address, currency, timezone)
+│   └── Politikker        (privacy, returns, terms, shipping policy, legal notice)
+├── Salg
+│   ├── Betalinger        (payment providers — Stripe, MobilePay config surfaces here)
+│   ├── Skatter og told   (Medusa tax regions + global tax settings)
+│   └── Kasse             (checkout contact method, marketing consent, abandoned cart)
+├── Forsendelse
+│   ├── Leveringsprofiler (Medusa shipping profiles + zones)
+│   └── Fragtlabels       (Shipmondo config surfaces here)
+├── Kunder
+│   ├── Kundekonti        (login visibility, self-service returns toggle, store credit)
+│   └── Returregler       (return window, conditions)
+├── Kommunikation
+│   ├── Email             (sender domain, DNS/DMARC, branding, delivery log)
+│   └── Notifikationer    (email templates, staff notifications, webhooks)
+├── Team
+│   └── Brugere og roller (Clerk-based staff management)
+├── Apps
+│   └── Oversigt          (all connected apps with status — global view)
+│       (Stripe, Shipmondo, Plunk, GTM configure contextually in relevant sections above)
+└── Udviklere
+    └── Custom Data       (metafield definitions for products, variants, categories)
+```
+
+**Apps model:** Two-level. A global `/settings/apps` overview page lists all installed/connected apps with status (connected / error / not configured). Configuring an app happens contextually within the relevant Settings section (e.g. Stripe lives under Betalinger, Shipmondo under Fragtlabels). The Apps overview links to the contextual config location.
+
+**Landing page:** `/settings` auto-redirects to `/settings/general`. No settings overview page. Every settings route renders a concrete settings page directly.
+
+**Not:** A page that links to Medusa's own admin pages. Not a flat list (Shopify's flat nav). Not the Platform Console settings. No settings "home" or dashboard page.
+
+**Priority (build order):** Kritiske gaps first — Butik (Generelt + Politikker), Kommunikation (Email + Notifikationer), then Salg, Forsendelse, Kunder, Apps, Udviklere.
+
+**See:** M016 (settings architecture PRD), M013 (navigation shell), M012 (notification-module — feeds Email + Notifikationer pages)
+
+---
+
 <!-- Add terms below during /align sessions -->

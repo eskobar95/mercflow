@@ -1739,7 +1739,9 @@ Platform Console Vite app (:5174), `/platform/health` with Clerk JWT + platformD
 T068, T069, T070
 
 ### Follow-up (human, post-merge)
-Production checklist in `apps/platform-console/README.md` — revert gmail.com override, mercflow.shop domain, Hetzner Traefik + Neon owner role.
+Production checklist in `apps/platform-console/README.md` — revert gmail.com override, mercflow.shop domain, Neon `mercflow_owner` role.
+
+**Deferred — do not do yet (2026-06-11):** Traefik operator IPs in `platform-console.yml`, `platform-console` compose service, DNS `console.mercflow.shop`. Wait for explicit go-live HITL after S030+ feature work or a dedicated deploy decision.
 
 ---
 
@@ -2084,3 +2086,147 @@ none
 - [ ] Merge PR #116 and #117 to `development`
 - [ ] `/run-sprint S034` — T074 (HITL) + T075 (AFK)
 - [ ] `/milestone-review M015` after S034
+
+---
+
+## Task T074 — Customer Club Stripe setup — 2026-06-11
+
+**Sprint:** S034 | **Status:** skipped
+**Reason:** HITL — awaiting human checkpoint before implement (`/hitl-checkpoint T074`)
+
+---
+
+## Task T075 — Per-product club member price UI — 2026-06-11
+
+**Sprint:** S034 | **Milestone:** M015 | **Status:** done
+**Branch:** `feature/S034/T075-product-club-price-ui`
+**PR:** https://github.com/eskobar95/mercflow/pull/118
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Club member price API (price_list upsert/delete) + Product edit Pricing section gated on `club_enabled`
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none
+
+---
+
+## Sprint retro — S034 — 2026-06-11
+
+**Milestone:** M015
+**Duration:** session
+**Tasks:** 1/2 done, 0 blocked (1 HITL skipped)
+
+### What went well
+- T075 implemented end-to-end with zero revision cycles; CI green on first pass (PR #118)
+- Club pricing backend + admin UI integrated with existing subscription-module foundation
+
+### What failed or slowed down
+- T074 skipped — HITL checkpoint required for Stripe webhook secrets and live Stripe product setup
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T074 | skipped (HITL) | Task T074 — 2026-06-11 |
+| T075 | done | Task T075 — 2026-06-11 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T075 | 0 | — |
+
+### Harness notes
+- Parallel groups used: A (1 AFK subagent; 1 HITL skipped)
+- Subagent issues: none
+- Base branch: `development` (no `dev` branch in repo)
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Default integration branch to `development` in implement/close skills | `.cursor/skills/harness/implement/SKILL.md` |
+| skill | Preflight should accept `development` when `dev` missing | `.cursor/skills/harness/harness/SKILL.md` |
+
+### Next actions
+- [ ] Human: `/hitl-checkpoint T074` then re-run `/run-sprint S034` or `/run-task T074`
+- [ ] Merge PR #118 to `development`
+- [ ] `/milestone-review M015` after T074 done
+
+---
+
+## HITL approved — T074 — 2026-06-11
+
+**Approver:** human
+**Note:** Stripe test credentials supplied for local dev harness. Production model: per-store connector_config (connector-module); env vars are dev fallback only. Implement T074 must resolve secret_key + webhook_secret from connector row via mercflowResolveStripeSecretKey / connector decrypt — not hardcode merchant secrets in env for production paths.
+**Next:** `/run-task T074` or `/run-sprint S034`
+
+---
+
+## Task T074 — Customer Club Stripe webhook + settings UI — 2026-06-11
+
+**Sprint:** S034 | **Milestone:** M015 | **Status:** done
+**Branch:** `feature/S034/T074-customer-club-stripe-setup`
+**PR:** https://github.com/eskobar95/mercflow/pull/119
+**Mode:** AFK (HITL approved 2026-06-11)
+**Parallel group:** A
+
+### Outcome
+Customer Club Stripe webhook (HMAC), club_members group sync, subscription-config API + Settings UI with dynamic Stripe Product creation via connector credentials
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+none
+
+---
+
+## Sprint retro — S034 — 2026-06-11 (complete)
+
+**Milestone:** M015
+**Duration:** session (2 runs — T075 then T074 after HITL)
+**Tasks:** 2/2 done, 0 blocked
+
+### What went well
+- T075 club pricing + T074 Customer Club config/webhook both shipped with green CI
+- HITL checkpoint clarified connector-module credential model vs env fallback
+- T074 CI green on first pass (PR #119)
+
+### What failed or slowed down
+- First S034 run skipped T074 pending HITL — resolved via human checkpoint + credential handoff
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T074 | done | Task T074 — 2026-06-11 |
+| T075 | done | Task T075 — 2026-06-11 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T074 | 1 | — |
+| T075 | 0 | — |
+
+### Harness notes
+- Parallel groups used: A
+- Base branch: `development` (no `dev` branch)
+- Subagent issues: none
+
+### Next actions
+- [ ] Merge PR #118 and #119 to `development`
+- [ ] `/milestone-review M015`
