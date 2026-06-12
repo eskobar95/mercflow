@@ -5,9 +5,11 @@ import {
   IconCustomers,
   IconEmail,
   IconGlobals,
+  IconInventory,
   IconPackaging,
   IconSettings,
   IconTeam,
+  IconWorkspace,
   type IconComponent,
 } from "@/components/ui/icons"
 
@@ -58,7 +60,7 @@ export const SETTINGS_NAV_GROUPS: SettingsNavGroup[] = [
     label: "Store",
     icon: IconSettings,
     items: [
-      { label: "General", path: SETTINGS_PATHS.general, icon: IconSettings },
+      { label: "General", path: SETTINGS_PATHS.general, icon: IconWorkspace },
       { label: "Policies", path: SETTINGS_PATHS.policies, icon: IconGlobals },
       { label: "SEO", path: SETTINGS_PATHS.seo, icon: IconGlobals },
     ],
@@ -76,7 +78,7 @@ export const SETTINGS_NAV_GROUPS: SettingsNavGroup[] = [
     label: "Shipping",
     icon: IconPackaging,
     items: [
-      { label: "Profiles", path: SETTINGS_PATHS.shipping, icon: IconPackaging },
+      { label: "Profiles", path: SETTINGS_PATHS.shipping, icon: IconInventory },
       { label: "Packaging", path: SETTINGS_PATHS.shippingPackaging, icon: IconPackaging },
       { label: "Carriers", path: SETTINGS_PATHS.shippingCarriers, icon: IconConnectors },
     ],

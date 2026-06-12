@@ -13,4 +13,7 @@ export const RedirectToShippingPackaging = settingsRedirect(SETTINGS_PATHS.shipp
 export const RedirectToShippingCarriers = settingsRedirect(SETTINGS_PATHS.shippingCarriers)
 export const RedirectToPayments = settingsRedirect(SETTINGS_PATHS.payments)
 export const RedirectToSeoOrganisation = settingsRedirect("/settings/seo/organisation")
-export const RedirectToStoreDetails = settingsRedirect(SETTINGS_PATHS.storeDetails)
+export const RedirectToGeneral = settingsRedirect(SETTINGS_PATHS.general)
+export const RedirectToApps = settingsRedirect(SETTINGS_PATHS.apps)
+/** @deprecated Use RedirectToGeneral — store-details merged into General (T077). */
+export const RedirectToStoreDetails = RedirectToGeneral
