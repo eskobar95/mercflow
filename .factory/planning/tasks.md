@@ -3570,12 +3570,13 @@ Merchants kan se og administrere alle subscriptions fra Store Admin — søge ef
 
 **Sprint:** S034
 **Milestone:** M015
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **HITL approved:** 2026-06-11 — Stripe test credentials supplied for local dev; production uses connector-module encrypted credentials (Settings → Connectors → Stripe), not merchant secrets in env.
 **Parallel group:** A
 **Blocked by:** T071
 **Branch:** feature/S034/T074-customer-club-stripe-setup
+**PR:** https://github.com/eskobar95/mercflow/pull/119
 **PRD journey:** J004, J005 (PRD-subscription-system.md)
 
 ### HITL reason
@@ -3594,12 +3595,12 @@ Merchants kan konfigurere en Customer Club (navn, månedspris, fallback % rabat)
 
 ### Definition of done
 
-- [ ] Stripe webhook HMAC verification virker (test med `stripe listen --forward-to`)
-- [ ] `customer.subscription.created` → customer tilføjet til `club_members` group inden 30s
-- [ ] `customer.subscription.deleted` → customer fjernet fra group
-- [ ] Settings form gemmer `subscription_config` korrekt
-- [ ] Stripe Product oprettes via API (ikke hardkodet product ID)
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] Stripe webhook HMAC verification virker (test med `stripe listen --forward-to`)
+- [x] `customer.subscription.created` → customer tilføjet til `club_members` group inden 30s
+- [x] `customer.subscription.deleted` → customer fjernet fra group
+- [x] Settings form gemmer `subscription_config` korrekt
+- [x] Stripe Product oprettes via API (ikke hardkodet product ID)
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 
