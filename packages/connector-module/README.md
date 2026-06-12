@@ -47,7 +47,7 @@ MercFlow Medusa v2 module that persists **per-store connector credentials** (`co
 
 | Method | Path                               | Purpose |
 |--------|------------------------------------|---------|
-| `GET`  | `/admin/connectors`                | Overview: `{ connectors: [{ type, active, configured, lastTestedAt, connectionHealth }] }` |
+| `GET`  | `/admin/connectors`                | Overview: `{ connectors: [{ type, active, configured, lastTestedAt, connectionHealth, status }] }` where `status` is `connected` \| `error` \| `not_configured` |
 
 ### Shipmondo admin surface
 

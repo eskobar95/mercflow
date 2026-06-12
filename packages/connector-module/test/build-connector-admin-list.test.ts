@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
 
-import { buildConnectorAdminList } from "../src/modules/connector/build-connector-admin-list"
+import {
+  buildConnectorAdminList,
+  resolveConnectorAppStatus,
+} from "../src/modules/connector/build-connector-admin-list"
 
 describe("buildConnectorAdminList", (): void => {
   it("marks missing rows as not configured with neutral defaults", (): void => {
@@ -11,6 +14,7 @@ describe("buildConnectorAdminList", (): void => {
       expect(row.active).toBe(false)
       expect(row.lastTestedAt).toBeNull()
       expect(row.connectionHealth).toBeNull()
+      expect(row.status).toBe("not_configured")
     }
     expect(list.map((r) => r.type).sort()).toEqual(["gtm", "plunk", "shipmondo", "stripe"])
   })
@@ -37,6 +41,7 @@ describe("buildConnectorAdminList", (): void => {
     expect(stripe?.active).toBe(true)
     expect(stripe?.lastTestedAt).toBe("2026-05-20T12:00:00.000Z")
     expect(stripe?.connectionHealth).toBe("ok")
+    expect(stripe?.status).toBe("not_configured")
     const shipmondo = list.find((c) => c.type === "shipmondo")
     expect(shipmondo?.configured).toBe(false)
   })
@@ -63,5 +68,39 @@ describe("buildConnectorAdminList", (): void => {
     expect(row?.active).toBe(false)
     expect(row?.lastTestedAt).toBeNull()
     expect(row?.connectionHealth).toBe("untested")
+    expect(row?.status).toBe("not_configured")
+  })
+
+  it("maps stored probe error to error status", (): void => {
+    const list = buildConnectorAdminList([
+      {
+        id: "cfg_3",
+        type: "plunk",
+        credentials_encrypted: "mf1:x",
+        active: true,
+        last_tested_at: new Date("2026-05-20T12:00:00.000Z"),
+        vat_mode: "inclusive",
+        secret_key_last4: null,
+        publishable_key_last4: null,
+        webhook_secret_last4: null,
+        connection_status: "error",
+        last_test_message: "401",
+        rules_json: null,
+      },
+    ])
+    const plunk = list.find((c) => c.type === "plunk")
+    expect(plunk?.status).toBe("error")
+  })
+
+  it("resolveConnectorAppStatus returns connected when verified within 24h", (): void => {
+    const now = new Date("2026-05-21T10:00:00.000Z")
+    expect(
+      resolveConnectorAppStatus({
+        configured: true,
+        connectionHealth: "ok",
+        lastTestedAt: "2026-05-20T12:00:00.000Z",
+        now,
+      })
+    ).toBe("connected")
   })
 })
