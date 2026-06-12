@@ -27,3 +27,11 @@ export const updateRenewalTimestampBodySchema = z.object({
 export type UpdateRenewalTimestampBody = z.infer<
   typeof updateRenewalTimestampBodySchema
 >
+
+export const upsertClubMemberPriceBodySchema = z.object({
+  variant_id: z.string().min(1),
+  amount: z.number().finite().nonnegative(),
+  currency_code: z.string().min(1),
+})
+
+export type UpsertClubMemberPriceBody = z.infer<typeof upsertClubMemberPriceBodySchema>

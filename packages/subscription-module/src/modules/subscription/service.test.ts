@@ -55,6 +55,37 @@ describe("advanceRenewalDate", (): void => {
 })
 
 describe("SubscriptionModuleService", (): void => {
+  it("getSubscriptionConfig returns null when no row exists", async (): Promise<void> => {
+    const listMercflowSubscriptionConfigs = vi.fn().mockResolvedValue([])
+    const svc = createServiceStub({ listMercflowSubscriptionConfigs })
+
+    const config = await svc.getSubscriptionConfig(STORE_A)
+    expect(config).toBeNull()
+  })
+
+  it("getSubscriptionConfig maps persisted row", async (): Promise<void> => {
+    const listMercflowSubscriptionConfigs = vi.fn().mockResolvedValue([
+      {
+        id: "cfg_1",
+        store_id: STORE_A,
+        club_enabled: true,
+        club_stripe_product_id: null,
+        club_price_monthly: "99",
+        club_price_annual: null,
+        club_fallback_discount_pct: "10",
+        club_name: "VIP Klub",
+        created_at: new Date("2026-06-01T00:00:00.000Z"),
+        updated_at: new Date("2026-06-01T00:00:00.000Z"),
+        deleted_at: null,
+      },
+    ])
+    const svc = createServiceStub({ listMercflowSubscriptionConfigs })
+
+    const config = await svc.getSubscriptionConfig(STORE_A)
+    expect(config?.club_enabled).toBe(true)
+    expect(config?.club_name).toBe("VIP Klub")
+  })
+
   it("createSubscription persists tenant-scoped row", async (): Promise<void> => {
     const createMercflowSubscriptions = vi.fn().mockResolvedValue([BASE_SUBSCRIPTION])
     const svc = createServiceStub({ createMercflowSubscriptions })

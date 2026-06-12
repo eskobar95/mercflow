@@ -11,6 +11,7 @@ import { runWithTenantScope } from "./tenant-scope"
 import type {
   CreateSubscriptionInput,
   PauseSubscriptionInput,
+  SubscriptionConfigRecord,
   SubscriptionDetail,
   SubscriptionInterval,
   SubscriptionRecord,
@@ -73,6 +74,24 @@ function toSubscriptionRecord(row: Record<string, unknown>): SubscriptionRecord 
     next_renewal_at: row.next_renewal_at as string | Date,
     cancelled_at: (row.cancelled_at as string | Date | null | undefined) ?? null,
     pause_requested_at: (row.pause_requested_at as string | Date | null | undefined) ?? null,
+    created_at: row.created_at as string | Date,
+    updated_at: row.updated_at as string | Date,
+    deleted_at: (row.deleted_at as string | Date | null | undefined) ?? null,
+  }
+}
+
+function toSubscriptionConfigRecord(row: Record<string, unknown>): SubscriptionConfigRecord {
+  return {
+    id: String(row.id),
+    store_id: String(row.store_id),
+    club_enabled: Boolean(row.club_enabled),
+    club_stripe_product_id:
+      (row.club_stripe_product_id as string | null | undefined) ?? null,
+    club_price_monthly: (row.club_price_monthly as string | number | null | undefined) ?? null,
+    club_price_annual: (row.club_price_annual as string | number | null | undefined) ?? null,
+    club_fallback_discount_pct:
+      (row.club_fallback_discount_pct as string | number | null | undefined) ?? null,
+    club_name: (row.club_name as string | null | undefined) ?? null,
     created_at: row.created_at as string | Date,
     updated_at: row.updated_at as string | Date,
     deleted_at: (row.deleted_at as string | Date | null | undefined) ?? null,
@@ -170,6 +189,21 @@ class SubscriptionModuleService extends MedusaService({
       )
     }
     return toSubscriptionRecord(existing)
+  }
+
+  async getSubscriptionConfig(storeId: string): Promise<SubscriptionConfigRecord | null> {
+    return this.withTenant(storeId, async (context) => {
+      const rows = await this.listMercflowSubscriptionConfigs(
+        { store_id: storeId },
+        { take: 1 },
+        context
+      )
+      const existing = rows[0] as Record<string, unknown> | undefined
+      if (existing === undefined) {
+        return null
+      }
+      return toSubscriptionConfigRecord(existing)
+    })
   }
 
   async createSubscription(
@@ -531,5 +565,5 @@ class SubscriptionModuleService extends MedusaService({
 
 export default SubscriptionModuleService
 
-export { toSubscriptionRecord, toRenewalLogRecord }
+export { toSubscriptionRecord, toRenewalLogRecord, toSubscriptionConfigRecord }
 export { toIso } from "./iso"

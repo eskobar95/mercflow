@@ -9,7 +9,7 @@ MercFlow Medusa v2 module for product subscriptions, renewal audit logs, Custome
 - Admin HTTP routes for listing, detail (with renewal log), pause, cancel, and resume
 - PostgreSQL RLS via `app.tenant_id` (renewal log scoped through `subscription_id` join)
 
-Does **not** belong here: BullMQ renewal worker (T072), admin UI (T073), Stripe club webhook (T074), per-product club pricing UI (T075).
+Does **not** belong here: BullMQ renewal worker (T072), admin UI (T073), Stripe club webhook (T074). Per-product club pricing admin UI lives in `packages/admin-ui`; upsert/delete APIs live here (T075).
 
 ## Field definitions — `subscription`
 
@@ -81,6 +81,7 @@ Module services call `withTenant(storeId, fn)` which sets `app.tenant_id` per tr
 - `cancelSubscription(storeId, id)` — sets `cancelled_at`
 - `resumeSubscription(storeId, id)` — paused → active; recalculates `next_renewal_at`
 - `updateRenewalTimestamp(storeId, id, { next_renewal_at, ... })` — worker advance after renewal
+- `getSubscriptionConfig(storeId)` — per-store Customer Club settings (`club_enabled`, prices, fallback %)
 
 ## Admin API
 
@@ -94,6 +95,9 @@ All routes require `?store_id=` (or `MERCFLOW_DEFAULT_STORE_ID` in local dev).
 | POST | `/admin/subscriptions/:id/cancel` | Cancel subscription |
 | POST | `/admin/subscriptions/:id/resume` | Resume paused subscription |
 | GET | `/admin/customers/:id/subscriptions` | Subscriptions for one customer |
+| GET | `/admin/products/:id/club-pricing` | Club member prices for product variants (`club_enabled` + `prices[]`) |
+| PUT | `/admin/products/:id/club-pricing` | Upsert explicit member price for one variant (`variant_id`, `amount`, `currency_code`) |
+| DELETE | `/admin/products/:id/club-pricing/:variant_id` | Remove explicit member price (fallback % applies again) |
 
 Pause body (optional, Zod-validated):
 
