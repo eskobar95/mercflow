@@ -3656,7 +3656,8 @@ Merchants kan sætte en eksplicit Club-pris på et produkt direkte fra Product-f
 
 **Sprint:** S035
 **Milestone:** M016
-**Status:** todo
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/120
 **Mode:** AFK
 **Parallel group:** solo
 **Blocked by:** T064 (AppShell + router foundation)

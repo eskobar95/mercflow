@@ -2230,3 +2230,62 @@ none
 ### Next actions
 - [ ] Merge PR #118 and #119 to `development`
 - [ ] `/milestone-review M015`
+
+---
+
+## Task T076 — SettingsShell layout — 2026-06-12
+
+**Sprint:** S035 | **Milestone:** M016 | **Status:** done
+**Branch:** `feature/S035/T076-settings-shell`
+**PR:** https://github.com/eskobar95/mercflow/pull/120
+**Mode:** AFK
+**Parallel group:** solo
+
+### Outcome
+SettingsShell with 8-group sidebar replaces card landing; `/settings` redirects to `/settings/general`
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+T077, T078
+
+---
+
+## Sprint retro — S035 — 2026-06-12
+
+**Milestone:** M016
+**Duration:** session
+**Tasks:** 1/1 done, 0 blocked
+
+### What went well
+- T076 shipped end-to-end with zero revision cycles; CI green on first pass (PR #120)
+- SettingsShell + settingsNav.ts SSOT established per ADR-012
+
+### What failed or slowed down
+- nothing
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T076 | done | Task T076 — 2026-06-12 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T076 | 0 | — |
+
+### Harness notes
+- Solo sprint — single subagent dispatch
+- Base branch: `development`
+- Unblocks S036 (T077 + T078 parallel)
+
+### Next actions
+- [ ] Merge PR #120 to `development`
+- [ ] `/run-sprint S036` for route remapping + Apps overview
