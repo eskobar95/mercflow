@@ -1,6 +1,7 @@
-import { createBrowserRouter } from "react-router-dom"
+import { createBrowserRouter, Navigate } from "react-router-dom"
 
 import { AdminShell } from "@/components/layout/AdminShell"
+import { SettingsShell } from "@/components/layout/SettingsShell"
 
 export type AppRouteHandle = {
   title: string
@@ -262,236 +263,243 @@ export const router = createBrowserRouter([
       {
         path: "settings",
         handle: { title: "Settings" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { SettingsPage } = await import("@/pages/SettingsPage")
-          return { Component: SettingsPage }
-        },
-      },
-      {
-        path: "settings/general",
-        handle: { title: "General settings" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { PlaceholderPage } = await import("@/pages/PlaceholderPage")
-          return {
-            Component: () => (
-              <PlaceholderPage
-                title="General settings"
-                description="Workspace defaults — store name, locales, taxes, shipping zones, currencies, and the notifications operators receive."
-                fallback={{ label: "Back to settings", to: "/settings" }}
-              />
-            ),
-          }
-        },
-      },
-      {
-        path: "settings/email",
-        handle: { title: "Email settings" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { EmailSettingsPage } = await import("@/pages/EmailSettingsPage")
-          return { Component: EmailSettingsPage }
-        },
-      },
-      {
-        path: "settings/shipping/packaging",
-        handle: { title: "Packaging" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { PackagingSettingsPage } = await import("@/pages/PackagingSettingsPage")
-          return { Component: PackagingSettingsPage }
-        },
-      },
-      {
-        path: "settings/shipping/carriers",
-        handle: { title: "Carriers" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { ShipmondoConnectorSettingsPage } = await import(
-            "@/pages/ShipmondoConnectorSettingsPage"
-          )
-          return { Component: ShipmondoConnectorSettingsPage }
-        },
-      },
-      {
-        path: "settings/payments",
-        handle: { title: "Payments" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { StripeConnectorSettingsPage } = await import("@/pages/StripeConnectorSettingsPage")
-          return { Component: StripeConnectorSettingsPage }
-        },
-      },
-      {
-        path: "settings/subscriptions",
-        handle: { title: "Subscriptions" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { SubscriptionsSettingsPage } = await import("@/pages/SubscriptionsSettingsPage")
-          return { Component: SubscriptionsSettingsPage }
-        },
-      },
-      {
-        path: "settings/store-details",
-        handle: { title: "Store details" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { PlaceholderPage } = await import("@/pages/PlaceholderPage")
-          return {
-            Component: () => (
-              <PlaceholderPage
-                title="Store details"
-                description="Domain, branding, legal pages, and the public identity your storefront presents to customers."
-                fallback={{ label: "Back to settings", to: "/settings" }}
-              />
-            ),
-          }
-        },
-      },
-      {
-        path: "settings/seo",
-        handle: { title: "SEO" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { RedirectToSeoOrganisation } = await import("@/routing/settingsRedirects")
-          return { Component: RedirectToSeoOrganisation }
-        },
-      },
-      {
-        path: "settings/custom-data",
-        handle: { title: "Custom data" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { CustomDataSettingsPage } = await import("@/pages/CustomDataSettingsPage")
-          return { Component: CustomDataSettingsPage }
-        },
-      },
-      {
-        path: "settings/packaging",
-        handle: { title: "Packaging" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { RedirectToShippingPackaging } = await import("@/routing/settingsRedirects")
-          return { Component: RedirectToShippingPackaging }
-        },
-      },
-      {
-        path: "settings/seo/organisation",
-        handle: { title: "SEO — Organisation" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { SeoOrganizationSettingsPage } = await import(
-            "@/pages/SeoOrganizationSettingsPage"
-          )
-          return { Component: SeoOrganizationSettingsPage }
-        },
-      },
-      {
-        path: "settings/seo/structured-data",
-        handle: { title: "SEO — Structured data" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { SeoStructuredDataSettingsPage } = await import(
-            "@/pages/SeoStructuredDataSettingsPage"
-          )
-          return { Component: SeoStructuredDataSettingsPage }
-        },
-      },
-      {
-        path: "settings/seo/slug",
-        handle: { title: "SEO — Slugs" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { SeoSlugSettingsPage } = await import("@/pages/SeoSlugSettingsPage")
-          return { Component: SeoSlugSettingsPage }
-        },
-      },
-      {
-        path: "settings/seo/redirects",
-        handle: { title: "SEO — Redirects" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { RedirectsListPage } = await import("@/pages/RedirectsListPage")
-          return { Component: RedirectsListPage }
-        },
-      },
-      {
-        path: "settings/seo/sitemap",
-        handle: { title: "SEO — Sitemap" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { SitemapSettingsPage } = await import("@/pages/SitemapSettingsPage")
-          return { Component: SitemapSettingsPage }
-        },
-      },
-      {
-        path: "settings/seo/robots",
-        handle: { title: "SEO — Robots.txt" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { RobotsSettingsPage } = await import("@/pages/RobotsSettingsPage")
-          return { Component: RobotsSettingsPage }
-        },
-      },
-      {
-        path: "settings/connectors/gtm",
-        handle: { title: "Google Tag Manager" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { GtmConnectorSettingsPage } = await import(
-            "@/pages/GtmConnectorSettingsPage"
-          )
-          return { Component: GtmConnectorSettingsPage }
-        },
-      },
-      {
-        path: "settings/connectors",
-        handle: { title: "Connectors" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { ConnectorsPage } = await import("@/pages/ConnectorsPage")
-          return { Component: ConnectorsPage }
-        },
-      },
-      {
-        path: "settings/connectors/stripe",
-        handle: { title: "Stripe connector" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { RedirectToPayments } = await import("@/routing/settingsRedirects")
-          return { Component: RedirectToPayments }
-        },
-      },
-      {
-        path: "settings/connectors/plunk",
-        handle: { title: "Plunk email" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { PlunkConnectorPage } = await import("@/pages/PlunkConnectorPage")
-          return { Component: PlunkConnectorPage }
-        },
-      },
-      {
-        path: "settings/connectors/shipmondo",
-        handle: { title: "Shipmondo" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { RedirectToShippingCarriers } = await import("@/routing/settingsRedirects")
-          return { Component: RedirectToShippingCarriers }
-        },
-      },
-      {
-        path: "settings/connectors/:connectorType",
-        handle: { title: "Connector" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { ConnectorDetailPlaceholderPage } = await import(
-            "@/pages/ConnectorDetailPlaceholderPage"
-          )
-          return { Component: ConnectorDetailPlaceholderPage }
-        },
-      },
-      {
-        path: "settings/workspace",
-        handle: { title: "Workspace" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { RedirectToStoreDetails } = await import("@/routing/settingsRedirects")
-          return { Component: RedirectToStoreDetails }
-        },
-      },
-      {
-        path: "settings/team",
-        handle: { title: "Team" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { TeamSettingsPage } = await import("@/pages/settings/TeamSettingsPage")
-          return { Component: TeamSettingsPage }
-        },
-      },
-      {
-        path: "settings/billing",
-        handle: { title: "Billing" } satisfies AppRouteHandle,
-        lazy: async () => {
-          const { BillingSettingsPage } = await import("@/pages/settings/BillingSettingsPage")
-          return { Component: BillingSettingsPage }
-        },
+        element: <SettingsShell />,
+        children: [
+          {
+            index: true,
+            element: <Navigate to="/settings/general" replace />,
+          },
+          {
+            path: "general",
+            handle: { title: "General settings" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { PlaceholderPage } = await import("@/pages/PlaceholderPage")
+              return {
+                Component: () => (
+                  <PlaceholderPage
+                    title="General settings"
+                    description="Workspace defaults — store name, locales, taxes, shipping zones, currencies, and the notifications operators receive."
+                    fallback={{ label: "Back to settings", to: "/settings/general" }}
+                  />
+                ),
+              }
+            },
+          },
+          {
+            path: "email",
+            handle: { title: "Email settings" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { EmailSettingsPage } = await import("@/pages/EmailSettingsPage")
+              return { Component: EmailSettingsPage }
+            },
+          },
+          {
+            path: "shipping/packaging",
+            handle: { title: "Packaging" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { PackagingSettingsPage } = await import("@/pages/PackagingSettingsPage")
+              return { Component: PackagingSettingsPage }
+            },
+          },
+          {
+            path: "shipping/carriers",
+            handle: { title: "Carriers" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { ShipmondoConnectorSettingsPage } = await import(
+                "@/pages/ShipmondoConnectorSettingsPage"
+              )
+              return { Component: ShipmondoConnectorSettingsPage }
+            },
+          },
+          {
+            path: "payments",
+            handle: { title: "Payments" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { StripeConnectorSettingsPage } = await import(
+                "@/pages/StripeConnectorSettingsPage"
+              )
+              return { Component: StripeConnectorSettingsPage }
+            },
+          },
+          {
+            path: "subscriptions",
+            handle: { title: "Subscriptions" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { SubscriptionsSettingsPage } = await import(
+                "@/pages/SubscriptionsSettingsPage"
+              )
+              return { Component: SubscriptionsSettingsPage }
+            },
+          },
+          {
+            path: "store-details",
+            handle: { title: "Store details" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { PlaceholderPage } = await import("@/pages/PlaceholderPage")
+              return {
+                Component: () => (
+                  <PlaceholderPage
+                    title="Store details"
+                    description="Domain, branding, legal pages, and the public identity your storefront presents to customers."
+                    fallback={{ label: "Back to settings", to: "/settings/general" }}
+                  />
+                ),
+              }
+            },
+          },
+          {
+            path: "seo",
+            handle: { title: "SEO" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { RedirectToSeoOrganisation } = await import("@/routing/settingsRedirects")
+              return { Component: RedirectToSeoOrganisation }
+            },
+          },
+          {
+            path: "custom-data",
+            handle: { title: "Custom data" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { CustomDataSettingsPage } = await import("@/pages/CustomDataSettingsPage")
+              return { Component: CustomDataSettingsPage }
+            },
+          },
+          {
+            path: "packaging",
+            handle: { title: "Packaging" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { RedirectToShippingPackaging } = await import("@/routing/settingsRedirects")
+              return { Component: RedirectToShippingPackaging }
+            },
+          },
+          {
+            path: "seo/organisation",
+            handle: { title: "SEO — Organisation" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { SeoOrganizationSettingsPage } = await import(
+                "@/pages/SeoOrganizationSettingsPage"
+              )
+              return { Component: SeoOrganizationSettingsPage }
+            },
+          },
+          {
+            path: "seo/structured-data",
+            handle: { title: "SEO — Structured data" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { SeoStructuredDataSettingsPage } = await import(
+                "@/pages/SeoStructuredDataSettingsPage"
+              )
+              return { Component: SeoStructuredDataSettingsPage }
+            },
+          },
+          {
+            path: "seo/slug",
+            handle: { title: "SEO — Slugs" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { SeoSlugSettingsPage } = await import("@/pages/SeoSlugSettingsPage")
+              return { Component: SeoSlugSettingsPage }
+            },
+          },
+          {
+            path: "seo/redirects",
+            handle: { title: "SEO — Redirects" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { RedirectsListPage } = await import("@/pages/RedirectsListPage")
+              return { Component: RedirectsListPage }
+            },
+          },
+          {
+            path: "seo/sitemap",
+            handle: { title: "SEO — Sitemap" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { SitemapSettingsPage } = await import("@/pages/SitemapSettingsPage")
+              return { Component: SitemapSettingsPage }
+            },
+          },
+          {
+            path: "seo/robots",
+            handle: { title: "SEO — Robots.txt" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { RobotsSettingsPage } = await import("@/pages/RobotsSettingsPage")
+              return { Component: RobotsSettingsPage }
+            },
+          },
+          {
+            path: "connectors/gtm",
+            handle: { title: "Google Tag Manager" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { GtmConnectorSettingsPage } = await import(
+                "@/pages/GtmConnectorSettingsPage"
+              )
+              return { Component: GtmConnectorSettingsPage }
+            },
+          },
+          {
+            path: "connectors",
+            handle: { title: "Connectors" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { ConnectorsPage } = await import("@/pages/ConnectorsPage")
+              return { Component: ConnectorsPage }
+            },
+          },
+          {
+            path: "connectors/stripe",
+            handle: { title: "Stripe connector" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { RedirectToPayments } = await import("@/routing/settingsRedirects")
+              return { Component: RedirectToPayments }
+            },
+          },
+          {
+            path: "connectors/plunk",
+            handle: { title: "Plunk email" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { PlunkConnectorPage } = await import("@/pages/PlunkConnectorPage")
+              return { Component: PlunkConnectorPage }
+            },
+          },
+          {
+            path: "connectors/shipmondo",
+            handle: { title: "Shipmondo" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { RedirectToShippingCarriers } = await import("@/routing/settingsRedirects")
+              return { Component: RedirectToShippingCarriers }
+            },
+          },
+          {
+            path: "connectors/:connectorType",
+            handle: { title: "Connector" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { ConnectorDetailPlaceholderPage } = await import(
+                "@/pages/ConnectorDetailPlaceholderPage"
+              )
+              return { Component: ConnectorDetailPlaceholderPage }
+            },
+          },
+          {
+            path: "workspace",
+            handle: { title: "Workspace" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { RedirectToStoreDetails } = await import("@/routing/settingsRedirects")
+              return { Component: RedirectToStoreDetails }
+            },
+          },
+          {
+            path: "team",
+            handle: { title: "Team" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { TeamSettingsPage } = await import("@/pages/settings/TeamSettingsPage")
+              return { Component: TeamSettingsPage }
+            },
+          },
+          {
+            path: "billing",
+            handle: { title: "Billing" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { BillingSettingsPage } = await import("@/pages/settings/BillingSettingsPage")
+              return { Component: BillingSettingsPage }
+            },
+          },
+        ],
       },
       {
         path: "list-demo",

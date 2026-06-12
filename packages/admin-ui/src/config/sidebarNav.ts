@@ -23,7 +23,7 @@ import {
   IconWorkspace,
   type IconComponent,
 } from "@/components/ui/icons"
-import { SETTINGS_PATHS } from "@/config/settingsSections"
+import { SETTINGS_PATHS } from "@/config/settingsNav"
 
 export type SidebarNavItem = {
   label: string
@@ -138,7 +138,7 @@ const seoSettingsSubItems: SidebarSubItem[] = [
 export const settingsSidebarSection: SidebarNavSection = {
   label: "Settings",
   items: [
-    { label: "Overview", to: SETTINGS_PATHS.root, end: true, icon: IconSettings },
+    { label: "Overview", to: SETTINGS_PATHS.general, end: true, icon: IconSettings },
     { label: "General", to: SETTINGS_PATHS.general, icon: IconSettings },
     {
       label: "Communications",

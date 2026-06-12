@@ -1,6 +1,6 @@
 import type { BreadcrumbItem } from "@/components/ui/Breadcrumb"
 
-import { SETTINGS_PATHS } from "@/config/settingsSections"
+import { SETTINGS_PATHS } from "@/config/settingsNav"
 
 function settingsRoot(): BreadcrumbItem {
   return { label: "Settings", href: SETTINGS_PATHS.root }

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 import { Navigate } from "react-router-dom"
 
-import { SETTINGS_PATHS } from "@/config/settingsSections"
+import { SETTINGS_PATHS } from "@/config/settingsNav"
 
 function settingsRedirect(to: string): () => ReactNode {
   return function SettingsRedirectRoute(): ReactNode {
@@ -9,6 +9,7 @@ function settingsRedirect(to: string): () => ReactNode {
   }
 }
 
+export const RedirectToSettingsGeneral = settingsRedirect(SETTINGS_PATHS.general)
 export const RedirectToShippingPackaging = settingsRedirect(SETTINGS_PATHS.shippingPackaging)
 export const RedirectToShippingCarriers = settingsRedirect(SETTINGS_PATHS.shippingCarriers)
 export const RedirectToPayments = settingsRedirect(SETTINGS_PATHS.payments)
