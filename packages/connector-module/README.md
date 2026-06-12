@@ -120,6 +120,16 @@ const secret = await mercflowResolveStripeSecretKey(scope)
 
 Resolution order matches `ConnectorModuleService.resolveStripeSecretKeyOrNull()` — env keys first when set, otherwise decrypted connector credentials.
 
+Webhook signing secret resolution (`resolveStripeWebhookSecretOrNull()` / `mercflowResolveStripeWebhookSecret`):
+
+```ts
+import { mercflowResolveStripeWebhookSecret } from "@mercflow/connector-module/resolve-stripe-webhook-secret"
+
+const webhookSecret = await mercflowResolveStripeWebhookSecret(scope)
+```
+
+Env fallback: `STRIPE_WEBHOOK_SECRET` when set; otherwise decrypted `webhook_secret` from the Stripe connector row.
+
 Backend apps should set `MERCFLOW_CONNECTOR_ENCRYPTION_KEY` in `.env` (see `apps/backend/.env.example`).
 
 ### Route re-exports in `apps/backend`

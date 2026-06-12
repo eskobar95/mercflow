@@ -167,6 +167,7 @@ export const settingsSidebarSection: SidebarNavSection = {
       ],
     },
     { label: "Payments", to: SETTINGS_PATHS.payments, icon: IconBilling },
+    { label: "Subscriptions", to: SETTINGS_PATHS.subscriptions, icon: IconSubscriptions },
     { label: "Custom data", to: SETTINGS_PATHS.customData, icon: IconCustomData },
     {
       label: "SEO",

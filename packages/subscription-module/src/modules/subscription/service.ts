@@ -8,6 +8,11 @@ import {
   MercflowSubscriptionRenewalLog,
 } from "./models"
 import { runWithTenantScope } from "./tenant-scope"
+import type { MedusaContainer } from "@medusajs/framework/types"
+import StripeSdk from "stripe"
+
+import { ensureClubMembersCustomerGroup } from "./club-membership"
+import { syncClubStripeProduct } from "./club-stripe-sync"
 import type {
   CreateSubscriptionInput,
   PauseSubscriptionInput,
@@ -20,6 +25,7 @@ import type {
   CompleteRenewalSuccessInput,
   RecordRenewalFailureInput,
   UpdateRenewalTimestampInput,
+  UpsertSubscriptionConfigInput,
 } from "./types"
 import {
   RENEWAL_LOG_STATUSES,
@@ -168,6 +174,122 @@ class SubscriptionModuleService extends MedusaService({
     return runWithTenantScope(baseRepo, storeId, fn)
   }
 
+  async getSubscriptionConfig(storeId: string): Promise<SubscriptionConfigRecord | null> {
+    return this.withTenant(storeId, async (context) => {
+      const rows = await this.listMercflowSubscriptionConfigs(
+        { store_id: storeId },
+        { take: 1 },
+        context
+      )
+      const existing = rows[0] as Record<string, unknown> | undefined
+      if (existing === undefined) {
+        return null
+      }
+      return toSubscriptionConfigRecord(existing)
+    })
+  }
+
+  async getOrCreateSubscriptionConfig(storeId: string): Promise<SubscriptionConfigRecord> {
+    const existing = await this.getSubscriptionConfig(storeId)
+    if (existing !== null) {
+      return existing
+    }
+
+    return this.withTenant(storeId, async (context) => {
+      const created = unwrapCreated(
+        await this.createMercflowSubscriptionConfigs(
+          {
+            store_id: storeId,
+            club_enabled: false,
+            club_stripe_product_id: null,
+            club_price_monthly: null,
+            club_price_annual: null,
+            club_fallback_discount_pct: null,
+            club_name: null,
+          },
+          context
+        )
+      )
+      return toSubscriptionConfigRecord(created as Record<string, unknown>)
+    })
+  }
+
+  async upsertSubscriptionConfig(
+    storeId: string,
+    input: UpsertSubscriptionConfigInput,
+    deps: {
+      scope: MedusaContainer
+      stripeSecretKey: string
+    }
+  ): Promise<SubscriptionConfigRecord> {
+    const current = await this.getOrCreateSubscriptionConfig(storeId)
+
+    if (input.club_enabled) {
+      const clubName = input.club_name?.trim()
+      const monthly = input.club_price_monthly
+      const annual = input.club_price_annual
+
+      if (clubName === undefined || clubName === "" || monthly === null || monthly === undefined || annual === null || annual === undefined) {
+        throw new MedusaError(
+          MedusaError.Types.INVALID_DATA,
+          "club_name, club_price_monthly, and club_price_annual are required when club is enabled"
+        )
+      }
+
+      await ensureClubMembersCustomerGroup(deps.scope)
+
+      const stripe = new StripeSdk(deps.stripeSecretKey)
+      const productId = await syncClubStripeProduct(stripe, {
+        storeId,
+        clubName,
+        monthlyAmountMajor: monthly,
+        annualAmountMajor: annual,
+        existingProductId: current.club_stripe_product_id,
+      })
+
+      return this.withTenant(storeId, async (context) => {
+        const updated = unwrapCreated(
+          await this.updateMercflowSubscriptionConfigs(
+            { id: current.id, store_id: storeId },
+            {
+              club_enabled: true,
+              club_name: clubName,
+              club_price_monthly: monthly,
+              club_price_annual: annual,
+              club_fallback_discount_pct: input.club_fallback_discount_pct ?? null,
+              club_stripe_product_id: productId,
+            },
+            context
+          )
+        )
+        return toSubscriptionConfigRecord(updated as Record<string, unknown>)
+      })
+    }
+
+    return this.withTenant(storeId, async (context) => {
+      const updated = unwrapCreated(
+        await this.updateMercflowSubscriptionConfigs(
+          { id: current.id, store_id: storeId },
+          {
+            club_enabled: false,
+            ...(input.club_name !== undefined ? { club_name: input.club_name } : {}),
+            ...(input.club_price_monthly !== undefined
+              ? { club_price_monthly: input.club_price_monthly }
+              : {}),
+            ...(input.club_price_annual !== undefined
+              ? { club_price_annual: input.club_price_annual }
+              : {}),
+            ...(input.club_fallback_discount_pct !== undefined
+              ? { club_fallback_discount_pct: input.club_fallback_discount_pct }
+              : {}),
+          },
+          context
+        )
+      )
+      return toSubscriptionConfigRecord(updated as Record<string, unknown>)
+    })
+  }
+
   private async requireSubscription(
     storeId: string,
     subscriptionId: string,
@@ -189,21 +311,6 @@ class SubscriptionModuleService extends MedusaService({
       )
     }
     return toSubscriptionRecord(existing)
-  }
-
-  async getSubscriptionConfig(storeId: string): Promise<SubscriptionConfigRecord | null> {
-    return this.withTenant(storeId, async (context) => {
-      const rows = await this.listMercflowSubscriptionConfigs(
-        { store_id: storeId },
-        { take: 1 },
-        context
-      )
-      const existing = rows[0] as Record<string, unknown> | undefined
-      if (existing === undefined) {
-        return null
-      }
-      return toSubscriptionConfigRecord(existing)
-    })
   }
 
   async createSubscription(

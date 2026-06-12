@@ -3607,12 +3607,12 @@ Merchants kan konfigurere en Customer Club (navn, månedspris, fallback % rabat)
 
 ### Definition of done
 
-- [ ] Stripe webhook HMAC verification virker (test med `stripe listen --forward-to`)
-- [ ] `customer.subscription.created` → customer tilføjet til `club_members` group inden 30s
-- [ ] `customer.subscription.deleted` → customer fjernet fra group
-- [ ] Settings form gemmer `subscription_config` korrekt
-- [ ] Stripe Product oprettes via API (ikke hardkodet product ID)
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] Stripe webhook HMAC verification virker (test med `stripe listen --forward-to`)
+- [x] `customer.subscription.created` → customer tilføjet til `club_members` group inden 30s
+- [x] `customer.subscription.deleted` → customer fjernet fra group
+- [x] Settings form gemmer `subscription_config` korrekt
+- [x] Stripe Product oprettes via API (ikke hardkodet product ID)
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 

@@ -6,6 +6,7 @@ import {
   IconGlobals,
   IconPackaging,
   IconSettings,
+  IconSubscriptions,
   IconWorkspace,
   type IconComponent,
 } from "@/components/ui/icons"
@@ -18,6 +19,7 @@ export const SETTINGS_PATHS = {
   shippingPackaging: "/settings/shipping/packaging",
   shippingCarriers: "/settings/shipping/carriers",
   payments: "/settings/payments",
+  subscriptions: "/settings/subscriptions",
   customData: "/settings/custom-data",
   seo: "/settings/seo",
   integrations: "/settings/connectors",
@@ -59,6 +61,12 @@ export const SETTINGS_LANDING_SECTIONS: SettingsLandingSection[] = [
     description: "Card payments, Stripe credentials, and payout configuration.",
     to: SETTINGS_PATHS.payments,
     icon: IconBilling,
+  },
+  {
+    title: "Subscriptions",
+    description: "Customer Club membership pricing and fallback member discount.",
+    to: SETTINGS_PATHS.subscriptions,
+    icon: IconSubscriptions,
   },
   {
     title: "Custom data",

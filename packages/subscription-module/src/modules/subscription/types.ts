@@ -141,3 +141,24 @@ export type RecordRenewalFailureInput = {
   stripe_payment_intent_id?: string | null
   error_message: string
 }
+
+export type UpsertSubscriptionConfigInput = {
+  club_enabled: boolean
+  club_name?: string | null
+  club_price_monthly?: number | null
+  club_price_annual?: number | null
+  club_fallback_discount_pct?: number | null
+}
+
+export type SubscriptionConfigAdminDto = {
+  id: string
+  store_id: string
+  club_enabled: boolean
+  club_stripe_product_id: string | null
+  club_name: string | null
+  club_price_monthly: string | null
+  club_price_annual: string | null
+  club_fallback_discount_pct: string | null
+  created_at: string
+  updated_at: string
+}

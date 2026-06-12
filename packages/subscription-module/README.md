@@ -9,7 +9,7 @@ MercFlow Medusa v2 module for product subscriptions, renewal audit logs, Custome
 - Admin HTTP routes for listing, detail (with renewal log), pause, cancel, and resume
 - PostgreSQL RLS via `app.tenant_id` (renewal log scoped through `subscription_id` join)
 
-Does **not** belong here: BullMQ renewal worker (T072), admin UI (T073), Stripe club webhook (T074). Per-product club pricing admin UI lives in `packages/admin-ui`; upsert/delete APIs live here (T075).
+Does **not** belong here: BullMQ renewal worker (T072). Admin UI lives in `packages/admin-ui` (T073 subscription list, T074 club settings, T075 club pricing tab).
 
 ## Field definitions — `subscription`
 
@@ -81,7 +81,11 @@ Module services call `withTenant(storeId, fn)` which sets `app.tenant_id` per tr
 - `cancelSubscription(storeId, id)` — sets `cancelled_at`
 - `resumeSubscription(storeId, id)` — paused → active; recalculates `next_renewal_at`
 - `updateRenewalTimestamp(storeId, id, { next_renewal_at, ... })` — worker advance after renewal
-- `getSubscriptionConfig(storeId)` — per-store Customer Club settings (`club_enabled`, prices, fallback %)
+- `getSubscriptionConfig(storeId)` / `getOrCreateSubscriptionConfig(storeId)` — per-store Customer Club config
+- `upsertSubscriptionConfig(storeId, input, { scope, stripeSecretKey })` — save config and sync Stripe club product
+- `getProductClubPricing(storeId, productId, scope)` — list explicit member prices per variant
+- `upsertClubMemberPrice(storeId, productId, input, scope)` — upsert Medusa price_list entry for `club_members`
+- `deleteClubMemberPrice(storeId, productId, variantId, scope)` — remove explicit member price
 
 ## Admin API
 
@@ -95,9 +99,17 @@ All routes require `?store_id=` (or `MERCFLOW_DEFAULT_STORE_ID` in local dev).
 | POST | `/admin/subscriptions/:id/cancel` | Cancel subscription |
 | POST | `/admin/subscriptions/:id/resume` | Resume paused subscription |
 | GET | `/admin/customers/:id/subscriptions` | Subscriptions for one customer |
+| GET | `/admin/subscription-config` | Customer Club config (`club_enabled`, prices, fallback %) |
+| PUT | `/admin/subscription-config` | Save config; creates/updates Stripe Product + Prices when enabled |
 | GET | `/admin/products/:id/club-pricing` | Club member prices for product variants (`club_enabled` + `prices[]`) |
 | PUT | `/admin/products/:id/club-pricing` | Upsert explicit member price for one variant (`variant_id`, `amount`, `currency_code`) |
 | DELETE | `/admin/products/:id/club-pricing/:variant_id` | Remove explicit member price (fallback % applies again) |
+
+Store webhook (Stripe HMAC via `stripe.webhooks.constructEvent`):
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/store/club-membership/webhook` | `customer.subscription.created` → add to `club_members` group; `customer.subscription.deleted` → remove |
 
 Pause body (optional, Zod-validated):
 

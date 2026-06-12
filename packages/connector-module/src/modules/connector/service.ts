@@ -824,6 +824,31 @@ export default class ConnectorModuleService extends MedusaService({
     }
   }
 
+  /**
+   * Resolves the Stripe webhook signing secret: env `STRIPE_WEBHOOK_SECRET` first, then connector credentials.
+   */
+  async resolveStripeWebhookSecretOrNull(): Promise<string | null> {
+    const envSecret = process.env.STRIPE_WEBHOOK_SECRET
+    if (envSecret !== undefined && envSecret.trim() !== "") {
+      return envSecret.trim()
+    }
+
+    const row = await this.findStripeConfigRow()
+    if (!row) {
+      return null
+    }
+
+    try {
+      const plain = parseStripePlainCredentialsJson(
+        this.getEncryption().decrypt(row.credentials_encrypted)
+      )
+      const wh = plain.webhook_secret.trim()
+      return wh !== "" ? wh : null
+    } catch {
+      return null
+    }
+  }
+
   async getStripeAdminDetail(): Promise<StripeConnectorAdminDto> {
     const row = await this.findStripeConfigRow()
     if (!row) {

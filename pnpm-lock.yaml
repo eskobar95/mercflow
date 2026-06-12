@@ -1241,6 +1241,12 @@ importers:
       '@medusajs/utils':
         specifier: workspace:*
         version: link:../medusa-fork/utils
+      '@mercflow/connector-module':
+        specifier: workspace:*
+        version: link:../connector-module
+      stripe:
+        specifier: 15.12.0
+        version: 15.12.0
       zod:
         specifier: ^4.0.0
         version: 4.2.0
