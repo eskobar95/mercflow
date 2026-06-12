@@ -10,7 +10,7 @@ import {
   settingsSidebarSection,
   type SidebarNavItem,
 } from "@/config/sidebarNav"
-import { SETTINGS_PATHS } from "@/config/settingsSections"
+import { SETTINGS_PATHS } from "@/config/settingsNav"
 
 function renderSidebar(
   initialEntries?: string[],

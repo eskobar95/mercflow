@@ -23,7 +23,7 @@ import {
   IconWorkspace,
   type IconComponent,
 } from "@/components/ui/icons"
-import { SETTINGS_PATHS } from "@/config/settingsSections"
+import { SETTINGS_PATHS } from "@/config/settingsNav"
 
 export type SidebarNavItem = {
   label: string

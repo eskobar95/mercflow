@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 import { Navigate } from "react-router-dom"
 
-import { SETTINGS_PATHS } from "@/config/settingsSections"
+import { SETTINGS_PATHS } from "@/config/settingsNav"
 
 function settingsRedirect(to: string): () => ReactNode {
   return function SettingsRedirectRoute(): ReactNode {
