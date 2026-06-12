@@ -57,6 +57,8 @@
 | S032 | M015 | subscription-module foundation: models, migrations, RLS, service, admin API | T071 | done |
 | S033 | M015 | BullMQ renewal worker + subscription admin UI (parallel) | T072, T073 | done |
 | S034 | M015 | Customer Club Stripe setup (HITL) + per-product member price UI (parallel) | T074, T075 | done |
+| S035 | M016 | SettingsShell layout + `settingsNav.ts` config + `/settings` redirect | T076 | planned |
+| S036 | M016 | Settings route remapping + placeholder pages + Apps overview (parallel) | T077, T078 | planned |
 
 ---
 
@@ -138,6 +140,13 @@
 - **S032:** T071 (subscription-module foundation) — solo; prerequisite for alt i M015.
 - **S033 group A:** T072 (BullMQ renewal worker) og T073 (subscription admin UI) — parallelt; begge blokkeret af T071, indbyrdes uafhængige.
 - **S034 group A:** T074 (Customer Club Stripe + settings UI — **HITL**) og T075 (per-produkt Club-pris) — parallelt; begge blokkeret af T071. T075 er AFK og kan starte straks T071 er done.
+
+---
+
+## S035–S036 — M016 Settings Architecture
+
+- **S035:** T076 (SettingsShell + settingsNav.ts + redirect) — solo; prerequisite for alt i M016. Supersedes T065's card-landing output.
+- **S036 group A:** T077 (route remapping + placeholders) og T078 (Apps overview) — parallelt; begge blokkeret af T076, indbyrdes uafhængige.
 
 ---
 
