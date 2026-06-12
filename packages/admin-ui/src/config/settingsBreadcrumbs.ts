@@ -49,3 +49,7 @@ export function settingsConnectorBreadcrumbs(connectorLabel: string): Breadcrumb
 export function settingsEmailBreadcrumbs(): BreadcrumbItem[] {
   return settingsBreadcrumb("Email")
 }
+
+export function settingsSubscriptionsBreadcrumbs(): BreadcrumbItem[] {
+  return settingsBreadcrumb("Subscriptions")
+}
