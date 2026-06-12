@@ -34,11 +34,11 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 | M009 | Product Form Polish | Unsaved state; progressive variant UX; SEO lazy preview; physical/digital toggle; product dimensions | M008 | done |
 | M010 | Fulfillment Intelligence | Merchant packaging catalog; bin-packing suggestion on order fulfillment; Shipmondo dimensions auto-fill | M009 | done |
 | M011 | Fulfillment Packaging Persistence | Confirmed packaging per fulfillment persisted and restored on order detail | M010 | done |
-| M012 | Notification System | Transactional email on Amazon SES; per-tenant domain identity; React Email templates; BullMQ delivery queue; admin domain + branding + delivery history | M011 | planned |
-| M013 | Admin Shell & Navigation | Unified sidebar with grouped hierarchy; Settings sub-sections; breadcrumbs; collapse/drawer on narrow viewports | M012 | planned |
-| M014 | Platform Console | Internal operator tool at `console.mercflow.shop`; tenant provisioning; BullMQ queue monitor; cross-tenant email health; system metrics; audit log | M013 | planned |
-| M015 | Subscription System | Product subscriptions with automatic renewal via BullMQ + Stripe; single-tier Customer Club with member pricing (per-product + fallback %) | M014 | planned |
-| M016 | Settings Architecture | Persistent sidebar sub-nav for all `/settings/*`; merchant-mental-model groups (Store, Sales, Shipping, Customers, Communication, Team, Apps, Developers); `/settings` → auto-redirect; placeholder pages for upcoming sections | M013 | planned |
+| M012 | Notification System | Transactional email on Amazon SES; per-tenant domain identity; React Email templates; BullMQ delivery queue; admin domain + branding + delivery history | M011 | in progress (T060 remaining templates open) |
+| M013 | Admin Shell & Navigation | Unified sidebar with grouped hierarchy; Settings sub-sections; breadcrumbs; collapse/drawer on narrow viewports | M012 | done |
+| M014 | Platform Console | Internal operator tool at `console.mercflow.shop`; tenant provisioning; BullMQ queue monitor; cross-tenant email health; system metrics; audit log | M013 | done |
+| M015 | Subscription System | Product subscriptions with automatic renewal via BullMQ + Stripe; single-tier Customer Club with member pricing (per-product + fallback %) | M014 | done |
+| M016 | Settings Architecture | Persistent sidebar sub-nav for all `/settings/*`; merchant-mental-model groups (Store, Sales, Shipping, Customers, Communication, Team, Apps, Developers); `/settings` → auto-redirect; placeholder pages for upcoming sections | M013 | done |
 
 ---
 

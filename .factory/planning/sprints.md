@@ -48,9 +48,9 @@
 | S023 | M012 | notification-module foundation: models, migrations, RLS, service, admin API | T056 | done |
 | S024 | M012 | SES domain identity (HITL) + BullMQ worker infrastructure | T057, T058 | done |
 | S025 | M012 | order-confirmation template + order.placed subscriber + domain admin UI | T059, T061 | done |
-| S026 | M012 | Remaining templates + branding UI + delivery history UI | T060, T062, T063 | planned |
+| S026 | M012 | Remaining templates + branding UI + delivery history UI | T060, T062, T063 | blocked (T060 todo) |
 | S027 | M013 | Clerk auth integration (Store Admin) + AppShell + sidebar (HITL) | T064 | done |
-| S028 | M013 | Settings landing page + route reorganisation + breadcrumbs | T065, T066 | planned |
+| S028 | M013 | Settings landing page + route reorganisation + breadcrumbs | T065, T066 | done |
 | S029 | M014 | Platform Console scaffold + Clerk auth + /platform/ backend skeleton (HITL) | T067 | done |
 | S030 | M014 | Tenant management + BullMQ queue monitor (parallel) | T068, T069 | done |
 | S031 | M014 | Email health + system metrics + audit log UI | T070 | done |

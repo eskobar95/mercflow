@@ -3265,10 +3265,11 @@ Alle settings-sider er samlet under `/settings` med en landing page der viser su
 
 **Sprint:** S028
 **Milestone:** M013
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T064
+**PR:** #99
 **Branch:** feature/S028/T066-breadcrumb-detail-pages
 **PRD journey:** J002 (PRD-admin-shell-navigation.md)
 
