@@ -5,6 +5,9 @@ export type ConnectorSlug = (typeof CONNECTOR_SLUGS)[number]
 
 export type ConnectorConnectionHealthUi = "ok" | "error" | "untested"
 
+/** Apps overview badge status from GET /admin/connectors. */
+export type ConnectorAppStatus = "connected" | "error" | "not_configured"
+
 export type ConnectorListItemDto = {
   type: ConnectorSlug
   active: boolean
@@ -14,6 +17,7 @@ export type ConnectorListItemDto = {
    * Only set when configured — summarizes the last outbound connectivity probe.
    */
   connectionHealth: ConnectorConnectionHealthUi | null
+  status: ConnectorAppStatus
 }
 
 export type ConnectorDisplayStatus = "active" | "inactive" | "unconfigured"

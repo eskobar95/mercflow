@@ -1,5 +1,6 @@
 import {
   CONNECTOR_SLUGS,
+  type ConnectorAppStatus,
   type ConnectorConnectionHealthUi,
   type ConnectorListItemDto,
   type ConnectorSlug,
@@ -13,6 +14,10 @@ function isHealthUi(value: string): value is ConnectorConnectionHealthUi {
   return value === "ok" || value === "error" || value === "untested"
 }
 
+function isAppStatus(value: string): value is ConnectorAppStatus {
+  return value === "connected" || value === "error" || value === "not_configured"
+}
+
 function parseConnectorItem(value: unknown): ConnectorListItemDto | null {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
     return null
@@ -23,6 +28,7 @@ function parseConnectorItem(value: unknown): ConnectorListItemDto | null {
   const configuredRaw = rec["configured"]
   const lastRaw = rec["lastTestedAt"]
   const healthRaw = rec["connectionHealth"]
+  const statusRaw = rec["status"]
 
   if (typeof typeRaw !== "string" || !isConnectorSlug(typeRaw.trim())) {
     return null
@@ -45,12 +51,17 @@ function parseConnectorItem(value: unknown): ConnectorListItemDto | null {
     return null
   }
 
+  if (typeof statusRaw !== "string" || !isAppStatus(statusRaw)) {
+    return null
+  }
+
   return {
     type,
     active: activeRaw,
     configured: configuredRaw,
     lastTestedAt: lastRaw,
     connectionHealth,
+    status: statusRaw,
   }
 }
 

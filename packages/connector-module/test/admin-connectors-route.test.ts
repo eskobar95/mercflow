@@ -15,6 +15,7 @@ describe("GET /admin/connectors route", (): void => {
         lastTestedAt: null,
         configured: false,
         connectionHealth: null,
+        status: "not_configured",
       },
       {
         type: "stripe",
@@ -22,6 +23,7 @@ describe("GET /admin/connectors route", (): void => {
         lastTestedAt: "2026-05-01T10:00:00.000Z",
         configured: true,
         connectionHealth: "ok",
+        status: "connected",
       },
       {
         type: "plunk",
@@ -29,6 +31,7 @@ describe("GET /admin/connectors route", (): void => {
         lastTestedAt: null,
         configured: false,
         connectionHealth: null,
+        status: "not_configured",
       },
       {
         type: "gtm",
@@ -36,6 +39,7 @@ describe("GET /admin/connectors route", (): void => {
         lastTestedAt: null,
         configured: false,
         connectionHealth: null,
+        status: "not_configured",
       },
     ]
 
@@ -74,6 +78,7 @@ describe("GET /admin/connectors route", (): void => {
       type: expect.any(String),
       active: expect.any(Boolean),
       configured: expect.any(Boolean),
+      status: expect.any(String),
     })
     expect(
       first!.lastTestedAt === null || typeof first!.lastTestedAt === "string"

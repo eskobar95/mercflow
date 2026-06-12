@@ -75,6 +75,9 @@ export type StripeConnectorAdminDto = {
 /** Last connectivity probe outcome for list badges (only meaningful when configured). */
 export type ConnectorConnectionHealth = "ok" | "error" | "untested"
 
+/** Apps overview badge — derived from credentials + probe recency (GET /admin/connectors). */
+export type ConnectorAppStatus = "connected" | "error" | "not_configured"
+
 /** Admin GET /admin/connectors item */
 export type ConnectorAdminListItem = {
   type: ConnectorTypeSlug
@@ -86,6 +89,8 @@ export type ConnectorAdminListItem = {
    * When `configured` is false, this is always `null`. Otherwise reflects stored probe state.
    */
   connectionHealth: ConnectorConnectionHealth | null
+  /** Merchant-facing status for Settings → Apps overview badges. */
+  status: ConnectorAppStatus
 }
 
 /** Encrypted payload structure for connector type `plunk`. */

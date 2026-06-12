@@ -486,8 +486,10 @@ export const router = createBrowserRouter([
             path: "apps",
             handle: { title: "Apps" } satisfies AppRouteHandle,
             lazy: async () => {
-              const { ConnectorsPage } = await import("@/pages/ConnectorsPage")
-              return { Component: ConnectorsPage }
+              const { AppsOverviewSettingsPage } = await import(
+                "@/pages/settings/AppsOverviewSettingsPage"
+              )
+              return { Component: AppsOverviewSettingsPage }
             },
           },
           {
