@@ -2169,7 +2169,7 @@ none
 
 ---
 
-## Task T074 — Customer Club Stripe setup — 2026-06-12
+## Task T074 — Customer Club Stripe webhook + settings UI — 2026-06-11
 
 **Sprint:** S034 | **Milestone:** M015 | **Status:** done
 **Branch:** `feature/S034/T074-customer-club-stripe-setup`
@@ -2187,51 +2187,44 @@ Customer Club Stripe webhook (HMAC), club_members group sync, subscription-confi
 | Review (task fit) | pass |
 | Review (thermo-nuclear) | pass |
 | CI | pass |
-| Revision cycles | 0 |
+| Revision cycles | 1 |
 
 ### Unblocked
 none
 
 ---
 
-## Sprint retro — S034 — 2026-06-12 (complete)
+## Sprint retro — S034 — 2026-06-11 (complete)
 
 **Milestone:** M015
-**Duration:** session (T074 completion after HITL approval)
+**Duration:** session (2 runs — T075 then T074 after HITL)
 **Tasks:** 2/2 done, 0 blocked
 
 ### What went well
-- T074 completed with zero revision cycles after HITL approval; CI green on first pass (PR #119)
-- Existing branch work from prior session accelerated closeout
-- T075 already done (PR #118) from prior run
+- T075 club pricing + T074 Customer Club config/webhook both shipped with green CI
+- HITL checkpoint clarified connector-module credential model vs env fallback
+- T074 CI green on first pass (PR #119)
 
 ### What failed or slowed down
-- First S034 run skipped T074 pending HITL — resolved via human checkpoint
+- First S034 run skipped T074 pending HITL — resolved via human checkpoint + credential handoff
 
 ### Task log index
 | Task | Final status | See diary section |
 |------|--------------|-------------------|
-| T074 | done | Task T074 — 2026-06-12 |
+| T074 | done | Task T074 — 2026-06-11 |
 | T075 | done | Task T075 — 2026-06-11 |
 
 ### Revision loops (aggregate)
 | Task | Cycles | Resolved by |
 |------|--------|-------------|
-| T074 | 0 | — |
+| T074 | 1 | — |
 | T075 | 0 | — |
 
 ### Harness notes
-- Requested sprint S035 not in planning — executed S034 (active, T074 runnable)
+- Parallel groups used: A
 - Base branch: `development` (no `dev` branch)
-- Single subagent dispatch for T074 group A
-
-### Factory improvement suggestions
-| Area | Suggestion | Target file |
-|------|------------|-------------|
-| command | Clarify sprint ID validation — report nearest active sprint when requested ID missing | `.cursor/commands/harness/run-sprint.md` |
+- Subagent issues: none
 
 ### Next actions
-- [ ] Merge PR #119 to `development`
-- [ ] Merge PR #118 to `development` (if not already merged)
+- [ ] Merge PR #118 and #119 to `development`
 - [ ] `/milestone-review M015`
-- [ ] Plan next sprint via `/to-backlog` (S035+ not yet defined)

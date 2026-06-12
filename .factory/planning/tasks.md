@@ -3570,12 +3570,13 @@ Merchants kan se og administrere alle subscriptions fra Store Admin — søge ef
 
 **Sprint:** S034
 **Milestone:** M015
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **HITL approved:** 2026-06-11 — Stripe test credentials supplied for local dev; production uses connector-module encrypted credentials (Settings → Connectors → Stripe), not merchant secrets in env.
 **Parallel group:** A
 **Blocked by:** T071
 **Branch:** feature/S034/T074-customer-club-stripe-setup
+**PR:** https://github.com/eskobar95/mercflow/pull/119
 **PRD journey:** J004, J005 (PRD-subscription-system.md)
 
 ### HITL reason
