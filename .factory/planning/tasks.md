@@ -3656,11 +3656,12 @@ Merchants kan sætte en eksplicit Club-pris på et produkt direkte fra Product-f
 
 **Sprint:** S035
 **Milestone:** M016
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** solo
 **Blocked by:** T064 (AppShell + router foundation)
 **Branch:** feature/S035/T076-settings-shell
+**PR:** #121
 **PRD journey:** J001, J002 (PRD-settings-architecture.md)
 **ADRs:** ADR-012
 
