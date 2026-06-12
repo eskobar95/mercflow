@@ -3740,7 +3740,8 @@ Alle eksisterende settings-sider er korrekt placeret i de nye grupper i `Setting
 
 **Sprint:** S036
 **Milestone:** M016
-**Status:** todo
+**Status:** done
+**PR:** #123
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T076
