@@ -120,5 +120,15 @@ export default defineMiddlewares({
       method: ["GET"],
       middlewares: [storeRateLimitMiddleware],
     },
+    {
+      method: ["POST"],
+      bodyParser: { preserveRawBody: true },
+      matcher: "/store/club-membership/webhook",
+    },
+    {
+      method: ["POST"],
+      bodyParser: { preserveRawBody: true },
+      matcher: "/v1/store/club-membership/webhook",
+    },
   ],
 })

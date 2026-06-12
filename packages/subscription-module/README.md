@@ -9,7 +9,7 @@ MercFlow Medusa v2 module for product subscriptions, renewal audit logs, Custome
 - Admin HTTP routes for listing, detail (with renewal log), pause, cancel, and resume
 - PostgreSQL RLS via `app.tenant_id` (renewal log scoped through `subscription_id` join)
 
-Does **not** belong here: BullMQ renewal worker (T072), admin UI (T073), Stripe club webhook (T074), per-product club pricing UI (T075).
+Does **not** belong here: BullMQ renewal worker (T072), subscription list admin UI (T073), per-product club pricing UI (T075).
 
 ## Field definitions — `subscription`
 
@@ -81,6 +81,8 @@ Module services call `withTenant(storeId, fn)` which sets `app.tenant_id` per tr
 - `cancelSubscription(storeId, id)` — sets `cancelled_at`
 - `resumeSubscription(storeId, id)` — paused → active; recalculates `next_renewal_at`
 - `updateRenewalTimestamp(storeId, id, { next_renewal_at, ... })` — worker advance after renewal
+- `getSubscriptionConfig(storeId)` / `getOrCreateSubscriptionConfig(storeId)` — per-store Customer Club config
+- `upsertSubscriptionConfig(storeId, input, { scope, stripeSecretKey })` — save config and sync Stripe club product
 
 ## Admin API
 
@@ -94,6 +96,14 @@ All routes require `?store_id=` (or `MERCFLOW_DEFAULT_STORE_ID` in local dev).
 | POST | `/admin/subscriptions/:id/cancel` | Cancel subscription |
 | POST | `/admin/subscriptions/:id/resume` | Resume paused subscription |
 | GET | `/admin/customers/:id/subscriptions` | Subscriptions for one customer |
+| GET | `/admin/subscription-config` | Customer Club config (`club_enabled`, prices, fallback %) |
+| PUT | `/admin/subscription-config` | Save config; creates/updates Stripe Product + Prices when enabled |
+
+Store webhook (Stripe HMAC via `stripe.webhooks.constructEvent`):
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/store/club-membership/webhook` | `customer.subscription.created` → add to `club_members` group; `customer.subscription.deleted` → remove |
 
 Pause body (optional, Zod-validated):
 
