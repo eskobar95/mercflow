@@ -3571,7 +3571,8 @@ Merchants kan se og administrere alle subscriptions fra Store Admin — søge ef
 **Sprint:** S034
 **Milestone:** M015
 **Status:** todo
-**Mode:** HITL
+**Mode:** AFK
+**HITL approved:** 2026-06-11 — Stripe test credentials supplied for local dev; production uses connector-module encrypted credentials (Settings → Connectors → Stripe), not merchant secrets in env.
 **Parallel group:** A
 **Blocked by:** T071
 **Branch:** feature/S034/T074-customer-club-stripe-setup
@@ -3579,7 +3580,7 @@ Merchants kan se og administrere alle subscriptions fra Store Admin — søge ef
 
 ### HITL reason
 
-Kræver Stripe webhook endpoint opsat med HMAC-signatur verificering, og live Stripe product ID til club membership oprettet i Stripe dashboard. Kræver `STRIPE_CLUB_WEBHOOK_SECRET` og `STRIPE_SECRET_KEY` i env.
+Kræver Stripe webhook endpoint med HMAC-signaturverificering og Club membership Stripe Product oprettet via API ved save. **Produktion:** `secret_key` + `webhook_secret` fra per-store `connector_config` (connector-module). **Lokal dev:** env-fallback (`STRIPE_API_KEY` / `STRIPE_SECRET_KEY`) eller Admin → Connectors → Stripe; webhook test via `stripe listen --forward-to`.
 
 ### Slice objective
 

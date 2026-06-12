@@ -2158,3 +2158,11 @@ none
 - [ ] Human: `/hitl-checkpoint T074` then re-run `/run-sprint S034` or `/run-task T074`
 - [ ] Merge PR #118 to `development`
 - [ ] `/milestone-review M015` after T074 done
+
+---
+
+## HITL approved — T074 — 2026-06-11
+
+**Approver:** human
+**Note:** Stripe test credentials supplied for local dev harness. Production model: per-store connector_config (connector-module); env vars are dev fallback only. Implement T074 must resolve secret_key + webhook_secret from connector row via mercflowResolveStripeSecretKey / connector decrypt — not hardcode merchant secrets in env for production paths.
+**Next:** `/run-task T074` or `/run-sprint S034`
