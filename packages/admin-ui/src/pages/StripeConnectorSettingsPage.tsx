@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/Card"
 import { PageHeader } from "@/components/ui/PageHeader"
 import { Spinner } from "@/components/ui/Spinner"
 import { settingsConnectorBreadcrumbs } from "@/config/settingsBreadcrumbs"
-import { SETTINGS_PATHS } from "@/config/settingsSections"
+import { SETTINGS_PATHS } from "@/config/settingsNav"
 import { CONNECTOR_CATALOG } from "@/features/connectors/connectorsCatalog"
 
 import { StripeApiKeysCard } from "./StripeApiKeysCard"
