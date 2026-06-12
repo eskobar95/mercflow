@@ -13,6 +13,7 @@ const FOUR_CONNECTORS: ConnectorListItemDto[] = [
     configured: true,
     lastTestedAt: "2026-05-01T10:00:00.000Z",
     connectionHealth: "ok",
+    status: "connected",
   },
   {
     type: "stripe",
@@ -20,6 +21,7 @@ const FOUR_CONNECTORS: ConnectorListItemDto[] = [
     configured: true,
     lastTestedAt: null,
     connectionHealth: "untested",
+    status: "not_configured",
   },
   {
     type: "plunk",
@@ -27,6 +29,7 @@ const FOUR_CONNECTORS: ConnectorListItemDto[] = [
     configured: false,
     lastTestedAt: null,
     connectionHealth: null,
+    status: "not_configured",
   },
   {
     type: "gtm",
@@ -34,6 +37,7 @@ const FOUR_CONNECTORS: ConnectorListItemDto[] = [
     configured: false,
     lastTestedAt: null,
     connectionHealth: null,
+    status: "not_configured",
   },
 ]
 

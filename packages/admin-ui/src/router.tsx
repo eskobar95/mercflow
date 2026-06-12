@@ -415,6 +415,16 @@ export const router = createBrowserRouter([
             },
           },
           {
+            path: "apps",
+            handle: { title: "Apps" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { AppsOverviewSettingsPage } = await import(
+                "@/pages/settings/AppsOverviewSettingsPage"
+              )
+              return { Component: AppsOverviewSettingsPage }
+            },
+          },
+          {
             path: "connectors/gtm",
             handle: { title: "Google Tag Manager" } satisfies AppRouteHandle,
             lazy: async () => {
@@ -428,8 +438,8 @@ export const router = createBrowserRouter([
             path: "connectors",
             handle: { title: "Connectors" } satisfies AppRouteHandle,
             lazy: async () => {
-              const { ConnectorsPage } = await import("@/pages/ConnectorsPage")
-              return { Component: ConnectorsPage }
+              const { RedirectToApps } = await import("@/routing/settingsRedirects")
+              return { Component: RedirectToApps }
             },
           },
           {
