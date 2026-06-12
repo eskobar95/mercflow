@@ -3694,7 +3694,8 @@ Alle `/settings/*` routes er pakket ind i en `SettingsShell` layout der viser en
 
 **Sprint:** S036
 **Milestone:** M016
-**Status:** todo
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/122
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T076
@@ -3741,7 +3742,7 @@ Alle eksisterende settings-sider er korrekt placeret i de nye grupper i `Setting
 **Sprint:** S036
 **Milestone:** M016
 **Status:** done
-**PR:** #123
+**PR:** https://github.com/eskobar95/mercflow/pull/123
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T076

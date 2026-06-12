@@ -17,13 +17,3 @@ export function SettingsGeneralPlaceholderRoute(): ReactNode {
     />
   )
 }
-
-export function SettingsStoreDetailsPlaceholderRoute(): ReactNode {
-  return (
-    <PlaceholderPage
-      title="Store details"
-      description="Domain, branding, legal pages, and the public identity your storefront presents to customers."
-      fallback={{ label: "Back to settings", to: SETTINGS_PATHS.general }}
-    />
-  )
-}

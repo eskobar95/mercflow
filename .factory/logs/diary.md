@@ -2287,5 +2287,97 @@ T077, T078
 - Unblocks S036 (T077 + T078 parallel)
 
 ### Next actions
-- [ ] Merge PR #120 to `development`
-- [ ] `/run-sprint S036` for route remapping + Apps overview
+- [x] Merge PR #120 to `development`
+- [x] `/run-sprint S036` for route remapping + Apps overview
+
+---
+
+## Task T077 — Settings route remapping + placeholders — 2026-06-12
+
+**Sprint:** S036 | **Milestone:** M016 | **Status:** done
+**Branch:** `feature/S036/T077-settings-route-remapping`
+**PR:** https://github.com/eskobar95/mercflow/pull/122
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+SettingsPlaceholderPage, 6 placeholder routes, path redirects (connectors→apps, store-details→general), updated SETTINGS_NAV_GROUPS icons/paths
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none
+
+---
+
+## Task T078 — Apps overview connector status — 2026-06-12
+
+**Sprint:** S036 | **Milestone:** M016 | **Status:** done
+**Branch:** `feature/S036/T078-settings-apps-overview`
+**PR:** https://github.com/eskobar95/mercflow/pull/123
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+/settings/apps overview with connector status badges and configure links; GET /admin/connectors returns status field
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none
+
+---
+
+## Sprint retro — S036 — 2026-06-12
+
+**Milestone:** M016
+**Duration:** session
+**Tasks:** 2/2 done, 0 blocked
+
+### What went well
+- T077 + T078 shipped in parallel with zero revision cycles; CI green on first pass (PR #122, #123)
+- Prerequisite T076 (S035) completed first — unblocked both S036 tasks cleanly
+
+### What failed or slowed down
+- S036 was initially blocked until S035 T076 merged; user re-requested sprint 4× before planning files existed on branch
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T077 | done | Task T077 — 2026-06-12 |
+| T078 | done | Task T078 — 2026-06-12 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T077 | 0 | — |
+| T078 | 0 | — |
+
+### Harness notes
+- Parallel group A: 2 subagents dispatched in one turn
+- Prerequisite S035 T076 run first (PR #120 merged)
+- Base branch: `development`
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Auto-detect prerequisite sprint blockers and suggest/run S035 before S036 | `.cursor/skills/harness/harness/SKILL.md` |
+
+### Next actions
+- [ ] Merge PR #122 and #123 to `development`
+- [ ] Close duplicate PR #121 if superseded by #120
+- [ ] `/milestone-review M016` after PRs merged

@@ -285,6 +285,66 @@ export const router = createBrowserRouter([
             },
           },
           {
+            path: "policies",
+            handle: { title: "Policies" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { SettingsPoliciesPlaceholderRoute } = await import(
+                "@/routing/settingsPlaceholderRoutes"
+              )
+              return { Component: SettingsPoliciesPlaceholderRoute }
+            },
+          },
+          {
+            path: "taxes",
+            handle: { title: "Taxes" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { SettingsTaxesPlaceholderRoute } = await import(
+                "@/routing/settingsPlaceholderRoutes"
+              )
+              return { Component: SettingsTaxesPlaceholderRoute }
+            },
+          },
+          {
+            path: "checkout",
+            handle: { title: "Checkout" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { SettingsCheckoutPlaceholderRoute } = await import(
+                "@/routing/settingsPlaceholderRoutes"
+              )
+              return { Component: SettingsCheckoutPlaceholderRoute }
+            },
+          },
+          {
+            path: "customer-accounts",
+            handle: { title: "Customer accounts" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { SettingsCustomerAccountsPlaceholderRoute } = await import(
+                "@/routing/settingsPlaceholderRoutes"
+              )
+              return { Component: SettingsCustomerAccountsPlaceholderRoute }
+            },
+          },
+          {
+            path: "returns",
+            handle: { title: "Returns" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { SettingsReturnsPlaceholderRoute } = await import(
+                "@/routing/settingsPlaceholderRoutes"
+              )
+              return { Component: SettingsReturnsPlaceholderRoute }
+            },
+          },
+          {
+            path: "notifications",
+            handle: { title: "Notifications" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { SettingsNotificationsPlaceholderRoute } = await import(
+                "@/routing/settingsPlaceholderRoutes"
+              )
+              return { Component: SettingsNotificationsPlaceholderRoute }
+            },
+          },
+          {
             path: "email",
             handle: { title: "Email settings" } satisfies AppRouteHandle,
             lazy: async () => {
@@ -311,6 +371,16 @@ export const router = createBrowserRouter([
             },
           },
           {
+            path: "shipping",
+            handle: { title: "Shipping profiles" } satisfies AppRouteHandle,
+            lazy: async () => {
+              const { SettingsShippingProfilesPlaceholderRoute } = await import(
+                "@/routing/settingsPlaceholderRoutes"
+              )
+              return { Component: SettingsShippingProfilesPlaceholderRoute }
+            },
+          },
+          {
             path: "payments",
             handle: { title: "Payments" } satisfies AppRouteHandle,
             lazy: async () => {
@@ -332,10 +402,8 @@ export const router = createBrowserRouter([
             path: "store-details",
             handle: { title: "Store details" } satisfies AppRouteHandle,
             lazy: async () => {
-              const { SettingsStoreDetailsPlaceholderRoute } = await import(
-                "@/routing/settingsRouteComponents"
-              )
-              return { Component: SettingsStoreDetailsPlaceholderRoute }
+              const { RedirectToGeneral } = await import("@/routing/settingsRedirects")
+              return { Component: RedirectToGeneral }
             },
           },
           {
