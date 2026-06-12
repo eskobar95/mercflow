@@ -27,7 +27,15 @@ export function settingsWorkspaceBreadcrumbs(): BreadcrumbItem[] {
 }
 
 export function settingsIntegrationsBreadcrumbs(): BreadcrumbItem[] {
-  return [settingsRoot(), { label: "Integrations", href: SETTINGS_PATHS.integrations }]
+  return [settingsRoot(), { label: "Apps", href: SETTINGS_PATHS.apps }]
+}
+
+export function settingsAppsBreadcrumbs(): BreadcrumbItem[] {
+  return [
+    settingsRoot(),
+    { label: "Apps", href: SETTINGS_PATHS.apps },
+    { label: "Overview" },
+  ]
 }
 
 export function settingsSeoBreadcrumbs(pageLabel: string): BreadcrumbItem[] {
@@ -41,7 +49,7 @@ export function settingsSeoBreadcrumbs(pageLabel: string): BreadcrumbItem[] {
 export function settingsConnectorBreadcrumbs(connectorLabel: string): BreadcrumbItem[] {
   return [
     settingsRoot(),
-    { label: "Integrations", href: SETTINGS_PATHS.integrations },
+    { label: "Apps", href: SETTINGS_PATHS.apps },
     { label: connectorLabel },
   ]
 }
