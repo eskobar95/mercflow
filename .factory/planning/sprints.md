@@ -58,7 +58,7 @@
 | S033 | M015 | BullMQ renewal worker + subscription admin UI (parallel) | T072, T073 | done |
 | S034 | M015 | Customer Club Stripe setup (HITL) + per-product member price UI (parallel) | T074, T075 | done |
 | S035 | M016 | SettingsShell layout + `settingsNav.ts` config + `/settings` redirect | T076 | done |
-| S036 | M016 | Settings route remapping + placeholder pages + Apps overview (parallel) | T077, T078 | planned |
+| S036 | M016 | Settings route remapping + placeholder pages + Apps overview (parallel) | T077, T078 | done |
 
 ---
 

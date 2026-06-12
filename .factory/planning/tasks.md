@@ -3694,12 +3694,12 @@ Alle `/settings/*` routes er pakket ind i en `SettingsShell` layout der viser en
 
 **Sprint:** S036
 **Milestone:** M016
-**Status:** todo
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/122
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T076
 **Branch:** feature/S036/T077-settings-route-remapping
-**PRD journey:** J001, J004 (PRD-settings-architecture.md)
 **ADRs:** ADR-012
 
 ### Slice objective
@@ -3740,7 +3740,8 @@ Alle eksisterende settings-sider er korrekt placeret i de nye grupper i `Setting
 
 **Sprint:** S036
 **Milestone:** M016
-**Status:** todo
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/123
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T076
