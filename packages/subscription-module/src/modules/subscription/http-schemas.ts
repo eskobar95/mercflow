@@ -64,3 +64,11 @@ export const upsertSubscriptionConfigBodySchema = z
   })
 
 export type UpsertSubscriptionConfigBody = z.infer<typeof upsertSubscriptionConfigBodySchema>
+
+export const upsertClubMemberPriceBodySchema = z.object({
+  variant_id: z.string().min(1),
+  amount: z.number().finite().nonnegative(),
+  currency_code: z.string().min(1),
+})
+
+export type UpsertClubMemberPriceBody = z.infer<typeof upsertClubMemberPriceBodySchema>

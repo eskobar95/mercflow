@@ -13,7 +13,8 @@
     "./mercflow-subscriptions-cancel-api": "./src/integrations/mercflow-subscriptions-cancel-api.ts",
     "./mercflow-subscriptions-resume-api": "./src/integrations/mercflow-subscriptions-resume-api.ts",
     "./mercflow-admin-subscription-config-api": "./src/integrations/mercflow-admin-subscription-config-api.ts",
-    "./mercflow-store-club-membership-webhook-api": "./src/integrations/mercflow-store-club-membership-webhook-api.ts"
+    "./mercflow-store-club-membership-webhook-api": "./src/integrations/mercflow-store-club-membership-webhook-api.ts",
+    "./mercflow-product-club-pricing-api": "./src/integrations/mercflow-product-club-pricing-api.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

@@ -38,6 +38,7 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 | M013 | Admin Shell & Navigation | Unified sidebar with grouped hierarchy; Settings sub-sections; breadcrumbs; collapse/drawer on narrow viewports | M012 | planned |
 | M014 | Platform Console | Internal operator tool at `console.mercflow.shop`; tenant provisioning; BullMQ queue monitor; cross-tenant email health; system metrics; audit log | M013 | planned |
 | M015 | Subscription System | Product subscriptions with automatic renewal via BullMQ + Stripe; single-tier Customer Club with member pricing (per-product + fallback %) | M014 | planned |
+| M016 | Settings Architecture | Persistent sidebar sub-nav for all `/settings/*`; merchant-mental-model groups (Store, Sales, Shipping, Customers, Communication, Team, Apps, Developers); `/settings` → auto-redirect; placeholder pages for upcoming sections | M013 | planned |
 
 ---
 
@@ -464,7 +465,7 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 **Dependencies:** M013 (navigation patterns established), M012 (BullMQ + notification infrastructure active)
 
 **Definition of done:**
-- [ ] `apps/platform-console/` deploys to `console.mercflow.shop` with IP allowlist
+- [ ] `apps/platform-console/` deploys to `console.mercflow.shop` with IP allowlist — **deferred (2026-06-11):** Traefik IPs + compose service not configured yet; scaffold only; see T067 deferred table
 - [ ] Google OAuth restricts access to `@mercflow.shop` domain
 - [ ] Tenant list + provision form + suspend action functional
 - [ ] All BullMQ queues visible with job counts, DLQ size, failed job detail, manual retry
@@ -506,6 +507,37 @@ See `.factory/planning/sprints.md` and `.factory/planning/tasks.md`.
 
 ---
 
+## M016 — Settings Architecture
+
+**Outcome:** Settings has a persistent secondary sidebar with 8 merchant-mental-model groups (Store, Sales, Shipping, Customers, Communication, Team, Apps, Developers). `/settings` auto-redirects to `/settings/general`. All existing settings pages are reachable under the new grouping. New sections without feature pages show clean placeholder screens. `/settings/apps` provides a global connector status overview.
+
+**PRD:** `.factory/context/PRD-settings-architecture.md`
+**ADR:** ADR-012 (settings navigation model)
+
+**Supersedes:** T065 (S028/M013) — the card-based settings landing page is replaced.
+
+**Sprints in this milestone:**
+
+| Sprint | Goal | Tasks | Status |
+|--------|------|-------|--------|
+| S035 | SettingsShell component + `settingsNav.ts` config + `/settings` redirect | T076 | planned |
+| S036 | All settings routes remapped + placeholder pages + Apps overview | T077, T078 | planned |
+
+**Dependencies:** M013 (AppShell + sidebar patterns established; T064 done)
+
+**Definition of done:**
+- [ ] `/settings` redirects to `/settings/general` in < 50ms — no card landing page
+- [ ] `SettingsShell` layout renders persistent secondary sidebar on all `/settings/*` routes
+- [ ] All 8 groups present in sidebar: Store, Sales, Shipping, Customers, Communication, Team, Apps, Developers
+- [ ] All existing settings pages reachable via new sidebar (no 404s on old or new paths)
+- [ ] 6 new placeholder pages (Policies, Taxes, Checkout, Customer Accounts, Returns, Notifications)
+- [ ] `/settings/apps` shows connector status for all 4 connectors (Stripe, Shipmondo, Plunk, GTM)
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` green
+- [ ] `/milestone-review M016` grøn
+
+---
+
 ## Dependency graph
 
 ```mermaid
@@ -524,6 +556,7 @@ flowchart LR
   M011 --> M012
   M012 --> M013
   M013 --> M014
+  M013 --> M016
   M014 --> M015
 ```
 
