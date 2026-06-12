@@ -3015,12 +3015,13 @@ En kunde modtager automatisk en ordrebekræftelse med butikslogo, ordreresumé o
 
 **Sprint:** S026
 **Milestone:** M012
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none (T059 done PR #108)
 **Unblocked by:** T059 (PR #108)
 **Branch:** feature/S026/T060-remaining-notification-templates
+**PR:** https://github.com/eskobar95/mercflow/pull/124
 **PRD journey:** J005 (PRD-notification-system.md)
 **ADRs:** ADR-009
 
@@ -3043,10 +3044,10 @@ Alle v1 transaktionelle emails er aktive: shipping update med tracking link, ord
 
 ### Definition of done
 
-- [ ] Alle 3 templates renderer korrekt HTML
-- [ ] Alle 3 subscribers enqueuer jobs korrekt
-- [ ] Snapshot tests grønne
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] Alle 3 templates renderer korrekt HTML
+- [x] Alle 3 subscribers enqueuer jobs korrekt
+- [x] Snapshot tests grønne
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 

@@ -2381,3 +2381,28 @@ none
 - [ ] Merge PR #122 and #123 to `development`
 - [ ] Close duplicate PR #121 if superseded by #120
 - [ ] `/milestone-review M016` after PRs merged
+
+---
+
+## Task T060 — remaining notification templates + event subscribers — 2026-06-12
+
+**Sprint:** S026 | **Milestone:** M012 | **Status:** done
+**Branch:** `feature/S026/T060-remaining-notification-templates`
+**PR:** https://github.com/eskobar95/mercflow/pull/124
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Added shipping-update, order-cancellation, and customer-welcome React Email templates with Medusa event subscribers and worker registry registration.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass (local) |
+| Review (thermo-nuclear) | n/a |
+| CI | pass (main CI green; pnpm audit pre-existing fail on development) |
+| Revision cycles | 0 |
+
+### Unblocked
+none
