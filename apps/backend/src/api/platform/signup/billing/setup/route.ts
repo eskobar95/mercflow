@@ -1,7 +1,7 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 
-import { createSignupBillingSetup } from "../../../../../lib/platform-billing/create-signup-billing-setup"
 import { isStripePlatformConfigured } from "../../../../../lib/platform-billing/stripe-platform-client"
+import { createSignupBillingSetup } from "../../../../../lib/platform-billing/create-signup-billing-setup"
 import { validatePlatformInviteToken } from "../../../../../lib/platform-db/platform-invites"
 import { requirePlatformDatabase } from "../../../../../lib/platform-http/require-platform-operator"
 import { signupBillingSetupBodySchema } from "../../../../../lib/platform-provisioning/validators"
@@ -18,7 +18,7 @@ export async function POST(
   if (!isStripePlatformConfigured()) {
     res.status(503).json({
       message:
-        "Stripe platform billing is not configured. Set STRIPE_PLATFORM_SECRET_KEY and STRIPE_PLATFORM_PRICE_ID.",
+        "Stripe platform billing is not configured. Set STRIPE_PLATFORM_SECRET_KEY.",
     })
     return
   }
@@ -42,6 +42,7 @@ export async function POST(
 
   try {
     const billing = await createSignupBillingSetup({
+      priceId: parsed.data.price_id,
       email: parsed.data.email,
       inviteToken: parsed.data.invite_token,
       storeName: parsed.data.store_name,
@@ -49,9 +50,17 @@ export async function POST(
 
     res.status(200).json(billing)
   } catch (error) {
-    res.status(500).json({
-      message:
-        error instanceof Error ? error.message : "Failed to create billing setup",
-    })
+    const message =
+      error instanceof Error ? error.message : "Failed to create billing setup"
+
+    if (
+      message === "Price is not active" ||
+      message === "Price is not a valid MercFlow platform plan"
+    ) {
+      res.status(400).json({ message })
+      return
+    }
+
+    res.status(500).json({ message })
   }
 }

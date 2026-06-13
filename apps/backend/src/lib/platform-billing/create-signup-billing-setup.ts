@@ -1,10 +1,8 @@
 import type Stripe from "stripe"
 
 import { hashInviteToken } from "../platform-invites/token"
-import {
-  getStripePlatformClient,
-  getStripePlatformPriceId,
-} from "./stripe-platform-client"
+import { validatePlatformPriceId } from "./fetch-platform-plans"
+import { getStripePlatformClient } from "./stripe-platform-client"
 
 export type SignupBillingSetupResult = {
   client_secret: string
@@ -29,15 +27,12 @@ function resolvePaymentIntent(
 }
 
 export async function createSignupBillingSetup(input: {
+  priceId: string
   email: string
   inviteToken: string
   storeName: string
 }): Promise<SignupBillingSetupResult> {
-  const priceId = getStripePlatformPriceId()
-  if (!priceId) {
-    throw new Error("STRIPE_PLATFORM_PRICE_ID is not configured")
-  }
-
+  const plan = await validatePlatformPriceId(input.priceId)
   const stripe = getStripePlatformClient()
   const inviteTokenHash = hashInviteToken(input.inviteToken)
 
@@ -47,12 +42,13 @@ export async function createSignupBillingSetup(input: {
     metadata: {
       invite_token_hash: inviteTokenHash,
       signup_flow: "mercflow_platform",
+      mercflow_platform: "true",
     },
   })
 
   const subscription = await stripe.subscriptions.create({
     customer: customer.id,
-    items: [{ price: priceId }],
+    items: [{ price: plan.price_id }],
     payment_behavior: "default_incomplete",
     payment_settings: {
       save_default_payment_method: "on_subscription",
@@ -61,6 +57,9 @@ export async function createSignupBillingSetup(input: {
     metadata: {
       invite_token_hash: inviteTokenHash,
       signup_flow: "mercflow_platform",
+      mercflow_platform: "true",
+      plan_tier: plan.tier,
+      billing_interval: plan.interval,
     },
   })
 

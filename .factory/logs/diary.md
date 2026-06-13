@@ -3028,3 +3028,75 @@ none
 
 ### Result
 - `development` @ `48a63a8` — M019 S044 complete; Tenant Onboarding milestone done
+
+---
+
+## Task T089 — started — 2026-06-13 22:00 UTC
+
+**Sprint:** S045 | **Group:** solo | **Branch:** `cursor/t089-billing-foundation-2b04`
+
+---
+
+## Task T089 — Billing foundation: migration + catalog API + provision step 7 — 2026-06-13
+
+**Sprint:** S045 | **Milestone:** M020 | **Status:** done
+**Branch:** `cursor/t089-billing-foundation-2b04`
+**PR:** https://github.com/eskobar95/mercflow/pull/136
+**Mode:** AFK
+**Parallel group:** solo
+
+### Outcome
+platform_tenant_billing migration, GET /platform/billing/plans catalog API, price_id signup validation, provision step 7 metadata + billing upsert; STRIPE_PLATFORM_PRICE_ID removed from runtime code
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+T090, T091, T092
+
+---
+
+## Sprint retro — S045 — 2026-06-13
+
+**Milestone:** M020
+**Duration:** session
+**Tasks:** 1/1 done, 0 blocked
+
+### What went well
+- Solo AFK task completed in one subagent dispatch with 1 revision cycle
+- All CI checks green on PR #136 (lint, typecheck, tests, Playwright, Postgres+migrations, security)
+- ADR-015 foundation delivered: platform_tenant_billing table, plans API, price_id validation, provision metadata
+
+### What failed or slowed down
+- CI main job took ~4.5 min; Playwright + Postgres jobs ran after
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T089 | done | Task T089 — 2026-06-13 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T089 | 1 | subagent implement retry |
+
+### Harness notes
+- Parallel groups used: solo (1 subagent)
+- Subagent issues: none
+- Base branch: `development` (ADR-002)
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Clarify `development` vs `dev` in harness preflight | `.cursor/skills/harness/harness/SKILL.md` |
+| command | Note cloud agent branch prefix `cursor/*-2b04` vs task metadata `feature/S*` | commands/harness/run-sprint.md |
+
+### Next actions
+- [ ] Human: review and merge PR #136 to `development`
+- [ ] `/run-sprint S046` — T090 + T091 + T092 (parallel group A)

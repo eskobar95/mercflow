@@ -7,18 +7,13 @@ export function getStripePlatformSecretKey(): string | null {
   return key && key.length > 0 ? key : null
 }
 
-export function getStripePlatformPriceId(): string | null {
-  const priceId = process.env.STRIPE_PLATFORM_PRICE_ID?.trim()
-  return priceId && priceId.length > 0 ? priceId : null
-}
-
 export function getStripePlatformWebhookSecret(): string | null {
   const secret = process.env.STRIPE_PLATFORM_WEBHOOK_SECRET?.trim()
   return secret && secret.length > 0 ? secret : null
 }
 
 export function isStripePlatformConfigured(): boolean {
-  return getStripePlatformSecretKey() !== null && getStripePlatformPriceId() !== null
+  return getStripePlatformSecretKey() !== null
 }
 
 export function getStripePlatformClient(): Stripe {

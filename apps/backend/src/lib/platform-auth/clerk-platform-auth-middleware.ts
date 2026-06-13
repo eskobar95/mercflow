@@ -43,6 +43,7 @@ export async function clerkPlatformAuthMiddleware(
 ): Promise<void> {
   if (
     (req.path === "/platform/invites/validate" && req.method === "GET") ||
+    (req.path === "/platform/billing/plans" && req.method === "GET") ||
     (req.path === "/platform/signup/billing/setup" && req.method === "POST") ||
     (req.path === "/platform/provision" && req.method === "POST") ||
     (req.path?.startsWith("/platform/provisioning-status/") && req.method === "GET")

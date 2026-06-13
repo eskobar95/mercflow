@@ -729,7 +729,7 @@ flowchart LR
 
 | Sprint | Goal | Tasks | Status |
 |--------|------|-------|--------|
-| S045 | Billing foundation: migration + catalog API + provision step 7 | T089 | planned |
+| S045 | Billing foundation: migration + catalog API + provision step 7 | T089 | done |
 | S046 | Webhook retrofit + suspend action + audit log | T090 | planned |
 | S047 | Signup Step 5 plan picker UI (parallel) | T091 | planned |
 | S048 | Platform Console Tenant billing panel (parallel) | T092 | planned |

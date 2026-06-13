@@ -4197,7 +4197,8 @@ Merchant gennemfører Step 5 (Stripe Payment Element for platform-abonnement), s
 
 **Sprint:** S045
 **Milestone:** M020
-**Status:** in-progress
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/136
 **Mode:** AFK
 **Parallel group:** solo
 **Blocked by:** none
@@ -4220,14 +4221,14 @@ Backend-fundamentet er på plads: `platform_tenant_billing` tabel eksisterer, `G
 
 ### Definition of done
 
-- [ ] `platform_tenant_billing` migration kører lokalt (`pnpm migration:run`) og har `down()`
-- [ ] `GET /platform/billing/plans?currency=dkk` returnerer `plans` array med `tier`, `interval`, `currency`, `amount`, `price_id`
-- [ ] `POST /platform/signup/billing/setup` afviser ukendt/inaktiv `price_id` med 400
-- [ ] Provision step 7 skriver `store_id` i Stripe Customer **og** Subscription metadata
-- [ ] `platform_tenant_billing` row upsert-es med `subscription_status=active` efter provision
-- [ ] `rg "STRIPE_PLATFORM_PRICE_ID" .` → 0 resultater
-- [ ] `rg "getStripePlatformPriceId" .` → 0 resultater
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] `platform_tenant_billing` migration kører lokalt (`pnpm migration:run`) og har `down()`
+- [x] `GET /platform/billing/plans?currency=dkk` returnerer `plans` array med `tier`, `interval`, `currency`, `amount`, `price_id`
+- [x] `POST /platform/signup/billing/setup` afviser ukendt/inaktiv `price_id` med 400
+- [x] Provision step 7 skriver `store_id` i Stripe Customer **og** Subscription metadata
+- [x] `platform_tenant_billing` row upsert-es med `subscription_status=active` efter provision
+- [x] `rg "STRIPE_PLATFORM_PRICE_ID" .` → 0 resultater (kun docs/planning)
+- [x] `rg "getStripePlatformPriceId" .` → 0 resultater
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 
