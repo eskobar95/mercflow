@@ -65,7 +65,7 @@
 | S038 | M017 | Credential migration + subscription-module delegation (parallel) | T080, T081 | done |
 | S039 | M017 | Settings → Payments UI: test/live tabs + mode toggle + status badge | T082 | done |
 | S040 | M018 | Backend discount routes + Zod + top-level nav item | T083 | done |
-| S041 | M018 | Discount list + Product/Order forms + Buy X Get Y + Free Shipping forms (parallel) | T084, T085 | planned |
+| S041 | M018 | Discount list + Product/Order forms + Buy X Get Y + Free Shipping forms (parallel) | T084, T085 | active |
 | S042 | M019 | HITL: Stripe platform setup + platform_invite table + Console invite UI | T086 | planned |
 | S043 | M019 | Signup flow steps 1–4 + invite gate middleware | T087 | planned |
 | S044 | M019 | Signup step 5–7 + provision-tenant BullMQ job + billing webhook + welcome email | T088 | planned |

@@ -3983,7 +3983,7 @@ Merchant kan åbne Settings → Payments, indtaste Stripe test- og live-credenti
 
 **Sprint:** S041
 **Milestone:** M018
-**Status:** todo
+**Status:** in-progress
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T083
