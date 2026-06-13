@@ -2771,7 +2771,8 @@ none
 | skill | Document parallel discount UI task file ownership to reduce router conflicts | `.factory/planning/tasks.md` |
 
 ### Next actions
-- [ ] `/run-sprint S042` (T086 HITL — Stripe platform setup + platform_invite)
+- [ ] Human: `/hitl-checkpoint T086` — approve Stripe platform setup + `platform_invite` migration fields
+- [ ] `/run-sprint S042` after HITL approval
 - [ ] Human: review and merge PR #130 + PR #131 to `development`
 - [ ] Human: merge T084 before T085 if integrating sequentially (check for router overlap)
 
@@ -2789,4 +2790,57 @@ none
 
 ### Result
 - `development` @ `6e14c00` — full M018 discount UI (4 types + list actions)
+
+---
+
+## Task T086 — HITL: Stripe platform setup + platform_invite — 2026-06-13
+
+**Sprint:** S042 | **Status:** skipped
+**Reason:** HITL — awaiting human checkpoint before implement
+
+---
+
+## Sprint retro — S042 — 2026-06-13
+
+**Milestone:** M019
+**Duration:** session (preflight only)
+**Tasks:** 0/1 done, 0 blocked, 1 skipped (HITL)
+
+### What went well
+- Preflight clear: T082 done, blocker satisfied; platform-console + `/platform/` scaffold already exists from S029–S031
+
+### What failed or slowed down
+- T086 is **Mode: HITL** without `**HITL approved:**` — harness cannot dispatch until `/hitl-checkpoint T086`
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T086 | skipped | Task T086 — 2026-06-13 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| — | — | — |
+
+### Harness notes
+- Parallel groups used: none (solo HITL sprint)
+- Subagent issues: none — no dispatch
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Default integration branch to `development` in harness preflight (no `dev` branch in repo) | `.cursor/skills/harness/harness/SKILL.md` |
+
+### Next actions
+- [ ] Human: `/hitl-checkpoint T086` — approve Stripe platform setup + `platform_invite` migration fields
+- [ ] `/run-sprint S042` after HITL approval
+- [ ] `/run-sprint S043` blocked until T086 done
+
+---
+
+## HITL approved — T086 — 2026-06-13
+
+**Approver:** human
+**Note:** Stripe test platform keys supplied in session (not committed). `platform_invite` migration fields approved per task spec. `STRIPE_PLATFORM_PRICE_ID` still required before T088 billing step.
+**Next:** `/run-sprint S042`
 

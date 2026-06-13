@@ -14,6 +14,8 @@
 > Updated: 2026-06-10 (S021 done — PR #91 T053 Shipmondo label + packaging autofill)
 > Updated: 2026-06-10 (S018 merged to `development` — PRs #86 `6d89f1b`, #87 `b0ade41`)
 > Updated: 2026-06-11 (S027–S034 added — M013 Admin Shell, M014 Platform Console, M015 Subscription System; ADR-011 Clerk auth)
+> Updated: 2026-06-13 (`/hitl-checkpoint T086` — approved; ready for `/run-sprint S042`)
+> Updated: 2026-06-13 (`/run-sprint S042` — T086 skipped; HITL checkpoint pending)
 > Updated: 2026-06-13 (S040 done — T083 PR #129 discount routes + nav)
 > Updated: 2026-06-13 (S037–S044 added — M017 Payment Module, M018 Discount System, M019 Tenant Onboarding)
 > Updated: 2026-06-11 (S027 done — T064 Clerk auth + AppShell; PR #96 merged `3fe6dc0`)
