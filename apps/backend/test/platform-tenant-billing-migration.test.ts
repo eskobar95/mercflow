@@ -1,10 +1,8 @@
 import { readFileSync } from "node:fs"
-import { dirname, join } from "node:path"
-import { fileURLToPath } from "node:url"
+import { join } from "node:path"
 
 import { describe, expect, it } from "vitest"
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
 const migrationPath = join(
   __dirname,
   "../src/modules/platform/migrations/Migration20260613140000PlatformTenantBilling.ts",
