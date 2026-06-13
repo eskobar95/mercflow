@@ -384,10 +384,8 @@ export const router = createBrowserRouter([
             path: "payments",
             handle: { title: "Payments" } satisfies AppRouteHandle,
             lazy: async () => {
-              const { StripeConnectorSettingsPage } = await import(
-                "@/pages/StripeConnectorSettingsPage"
-              )
-              return { Component: StripeConnectorSettingsPage }
+              const { PaymentsSettingsPage } = await import("@/pages/settings/PaymentsSettingsPage")
+              return { Component: PaymentsSettingsPage }
             },
           },
           {

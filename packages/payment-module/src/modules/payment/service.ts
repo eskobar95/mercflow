@@ -9,6 +9,7 @@ import { MercflowPaymentProviderConfig } from "./models"
 import { StripePaymentProvider, verifyStripeWebhookSignature } from "./providers/stripe-payment-provider"
 import { runWithTenantScope } from "./tenant-scope"
 import type {
+  AdminProviderConfigSnapshot,
   IPaymentProvider,
   PaymentMode,
   PaymentProviderConfigRecord,
@@ -171,6 +172,48 @@ class PaymentModuleService extends MedusaService({
         )
       }
     }
+  }
+
+  private buildAdminSnapshotFromRow(record: Record<string, unknown>): AdminProviderConfigSnapshot {
+    const mode = typeof record.mode === "string" ? record.mode : "test"
+    const resolvedMode = isPaymentMode(mode) ? mode : "test"
+    const publicConfig = toPublicConfigRecord(record, resolvePublishableKey(record, resolvedMode))
+
+    const testHasSecret =
+      typeof record.test_secret_key === "string" && record.test_secret_key.trim() !== ""
+    const liveHasSecret =
+      typeof record.live_secret_key === "string" && record.live_secret_key.trim() !== ""
+    const testHasWebhook =
+      typeof record.test_webhook_secret === "string" && record.test_webhook_secret.trim() !== ""
+    const liveHasWebhook =
+      typeof record.live_webhook_secret === "string" && record.live_webhook_secret.trim() !== ""
+
+    return {
+      ...publicConfig,
+      test_has_secret_key: testHasSecret,
+      live_has_secret_key: liveHasSecret,
+      test_has_webhook_secret: testHasWebhook,
+      live_has_webhook_secret: liveHasWebhook,
+      configured: testHasSecret || liveHasSecret,
+    }
+  }
+
+  async getAdminProviderSnapshot(
+    storeId: string,
+    provider: PaymentProviderKey = "stripe"
+  ): Promise<AdminProviderConfigSnapshot | null> {
+    return this.withTenant(storeId, async (context) => {
+      const rows = await this.listMercflowPaymentProviderConfigs(
+        { store_id: storeId, provider },
+        { take: 1 },
+        context
+      )
+      const row = rows[0]
+      if (row === undefined) {
+        return null
+      }
+      return this.buildAdminSnapshotFromRow(row as Record<string, unknown>)
+    })
   }
 
   async getProviderConfig(

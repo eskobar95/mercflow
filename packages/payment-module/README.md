@@ -10,7 +10,17 @@ MercFlow Medusa v2 module for payment provider abstraction, per-tenant credentia
 - `PaymentModuleService` — credential upsert, mode switching, active provider resolution
 - PostgreSQL RLS via `app.tenant_id`
 
-Does **not** belong here: admin Settings → Payments UI (T082), storefront checkout Payment Element (deferred v2).
+Does **not** belong here: storefront checkout Payment Element (deferred v2).
+
+## Admin API routes
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/admin/payment-providers` | Public config snapshot + `has_secret_key` flags (no secret keys returned) |
+| `PUT` | `/admin/payment-providers` | Upsert test/live credentials (Zod-validated) |
+| `POST` | `/admin/payment-providers/mode` | Switch active `test` / `live` mode |
+
+Admin UI: Settings → Payments (`packages/admin-ui`).
 
 ## Field definitions — `payment_provider_config`
 

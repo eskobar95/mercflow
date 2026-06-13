@@ -106,6 +106,14 @@ export type PublicProviderConfig = PaymentProviderConfigRecord & {
   publishable_key: string | null
 }
 
+export type AdminProviderConfigSnapshot = PublicProviderConfig & {
+  test_has_secret_key: boolean
+  live_has_secret_key: boolean
+  test_has_webhook_secret: boolean
+  live_has_webhook_secret: boolean
+  configured: boolean
+}
+
 export interface IPaymentProvider {
   readonly providerKey: PaymentProviderKey
 

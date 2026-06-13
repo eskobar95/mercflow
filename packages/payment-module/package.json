@@ -8,7 +8,9 @@
     ".": "./src/modules/payment/index.ts",
     "./types": "./src/modules/payment/types.ts",
     "./club-stripe-product-client": "./src/modules/payment/club-stripe-product-client.ts",
-    "./mercflow-stripe-webhook-route": "./src/integrations/mercflow-stripe-webhook-route.ts"
+    "./mercflow-stripe-webhook-route": "./src/integrations/mercflow-stripe-webhook-route.ts",
+    "./mercflow-admin-payment-providers-api": "./src/integrations/mercflow-admin-payment-providers-api.ts",
+    "./mercflow-admin-payment-providers-mode-api": "./src/integrations/mercflow-admin-payment-providers-mode-api.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

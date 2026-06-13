@@ -2563,5 +2563,22 @@ none
 ### Next actions
 - [x] Merge PR #126 and #127 to `development` (2026-06-13 — #127 `e70595f`, #126 `3a12c39`)
 - [x] Merge PR #125 to `development` (2026-06-13 — `1b02cd0`, merged before S038 closeout)
-- [ ] `/run-sprint S039` (T082 — Settings → Payments UI)
+- [x] `/run-sprint S039` dispatched — T082 PR #128 opened (2026-06-13)
+
+---
+
+## Task T082 — started — 2026-06-13
+
+**Sprint:** S039 | **Group:** solo | **Branch:** `cursor/settings-payments-ui-6447`
+**PR:** https://github.com/eskobar95/mercflow/pull/128
+
+### Outcome (in progress)
+Settings → Payments UI + payment-module admin API routes implemented; awaiting CI.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | local-only (admin-ui new files clean; monorepo typecheck pre-existing fork issues) |
+| Review | pending |
+| CI | pending |
 

@@ -33,6 +33,40 @@ function createServiceStub(
 }
 
 describe("PaymentModuleService", (): void => {
+  it("getAdminProviderSnapshot exposes has_secret_key flags without returning secrets", async (): Promise<void> => {
+    const encryption = new EncryptionService({ keyHex: TEST_KEY })
+    const encrypted = encryption.encrypt("sk_test_secret")
+    const listMercflowPaymentProviderConfigs = vi.fn().mockResolvedValue([
+      {
+        id: "ppc_1",
+        store_id: STORE_A,
+        provider: "stripe",
+        mode: "test",
+        test_secret_key: encrypted,
+        test_publishable_key: "pk_test_abc",
+        test_webhook_secret: "whsec_test",
+        live_secret_key: null,
+        live_publishable_key: null,
+        live_webhook_secret: null,
+        created_at: new Date(),
+        updated_at: new Date(),
+        deleted_at: null,
+      },
+    ])
+    const svc = createServiceStub({ listMercflowPaymentProviderConfigs })
+
+    const snapshot = await svc.getAdminProviderSnapshot(STORE_A)
+    expect(snapshot).toMatchObject({
+      mode: "test",
+      test_has_secret_key: true,
+      live_has_secret_key: false,
+      test_has_webhook_secret: true,
+      configured: true,
+      publishable_key: "pk_test_abc",
+    })
+    expect(snapshot).not.toHaveProperty("test_secret_key")
+  })
+
   it("getProviderConfig returns null when no row exists", async (): Promise<void> => {
     const listMercflowPaymentProviderConfigs = vi.fn().mockResolvedValue([])
     const svc = createServiceStub({ listMercflowPaymentProviderConfigs })

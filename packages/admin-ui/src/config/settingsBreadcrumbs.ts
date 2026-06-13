@@ -61,3 +61,7 @@ export function settingsEmailBreadcrumbs(): BreadcrumbItem[] {
 export function settingsSubscriptionsBreadcrumbs(): BreadcrumbItem[] {
   return settingsBreadcrumb("Subscriptions")
 }
+
+export function settingsPaymentsBreadcrumbs(): BreadcrumbItem[] {
+  return settingsBreadcrumb("Payments")
+}
