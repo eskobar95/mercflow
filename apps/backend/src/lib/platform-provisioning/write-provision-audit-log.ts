@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
 
-import { getPlatformDbPool, isPlatformDbConfigured } from "../../../backend/src/lib/platform-db/platform-db"
+import { getPlatformDbPool, isPlatformDbConfigured } from "../platform-db/platform-db"
 
 export async function writeProvisionAuditLog(input: {
   action: string

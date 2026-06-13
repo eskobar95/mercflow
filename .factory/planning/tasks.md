@@ -4145,7 +4145,7 @@ Operator kan i Platform Console åbne "Tenants" → "Invite merchant", indtaste 
 
 **Sprint:** S044
 **Milestone:** M019
-**Status:** todo
+**Status:** in-progress
 **Mode:** AFK
 **Parallel group:** solo
 **Blocked by:** T087

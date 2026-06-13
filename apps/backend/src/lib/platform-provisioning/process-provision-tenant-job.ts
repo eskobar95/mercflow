@@ -4,9 +4,9 @@ import {
   createClerkOrgForTenant,
   ensureClerkOrgAdminMembership,
   ensureClerkOrgStoreIdClaim,
-} from "../../../backend/src/lib/clerk-store-admin/clerk-org-provisioning"
-import { redeemPlatformInvite } from "../../../backend/src/lib/platform-db/redeem-platform-invite"
-import { getStripePlatformClient } from "../../../backend/src/lib/platform-billing/stripe-platform-client"
+} from "../clerk-store-admin/clerk-org-provisioning"
+import { redeemPlatformInvite } from "../platform-db/redeem-platform-invite"
+import { getStripePlatformClient } from "../platform-billing/stripe-platform-client"
 import {
   completeProvisioningJob,
   failProvisioningJob,
@@ -14,12 +14,9 @@ import {
   updateProvisioningArtifacts,
   updateProvisioningJobStatus,
   updateProvisioningStep,
-} from "../../../backend/src/lib/platform-provisioning/job-state"
-import { sendPlatformWelcomeEmail } from "../../../backend/src/lib/platform-provisioning/send-platform-welcome-email"
-import type {
-  ProvisionTenantJobPayload,
-  ProvisioningStepKey,
-} from "../../../backend/src/lib/platform-provisioning/constants"
+} from "./job-state"
+import { sendPlatformWelcomeEmail } from "./send-platform-welcome-email"
+import type { ProvisionTenantJobPayload, ProvisioningStepKey } from "./constants"
 import { writeProvisionAuditLog } from "./write-provision-audit-log"
 
 type MedusaAdminClient = {
@@ -89,15 +86,11 @@ export async function processProvisionTenantJob(
     adminApiToken: env.adminApiToken,
   }
 
-  const provisionModule = await import(
-    path.join(repoRoot, "scripts/provision-tenant/provision.js")
-  )
-
   let storeId: string | null = null
   let salesChannelId: string | null = null
   let publishableApiKeyToken: string | null = null
   let clerkOrgId: string | null = null
-  let tenantUrl = `https://${payload.domain}`
+  const tenantUrl = `https://${payload.domain}`
   let adminUrl = env.backendUrl.replace(/\/$/, "")
 
   try {

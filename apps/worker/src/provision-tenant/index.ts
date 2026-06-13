@@ -1,5 +1,5 @@
 export {
-  startProvisionTenantWorker,
-  stopProvisionTenantWorker,
-  type ProvisionTenantWorkerHandle,
-} from "./start-provision-tenant-worker"
+  PROVISION_TENANT_DLQ_NAME,
+  PROVISION_TENANT_JOB,
+  PROVISION_TENANT_QUEUE_NAME,
+} from "../types"

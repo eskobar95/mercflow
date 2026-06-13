@@ -17,18 +17,14 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@clerk/backend": "^3.6.1",
     "@medusajs/core-flows": "2.14.0",
     "@medusajs/framework": "workspace:*",
     "@medusajs/medusa": "workspace:*",
     "@medusajs/utils": "workspace:*",
-    "@mercflow/notification-module": "workspace:*",
     "@mercflow/payment-module": "workspace:*",
     "@mercflow/subscription-module": "workspace:*",
     "bullmq": "5.13.0",
     "ioredis": "^5.4.2",
-    "pg": "^8.16.3",
-    "stripe": "15.12.0",
     "zod": "^4.0.0"
   },
   "devDependencies": {

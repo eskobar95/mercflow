@@ -1,13 +1,16 @@
 import type { MedusaContainer } from "@medusajs/framework"
 import { registerNotificationTemplates } from "@mercflow/notification-module/templates"
 import {
-  startProvisionTenantWorker,
   startSubscriptionRenewalWorker,
-  stopProvisionTenantWorker,
   stopSubscriptionRenewalWorker,
-  type ProvisionTenantWorkerHandle,
   type SubscriptionRenewalWorkerHandle,
 } from "@mercflow/worker"
+
+import {
+  startProvisionTenantWorker,
+  stopProvisionTenantWorker,
+  type ProvisionTenantWorkerHandle,
+} from "./provision-tenant-worker"
 
 import {
   startNotificationWorker,

@@ -8,8 +8,8 @@ import {
   PROVISION_TENANT_JOB_RETRY_OPTIONS,
   PROVISION_TENANT_QUEUE_NAME,
   type ProvisionTenantJobPayload,
-} from "../../../backend/src/lib/platform-provisioning/constants"
-import { processProvisionTenantJob } from "./process-provision-tenant-job"
+} from "../lib/platform-provisioning/constants"
+import { processProvisionTenantJob } from "../lib/platform-provisioning/process-provision-tenant-job"
 
 export type ProvisionTenantWorkerHandle = {
   worker: Worker<ProvisionTenantJobPayload>
