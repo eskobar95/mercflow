@@ -652,7 +652,7 @@ flowchart LR
 | Sprint | Goal | Tasks | Status |
 |--------|------|-------|--------|
 | S040 | Backend discount routes + Zod + top-level nav item | T083 | done |
-| S041 | Discount list + Product/Order forms + Buy X Get Y + Free Shipping forms (parallel) | T084, T085 | planned |
+| S041 | Discount list + Product/Order forms + Buy X Get Y + Free Shipping forms (parallel) | T084, T085 | done |
 
 **Dependencies:** M016 (Settings + top-level nav architecture in place)
 
