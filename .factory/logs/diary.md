@@ -3098,5 +3098,21 @@ T090, T091, T092
 | command | Note cloud agent branch prefix `cursor/*-2b04` vs task metadata `feature/S*` | commands/harness/run-sprint.md |
 
 ### Next actions
-- [ ] Human: review and merge PR #136 to `development`
+- [x] Human: review and merge PR #136 to `development`
 - [ ] `/run-sprint S046` — T090 + T091 + T092 (parallel group A)
+
+---
+
+## Merge — S045 PR #136 — 2026-06-13
+
+**Branch:** `development`
+**PR merged:** #136 (T089 billing foundation)
+
+### Review notes
+- All CI checks green (lint, typecheck, tests, Playwright smoke, Postgres+migrations, security, React Doctor)
+- ADR-015 scope: `platform_tenant_billing` table, plans catalog API, price_id validation, provision metadata + upsert
+- `STRIPE_PLATFORM_PRICE_ID` / `getStripePlatformPriceId` removed from `apps/`
+- Migration reversible with decision log; unit tests for plans, price validation, subscription confirm
+
+### Result
+- `development` @ `1d3aa9f` — M020 S045 complete; unblocks T090, T091, T092
