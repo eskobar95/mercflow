@@ -1,0 +1,36 @@
+{
+  "name": "@mercflow/payment-module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MercFlow Medusa v2 module: payment provider abstraction, per-tenant credentials, and Stripe implementation.",
+  "main": "src/modules/payment/index.ts",
+  "exports": {
+    ".": "./src/modules/payment/index.ts",
+    "./types": "./src/modules/payment/types.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "db:generate": "medusa db:generate payment",
+    "db:migrate": "medusa db:migrate",
+    "db:revert": "medusa db:revert"
+  },
+  "dependencies": {
+    "@medusajs/framework": "workspace:*",
+    "@medusajs/medusa": "workspace:*",
+    "@medusajs/types": "workspace:*",
+    "@medusajs/utils": "workspace:*",
+    "stripe": "15.12.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@medusajs/cli": "workspace:*",
+    "@types/node": "^22.10.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
