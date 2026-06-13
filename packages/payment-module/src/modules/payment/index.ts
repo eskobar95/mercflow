@@ -4,7 +4,13 @@ import { validateEncryptionKeyAtStartup } from "./encryption-service"
 import PaymentModuleService from "./service"
 import { PAYMENT_MODULE } from "./types"
 
-validateEncryptionKeyAtStartup()
+const isDbCliCommand = process.argv.some((arg) =>
+  /db:(migrate|generate|rollback|revert|seed)/.test(arg)
+)
+
+if (!isDbCliCommand && process.env.VITEST !== "true") {
+  validateEncryptionKeyAtStartup()
+}
 
 export { PAYMENT_MODULE }
 
