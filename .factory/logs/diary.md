@@ -2468,7 +2468,7 @@ T080, T081
 | skill | Document `MERCFLOW_ENCRYPTION_KEY` vs `MERCFLOW_CONNECTOR_ENCRYPTION_KEY` in implement skill for payment tasks | `.cursor/skills/harness/implement/SKILL.md` |
 
 ### Next actions
-- [ ] Merge PR #125 to `development`
+- [x] Merge PR #125 to `development` (2026-06-13 — `1b02cd0`)
 - [x] `/run-sprint S038` (T080 + T081 parallel)
 
 ---
