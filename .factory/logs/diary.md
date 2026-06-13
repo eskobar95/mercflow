@@ -2853,3 +2853,18 @@ T087
 - [ ] Human: review and merge PR #133 to `development`
 - [ ] `/run-sprint S043` — T087 signup flow steps 1–4
 
+---
+
+## Merge — S042 PR #133 — 2026-06-13
+
+**Branch:** `development`
+**PR merged:** #133 (T086 tenant onboarding invite foundation)
+
+### Review notes
+- All CI checks green (lint, typecheck, tests, Playwright smoke, Postgres+migrations, security, React Doctor)
+- Token hashing (SHA-256), 72h expiry, Zod validation, public validate route bypasses Clerk auth
+- No secrets committed; audit log on create/revoke
+
+### Result
+- `development` @ merge commit — M019 S042 complete; T087 unblocked
+
