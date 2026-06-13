@@ -9,20 +9,17 @@ import { createAdminDiscount } from "@/features/discounts/discountsApi"
 import {
   createDefaultOrderDiscountFormState,
   createDefaultProductDiscountFormState,
-  isBuyGetOrFreeShippingType,
   type DiscountFormType,
   type OrderDiscountFormState,
   type ProductDiscountFormState,
 } from "@/features/discounts/discountFormTypes"
-import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
-
-import { BuyXGetYForm } from "./BuyXGetYForm"
-import { DiscountTypeSelector } from "./DiscountTypeSelector"
 import {
   discountTypeTitle,
   isDiscountTypeSupportedForForms,
 } from "@/features/discounts/discountTypeLabels"
-import { FreeShippingForm } from "./FreeShippingForm"
+import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
+
+import { DiscountTypeSelector } from "./DiscountTypeSelector"
 import { OrderDiscountForm } from "./OrderDiscountForm"
 import { ProductDiscountForm } from "./ProductDiscountForm"
 
@@ -146,25 +143,7 @@ function DiscountCreatePageContent(): ReactNode {
           />
         ) : null}
 
-        {selectedType === "buyget" ? (
-          <BuyXGetYForm
-            onCreated={(discountId) => {
-              navigate(`/discounts/${encodeURIComponent(discountId)}`)
-            }}
-          />
-        ) : null}
-
-        {selectedType === "free_shipping" ? (
-          <FreeShippingForm
-            onCreated={(discountId) => {
-              navigate(`/discounts/${encodeURIComponent(discountId)}`)
-            }}
-          />
-        ) : null}
-
-        {selectedType !== null &&
-        !isDiscountTypeSupportedForForms(selectedType) &&
-        !isBuyGetOrFreeShippingType(selectedType) ? (
+        {selectedType !== null && !isDiscountTypeSupportedForForms(selectedType) ? (
           <Card compact>
             <h2 className="text-base font-semibold text-content-primary">
               {discountTypeTitle(selectedType)}
