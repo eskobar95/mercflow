@@ -33,6 +33,7 @@ export async function createSignupBillingSetup(input: {
   invite_token: string
   email: string
   store_name: string
+  price_id: string
 }): Promise<SignupBillingSetupResponse> {
   const backendUrl = resolvePlatformBackendUrl()
   const response = await fetch(`${backendUrl}/platform/signup/billing/setup`, {

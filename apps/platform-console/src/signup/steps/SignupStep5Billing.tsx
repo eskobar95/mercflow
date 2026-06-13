@@ -1,12 +1,13 @@
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js"
 import { loadStripe, type StripeElementsOptions } from "@stripe/stripe-js"
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useUser } from "@clerk/react"
 
 import { getStripePlatformPublishableKey } from "@/lib/signupBillingEnv"
 import { createSignupBillingSetup, startSignupProvisioning } from "@/lib/signupProvisionApi"
 import { resolveSignupDomain } from "@/lib/signupStoreOptions"
 import { useSignupWizard } from "@/signup/SignupWizardContext"
+import { PlanPicker } from "@/signup/steps/PlanPicker"
 
 const stripePromise = (() => {
   const publishableKey = getStripePlatformPublishableKey()
@@ -126,7 +127,31 @@ export function SignupStep5Billing(): React.ReactElement {
   const { user } = useUser()
   const { state, setBillingDetails, goToStep } = useSignupWizard()
   const [error, setError] = useState<string | null>(null)
+  const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null)
   const [isLoadingSetup, setIsLoadingSetup] = useState(false)
+  const setupPriceIdRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    setSelectedPriceId(null)
+    setupPriceIdRef.current = null
+    setBillingDetails({
+      clientSecret: null,
+      customerId: null,
+      subscriptionId: null,
+      paymentIntentId: null,
+    })
+  }, [setBillingDetails, state.currency])
+
+  const handleSelectPriceId = useCallback((priceId: string): void => {
+    setSelectedPriceId(priceId)
+    setBillingDetails({
+      clientSecret: null,
+      customerId: null,
+      subscriptionId: null,
+      paymentIntentId: null,
+    })
+    setupPriceIdRef.current = null
+  }, [setBillingDetails])
 
   const elementsOptions = useMemo<StripeElementsOptions | null>(() => {
     if (!state.billing.clientSecret) {
@@ -142,7 +167,11 @@ export function SignupStep5Billing(): React.ReactElement {
   }, [state.billing.clientSecret])
 
   useEffect(() => {
-    if (state.billing.clientSecret || isLoadingSetup) {
+    if (!selectedPriceId || state.billing.clientSecret || isLoadingSetup) {
+      return
+    }
+
+    if (setupPriceIdRef.current === selectedPriceId) {
       return
     }
 
@@ -153,12 +182,15 @@ export function SignupStep5Billing(): React.ReactElement {
     }
 
     let cancelled = false
+    setupPriceIdRef.current = selectedPriceId
     setIsLoadingSetup(true)
+    setError(null)
 
     void createSignupBillingSetup({
       invite_token: inviteToken,
       email,
       store_name: state.storeName,
+      price_id: selectedPriceId,
     })
       .then((billing) => {
         if (cancelled) {
@@ -177,6 +209,7 @@ export function SignupStep5Billing(): React.ReactElement {
           return
         }
 
+        setupPriceIdRef.current = null
         setError(
           setupError instanceof Error
             ? setupError.message
@@ -194,6 +227,7 @@ export function SignupStep5Billing(): React.ReactElement {
     }
   }, [
     isLoadingSetup,
+    selectedPriceId,
     setBillingDetails,
     state.billing.clientSecret,
     state.inviteToken,
@@ -220,19 +254,32 @@ export function SignupStep5Billing(): React.ReactElement {
     <section className="rounded-lg border border-border-subtle bg-surface-raised p-6">
       <h2 className="text-lg font-semibold text-content-primary">Platform subscription</h2>
       <p className="mt-1 text-sm text-content-secondary">
-        MercFlow Starter — monthly platform fee. Your card is charged when you start
-        the subscription; provisioning begins immediately after payment succeeds.
+        Choose your MercFlow plan, then add a payment method. Provisioning begins after
+        payment succeeds.
       </p>
 
-      {isLoadingSetup || !elementsOptions ? (
-        <p className="mt-6 text-sm text-content-secondary">Preparing secure checkout…</p>
-      ) : (
-        <div className="mt-6">
-          <Elements stripe={stripePromise} options={elementsOptions}>
-            <BillingPaymentForm onError={setError} />
-          </Elements>
+      <div className="mt-6">
+        <PlanPicker
+          currency={state.currency}
+          selectedPriceId={selectedPriceId}
+          onSelectPriceId={handleSelectPriceId}
+        />
+      </div>
+
+      {selectedPriceId !== null ? (
+        <div className="mt-6 border-t border-border-subtle pt-6">
+          <h3 className="text-sm font-semibold text-content-primary">Payment method</h3>
+          {isLoadingSetup || !elementsOptions ? (
+            <p className="mt-3 text-sm text-content-secondary">Preparing secure checkout…</p>
+          ) : (
+            <div className="mt-4">
+              <Elements stripe={stripePromise} options={elementsOptions}>
+                <BillingPaymentForm onError={setError} />
+              </Elements>
+            </div>
+          )}
         </div>
-      )}
+      ) : null}
 
       {error !== null ? (
         <p className="mt-4 text-sm text-feedback-danger-content">{error}</p>
