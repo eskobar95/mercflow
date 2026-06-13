@@ -30,13 +30,17 @@ pnpm dev:backend
 pnpm --filter @mercflow/platform-console dev
 ```
 
+Merchant signup lives at **`/signup?invite=[token]`** on the same dev server (port 5174). It uses the **mercflow-store-admin** Clerk app (`VITE_CLERK_PUBLISHABLE_KEY`), not the operator Clerk app.
+
 Copy `.env.example` to `.env.local` and set:
 
 | Variable | Source |
 |----------|--------|
 | `VITE_PLATFORM_CLERK_PUBLISHABLE_KEY` | Clerk → mercflow-platform → API Keys |
+| `VITE_CLERK_PUBLISHABLE_KEY` | Clerk → mercflow-store-admin → API Keys (merchant `/signup` only) |
 | `VITE_PLATFORM_BACKEND_URL` | `http://localhost:5174` (uses Vite proxy to backend — see below) |
 | `VITE_PLATFORM_ALLOWED_EMAIL_DOMAIN` | `mercflow.shop` in production; see [Local dev overrides](#local-dev-overrides) |
+| `VITE_MERCFLOW_PUBLIC_SIGNUP` | Optional — set to `true` to bypass invite gate on `/signup` |
 
 Backend (`apps/backend/.env`) also needs:
 
