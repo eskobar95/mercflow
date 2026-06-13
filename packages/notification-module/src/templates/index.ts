@@ -18,7 +18,9 @@ export { EmailLayout } from "./layout"
 export { LineItem } from "./line-item"
 export { OrderCancellationTemplate } from "./order-cancellation"
 export { OrderConfirmationTemplate } from "./order-confirmation"
+export { PlatformInviteTemplate } from "./platform-invite"
 export { ShippingUpdateTemplate } from "./shipping-update"
+export type { PlatformInviteTemplateProps } from "./platform-invite"
 export type {
   CustomerWelcomeTemplateProps,
   EmailBrandingProps,
