@@ -1,13 +1,13 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 
-import type { PlatformAuthRequest } from "../../../../../lib/platform-auth/clerk-platform-auth-middleware"
-import { isPlatformDbConfigured } from "../../../../../lib/platform-db/platform-db"
-import { writePlatformAuditLog } from "../../../../../lib/platform-tenants/audit-log"
-import { getPlatformTenantById } from "../../../../../lib/platform-tenants/list-tenants"
-import { suspendPlatformTenant } from "../../../../../lib/platform-tenants/suspend-tenant"
-import { suspendTenantBodySchema } from "../../../../../lib/platform-tenants/validators"
+import type { PlatformAuthRequest } from "../../../../../../lib/platform-auth/clerk-platform-auth-middleware"
+import { isPlatformDbConfigured } from "../../../../../../lib/platform-db/platform-db"
+import { writePlatformAuditLog } from "../../../../../../lib/platform-tenants/audit-log"
+import { getPlatformTenantById } from "../../../../../../lib/platform-tenants/list-tenants"
+import { suspendPlatformTenant } from "../../../../../../lib/platform-tenants/suspend-tenant"
+import { suspendTenantBodySchema } from "../../../../../../lib/platform-tenants/validators"
 
-export async function PUT(
+export async function POST(
   req: PlatformAuthRequest & MedusaRequest,
   res: MedusaResponse,
 ): Promise<void> {
@@ -25,9 +25,9 @@ export async function PUT(
     return
   }
 
-  const storeId = req.params.id
+  const storeId = req.params.store_id
   if (typeof storeId !== "string" || storeId.trim() === "") {
-    res.status(400).json({ message: "Missing tenant id" })
+    res.status(400).json({ message: "Missing store id" })
     return
   }
 
