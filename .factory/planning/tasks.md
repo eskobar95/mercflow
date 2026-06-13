@@ -4106,11 +4106,12 @@ Operator kan i Platform Console åbne "Tenants" → "Invite merchant", indtaste 
 
 **Sprint:** S043
 **Milestone:** M019
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** solo
 **Blocked by:** T086
 **Branch:** feature/S043/T087-signup-flow-steps-1-4
+**PR:** https://github.com/eskobar95/mercflow/pull/134
 **PRD journey:** J002 (PRD-tenant-onboarding.md)
 **ADRs:** ADR-014, ADR-011
 
