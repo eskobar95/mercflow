@@ -102,4 +102,21 @@ describe("clerkPlatformAuthMiddleware", () => {
       },
     })
   })
+
+  it("skips auth for public invite validation route", async () => {
+    const json = vi.fn()
+    const status = vi.fn(() => ({ json }))
+    const req = { headers: {}, path: "/platform/invites/validate", method: "GET" }
+    const next = vi.fn()
+
+    await clerkPlatformAuthMiddleware(
+      req as never,
+      { status } as never,
+      next as never,
+    )
+
+    expect(next).toHaveBeenCalled()
+    expect(verifyToken).not.toHaveBeenCalled()
+    expect(status).not.toHaveBeenCalled()
+  })
 })

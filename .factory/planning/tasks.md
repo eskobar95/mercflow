@@ -4063,9 +4063,10 @@ Merchant kan oprette Buy X Get Y og Free Shipping discounts. Activate/deactivate
 
 **Sprint:** S042
 **Milestone:** M019
-**Status:** todo
-**Mode:** HITL
-**HITL reason:** Operatøren skal oprette et Stripe platform-account (eller konfigurere eksisterende Stripe konto til platform billing) og levere `STRIPE_PLATFORM_SECRET_KEY` + `STRIPE_PLATFORM_PRICE_ID` (MercFlow månedligt abonnement). Desuden: godkend `platform_invite` migration-felter inden commit.
+**Status:** done
+**Mode:** AFK
+**HITL approved:** 2026-06-13 — Stripe test keys supplied in session; `platform_invite` migration fields approved; `STRIPE_PLATFORM_PRICE_ID` to be created in Stripe before T088 billing step
+**PR:** https://github.com/eskobar95/mercflow/pull/133
 **Parallel group:** solo
 **Blocked by:** T082
 **Branch:** feature/S042/T086-tenant-onboarding-invite-foundation

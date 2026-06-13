@@ -41,6 +41,11 @@ export async function clerkPlatformAuthMiddleware(
   res: MedusaResponse,
   next: MedusaNextFunction,
 ): Promise<void> {
+  if (req.path === "/platform/invites/validate" && req.method === "GET") {
+    await Promise.resolve(next())
+    return
+  }
+
   const platformClerkSecretKey = getPlatformClerkSecretKey()
   if (!platformClerkSecretKey) {
     res.status(503).json({

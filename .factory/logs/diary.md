@@ -2790,3 +2790,66 @@ none
 ### Result
 - `development` @ `6e14c00` — full M018 discount UI (4 types + list actions)
 
+---
+
+## Task T086 — HITL: Stripe platform setup + platform_invite — 2026-06-13
+
+**Sprint:** S042 | **Milestone:** M019 | **Status:** done
+**Branch:** `feature/S042/T086-tenant-onboarding-invite-foundation`
+**PR:** https://github.com/eskobar95/mercflow/pull/133
+**Mode:** AFK (HITL pre-approved)
+**Parallel group:** solo
+
+### Outcome
+platform_invite migration, invite API routes, SES invite email, and Platform Console invite UI shipped
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+T087
+
+---
+
+## Sprint retro — S042 — 2026-06-13
+
+**Milestone:** M019
+**Duration:** session
+**Tasks:** 1/1 done, 0 blocked
+
+### What went well
+- HITL checkpoint cleared Stripe + migration approval before dispatch
+- T086 shipped in one revision cycle with CI green on first PR
+
+### What failed or slowed down
+- none
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T086 | done | Task T086 — 2026-06-13 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T086 | 0 | — |
+
+### Harness notes
+- Parallel groups used: solo (1 subagent)
+- Subagent issues: none
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Default base branch `development` in implement skill | `.cursor/skills/harness/implement/SKILL.md` |
+
+### Next actions
+- [ ] Human: review and merge PR #133 to `development`
+- [ ] `/run-sprint S043` — T087 signup flow steps 1–4
+
