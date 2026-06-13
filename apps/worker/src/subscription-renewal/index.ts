@@ -14,10 +14,6 @@ export {
 } from "./process-due-renewals"
 export { resolveRenewalPaymentContext } from "./resolve-renewal-payment-context"
 export {
-  createRenewalPaymentIntent,
-  type StripePaymentIntentClient,
-} from "./stripe-charge"
-export {
   startSubscriptionRenewalWorker,
   stopSubscriptionRenewalWorker,
   type SubscriptionRenewalWorkerHandle,

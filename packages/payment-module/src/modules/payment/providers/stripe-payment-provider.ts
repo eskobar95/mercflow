@@ -76,9 +76,11 @@ export class StripePaymentProvider implements IPaymentProvider {
         amount: params.amount,
         currency: params.currency,
         customer: params.customerId,
+        ...(params.paymentMethodId !== undefined
+          ? { payment_method: params.paymentMethodId }
+          : { payment_method_types: ["card"] }),
         confirm: true,
         off_session: true,
-        payment_method_types: ["card"],
         metadata: params.metadata,
       },
       {

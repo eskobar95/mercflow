@@ -1,6 +1,7 @@
 import type { Context } from "@medusajs/types"
 import { MedusaService } from "@medusajs/framework/utils"
 import { MedusaError } from "@medusajs/utils"
+import type { PaymentModuleService } from "@mercflow/payment-module"
 
 import {
   MercflowSubscription,
@@ -9,7 +10,6 @@ import {
 } from "./models"
 import { runWithTenantScope } from "./tenant-scope"
 import type { MedusaContainer } from "@medusajs/framework/types"
-import StripeSdk from "stripe"
 
 import { ensureClubMembersCustomerGroup } from "./club-membership"
 import { syncClubStripeProduct } from "./club-stripe-sync"
@@ -219,7 +219,7 @@ class SubscriptionModuleService extends MedusaService({
     input: UpsertSubscriptionConfigInput,
     deps: {
       scope: MedusaContainer
-      stripeSecretKey: string
+      paymentService: PaymentModuleService
     }
   ): Promise<SubscriptionConfigRecord> {
     const current = await this.getOrCreateSubscriptionConfig(storeId)
@@ -238,14 +238,17 @@ class SubscriptionModuleService extends MedusaService({
 
       await ensureClubMembersCustomerGroup(deps.scope)
 
-      const stripe = new StripeSdk(deps.stripeSecretKey)
-      const productId = await syncClubStripeProduct(stripe, {
+      const productId = await deps.paymentService.withClubStripeProductClient(
         storeId,
-        clubName,
-        monthlyAmountMajor: monthly,
-        annualAmountMajor: annual,
-        existingProductId: current.club_stripe_product_id,
-      })
+        async (stripe) =>
+          syncClubStripeProduct(stripe, {
+            storeId,
+            clubName,
+            monthlyAmountMajor: monthly,
+            annualAmountMajor: annual,
+            existingProductId: current.club_stripe_product_id,
+          })
+      )
 
       return this.withTenant(storeId, async (context) => {
         const updated = unwrapCreated(

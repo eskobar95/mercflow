@@ -10,7 +10,7 @@ MercFlow Medusa v2 module for payment provider abstraction, per-tenant credentia
 - `PaymentModuleService` — credential upsert, mode switching, active provider resolution
 - PostgreSQL RLS via `app.tenant_id`
 
-Does **not** belong here: admin Settings → Payments UI (T082), Stripe credential migration from `connector-module` (T080), subscription-module charge delegation (T081), storefront checkout Payment Element (deferred v2).
+Does **not** belong here: admin Settings → Payments UI (T082), storefront checkout Payment Element (deferred v2).
 
 ## Field definitions — `payment_provider_config`
 

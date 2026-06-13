@@ -1,5 +1,5 @@
-import type Stripe from "stripe"
 import { MedusaError } from "@medusajs/utils"
+import type { ClubStripeProductClient } from "@mercflow/payment-module/club-stripe-product-client"
 
 import {
   CLUB_MEMBERSHIP_CURRENCY,
@@ -26,7 +26,7 @@ function toMinorUnits(amountMajor: number): number {
 }
 
 async function deactivateRecurringPrices(
-  stripe: Stripe,
+  stripe: ClubStripeProductClient,
   productId: string,
   interval: "month" | "year"
 ): Promise<void> {
@@ -44,7 +44,7 @@ async function deactivateRecurringPrices(
 }
 
 async function ensureRecurringPrice(
-  stripe: Stripe,
+  stripe: ClubStripeProductClient,
   productId: string,
   amountMajor: number,
   interval: "month" | "year"
@@ -82,7 +82,7 @@ async function ensureRecurringPrice(
  * Creates or updates the Stripe Product + recurring Prices for Customer Club membership.
  */
 export async function syncClubStripeProduct(
-  stripe: Stripe,
+  stripe: ClubStripeProductClient,
   input: SyncClubStripeProductInput
 ): Promise<string> {
   const metadata = {

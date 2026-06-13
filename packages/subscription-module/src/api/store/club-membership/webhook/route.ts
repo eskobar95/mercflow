@@ -1,13 +1,7 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { MedusaError } from "@medusajs/utils"
-import StripeSdk from "stripe"
-
-import { CONNECTOR_MODULE } from "@mercflow/connector-module"
-
-type StripeConnectorResolver = {
-  resolveStripeSecretKeyOrNull: () => Promise<string | null>
-  resolveStripeWebhookSecretOrNull: () => Promise<string | null>
-}
+import { PAYMENT_MODULE } from "@mercflow/payment-module"
+import type { PaymentModuleService } from "@mercflow/payment-module"
 
 import { handleClubMembershipStripeEvent } from "../../../../modules/subscription/club-membership"
 import { SUBSCRIPTION_MODULE } from "../../../../modules/subscription"
@@ -34,9 +28,16 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse): Promise<voi
     )
   }
 
-  const connectorService = req.scope.resolve(CONNECTOR_MODULE) as StripeConnectorResolver
-  const webhookSecret = await connectorService.resolveStripeWebhookSecretOrNull()
-  if (webhookSecret === null) {
+  const storeId = resolveMercflowStoreId(req)
+  const paymentService = req.scope.resolve(PAYMENT_MODULE) as unknown as PaymentModuleService
+
+  let webhookSecret: string
+  try {
+    webhookSecret = await paymentService.getWebhookSecret(storeId)
+  } catch (error: unknown) {
+    if (error instanceof MedusaError) {
+      throw error
+    }
     throw new MedusaError(
       MedusaError.Types.INVALID_DATA,
       "Stripe webhook secret is not configured"
@@ -51,24 +52,13 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse): Promise<voi
     )
   }
 
-  const stripeSecretKey = await connectorService.resolveStripeSecretKeyOrNull()
-  if (stripeSecretKey === null) {
-    throw new MedusaError(
-      MedusaError.Types.INVALID_DATA,
-      "Stripe secret key is not configured"
-    )
+  const payload = Buffer.isBuffer(rawBody) ? rawBody : Buffer.from(rawBody)
+  if (!paymentService.verifyWebhookSignature(payload, signature, webhookSecret)) {
+    throw new MedusaError(MedusaError.Types.INVALID_DATA, "Invalid webhook signature")
   }
 
-  const stripe = new StripeSdk(stripeSecretKey)
-  let event: StripeSdk.Event
-  try {
-    event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret)
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Invalid webhook signature"
-    throw new MedusaError(MedusaError.Types.INVALID_DATA, message)
-  }
-
-  const storeId = resolveMercflowStoreId(req)
+  const provider = await paymentService.getActiveProvider(storeId)
+  const event = await provider.handleWebhook(payload, signature, webhookSecret)
 
   const service = req.scope.resolve(SUBSCRIPTION_MODULE) as SubscriptionModuleService
   const config = await service.getOrCreateSubscriptionConfig(storeId)

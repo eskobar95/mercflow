@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
 
 import { buildRenewalIdempotencyKey } from "../lib/build-renewal-idempotency-key"
+import type { IPaymentProvider } from "@mercflow/payment-module/types"
 import {
   CHARGE_SUBSCRIPTION_JOB,
   HANDLE_RENEWAL_FAILURE_JOB,
@@ -11,7 +12,6 @@ import { chargeSubscription } from "./charge-subscription"
 import { createSubscriptionEventEmitter } from "./emit-subscription-event"
 import { handleRenewalFailure } from "./handle-renewal-failure"
 import { processDueRenewals } from "./process-due-renewals"
-import { createRenewalPaymentIntent } from "./stripe-charge"
 
 const STORE_ID = "store_01KG0VBTT0714XV2CCTEBRVC47"
 const SUBSCRIPTION_ID = "sub_1"
@@ -23,6 +23,23 @@ const ACTIVE_SUBSCRIPTION = {
   variant_id: "variant_1",
   status: "active" as const,
   next_renewal_at: NEXT_RENEWAL_AT,
+}
+
+function createMockPaymentProvider(
+  chargeSubscriptionImpl: IPaymentProvider["chargeSubscription"]
+): IPaymentProvider {
+  return {
+    providerKey: "stripe",
+    createCheckoutSession: vi.fn(),
+    capturePayment: vi.fn(),
+    refundPayment: vi.fn(),
+    createSubscription: vi.fn(),
+    chargeSubscription: chargeSubscriptionImpl,
+    pauseSubscription: vi.fn(),
+    cancelSubscription: vi.fn(),
+    handleWebhook: vi.fn(),
+    verifyWebhookSignature: vi.fn(),
+  }
 }
 
 describe("processDueRenewals", (): void => {
@@ -44,33 +61,45 @@ describe("processDueRenewals", (): void => {
   })
 })
 
-describe("createRenewalPaymentIntent idempotency", (): void => {
+describe("chargeSubscription idempotency", (): void => {
   it("reuses existing PaymentIntent for duplicate idempotency key", async (): Promise<void> => {
     const keys: string[] = []
-    const stripe = {
-      paymentIntents: {
-        create: vi.fn(async (_p: unknown, opts?: { idempotencyKey?: string }) => {
-          const key = opts?.idempotencyKey ?? ""
-          if (keys.includes(key)) return { id: "pi_existing", status: "succeeded" }
-          keys.push(key)
-          return { id: "pi_new", status: "succeeded" }
-        }),
-      },
+    const provider = createMockPaymentProvider(
+      vi.fn(async (_params) => {
+        const key = _params.idempotencyKey
+        if (keys.includes(key)) {
+          return { paymentIntentId: "pi_existing", status: "succeeded" }
+        }
+        keys.push(key)
+        return { paymentIntentId: "pi_new", status: "succeeded" }
+      })
+    )
+
+    const deps = {
+      getSubscription: async () => ACTIVE_SUBSCRIPTION,
+      createRenewalOrderDraft: async () => ({ orderId: "order_1", amount: 9900, currency: "dkk" }),
+      resolveRenewalPaymentContext: async () => ({
+        stripeCustomerId: "cus_stripe",
+        paymentMethodId: "pm_123",
+      }),
+      resolvePaymentProvider: async () => provider,
+      completeRenewalSuccess: vi.fn(),
+      enqueueRenewalFailure: vi.fn(),
+      events: { emitRenewed: vi.fn(), emitRenewalFailed: vi.fn() },
     }
+
+    const payload = {
+      storeId: STORE_ID,
+      subscriptionId: SUBSCRIPTION_ID,
+      nextRenewalAt: NEXT_RENEWAL_AT,
+    }
+
+    await chargeSubscription(deps, payload)
+    await chargeSubscription(deps, payload)
+
     const key = buildRenewalIdempotencyKey(SUBSCRIPTION_ID, NEXT_RENEWAL_AT)
-    const input = {
-      amount: 9900,
-      currency: "dkk",
-      customerId: "cus_stripe",
-      paymentMethodId: "pm_123",
-      idempotencyKey: key,
-      metadata: { subscription_id: SUBSCRIPTION_ID },
-    }
-    const first = await createRenewalPaymentIntent(stripe, input)
-    const second = await createRenewalPaymentIntent(stripe, input)
     expect(keys).toEqual([key])
-    expect(first.id).toBe("pi_new")
-    expect(second.id).toBe("pi_existing")
+    expect(provider.chargeSubscription).toHaveBeenCalledTimes(2)
   })
 })
 
@@ -78,7 +107,9 @@ describe("chargeSubscription", (): void => {
   it("completes renewal and emits subscription.renewed on success", async (): Promise<void> => {
     const completeRenewalSuccess = vi.fn().mockResolvedValue(undefined)
     const emitRenewed = vi.fn().mockResolvedValue(undefined)
-    const stripeCreate = vi.fn().mockResolvedValue({ id: "pi_ok", status: "succeeded" })
+    const chargeSubscriptionFn = vi
+      .fn()
+      .mockResolvedValue({ paymentIntentId: "pi_ok", status: "succeeded" })
     await chargeSubscription(
       {
         getSubscription: async () => ACTIVE_SUBSCRIPTION,
@@ -87,16 +118,18 @@ describe("chargeSubscription", (): void => {
           stripeCustomerId: "cus_stripe",
           paymentMethodId: "pm_123",
         }),
-        resolveStripeClient: async () => ({ paymentIntents: { create: stripeCreate } }),
+        resolvePaymentProvider: async () => createMockPaymentProvider(chargeSubscriptionFn),
         completeRenewalSuccess,
         enqueueRenewalFailure: vi.fn(),
         events: { emitRenewed, emitRenewalFailed: vi.fn() },
       },
       { storeId: STORE_ID, subscriptionId: SUBSCRIPTION_ID, nextRenewalAt: NEXT_RENEWAL_AT }
     )
-    expect(stripeCreate).toHaveBeenCalledWith(
-      expect.objectContaining({ amount: 9900 }),
-      { idempotencyKey: buildRenewalIdempotencyKey(SUBSCRIPTION_ID, NEXT_RENEWAL_AT) }
+    expect(chargeSubscriptionFn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        amount: 9900,
+        idempotencyKey: buildRenewalIdempotencyKey(SUBSCRIPTION_ID, NEXT_RENEWAL_AT),
+      })
     )
     expect(completeRenewalSuccess).toHaveBeenCalled()
     expect(emitRenewed).toHaveBeenCalled()
@@ -112,11 +145,13 @@ describe("chargeSubscription", (): void => {
           stripeCustomerId: "cus_stripe",
           paymentMethodId: "pm_123",
         }),
-        resolveStripeClient: async () => ({
-          paymentIntents: {
-            create: vi.fn().mockResolvedValue({ id: "pi_fail", status: "requires_payment_method" }),
-          },
-        }),
+        resolvePaymentProvider: async () =>
+          createMockPaymentProvider(
+            vi.fn().mockResolvedValue({
+              paymentIntentId: "pi_fail",
+              status: "requires_payment_method",
+            })
+          ),
         completeRenewalSuccess: vi.fn(),
         enqueueRenewalFailure,
         events: { emitRenewed: vi.fn(), emitRenewalFailed: vi.fn() },
