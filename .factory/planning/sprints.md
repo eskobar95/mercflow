@@ -71,6 +71,7 @@
 | S042 | M019 | HITL: Stripe platform setup + platform_invite table + Console invite UI | T086 | done |
 | S043 | M019 | Signup flow steps 1–4 + invite gate middleware | T087 | done |
 | S044 | M019 | Signup step 5–7 + provision-tenant BullMQ job + billing webhook + welcome email | T088 | done |
+| S045 | M020 | Billing foundation: migration + catalog API + provision step 7 | T089 | active |
 
 ---
 

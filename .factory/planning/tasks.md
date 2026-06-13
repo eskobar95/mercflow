@@ -4197,11 +4197,11 @@ Merchant gennemfører Step 5 (Stripe Payment Element for platform-abonnement), s
 
 **Sprint:** S045
 **Milestone:** M020
-**Status:** planned
+**Status:** in-progress
 **Mode:** AFK
 **Parallel group:** solo
 **Blocked by:** none
-**Branch:** feature/S045/T089-billing-foundation
+**Branch:** cursor/t089-billing-foundation-2b04
 **PRD journey:** J001 (PRD-platform-billing-retrofit.md)
 **ADRs:** ADR-015
 
