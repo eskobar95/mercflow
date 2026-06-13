@@ -6,6 +6,7 @@ import {
   ensureClerkOrgStoreIdClaim,
 } from "../clerk-store-admin/clerk-org-provisioning"
 import { redeemPlatformInvite } from "../platform-db/redeem-platform-invite"
+import { confirmStripeSubscriptionForTenant } from "../platform-billing/confirm-stripe-subscription"
 import { getStripePlatformClient } from "../platform-billing/stripe-platform-client"
 import {
   completeProvisioningJob,
@@ -224,21 +225,19 @@ export async function processProvisionTenantJob(
     })
 
     await runStep(jobId, "stripe_subscription", "Confirming Stripe subscription", async () => {
-      const stripe = getStripePlatformClient()
-      if (payload.stripeSubscriptionId) {
-        const subscription = await stripe.subscriptions.retrieve(payload.stripeSubscriptionId)
-        if (subscription.status !== "active" && subscription.status !== "trialing") {
-          throw new Error(`Stripe subscription status is ${subscription.status}`)
-        }
-      } else {
+      if (!payload.stripeSubscriptionId) {
+        const stripe = getStripePlatformClient()
         await stripe.paymentIntents.retrieve(payload.stripePaymentIntentId)
+        throw new Error("Stripe subscription id is required to confirm billing linkage")
       }
 
-      await stripe.customers.update(payload.stripeCustomerId, {
-        metadata: {
-          store_id: storeId as string,
-          tenant_domain: payload.domain,
-        },
+      await confirmStripeSubscriptionForTenant({
+        storeId: storeId as string,
+        clerkOrgId: clerkOrgId as string,
+        stripeCustomerId: payload.stripeCustomerId,
+        stripeSubscriptionId: payload.stripeSubscriptionId,
+        stripePaymentIntentId: payload.stripePaymentIntentId,
+        billingCurrency: payload.currency,
       })
 
       await writeProvisionAuditLog({

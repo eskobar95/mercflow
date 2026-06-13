@@ -19,7 +19,7 @@ export async function POST(
   if (!isStripePlatformConfigured()) {
     res.status(503).json({
       message:
-        "Stripe platform billing is not configured. Set STRIPE_PLATFORM_SECRET_KEY and STRIPE_PLATFORM_PRICE_ID.",
+        "Stripe platform billing is not configured. Set STRIPE_PLATFORM_SECRET_KEY.",
     })
     return
   }

@@ -1,6 +1,30 @@
 import { describe, expect, it } from "vitest"
 
-import { signupProvisionBodySchema } from "../src/lib/platform-provisioning/validators"
+import { signupBillingSetupBodySchema, signupProvisionBodySchema } from "../src/lib/platform-provisioning/validators"
+
+describe("signup billing setup validators", () => {
+  it("accepts valid signup billing setup payload with price_id", () => {
+    const parsed = signupBillingSetupBodySchema.parse({
+      price_id: "price_123",
+      invite_token: "token-123",
+      email: "hello@example.com",
+      store_name: "Kaffehuset",
+    })
+
+    expect(parsed.price_id).toBe("price_123")
+    expect(parsed.store_name).toBe("Kaffehuset")
+  })
+
+  it("rejects missing price_id", () => {
+    const result = signupBillingSetupBodySchema.safeParse({
+      invite_token: "token-123",
+      email: "hello@example.com",
+      store_name: "Kaffehuset",
+    })
+
+    expect(result.success).toBe(false)
+  })
+})
 
 describe("signup provision validators", () => {
   it("accepts valid signup provision payload", () => {
