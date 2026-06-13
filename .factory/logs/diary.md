@@ -3219,8 +3219,26 @@ none
 | skill | Clarify `development` vs `dev` in harness preflight | `.cursor/skills/harness/harness/SKILL.md` |
 
 ### Next actions
-- [ ] Human: review and merge PRs #137, #138, #139 to `development`
+- [x] Human: review and merge PRs #137, #138, #139 to `development`
 - [ ] `/milestone-review M020` — Platform Billing Retrofit complete (T089–T092)
+
+---
+
+## Merge — S046 PRs #137–#139 — 2026-06-13
+
+**Branch:** `development`
+**PRs merged:** #139 (T091 plan picker), #137 (T090 webhook + suspend), #138 (T092 billing panel)
+
+### Review notes
+- All CI checks green on all three PRs after rebase
+- **Route mismatch fixed:** T092 called `POST /platform/admin/tenants/:store_id/suspend` but T090 only enhanced `PUT /platform/tenants/:id/suspend` — added admin suspend route in #137 before merge
+- Merge order: #139 → #137 (+ admin route fix) → #138 (rebased)
+- T090: webhook `store_id` resolution, billing sync, audit log, Stripe cancel on suspend
+- T091: live plan picker on Signup Step 5 with `price_id` to billing setup
+- T092: tenant billing panel + `GET /platform/admin/tenants/:store_id/billing`
+
+### Result
+- `development` — M020 S046 complete; all T089–T092 landed
 
 ---
 
