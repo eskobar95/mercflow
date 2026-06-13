@@ -3899,12 +3899,12 @@ Stripe-credentials fjernes fra `connector-module`. `payment-module` er nu den en
 
 **Sprint:** S039
 **Milestone:** M017
-**Status:** in-progress
+**Status:** done
 **Mode:** AFK
 **Parallel group:** solo
 **Blocked by:** T080
 **Branch:** feature/S039/T082-settings-payments-ui
-**PR:** https://github.com/eskobar95/mercflow/pull/128
+**PR:** https://github.com/eskobar95/mercflow/pull/128 (merged `049760e`)
 **PRD journey:** J001, J002 (PRD-payment-module.md)
 **ADRs:** ADR-013, ADR-012
 

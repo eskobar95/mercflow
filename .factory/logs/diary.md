@@ -2582,3 +2582,38 @@ Settings → Payments UI + payment-module admin API routes implemented; awaiting
 | Review | pending |
 | CI | pending |
 
+---
+
+## Task T082 — Settings → Payments UI — 2026-06-13
+
+**Sprint:** S039 | **Milestone:** M017 | **Status:** done
+**Branch:** `cursor/settings-payments-ui-6447`
+**PR:** https://github.com/eskobar95/mercflow/pull/128 (merged `049760e`)
+**Mode:** AFK
+**Parallel group:** solo
+
+### Outcome
+Settings → Payments UI with test/live credential tabs, live mode toggle + confirmation, status badge, and webhook URL copy. Admin API routes on payment-module.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass (after typecast fix) |
+| CI | pass |
+| Revision cycles | 1 (IPaymentModuleService cast) |
+
+### Unblocked
+T083, T085 (downstream discount tasks blocked by T082)
+
+---
+
+## Sprint S039 retro — 2026-06-13
+
+**Status:** done | **Tasks:** T082 done
+
+### Summary
+Single-task sprint delivering merchant-facing Payments settings on top of S038 credential migration.
+
+### Next
+- `/run-sprint S040` (T083 discount routes + nav)
+
