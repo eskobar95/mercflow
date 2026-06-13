@@ -1,16 +1,21 @@
 import type { ReactNode } from "react"
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
 import { usePageChrome } from "@/components/layout/pageChrome"
 import { DataTable } from "@/components/ui/list/DataTable"
 import { ListEmptyState } from "@/components/ui/list/ListEmptyState"
 import { ListToolbar } from "@/components/ui/list/ListToolbar"
+import type { RowActionItem } from "@/components/ui/list/RowActionsMenu"
 import {
   compareSortValues,
   type ListSortState,
 } from "@/components/ui/list/types"
-import { listAdminDiscounts } from "@/features/discounts/discountsApi"
+import {
+  activateAdminDiscount,
+  deactivateAdminDiscount,
+  listAdminDiscounts,
+} from "@/features/discounts/discountsApi"
 import {
   DISCOUNT_LIST_COLUMNS,
   type DiscountListSortColumn,
@@ -31,9 +36,11 @@ function DiscountsBackendMissingNotice(): ReactNode {
 }
 
 function DiscountsListPageContent(): ReactNode {
+  const navigate = useNavigate()
   const [rows, setRows] = useState<AdminDiscountRow[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
   const [sort, setSort] = useState<ListSortState<DiscountListSortColumn>>({
     column: "name",
     direction: "asc",
@@ -92,6 +99,67 @@ function DiscountsListPageContent(): ReactNode {
     })
   }, [rows, sort])
 
+  const updateRow = useCallback((updated: AdminDiscountRow): void => {
+    setRows((previous) =>
+      previous.map((row) => (row.id === updated.id ? updated : row)),
+    )
+  }, [])
+
+  const getRowActions = useCallback(
+    (row: AdminDiscountRow): RowActionItem[] => {
+      const actions: RowActionItem[] = [
+        {
+          id: "view",
+          label: "View details",
+          onSelect: () => {
+            navigate(`/discounts/${encodeURIComponent(row.id)}`)
+          },
+        },
+      ]
+
+      if (row.status === "active") {
+        actions.push({
+          id: "deactivate",
+          label: "Deactivate",
+          onSelect: () => {
+            setActionError(null)
+            void (async (): Promise<void> => {
+              try {
+                const updated = await deactivateAdminDiscount(row.id)
+                updateRow(updated)
+              } catch (error: unknown) {
+                setActionError(
+                  error instanceof Error ? error.message : "Failed to deactivate discount",
+                )
+              }
+            })()
+          },
+        })
+      } else if (row.status !== "expired") {
+        actions.push({
+          id: "activate",
+          label: "Activate",
+          onSelect: () => {
+            setActionError(null)
+            void (async (): Promise<void> => {
+              try {
+                const updated = await activateAdminDiscount(row.id)
+                updateRow(updated)
+              } catch (error: unknown) {
+                setActionError(
+                  error instanceof Error ? error.message : "Failed to activate discount",
+                )
+              }
+            })()
+          },
+        })
+      }
+
+      return actions
+    },
+    [navigate, updateRow],
+  )
+
   const pageChrome = useMemo(
     () => ({
       titleBadge: (
@@ -140,6 +208,12 @@ function DiscountsListPageContent(): ReactNode {
         </div>
       ) : null}
 
+      {actionError !== null ? (
+        <div className="border-b border-border-subtle px-4 py-3 text-sm text-feedback-danger-content">
+          {actionError}
+        </div>
+      ) : null}
+
       {showEmpty ? (
         <div className="p-10">
           <ListEmptyState
@@ -163,8 +237,13 @@ function DiscountsListPageContent(): ReactNode {
           getRowId={(row) => row.id}
           sortState={sort}
           onRequestSort={onRequestSort}
+          getRowActions={getRowActions}
+          hasRowActions
           isLoading={isLoading && errorMessage === null}
           fillHeight
+          onRowClick={(row) => {
+            navigate(`/discounts/${encodeURIComponent(row.id)}`)
+          }}
           emptyState={
             <ListEmptyState
               bare

@@ -9,6 +9,7 @@ import { createAdminDiscount } from "@/features/discounts/discountsApi"
 import {
   createDefaultOrderDiscountFormState,
   createDefaultProductDiscountFormState,
+  isBuyGetOrFreeShippingType,
   type DiscountFormType,
   type OrderDiscountFormState,
   type ProductDiscountFormState,
@@ -19,7 +20,9 @@ import {
 } from "@/features/discounts/discountTypeLabels"
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
+import { BuyXGetYForm } from "./BuyXGetYForm"
 import { DiscountTypeSelector } from "./DiscountTypeSelector"
+import { FreeShippingForm } from "./FreeShippingForm"
 import { OrderDiscountForm } from "./OrderDiscountForm"
 import { ProductDiscountForm } from "./ProductDiscountForm"
 
@@ -143,7 +146,25 @@ function DiscountCreatePageContent(): ReactNode {
           />
         ) : null}
 
-        {selectedType !== null && !isDiscountTypeSupportedForForms(selectedType) ? (
+        {selectedType === "buyget" ? (
+          <BuyXGetYForm
+            onCreated={(discountId) => {
+              navigate(`/discounts/${encodeURIComponent(discountId)}`)
+            }}
+          />
+        ) : null}
+
+        {selectedType === "free_shipping" ? (
+          <FreeShippingForm
+            onCreated={(discountId) => {
+              navigate(`/discounts/${encodeURIComponent(discountId)}`)
+            }}
+          />
+        ) : null}
+
+        {selectedType !== null &&
+        !isDiscountTypeSupportedForForms(selectedType) &&
+        !isBuyGetOrFreeShippingType(selectedType) ? (
           <Card compact>
             <h2 className="text-base font-semibold text-content-primary">
               {discountTypeTitle(selectedType)}
