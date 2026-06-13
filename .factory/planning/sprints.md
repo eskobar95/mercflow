@@ -69,7 +69,7 @@
 | S041 | M018 | Discount list + Product/Order forms + Buy X Get Y + Free Shipping forms (parallel) | T084, T085 | done |
 | S042 | M019 | HITL: Stripe platform setup + platform_invite table + Console invite UI | T086 | done |
 | S043 | M019 | Signup flow steps 1–4 + invite gate middleware | T087 | done |
-| S044 | M019 | Signup step 5–7 + provision-tenant BullMQ job + billing webhook + welcome email | T088 | planned |
+| S044 | M019 | Signup step 5–7 + provision-tenant BullMQ job + billing webhook + welcome email | T088 | done |
 
 ---
 

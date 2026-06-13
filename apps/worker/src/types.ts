@@ -7,6 +7,9 @@ export const SUBSCRIPTION_RENEWED_EVENT = "subscription.renewed"
 export const SUBSCRIPTION_RENEWAL_FAILED_EVENT = "subscription.renewal_failed"
 export const SUBSCRIPTION_RENEWAL_CRON_JOB_ID = "subscription-renewal-hourly-cron"
 export const SUBSCRIPTION_RENEWAL_CRON_PATTERN = "0 * * * *"
+export const PROVISION_TENANT_QUEUE_NAME = "mercflow:provision-tenant"
+export const PROVISION_TENANT_DLQ_NAME = "mercflow:provision-tenant:dead"
+export const PROVISION_TENANT_JOB = "provision-tenant"
 export const SUBSCRIPTION_RENEWAL_JOB_RETRY_OPTIONS = {
   attempts: 3,
   backoff: { type: "exponential" as const, delay: 60_000 },

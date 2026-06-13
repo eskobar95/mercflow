@@ -4,6 +4,9 @@ import { useSignupWizard, type SignupWizardStep } from "@/signup/SignupWizardCon
 import { SignupStep2Account } from "@/signup/steps/SignupStep2Account"
 import { SignupStep3StoreDetails } from "@/signup/steps/SignupStep3StoreDetails"
 import { SignupStep4Domain } from "@/signup/steps/SignupStep4Domain"
+import { SignupStep5Billing } from "@/signup/steps/SignupStep5Billing"
+import { SignupStep6Provisioning } from "@/signup/steps/SignupStep6Provisioning"
+import { SignupStep7Ready } from "@/signup/steps/SignupStep7Ready"
 
 function renderSignupStep(currentStep: SignupWizardStep): React.ReactElement {
   switch (currentStep) {
@@ -19,6 +22,12 @@ function renderSignupStep(currentStep: SignupWizardStep): React.ReactElement {
       return <SignupStep3StoreDetails />
     case 4:
       return <SignupStep4Domain />
+    case 5:
+      return <SignupStep5Billing />
+    case 6:
+      return <SignupStep6Provisioning />
+    case 7:
+      return <SignupStep7Ready />
     default: {
       const _exhaustive: never = currentStep
       return _exhaustive

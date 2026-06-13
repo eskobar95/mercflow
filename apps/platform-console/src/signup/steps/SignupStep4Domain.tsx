@@ -43,6 +43,7 @@ export function SignupStep4Domain(): React.ReactElement {
     }
 
     setValidationError(null)
+    goToStep(5)
   }
 
   return (

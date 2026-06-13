@@ -7,6 +7,12 @@ import {
 } from "@mercflow/worker"
 
 import {
+  startProvisionTenantWorker,
+  stopProvisionTenantWorker,
+  type ProvisionTenantWorkerHandle,
+} from "./provision-tenant-worker"
+
+import {
   startNotificationWorker,
   stopNotificationWorker,
   templateRegistry,
@@ -26,6 +32,7 @@ function ensureNotificationTemplatesRegistered(): void {
 
 let activeNotificationHandle: NotificationWorkerHandle | null = null
 let activeSubscriptionRenewalHandle: SubscriptionRenewalWorkerHandle | null = null
+let activeProvisionTenantHandle: ProvisionTenantWorkerHandle | null = null
 let shutdownHooksRegistered = false
 
 function registerShutdownHooks(): void {
@@ -43,7 +50,11 @@ function registerShutdownHooks(): void {
 }
 
 export async function startWorkers(container: MedusaContainer): Promise<void> {
-  if (activeNotificationHandle !== null && activeSubscriptionRenewalHandle !== null) {
+  if (
+    activeNotificationHandle !== null &&
+    activeSubscriptionRenewalHandle !== null &&
+    activeProvisionTenantHandle !== null
+  ) {
     return
   }
 
@@ -60,14 +71,23 @@ export async function startWorkers(container: MedusaContainer): Promise<void> {
     }
   }
 
+  if (activeProvisionTenantHandle === null) {
+    const handle = await startProvisionTenantWorker()
+    if (handle !== null) {
+      activeProvisionTenantHandle = handle
+    }
+  }
+
   registerShutdownHooks()
 }
 
 export async function stopWorkers(): Promise<void> {
   const notificationHandle = activeNotificationHandle
   const subscriptionRenewalHandle = activeSubscriptionRenewalHandle
+  const provisionTenantHandle = activeProvisionTenantHandle
   activeNotificationHandle = null
   activeSubscriptionRenewalHandle = null
+  activeProvisionTenantHandle = null
 
   if (notificationHandle !== null) {
     await stopNotificationWorker(notificationHandle)
@@ -75,5 +95,9 @@ export async function stopWorkers(): Promise<void> {
 
   if (subscriptionRenewalHandle !== null) {
     await stopSubscriptionRenewalWorker(subscriptionRenewalHandle)
+  }
+
+  if (provisionTenantHandle !== null) {
+    await stopProvisionTenantWorker(provisionTenantHandle)
   }
 }

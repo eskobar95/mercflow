@@ -6,13 +6,13 @@ import {
 } from "../src/lib/platform-queues/queue-registry"
 
 describe("platform queue registry", (): void => {
-  it("lists all five platform queues from ADR-010", (): void => {
+  it("lists all five platform queues including provision-tenant", (): void => {
     expect(listPlatformQueueNames()).toEqual([
       "notifications",
       "subscriptions",
       "feed-invalidation",
       "sitemap",
-      "webhooks",
+      "provision-tenant",
     ])
   })
 

@@ -26,9 +26,9 @@ export const PLATFORM_QUEUE_DEFINITIONS: PlatformQueueDefinition[] = [
     dlqName: "mercflow:sitemap:dead",
   },
   {
-    name: "webhooks",
-    queueName: "mercflow:webhooks",
-    dlqName: "mercflow:webhooks:dead",
+    name: "provision-tenant",
+    queueName: "mercflow:provision-tenant",
+    dlqName: "mercflow:provision-tenant:dead",
   },
 ]
 

@@ -3,6 +3,9 @@ const SIGNUP_STEPS = [
   { step: 2, label: "Account" },
   { step: 3, label: "Store" },
   { step: 4, label: "Domain" },
+  { step: 5, label: "Billing" },
+  { step: 6, label: "Provisioning" },
+  { step: 7, label: "Ready" },
 ] as const
 
 type SignupStepIndicatorProps = {

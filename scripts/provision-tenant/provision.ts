@@ -35,10 +35,16 @@ function splitTenantName(name: string): { firstName: string; lastName: string } 
   }
 }
 
+export type ProvisionProgressCallback = (
+  step: "store" | "sales_channel" | "api_key" | "admin_user" | "routing",
+  message: string,
+) => void
+
 export async function provisionTenant(
   repoRoot: string,
   args: ProvisionTenantArgs,
   env: ProvisionTenantEnv,
+  onProgress?: ProvisionProgressCallback,
 ): Promise<ProvisionTenantOutput> {
   if (env.databaseUrl === null) {
     throw new ProvisionTenantCliError(
