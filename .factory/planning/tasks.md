@@ -4236,11 +4236,12 @@ Backend-fundamentet er på plads: `platform_tenant_billing` tabel eksisterer, `G
 
 **Sprint:** S046
 **Milestone:** M020
-**Status:** planned
+**Status:** done
 **Mode:** AFK
-**Parallel group:** B
+**Parallel group:** A
 **Blocked by:** T089
 **Branch:** feature/S046/T090-webhook-suspend-audit
+**PR:** https://github.com/eskobar95/mercflow/pull/137
 **PRD journey:** J003, J004 (PRD-platform-billing-retrofit.md)
 **ADRs:** ADR-015
 
@@ -4257,26 +4258,27 @@ Webhooks fra Stripe platform-konto resolves korrekt via `store_id` (ikke `invite
 
 ### Definition of done
 
-- [ ] `customer.subscription.updated` opdaterer `platform_tenant_billing.subscription_status`
-- [ ] `invoice.payment_failed` sætter status til `past_due` + skriver audit log
-- [ ] `customer.subscription.deleted` sætter status til `canceled` + skriver audit log
-- [ ] Webhook resolution bruger `store_id` som primary key (verificeret via test)
-- [ ] `invite_token_hash` fallback logger `warn` til server log
-- [ ] Suspend-route canceller Stripe subscription + disabler store + revokér keys i én operation
-- [ ] `platform_audit_log` har entries for alle ovenstående events
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] `customer.subscription.updated` opdaterer `platform_tenant_billing.subscription_status`
+- [x] `invoice.payment_failed` sætter status til `past_due` + skriver audit log
+- [x] `customer.subscription.deleted` sætter status til `canceled` + skriver audit log
+- [x] Webhook resolution bruger `store_id` som primary key (verificeret via test)
+- [x] `invite_token_hash` fallback logger `warn` til server log
+- [x] Suspend-route canceller Stripe subscription + disabler store + revokér keys i én operation
+- [x] `platform_audit_log` har entries for alle ovenstående events
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 
 ## T091 — Signup Step 5 plan picker UI
 
-**Sprint:** S047
+**Sprint:** S046
 **Milestone:** M020
-**Status:** planned
+**Status:** done
 **Mode:** AFK
-**Parallel group:** B
+**Parallel group:** A
 **Blocked by:** T089
-**Branch:** feature/S047/T091-signup-plan-picker
+**Branch:** feature/S046/T091-signup-plan-picker
+**PR:** https://github.com/eskobar95/mercflow/pull/139
 **PRD journey:** J001 (PRD-platform-billing-retrofit.md)
 **ADRs:** ADR-015
 
@@ -4294,26 +4296,27 @@ Signup Step 5 viser en plan picker med tier-cards (Standard / Pro) og et Monthly
 
 ### Definition of done
 
-- [ ] Plan picker renderes med Standard + Pro cards og Monthly/Annual toggle
-- [ ] Beløb hentes fra `GET /platform/billing/plans?currency=xxx` (ingen hardcoded beløb)
-- [ ] Valgt `price_id` sendes korrekt til `POST /platform/signup/billing/setup`
-- [ ] Skeleton loader vises mens plans loader
-- [ ] Error state med retry-knap hvis API fejler
-- [ ] Ingen hardcoded `STRIPE_PLATFORM_PRICE_ID` i UI-kode
-- [ ] `pnpm react-doctor:admin-ui` 0 issues (hvis admin-ui er berørt — ellers N/A)
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] Plan picker renderes med Standard + Pro cards og Monthly/Annual toggle
+- [x] Beløb hentes fra `GET /platform/billing/plans?currency=xxx` (ingen hardcoded beløb)
+- [x] Valgt `price_id` sendes korrekt til `POST /platform/signup/billing/setup`
+- [x] Skeleton loader vises mens plans loader
+- [x] Error state med retry-knap hvis API fejler
+- [x] Ingen hardcoded `STRIPE_PLATFORM_PRICE_ID` i UI-kode
+- [x] `pnpm react-doctor:admin-ui` 0 issues (hvis admin-ui er berørt — ellers N/A)
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 
 ## T092 — Platform Console Tenant billing panel
 
-**Sprint:** S048
+**Sprint:** S046
 **Milestone:** M020
-**Status:** planned
+**Status:** done
 **Mode:** AFK
-**Parallel group:** B
+**Parallel group:** A
 **Blocked by:** T089
-**Branch:** feature/S048/T092-console-billing-panel
+**Branch:** feature/S046/T092-console-billing-panel
+**PR:** https://github.com/eskobar95/mercflow/pull/138
 **PRD journey:** J002, J004 (PRD-platform-billing-retrofit.md)
 **ADRs:** ADR-015
 
@@ -4330,12 +4333,12 @@ Tenant detail-siden i Platform Console har en "Billing" sektion der viser plan, 
 
 ### Definition of done
 
-- [ ] Billing panel viser tier, interval, currency, status, `current_period_end`
-- [ ] Status badge er farvekodnet (grøn = active, gul = past_due, rød = canceled)
-- [ ] "View in Stripe" link bygget fra `stripe_customer_id` — åbner korrekt Stripe Dashboard URL
-- [ ] Suspend-knap kalder T090's suspend-route med confirm-dialog
-- [ ] Tenant uden billing row → "No platform billing" placeholder (ingen fejl)
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] Billing panel viser tier, interval, currency, status, `current_period_end`
+- [x] Status badge er farvekodnet (grøn = active, gul = past_due, rød = canceled)
+- [x] "View in Stripe" link bygget fra `stripe_customer_id` — åbner korrekt Stripe Dashboard URL
+- [x] Suspend-knap kalder T090's suspend-route med confirm-dialog
+- [x] Tenant uden billing row → "No platform billing" placeholder (ingen fejl)
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 

@@ -3103,6 +3103,127 @@ T090, T091, T092
 
 ---
 
+## Task T090 — Webhook retrofit + suspend action + audit log — 2026-06-13
+
+**Sprint:** S046 | **Milestone:** M020 | **Status:** done
+**Branch:** `feature/S046/T090-webhook-suspend-audit`
+**PR:** https://github.com/eskobar95/mercflow/pull/137
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Stripe webhooks resolve via store_id, sync platform_tenant_billing + audit log; suspend atomically cancels Stripe subscription with partial-success handling
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none
+
+---
+
+## Task T091 — Signup Step 5 plan picker UI — 2026-06-13
+
+**Sprint:** S046 | **Milestone:** M020 | **Status:** done
+**Branch:** `feature/S046/T091-signup-plan-picker`
+**PR:** https://github.com/eskobar95/mercflow/pull/139
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Signup Step 5 plan picker with live Stripe plans, interval toggle, and price_id billing setup wired to Payment Element
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+none
+
+---
+
+## Task T092 — Platform Console Tenant billing panel — 2026-06-13
+
+**Sprint:** S046 | **Milestone:** M020 | **Status:** done
+**Branch:** `feature/S046/T092-console-billing-panel`
+**PR:** https://github.com/eskobar95/mercflow/pull/138
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Tenant detail billing panel + GET /platform/admin/tenants/:store_id/billing; suspend wired to admin POST route
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+none
+
+---
+
+## Sprint retro — S046 — 2026-06-13
+
+**Milestone:** M020
+**Duration:** session
+**Tasks:** 3/3 done, 0 blocked
+
+### What went well
+- All three parallel tasks completed with green CI on first or second revision cycle
+- T090/T092 backend+console split worked cleanly despite suspend-route coupling
+- T091 plan picker integrated live Stripe plans API without hardcoded price IDs
+
+### What failed or slowed down
+- T091 and T092 each needed one revision cycle before verify/review passed
+- Planning drift: tasks.md had T091/T092 under S047/S048 before sprint run — aligned to S046 for harness
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T090 | done | Task T090 — 2026-06-13 |
+| T091 | done | Task T091 — 2026-06-13 |
+| T092 | done | Task T092 — 2026-06-13 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T090 | 0 | — |
+| T091 | 1 | implement retry |
+| T092 | 1 | implement retry + fix-ci |
+
+### Harness notes
+- Parallel groups used: A (3 subagents)
+- Subagent issues: none
+- Base branch: `development`
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| planning | Keep tasks.md sprint IDs in sync with sprints.md group definitions | `.factory/planning/sprints.md` |
+| skill | Clarify `development` vs `dev` in harness preflight | `.cursor/skills/harness/harness/SKILL.md` |
+
+### Next actions
+- [ ] Human: review and merge PRs #137, #138, #139 to `development`
+- [ ] `/milestone-review M020` — Platform Billing Retrofit complete (T089–T092)
+
+---
+
 ## Merge — S045 PR #136 — 2026-06-13
 
 **Branch:** `development`

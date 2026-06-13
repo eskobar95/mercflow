@@ -72,6 +72,7 @@
 | S043 | M019 | Signup flow steps 1–4 + invite gate middleware | T087 | done |
 | S044 | M019 | Signup step 5–7 + provision-tenant BullMQ job + billing webhook + welcome email | T088 | done |
 | S045 | M020 | Billing foundation: migration + catalog API + provision step 7 | T089 | done |
+| S046 | M020 | Webhook retrofit + signup plan picker + console billing panel (parallel) | T090, T091, T092 | done |
 
 ---
 
