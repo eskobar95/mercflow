@@ -12,7 +12,7 @@ describe("T080 payment migrations", (): void => {
       join(__dirname, "../src/modules/payment/migrations/Migration20260613150000SeedStripeFromConnector.ts"),
       "utf8"
     )
-    expect(source).toContain("migrateConnectorStripeCredentials")
+    expect(source).toContain("DELETE FROM \"payment_provider_config\"")
   })
 
   it("Migration20260613160000 removes legacy payment connector columns", (): void => {
