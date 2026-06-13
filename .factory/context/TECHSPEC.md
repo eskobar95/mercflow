@@ -221,6 +221,7 @@ BDD: optional under `.factory/specs/` — link to PRD journeys when used.
 | [ADR-012](ADR/ADR-012-settings-navigation-model.md) | 2026-06-12 | Settings: persistent secondary sidebar + auto-redirect to /settings/general; merchant-mental-model grouping (Butik, Salg, Forsendelse, Kunder, Kommunikation, Team, Apps) | accepted |
 | [ADR-013](ADR/ADR-013-payment-module-provider-abstraction.md) | 2026-06-13 | Payment abstraction: new `payment-module` with `IPaymentProvider` interface; Stripe migrated from `connector-module`; test/live mode per tenant | accepted |
 | [ADR-014](ADR/ADR-014-tenant-onboarding-hybrid-invitation.md) | 2026-06-13 | Tenant onboarding: invitation-based self-service (invite from Platform Console, full signup + Stripe billing + auto-provisioning, public flag to remove gate) | accepted |
+| [ADR-015](ADR/ADR-015-platform-billing-tenant-linkage.md) | 2026-06-13 | Platform billing: `store_id` as canonical Stripe linkage key; `platform_tenant_billing` as authoritative billing index; plans fetched from Stripe catalog (no `STRIPE_PLATFORM_PRICE_ID`); suspend atomically cancels Stripe subscription | accepted |
 
 ---
 

@@ -362,7 +362,60 @@
 
 **Platform billing:** Stripe subscription for the MercFlow platform fee. Merchant enters card during signup. Billing managed per tenant in Platform Console.
 
-**Not:** A public marketing site or signup page at this stage — invite-only. Not manual CLI provisioning (the script is replaced by automated provisioning triggered by the signup flow). Not per-tenant VMs or infra — shared backend, shared Neon DB.
+**Platform billing env (only these three):**
+- `STRIPE_PLATFORM_SECRET_KEY` — MercFlow's Stripe account (platform billing, not per-tenant store payments)
+- `STRIPE_PLATFORM_PUBLISHABLE_KEY` — Payment Element on signup Step 5
+- `STRIPE_PLATFORM_WEBHOOK_SECRET` — HMAC for platform subscription webhooks
+
+No `STRIPE_PLATFORM_PRICE_ID` — plans and prices are read from Stripe at runtime, not hardcoded in env.
+
+**Stripe catalog model (source of truth = Stripe Dashboard):**
+- **Products:** `Standard` and `Pro` — each a Stripe Product with metadata `mercflow_platform=true`, `mercflow_tier=standard|pro`
+- **Prices:** per Product, one or more Prices per billing interval (`month` | `year`). Metadata: `mercflow_platform=true`, `mercflow_interval=month|year`
+- **Multi-currency:** use Stripe's per-price currency model — either separate Price objects per currency (metadata `currency=dkk|eur|…`) or Stripe **currency options** on a Price (fixed amounts per currency defined in Dashboard). MercFlow never stores amounts — only resolves the correct `price_id` for the merchant's chosen currency + tier + interval.
+
+**Signup billing flow (Step 5):**
+1. Currency comes from Step 3 (store country/currency)
+2. `GET /platform/billing/plans?currency=dkk` — backend lists active Standard/Pro × Monthly/Annual for that currency (fetched from Stripe API, filtered by metadata)
+3. Merchant picks tier + interval → UI shows Stripe-resolved amount
+4. `POST /platform/signup/billing/setup { price_id }` — backend validates `price_id` is an active platform price in Stripe before creating subscription
+5. Payment Element confirms first invoice → provisioning continues
+
+**Not:** Hardcoded plan amounts in MercFlow code or env. Not duplicating Stripe's product catalog in a MercFlow DB table in v1 — Stripe API is the catalog. Not the same Stripe account as per-tenant `payment-module` credentials (merchant store checkout).
+
+**Tenant ↔ Stripe linkage (canonical — not a loose sync):**
+
+MercFlow's tenant discriminator is **`store_id`** (Medusa Store ID). Clerk org maps 1:1 via JWT `org_id` → `store_id`. Platform billing must be keyed on `store_id` from day one — not only on `invite_token_hash`.
+
+| System | Identifier | Role |
+|--------|------------|------|
+| Medusa | `store_id` | Canonical tenant ID — RLS, provisioning, audit log |
+| Clerk | `organization_id` | Store Admin auth workspace — maps to `store_id` |
+| Stripe Customer | `cus_…` | Platform billing customer — metadata **`store_id`** + **`clerk_org_id`** |
+| Stripe Subscription | `sub_…` | Active plan — metadata **`store_id`** + tier/interval refs |
+
+**`platform_tenant_billing` table (MercFlow-owned, platform-level):**
+- `store_id` (PK) — tenant discriminator
+- `clerk_org_id`
+- `stripe_customer_id`, `stripe_subscription_id`, `stripe_price_id`
+- `plan_tier` (`standard` \| `pro`), `billing_interval` (`month` \| `year`), `billing_currency`
+- `subscription_status` (mirrored from Stripe webhooks — `active`, `past_due`, `canceled`, …)
+- `updated_at`
+
+This is MercFlow's **authoritative index** for operator UI and access control. Stripe remains the billing engine; MercFlow never stores amounts — only IDs and status.
+
+**Lifecycle (no manual sync button):**
+1. Signup billing setup → Stripe Customer + Subscription created with `invite_token_hash` in metadata (store does not exist yet)
+2. Provisioning creates `store_id` + Clerk org → **immediately** updates Stripe Customer + Subscription metadata with `store_id` + `clerk_org_id`; upserts `platform_tenant_billing`
+3. Webhooks (`subscription.updated`, `subscription.deleted`, `invoice.payment_failed`) resolve tenant by **`store_id` in metadata** (primary) — update `platform_tenant_billing`, suspend on cancel, audit log every event with `store_id`
+4. Platform Console reads `platform_tenant_billing` + live Stripe retrieve for detail — shows plan, status, links; suspend action cancels subscription via Stripe API then disables store
+
+**Control surfaces:**
+- **Platform Console → Tenant detail:** plan (Standard/Pro), interval, currency, subscription status, Stripe dashboard link
+- **Platform Console → Suspend:** disables store + revokes API keys + cancels Stripe subscription (single operator action)
+- **`platform_audit_log`:** every billing/provision event logged with `entity_id = store_id`
+
+**Not:** Finding tenant only via `invite_token_hash` after provisioning (bootstrap fallback only). Not a "Sync with Stripe" button — webhooks + provisioning writes keep state current. Not storing plan prices in MercFlow DB.
 
 ---
 

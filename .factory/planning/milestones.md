@@ -706,3 +706,43 @@ flowchart LR
 - [ ] Platform Console shows invite status (sent / redeemed / expired)
 - [ ] `apps/platform-console` "Tenants" list updated live on provisioning
 - [ ] `/milestone-review M019` grøn
+
+---
+
+## M020 — Platform Billing Retrofit
+
+**Outcome:** Platform billing is fully keyed on `store_id`. `STRIPE_PLATFORM_PRICE_ID` is removed from env. Signup Step 5 shows a plan picker (Standard/Pro × Monthly/Annual × merchant's currency) with amounts fetched from Stripe at runtime. A `platform_tenant_billing` table serves as MercFlow's authoritative billing index. Webhooks resolve tenant by `store_id` in Stripe metadata. Suspending a tenant cancels the Stripe subscription atomically. Platform Console shows billing panel per tenant.
+
+**PRD:** `.factory/context/PRD-platform-billing-retrofit.md`
+**ADR:** `ADR-015-platform-billing-tenant-linkage.md`
+**Context:** `CONTEXT.md → Tenant onboarding → Tenant ↔ Stripe linkage`
+
+**Architecture:**
+- `platform_tenant_billing` table (PK `store_id`) — authoritative billing index
+- `GET /platform/billing/plans?currency=xxx` — Stripe catalog fetch, 60s cache, metadata filter
+- Provision job step 7 — writes `store_id` + `clerk_org_id` to Stripe Customer + Subscription metadata, upserts billing row
+- Webhooks resolve by `store_id` (primary) → `clerk_org_id` (fallback) → `invite_token_hash` (bootstrap-only)
+- Suspend action — cancel Stripe subscription + disable store + revoke keys (atomic)
+- Platform Console — billing panel per tenant (plan, interval, currency, status, Stripe link)
+
+**Sprints in this milestone:**
+
+| Sprint | Goal | Tasks | Status |
+|--------|------|-------|--------|
+| S045 | `platform_tenant_billing` migration + `GET /platform/billing/plans` + provision step 7 metadata write | T089 | planned |
+| S046 | Webhook retrofit (`store_id` primary key) + suspend action + billing audit log | T090 | planned |
+| S047 | Signup Step 5 plan picker (parallel) | T091 | planned |
+| S048 | Platform Console billing panel | T092 | planned |
+
+**Dependencies:** M019 (platform billing v1 in place to retrofit)
+
+**Definition of done:**
+- [ ] `STRIPE_PLATFORM_PRICE_ID` — 0 occurrences in codebase + env files
+- [ ] `platform_tenant_billing` row exists for every provisioned tenant with `subscription_status=active`
+- [ ] Webhook resolves by `store_id` on Stripe metadata (verified by integration test)
+- [ ] Suspend cancels Stripe subscription before function returns
+- [ ] Plan picker shows Standard/Pro × Monthly/Annual with Stripe-sourced amounts for the merchant's currency
+- [ ] Platform Console Tenant detail shows billing panel (plan, interval, currency, status, renews date, Stripe link)
+- [ ] `pnpm typecheck` green
+- [ ] ADR-015 enforcement check: `rg "STRIPE_PLATFORM_PRICE_ID" .` → 0 results
+- [ ] `/milestone-review M020` grøn
