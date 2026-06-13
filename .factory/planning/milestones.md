@@ -10,6 +10,7 @@
 > Updated: 2026-06-11 (M013, M014, M015 added — `/to-prd` session)
 > Updated: 2026-06-11 (M013–M015 sprints + tasks added — `/to-backlog`; ADR-011 Clerk auth)
 > Updated: 2026-06-13 (M017–M019 added — `/align` session: payment-module, discount system, tenant onboarding)
+> Updated: 2026-06-13 (S037–S044 + T079–T088 added — `/to-backlog`)
 
 ---
 
@@ -616,7 +617,13 @@ flowchart LR
 - `apps/worker` — subscription renewal jobs call `payment-module.chargeSubscription()` instead of Stripe SDK directly
 - `connector-module` — Stripe connector removed; becomes GTM + Plunk + Shipmondo only
 
-**Sprints in this milestone:** _(pending `/to-prd` + `/to-backlog`)_
+**Sprints in this milestone:**
+
+| Sprint | Goal | Tasks | Status |
+|--------|------|-------|--------|
+| S037 | payment-module foundation: interface + model + Stripe provider + service + migrations | T079 | planned |
+| S038 | Credential migration + subscription-module delegation (parallel) | T080, T081 | planned |
+| S039 | Settings → Payments UI: test/live tabs + mode toggle + status badge | T082 | planned |
 
 **Dependencies:** M015 (subscription-module patterns), M016 (Settings navigation in place for Settings → Payments page)
 
@@ -640,7 +647,12 @@ flowchart LR
 **Context:** `CONTEXT.md → Discount system (MercFlow-rebuilt)`
 **Reference:** Shopify Discounts UI (June 2026 align session)
 
-**Sprints in this milestone:** _(pending `/to-prd` + `/to-backlog`)_
+**Sprints in this milestone:**
+
+| Sprint | Goal | Tasks | Status |
+|--------|------|-------|--------|
+| S040 | Backend discount routes + Zod + top-level nav item | T083 | planned |
+| S041 | Discount list + Product/Order forms + Buy X Get Y + Free Shipping forms (parallel) | T084, T085 | planned |
 
 **Dependencies:** M016 (Settings + top-level nav architecture in place)
 
@@ -672,7 +684,13 @@ flowchart LR
 4. System: auto-provisioning (Store, Sales Channel, Publishable Key, Admin user, Traefik domain routing)
 5. Merchant: lands in Store Admin — onboarded
 
-**Sprints in this milestone:** _(pending `/to-prd` + `/to-backlog`)_
+**Sprints in this milestone:**
+
+| Sprint | Goal | Tasks | Status |
+|--------|------|-------|--------|
+| S042 | HITL: Stripe platform setup + platform_invite table + Console invite UI | T086 | planned |
+| S043 | Signup flow steps 1–4 + invite gate middleware | T087 | planned |
+| S044 | Signup step 5–7 + provision-tenant BullMQ job + billing webhook + welcome email | T088 | planned |
 
 **Dependencies:** M014 (Platform Console + provisioning patterns), M017 (Stripe platform billing ready)
 

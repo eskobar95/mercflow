@@ -14,6 +14,7 @@
 > Updated: 2026-06-10 (S021 done — PR #91 T053 Shipmondo label + packaging autofill)
 > Updated: 2026-06-10 (S018 merged to `development` — PRs #86 `6d89f1b`, #87 `b0ade41`)
 > Updated: 2026-06-11 (S027–S034 added — M013 Admin Shell, M014 Platform Console, M015 Subscription System; ADR-011 Clerk auth)
+> Updated: 2026-06-13 (S037–S044 added — M017 Payment Module, M018 Discount System, M019 Tenant Onboarding)
 > Updated: 2026-06-11 (S027 done — T064 Clerk auth + AppShell; PR #96 merged `3fe6dc0`)
 > Updated: 2026-06-11 (S024 merged to `development` — PR #104 `33a98d2`, PR #103 `eea674c`)
 > Updated: 2026-06-11 (S029 T067 done — PR #107; local smoke + production checklist in platform-console README)
@@ -59,6 +60,14 @@
 | S034 | M015 | Customer Club Stripe setup (HITL) + per-product member price UI (parallel) | T074, T075 | done |
 | S035 | M016 | SettingsShell layout + `settingsNav.ts` config + `/settings` redirect | T076 | done |
 | S036 | M016 | Settings route remapping + placeholder pages + Apps overview (parallel) | T077, T078 | done |
+| S037 | M017 | payment-module foundation: interface + model + Stripe provider + service + migrations | T079 | planned |
+| S038 | M017 | Credential migration + subscription-module delegation (parallel) | T080, T081 | planned |
+| S039 | M017 | Settings → Payments UI: test/live tabs + mode toggle + status badge | T082 | planned |
+| S040 | M018 | Backend discount routes + Zod + top-level nav item | T083 | planned |
+| S041 | M018 | Discount list + Product/Order forms + Buy X Get Y + Free Shipping forms (parallel) | T084, T085 | planned |
+| S042 | M019 | HITL: Stripe platform setup + platform_invite table + Console invite UI | T086 | planned |
+| S043 | M019 | Signup flow steps 1–4 + invite gate middleware | T087 | planned |
+| S044 | M019 | Signup step 5–7 + provision-tenant BullMQ job + billing webhook + welcome email | T088 | planned |
 
 ---
 
@@ -147,6 +156,29 @@
 
 - **S035:** T076 (SettingsShell + settingsNav.ts + redirect) — solo; prerequisite for alt i M016. Supersedes T065's card-landing output.
 - **S036 group A:** T077 (route remapping + placeholders) og T078 (Apps overview) — parallelt; begge blokkeret af T076, indbyrdes uafhængige.
+
+---
+
+## S037–S039 — M017 Payment Module
+
+- **S037:** T079 (payment-module foundation: `IPaymentProvider`, `StripePaymentProvider`, `payment_provider_config` model, `PaymentModuleService`, migrations, RLS, README) — solo; prerequisite for alt i M017.
+- **S038 group A:** T080 (credential migration: fjern Stripe fra `connector-module`, tilføj til `payment-module`; update webhook route) og T081 (`subscription-module` → delegér charge til `payment-module`) — parallelt; begge blokkeret af T079, indbyrdes uafhængige.
+- **S039:** T082 (Settings → Payments UI: provider config form, test/live tabs, mode toggle, status badge) — blokkeret af T080 (credential model skal eksistere i DB).
+
+---
+
+## S040–S041 — M018 Discount System
+
+- **S040:** T083 (backend discount routes `/admin/discounts` + Zod + "Discounts" top-level nav item) — solo; prerequisite for discount UI tasks.
+- **S041 group A:** T084 (discount list page + Product discount + Order discount forms + shared conditions) og T085 (Buy X Get Y form + Free Shipping form + activate/deactivate/delete) — parallelt; begge blokkeret af T083, indbyrdes uafhængige.
+
+---
+
+## S042–S044 — M019 Tenant Onboarding
+
+- **S042:** T086 (HITL — Stripe platform-konto opsætning + `platform_invite` tabel + backend invite-routes + Platform Console invite UI) — solo; prerequisite for alt i M019. HITL: operator opsætter Stripe platform account + `platform_invite` migrations godkendes.
+- **S043:** T087 (signup flow steps 1–4: invite-validering, Clerk SignUp, store-detaljer, domain + invite gate middleware) — blokkeret af T086.
+- **S044:** T088 (signup steps 5–7: Stripe Payment Element + provisioning-progress + done + `provision-tenant` BullMQ job + platform billing webhook + "Welcome" email) — blokkeret af T087.
 
 ---
 

@@ -8,6 +8,7 @@
 > Updated: 2026-06-08 (all M000–M005 tasks done; PR #63 unified list pages merged outside Factory — logged for traceability)
 > Updated: 2026-06-11 (T064 done — Clerk auth + AppShell; branch feature/S027/T064-clerk-auth-appshell-sidebar)
 > Updated: 2026-06-11 (S025 done — T059 PR #108, T061 PR #109; T060 unblocked)
+> Updated: 2026-06-13 (T079–T088 added — M017 Payment Module, M018 Discount System, M019 Tenant Onboarding)
 
 ---
 
@@ -3781,5 +3782,404 @@ Merchant kan åbne Settings → Apps → Overview og se alle 4 connectors (Strip
 
 ---
 
-<!-- Total: T001–T078 | AFK: 62 | HITL: 12 (T003, T008, T013, T023, T027, T033, T036, T053, T057, T064, T067, T074) | Cancelled: T029 -->
-<!-- Sprints: S001–S036 | Milestones: M000–M016 -->
+---
+
+## M017 — Payment Module
+
+---
+
+## T079 — `payment-module` foundation: `IPaymentProvider` + `StripePaymentProvider` + model + service + migrations
+
+**Sprint:** S037
+**Milestone:** M017
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** solo
+**Blocked by:** T078
+**Branch:** feature/S037/T079-payment-module-foundation
+**PRD journey:** J003 (PRD-payment-module.md)
+**ADRs:** ADR-013
+
+### Slice objective
+
+`packages/payment-module` eksisterer med `IPaymentProvider` interface, `StripePaymentProvider` implementation, `payment_provider_config` DML model (test/live keys + mode per tenant), `PaymentModuleService` med `getActiveProvider()` og `upsertProviderConfig()`, migrations med RLS, og komplet README.
+
+### Layers in scope
+
+- **DB:** `payment_provider_config` tabel — `store_id` (RLS), `provider` enum, `test_*` + `live_*` nøgler (encrypted), `mode` enum
+- **Module:** `packages/payment-module/` — ny Medusa DML module
+  - `IPaymentProvider` interface med alle metoder (checkout, capture, refund, subscription ops, webhook)
+  - `StripePaymentProvider` implementation — bruger Stripe SDK; resolver mode-korrekte credentials fra DB
+  - `PaymentModuleService extends MedusaService` — `getActiveProvider(storeId)`, `upsertProviderConfig()`, `setMode()`, `getPublishableKey()`
+  - AES-256-GCM encryption for secret keys (`MERCFLOW_ENCRYPTION_KEY` env var)
+- **Backend:** Registrer `payment-module` i `apps/backend/src/medusa-config.ts`
+- **Package:** `packages/payment-module/README.md` — field definitions, API, encryption notes, webhook setup
+
+### Definition of done
+
+- [ ] `payment_provider_config` migration kører rent; `down()` implementeret
+- [ ] `IPaymentProvider` interface kompilerer i strict TypeScript
+- [ ] `StripePaymentProvider` implementerer alle interface-metoder (kan kaste `NotImplemented` for v2-metoder)
+- [ ] Secret keys encrypted på `INSERT`, decrypted på `getActiveProvider()` — aldrig returneret til API callers
+- [ ] `MERCFLOW_ENCRYPTION_KEY` kræves ved startup (validation i module init)
+- [ ] `PaymentModuleService` registreret + resolverbar fra Medusa container
+- [ ] RLS policy på `payment_provider_config` — ingen cross-tenant rows
+- [ ] `pnpm typecheck` + `pnpm test` grøn
+- [ ] `README.md` komplet
+
+---
+
+## T080 — Credential migration: fjern Stripe fra `connector-module`, tilføj til `payment-module`
+
+**Sprint:** S038
+**Milestone:** M017
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T079
+**Branch:** feature/S038/T080-stripe-credential-migration
+**PRD journey:** J001 (PRD-payment-module.md)
+**ADRs:** ADR-013
+
+### Slice objective
+
+Stripe-credentials fjernes fra `connector-module`. `payment-module` er nu den eneste ejer af Stripe-credentials. Eksisterende Guapo-credentials migreres til `payment_provider_config`. Webhook-route bruger `PaymentModuleService` HMAC-validering. `connector-module` beholder kun GTM, Plunk, Shipmondo.
+
+### Layers in scope
+
+- **DB:** Migration i `connector-module` — fjern `stripe_secret_key`, `stripe_publishable_key`, `stripe_webhook_secret` kolonner. `down()` gendanner kolonnerne. Data-migration: kopier eksisterende Guapo Stripe-credentials til `payment_provider_config` som en seeded migration step.
+- **Module:** `connector-module` — fjern `StripeConfig` model/fields + `getStripeClient()` helper. Beholder `GtmConfig`, `PlunkConfig`, `ShipmondoConfig`.
+- **Backend:** `/webhooks/stripe` route — udskift direkte HMAC-check med `PaymentModuleService.verifyWebhookSignature()`
+
+### Definition of done
+
+- [ ] `rg "stripe" packages/connector-module/src` returnerer 0 resultater (ekskl. eventuelle kommentarer)
+- [ ] Guapo Stripe-credentials tilgængelige i `payment_provider_config` post-migration
+- [ ] `/webhooks/stripe` bruger `PaymentModuleService` HMAC — validerer korrekt mod mode-aktiv secret
+- [ ] Migration `down()` gendanner `connector-module` Stripe-felter
+- [ ] `pnpm typecheck` + `pnpm test` grøn
+
+---
+
+## T081 — `subscription-module` → delegér charge-execution til `payment-module`
+
+**Sprint:** S038
+**Milestone:** M017
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T079
+**Branch:** feature/S038/T081-subscription-module-payment-delegation
+**PRD journey:** J003 (PRD-payment-module.md)
+**ADRs:** ADR-013
+
+### Slice objective
+
+`subscription-module` og BullMQ `charge-subscription` job har ingen direkte Stripe SDK imports. Alle charge-operationer går via `PaymentModuleService.getActiveProvider(storeId)`. Renewal worker resolver provider per `store_id` ved job-execution.
+
+### Layers in scope
+
+- **Module:** `packages/subscription-module/` — udskift `stripe.paymentIntents.create()` med `provider.chargeSubscription()`; udskift Stripe webhook HMAC-check med `PaymentModuleService.verifyWebhookSignature()`
+- **Worker:** `apps/worker/` — `charge-subscription` job resolver `PaymentModuleService` fra Medusa container; idempotency key uændret (`sub_{id}_{date}`)
+- **Tests:** Opdater unit tests — mock `IPaymentProvider`, ikke Stripe SDK direkte
+
+### Definition of done
+
+- [ ] `rg "from 'stripe'" packages/subscription-module/` returnerer 0 resultater
+- [ ] `rg "from 'stripe'" apps/worker/"` returnerer 0 resultater
+- [ ] Renewal job testes med mock `IPaymentProvider` — ikke Stripe SDK
+- [ ] `pnpm typecheck` + `pnpm test` grøn
+
+---
+
+## T082 — Settings → Payments UI: provider config form, test/live tabs, mode toggle
+
+**Sprint:** S039
+**Milestone:** M017
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** solo
+**Blocked by:** T080
+**Branch:** feature/S039/T082-settings-payments-ui
+**PRD journey:** J001, J002 (PRD-payment-module.md)
+**ADRs:** ADR-013, ADR-012
+
+### Slice objective
+
+Merchant kan åbne Settings → Payments, indtaste Stripe test- og live-credentials i separate tabs, og toggle mellem test- og live-mode. Status-badge viser "Test mode — connected" / "Live mode — active" / "Not configured". Webhook endpoint URL vises til kopiering.
+
+### Layers in scope
+
+- **Backend:** Admin routes `/admin/payment-providers` — `GET` (config + publishable key for aktiv mode), `PUT` (upsert credentials), `POST /mode` (skift mode). Zod-validering. Secret keys aldrig returneret.
+- **UI:** `packages/admin-ui/`
+  - `src/pages/settings/PaymentsSettingsPage.tsx` — provider section med "Stripe"-titel + status-badge
+  - `StripeCredentialsForm.tsx` — tabs: "Test" / "Live"; felter: Secret key, Publishable key, Webhook secret
+  - Mode toggle: "Activate live mode" med bekræftelsesdialog
+  - Webhook URL display med copy-button: `https://[domain]/webhooks/stripe`
+  - Route i `settingsNav.ts`: Settings → Payments → `/settings/payments`
+
+### Definition of done
+
+- [ ] Test-credentials kan gemmes og vises (publishable key synlig, secret key maskeret)
+- [ ] Live-credentials kan gemmes separat
+- [ ] Mode toggle skifter `mode` i DB + viser bekræftelsesdialog
+- [ ] Status-badge afspejler faktisk DB-tilstand
+- [ ] Secret key returneres aldrig fra API (response contains `has_secret_key: boolean`)
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## M018 — Discount System
+
+---
+
+## T083 — Backend discount routes + Zod + "Discounts" top-level nav item
+
+**Sprint:** S040
+**Milestone:** M018
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** solo
+**Blocked by:** T082
+**Branch:** feature/S040/T083-discount-routes-nav
+**PRD journey:** — (PRD-discount-system.md)
+**ADRs:** ADR-012
+
+### Slice objective
+
+`/admin/discounts` CRUD-routes eksisterer, validerer med Zod, og wrapper Medusa's `promotion` API. "Discounts" er et top-level nav item i sidebar (samme niveau som Orders og Products). Discount-listesiden loader og viser eksisterende Medusa-promotions.
+
+### Layers in scope
+
+- **Backend:** `apps/backend/src/api/admin/discounts/`
+  - `GET /admin/discounts` — list (wraps `GET /admin/promotions` + enrichment: type label, method, usage count)
+  - `POST /admin/discounts` — create (translate form payload → Medusa promotion create); Zod schema
+  - `GET /admin/discounts/:id` — single
+  - `PATCH /admin/discounts/:id` — update; Zod schema
+  - `DELETE /admin/discounts/:id`
+  - `POST /admin/discounts/:id/activate` + `/deactivate`
+  - Alle routes: `store_id` fra JWT enforced
+- **UI nav:** `packages/admin-ui/src/lib/nav/sidebarNav.ts` — tilføj "Discounts" som top-level item med icon
+- **UI page:** `src/pages/discounts/DiscountsListPage.tsx` — tabel: name, type, method, status badge, usage/limit, expiry. Skeleton loading, empty state, "Create discount" CTA.
+
+### Definition of done
+
+- [ ] `GET /admin/discounts` returnerer Medusa-promotions med enrichment
+- [ ] Alle routes validerer med Zod og returnerer korrekt `MedusaError` ved fejl
+- [ ] "Discounts" synlig i sidebar som top-level item
+- [ ] Listeside loader og viser discounts (happy path)
+- [ ] Empty state vises når ingen discounts
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T084 — Discount list + Product discount + Order discount create/edit forms
+
+**Sprint:** S041
+**Milestone:** M018
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T083
+**Branch:** feature/S041/T084-discount-product-order-forms
+**PRD journey:** J001 (PRD-discount-system.md)
+**ADRs:** —
+
+### Slice objective
+
+Merchant kan oprette og redigere Product discounts og Order discounts via en ren form-wizard. Shared conditions section (min purchase, customer eligibility, usage limits, date range, combination rules) er implementeret og genbruges.
+
+### Layers in scope
+
+- **UI:** `packages/admin-ui/src/pages/discounts/`
+  - `DiscountCreatePage.tsx` — type-selector (4 tiles: Product, Order, Buy X Get Y, Free Shipping) → form per type
+  - `ProductDiscountForm.tsx` — value (% eller fast beløb), applies to (All / Collections / Products), method (code/automatic), shared conditions
+  - `OrderDiscountForm.tsx` — value, applies to: order total, method, shared conditions
+  - `DiscountCodeInput.tsx` — code-felt med "Generate" button
+  - `DiscountConditionsSection.tsx` — min purchase, min quantity, customer eligibility, usage limits (total + per customer), date range picker, combination checkboxes
+  - `DiscountEditPage.tsx` — genbruger form-komponenterne
+- **UI:** Discount detail-side: summary + conditions + usage stats + activate/deactivate/delete actions
+
+### Definition of done
+
+- [ ] Merchant kan oprette Product discount (% og fast beløb) med coupon code
+- [ ] Merchant kan oprette Order discount (automatic)
+- [ ] Conditions section gemmes korrekt (min purchase, dates, usage limits)
+- [ ] "Generate" button producerer random 8-char uppercase code
+- [ ] Edit-flow genindlæser eksisterende værdier korrekt
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T085 — Buy X Get Y form + Free Shipping form + activate/deactivate/delete
+
+**Sprint:** S041
+**Milestone:** M018
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** T083
+**Branch:** feature/S041/T085-discount-bxgy-freeshipping
+**PRD journey:** J002, J003 (PRD-discount-system.md)
+**ADRs:** —
+
+### Slice objective
+
+Merchant kan oprette Buy X Get Y og Free Shipping discounts. Activate/deactivate/delete-actions virker for alle discount-typer. Free shipping med land-scope og pris-threshold fungerer.
+
+### Layers in scope
+
+- **UI:** `packages/admin-ui/src/pages/discounts/`
+  - `BuyXGetYForm.tsx` — "Customer buys" (qty/amount + product scope), "Customer gets" (qty + % / fast / gratis + produkt-scope), max uses per order
+  - `FreeShippingForm.tsx` — countries (all / specific med multi-select), "Exclude above" pris-threshold felt
+  - Discount list: "Activate" / "Deactivate" row actions i dropdown
+  - Discount detail: "Delete" med confirm-dialog
+
+### Definition of done
+
+- [ ] Buy X Get Y discount kan oprettes og gemmes via Medusa promotion API
+- [ ] Free Shipping discount med threshold og land-scope oprettes korrekt
+- [ ] Activate/deactivate toggler status-badge i listesiden real-time
+- [ ] Delete kræver confirm-dialog; fjerner discount fra liste
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## M019 — Tenant Onboarding
+
+---
+
+## T086 — HITL: Stripe platform setup + `platform_invite` tabel + backend invite-routes + Console invite UI
+
+**Sprint:** S042
+**Milestone:** M019
+**Status:** todo
+**Mode:** HITL
+**HITL reason:** Operatøren skal oprette et Stripe platform-account (eller konfigurere eksisterende Stripe konto til platform billing) og levere `STRIPE_PLATFORM_SECRET_KEY` + `STRIPE_PLATFORM_PRICE_ID` (MercFlow månedligt abonnement). Desuden: godkend `platform_invite` migration-felter inden commit.
+**Parallel group:** solo
+**Blocked by:** T082
+**Branch:** feature/S042/T086-tenant-onboarding-invite-foundation
+**PRD journey:** J001 (PRD-tenant-onboarding.md)
+**ADRs:** ADR-014
+
+### Slice objective
+
+Operator kan i Platform Console åbne "Tenants" → "Invite merchant", indtaste en e-mail, og sende et invite-link. Invite-listen viser status (Pending / Redeemed / Expired / Revoked) og en "Revoke" action. `platform_invite` tabel eksisterer med korrekte felter og migration.
+
+### Layers in scope
+
+- **DB:** `platform_invite` tabel — `id`, `email`, `token` (hashed UUID), `status` enum, `invited_by`, `created_at`, `expires_at` (72h), `redeemed_at` (nullable), `tenant_id` (nullable). Ikke en Medusa DML module — platform-niveau tabel i `apps/backend`.
+- **Backend:** `/platform/invites` routes (platform-bypass-RLS):
+  - `POST /platform/invites` — generer token, gem hashed, send invite email via SES (notification-module)
+  - `GET /platform/invites` — list med status
+  - `POST /platform/invites/:id/revoke`
+  - `GET /platform/invites/validate?token=` — public; bruges af signup flow
+- **Console UI:** `apps/platform-console/`
+  - "Invite merchant" button i Tenants-siden → modal med e-mail felt + send
+  - Invites list-tab: tabel med email, status badge, expires, redeemed_at, Revoke action
+- **HITL:** Operatøren konfigurerer `STRIPE_PLATFORM_SECRET_KEY` + `STRIPE_PLATFORM_PRICE_ID` i `.env` på Hetzner
+
+### Definition of done
+
+- [ ] HITL-checkpoint: Stripe platform-konto konfigureret; env vars sat på server
+- [ ] `platform_invite` migration kører rent; `down()` implementeret
+- [ ] `POST /platform/invites` opretter invite + sender email inden for 30s
+- [ ] Invite token er single-use og expires efter 72h
+- [ ] `/platform/invites/validate?token=` returnerer `{ valid: true/false, email, store_name? }`
+- [ ] Platform Console invite modal + liste virker
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T087 — Signup flow steps 1–4: invite-validering, Clerk SignUp, store-detaljer, domain + gate middleware
+
+**Sprint:** S043
+**Milestone:** M019
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** solo
+**Blocked by:** T086
+**Branch:** feature/S043/T087-signup-flow-steps-1-4
+**PRD journey:** J002 (PRD-tenant-onboarding.md)
+**ADRs:** ADR-014, ADR-011
+
+### Slice objective
+
+`/signup?invite=[token]` er tilgængeligt og gennemgår de første 4 trin: token-validering (fejlside ved ugyldigt/udløbet token), Clerk SignUp, store-detaljer (navn, valuta, land, tidszone), og domain-input. Invite gate middleware blokerer `/signup` uden gyldigt token (med `MERCFLOW_PUBLIC_SIGNUP=true` env flag til at deaktivere gaten).
+
+### Layers in scope
+
+- **App:** `apps/onboarding/` (ny Vite React app) eller sub-route i `apps/platform-console/` — decision: sub-route i platform-console for simplicity i v1
+- **UI — Step 1:** Token-validering: vis fejlside ("Invite link invalid or expired") hvis token er ugyldigt
+- **UI — Step 2:** Clerk `<SignUp />` component — email + password; hosted Clerk UI
+- **UI — Step 3:** Store-detaljer form — store name, currency (select), country (select), timezone (select)
+- **UI — Step 4:** Domain-input — subdomain (`[input].mercflow.shop`) eller custom domain (fritekst); vejledning om DNS-opsætning vises
+- **Middleware:** Invite gate — tjek `?invite=` token mod `/platform/invites/validate`; 403 uden gyldigt token; `MERCFLOW_PUBLIC_SIGNUP=true` env var disabler gaten
+- **State:** Wizard state bevares i React context (ikke URL params) — data fra trin 1–4 videresendes til trin 5
+
+### Definition of done
+
+- [ ] `/signup` uden token → 403/fejlside (med gaten aktiv)
+- [ ] `/signup?invite=[ugyldigt]` → fejlside "Invalid or expired invite"
+- [ ] Clerk SignUp-step fungerer (test mode Clerk)
+- [ ] Store-detaljer valideres client-side (navn required, valuta+land+timezone required)
+- [ ] Domain-input accepterer subdomain og custom domain
+- [ ] `MERCFLOW_PUBLIC_SIGNUP=true` disabler gate (lokal test bekræftet)
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T088 — Signup step 5–7 + `provision-tenant` BullMQ job + platform billing webhook + welcome email
+
+**Sprint:** S044
+**Milestone:** M019
+**Status:** todo
+**Mode:** AFK
+**Parallel group:** solo
+**Blocked by:** T087
+**Branch:** feature/S044/T088-signup-provisioning-billing
+**PRD journey:** J002, J003 (PRD-tenant-onboarding.md)
+**ADRs:** ADR-014, ADR-010
+
+### Slice objective
+
+Merchant gennemfører Step 5 (Stripe Payment Element for platform-abonnement), ser Step 6 (provisioning-progress med synlige trin), og lander i Step 7 ("Your store is ready" med link til Store Admin). Bag scenen kører `provision-tenant` BullMQ job idempotent: opretter Medusa Store, Sales Channel, Publishable API Key, Clerk Org + admin user, Traefik domain-regel, og Stripe platform subscription. Welcome-email sendes via notification-module.
+
+### Layers in scope
+
+- **UI — Step 5:** Stripe Payment Element (plan-detaljer + kortindtastning); Submit → backend bekræfter + trigger provisioning job
+- **UI — Step 6:** "Setting up your store…" — polling `/platform/provisioning-status/:jobId`; liste af trin med check-ikoner (Medusa store, Clerk org, Domain routing, Email…); max 60s timeout med fejlbesked
+- **UI — Step 7:** "Your store is ready!" — "Open Store Admin" link; bekræftelse om hvad der er oprettet
+- **Worker:** `apps/worker/` — `provision-tenant` BullMQ job med 8 idempotente trin:
+  1. Create Medusa Store
+  2. Create Medusa Sales Channel
+  3. Create Medusa Publishable API Key (link til sales channel)
+  4. Create Clerk Org (external ID = `store_id`)
+  5. Add merchant Clerk user to Org as admin
+  6. Set JWT template claim `org_id → store_id`
+  7. Add Traefik routing rule for tenant domain (via Traefik API eller Docker label)
+  8. Create Stripe platform subscription
+  - Hvert trin logges til `platform_audit_log`; fejl → retry (max 3, exponential backoff)
+- **Backend:** `POST /platform/provision` — validerer Stripe payment intent → enqueue `provision-tenant` job; `GET /platform/provisioning-status/:jobId` — returnerer job progress
+- **Backend:** Stripe platform billing webhook handler — `customer.subscription.created` → mark invite redeemed; `customer.subscription.deleted` → suspend tenant
+- **Notification:** "Welcome to MercFlow" React Email template — sendes ved `tenant.provisioned` event
+
+### Definition of done
+
+- [ ] Stripe Payment Element vises korrekt i step 5 (test mode)
+- [ ] `provision-tenant` job kører alle 8 trin idempotent — retry ved fejl genduplikerer ikke resources
+- [ ] Alle 8 trin logger til `platform_audit_log`
+- [ ] Provisioning-progress poller korrekt; trin vises med check-ikoner
+- [ ] `customer.subscription.created` webhook verificeres med HMAC og trigger korrekt
+- [ ] Welcome-email sendes inden for 60s af `tenant.provisioned`
+- [ ] `platform_invite.status` → redeemed + `tenant_id` sat
+- [ ] Platform Console Tenants-liste viser ny tenant som "Active" efter provisioning
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+<!-- Total: T001–T088 | AFK: 71 | HITL: 13 (T003, T008, T013, T023, T027, T033, T036, T053, T057, T064, T067, T074, T086) | Cancelled: T029 -->
+<!-- Sprints: S001–S044 | Milestones: M000–M019 -->
