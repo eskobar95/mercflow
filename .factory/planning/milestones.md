@@ -729,10 +729,10 @@ flowchart LR
 
 | Sprint | Goal | Tasks | Status |
 |--------|------|-------|--------|
-| S045 | `platform_tenant_billing` migration + `GET /platform/billing/plans` + provision step 7 metadata write | T089 | planned |
-| S046 | Webhook retrofit (`store_id` primary key) + suspend action + billing audit log | T090 | planned |
-| S047 | Signup Step 5 plan picker (parallel) | T091 | planned |
-| S048 | Platform Console billing panel | T092 | planned |
+| S045 | Billing foundation: migration + catalog API + provision step 7 | T089 | planned |
+| S046 | Webhook retrofit + suspend action + audit log | T090 | planned |
+| S047 | Signup Step 5 plan picker UI (parallel) | T091 | planned |
+| S048 | Platform Console Tenant billing panel (parallel) | T092 | planned |
 
 **Dependencies:** M019 (platform billing v1 in place to retrofit)
 

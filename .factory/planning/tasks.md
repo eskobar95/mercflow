@@ -4191,5 +4191,152 @@ Merchant gennemfører Step 5 (Stripe Payment Element for platform-abonnement), s
 
 ---
 
-<!-- Total: T001–T088 | AFK: 71 | HITL: 13 (T003, T008, T013, T023, T027, T033, T036, T053, T057, T064, T067, T074, T086) | Cancelled: T029 -->
-<!-- Sprints: S001–S044 | Milestones: M000–M019 -->
+---
+
+## T089 — Billing foundation: migration + catalog API + provision step 7
+
+**Sprint:** S045
+**Milestone:** M020
+**Status:** planned
+**Mode:** AFK
+**Parallel group:** solo
+**Blocked by:** none
+**Branch:** feature/S045/T089-billing-foundation
+**PRD journey:** J001 (PRD-platform-billing-retrofit.md)
+**ADRs:** ADR-015
+
+### Slice objective
+
+Backend-fundamentet er på plads: `platform_tenant_billing` tabel eksisterer, `GET /platform/billing/plans?currency=xxx` returnerer Standard/Pro × Monthly/Annual med live beløb fra Stripe, `POST /platform/signup/billing/setup` validerer `price_id` mod Stripe (ingen `STRIPE_PLATFORM_PRICE_ID` lookup), og provision-jobbet skriver `store_id` + `clerk_org_id` til Stripe Customer + Subscription metadata og upsert-er `platform_tenant_billing`.
+
+### Layers in scope
+
+- **DB:** `platform_tenant_billing` migration (raw SQL — platform-level tabel, ikke Medusa DML). Felter: `store_id` PK, `clerk_org_id`, `stripe_customer_id` UNIQUE, `stripe_subscription_id` UNIQUE, `stripe_price_id`, `plan_tier`, `billing_interval`, `billing_currency`, `subscription_status`, `current_period_end`, `created_at`, `updated_at`. Migration har `down()` + MIGRATION DECISION LOG comment.
+- **API:** `GET /platform/billing/plans?currency=xxx` — henter aktive Stripe Prices med `metadata.mercflow_platform=true`, grupperer per tier + interval. In-memory cache 60s per currency. Response shape: `{ plans: [{ tier, name, interval, currency, amount, price_id }] }`.
+- **API:** `POST /platform/signup/billing/setup` retrofit — accepterer `{ price_id, invite_token, email, store_name }`. Backend validerer at `price_id` tilhører en aktiv MercFlow platform Price (henter fra Stripe, tjekker metadata). Fjerner `getStripePlatformPriceId()` kald.
+- **Worker:** `provision-tenant` job step 7 tilføjes (eller opdateres hvis allerede eksisterer): `stripe.customers.update(cus_id, { metadata: { store_id, clerk_org_id, mercflow_platform: 'true' } })` + `stripe.subscriptions.update(sub_id, { metadata: { store_id, clerk_org_id, plan_tier, billing_interval } })` + upsert `platform_tenant_billing` row.
+- **Cleanup:** `getStripePlatformPriceId()` fjernes fra `apps/backend/src/lib/platform-billing/stripe-platform-client.ts`. `STRIPE_PLATFORM_PRICE_ID` fjernes fra `.env.example` (allerede gjort) og eventuelle andre steder i kodebasen.
+- **Tests:** integration test verificerer at `GET /platform/billing/plans?currency=dkk` returnerer mindst 2 plans (kræver Stripe test-key i env). Unit test på provision-step: mock Stripe API, verificerer at metadata skrives korrekt og `platform_tenant_billing` upsert-es.
+
+### Definition of done
+
+- [ ] `platform_tenant_billing` migration kører lokalt (`pnpm migration:run`) og har `down()`
+- [ ] `GET /platform/billing/plans?currency=dkk` returnerer `plans` array med `tier`, `interval`, `currency`, `amount`, `price_id`
+- [ ] `POST /platform/signup/billing/setup` afviser ukendt/inaktiv `price_id` med 400
+- [ ] Provision step 7 skriver `store_id` i Stripe Customer **og** Subscription metadata
+- [ ] `platform_tenant_billing` row upsert-es med `subscription_status=active` efter provision
+- [ ] `rg "STRIPE_PLATFORM_PRICE_ID" .` → 0 resultater
+- [ ] `rg "getStripePlatformPriceId" .` → 0 resultater
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T090 — Webhook retrofit + suspend action + audit log
+
+**Sprint:** S046
+**Milestone:** M020
+**Status:** planned
+**Mode:** AFK
+**Parallel group:** B
+**Blocked by:** T089
+**Branch:** feature/S046/T090-webhook-suspend-audit
+**PRD journey:** J003, J004 (PRD-platform-billing-retrofit.md)
+**ADRs:** ADR-015
+
+### Slice objective
+
+Webhooks fra Stripe platform-konto resolves korrekt via `store_id` (ikke `invite_token_hash`). `platform_tenant_billing` holdes synkroniseret på alle relevante events. Suspend-action i Platform Console canceller Stripe subscription som en del af den samme operation.
+
+### Layers in scope
+
+- **Backend — webhook handler** (`apps/backend/src/lib/platform-billing/`): Opdatér tenant-resolution-logik — prioritér `subscription.metadata.store_id` (primary) → `customer.metadata.store_id` (secondary) → `invite_token_hash` (bootstrap fallback, log warning når brugt). Håndtér: `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`, `invoice.paid`. Alle events opdaterer `platform_tenant_billing.subscription_status` + `current_period_end` + `updated_at`.
+- **Backend — suspend route** (`POST /platform/admin/tenants/:store_id/suspend`): atomisk operation — (1) `stripe.subscriptions.cancel(sub_id)`, (2) `store.is_disabled = true` via Medusa Admin API, (3) revoke Publishable API Keys, (4) update `platform_tenant_billing.subscription_status = 'canceled'`. Alt sker i samme request; fejl i trin 2+ skal logges + returnere partial-success med klart error-message.
+- **Backend — audit log**: Skriv `platform_audit_log` entries med `entity_id = store_id`, `action`, `actor`, `payload` (JSON) på: billing status change (alle webhook events), suspend, provision completion (allerede dækket af T089).
+- **Tests:** Unit test på webhook resolution-logik med alle tre lookup-paths. Integration test på suspend: mock Stripe + Medusa, verificer at alle fire trin udføres og audit log skrives.
+
+### Definition of done
+
+- [ ] `customer.subscription.updated` opdaterer `platform_tenant_billing.subscription_status`
+- [ ] `invoice.payment_failed` sætter status til `past_due` + skriver audit log
+- [ ] `customer.subscription.deleted` sætter status til `canceled` + skriver audit log
+- [ ] Webhook resolution bruger `store_id` som primary key (verificeret via test)
+- [ ] `invite_token_hash` fallback logger `warn` til server log
+- [ ] Suspend-route canceller Stripe subscription + disabler store + revokér keys i én operation
+- [ ] `platform_audit_log` har entries for alle ovenstående events
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T091 — Signup Step 5 plan picker UI
+
+**Sprint:** S047
+**Milestone:** M020
+**Status:** planned
+**Mode:** AFK
+**Parallel group:** B
+**Blocked by:** T089
+**Branch:** feature/S047/T091-signup-plan-picker
+**PRD journey:** J001 (PRD-platform-billing-retrofit.md)
+**ADRs:** ADR-015
+
+### Slice objective
+
+Signup Step 5 viser en plan picker med tier-cards (Standard / Pro) og et Monthly/Annual interval-toggle. Beløb er hentet live fra `GET /platform/billing/plans?currency=xxx` baseret på den currency der blev sat i Step 3. Merchant vælger plan → Stripe Payment Element vises med den valgte pris. `price_id` sendes til `POST /platform/signup/billing/setup`.
+
+### Layers in scope
+
+- **UI:** `apps/platform-console/src/signup/steps/SignupStep5Billing.tsx` redesignes. Komponent er max ~200 linjer — split i `PlanPicker.tsx`, `PlanCard.tsx`, `BillingIntervalToggle.tsx` i samme directory hvis nødvendigt.
+- **UI — Plan picker:** To tier-cards (Standard / Pro) side om side. Hvert card viser: navn, pris per interval (fra Stripe), evt. feature-liste (hardcoded copy i v1 — ikke fra Stripe). Monthly/Annual toggle over cards. Valgt card fremhæves (border, check-ikon). Beløb formateres korrekt per currency (DKK: "299 kr/md", EUR: "€39/mo").
+- **UI — Loading + error states:** Skeleton loader mens plans hentes. Error-state med retry-knap hvis Stripe-kald fejler. Ingen planer tilgængelige → fallback tekst + kontakt-link.
+- **UI — Payment Element:** Vises under plan picker. Kald til `POST /platform/signup/billing/setup` medtager valgt `price_id`. Eksisterende Stripe Elements setup bevares — kun `priceId` parameter tilføjes.
+- **Types:** `PlatformPlan` type matcher `GET /platform/billing/plans` response shape.
+
+### Definition of done
+
+- [ ] Plan picker renderes med Standard + Pro cards og Monthly/Annual toggle
+- [ ] Beløb hentes fra `GET /platform/billing/plans?currency=xxx` (ingen hardcoded beløb)
+- [ ] Valgt `price_id` sendes korrekt til `POST /platform/signup/billing/setup`
+- [ ] Skeleton loader vises mens plans loader
+- [ ] Error state med retry-knap hvis API fejler
+- [ ] Ingen hardcoded `STRIPE_PLATFORM_PRICE_ID` i UI-kode
+- [ ] `pnpm react-doctor:admin-ui` 0 issues (hvis admin-ui er berørt — ellers N/A)
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+## T092 — Platform Console Tenant billing panel
+
+**Sprint:** S048
+**Milestone:** M020
+**Status:** planned
+**Mode:** AFK
+**Parallel group:** B
+**Blocked by:** T089
+**Branch:** feature/S048/T092-console-billing-panel
+**PRD journey:** J002, J004 (PRD-platform-billing-retrofit.md)
+**ADRs:** ADR-015
+
+### Slice objective
+
+Tenant detail-siden i Platform Console har en "Billing" sektion der viser plan, interval, currency, subscription status, og `current_period_end` fra `platform_tenant_billing`. "View in Stripe" link åbner Stripe Dashboard direkte. Suspend-knappen er tilgængelig og kalder suspend-route (T090). Operator kan se alle relevante billing-detaljer uden at åbne Stripe Dashboard.
+
+### Layers in scope
+
+- **API:** `GET /platform/admin/tenants/:store_id/billing` — læser fra `platform_tenant_billing` + returnerer row som JSON. Ingen Stripe API-kald (Platform Console list-view skal forblive hurtig).
+- **UI:** Tenant detail-side (`apps/platform-console/src/tenants/TenantDetail.tsx` eller tilsvarende) — tilføj "Billing" section/card. Felter: plan tier badge (Standard / Pro), interval, currency, status badge (Active / Past due / Canceled — farvekodning), "Renews" dato (fra `current_period_end`), "View in Stripe" link (konstrueret fra `stripe_customer_id`: `https://dashboard.stripe.com/customers/{stripe_customer_id}`).
+- **UI — Suspend:** Eksisterende suspend-knap (fra T090) integreres i billing-panelet. Confirm-dialog: "This will disable the store, revoke API keys, and cancel the Stripe subscription. This cannot be undone." Viser loading-state under operation.
+- **UI — Edge cases:** Tenant uden `platform_tenant_billing` row (f.eks. intern Guapo-tenant) → billing-sektion vises ikke / "No platform billing" placeholder. Canceled tenant → viser canceled badge + ingen suspend-knap.
+
+### Definition of done
+
+- [ ] Billing panel viser tier, interval, currency, status, `current_period_end`
+- [ ] Status badge er farvekodnet (grøn = active, gul = past_due, rød = canceled)
+- [ ] "View in Stripe" link bygget fra `stripe_customer_id` — åbner korrekt Stripe Dashboard URL
+- [ ] Suspend-knap kalder T090's suspend-route med confirm-dialog
+- [ ] Tenant uden billing row → "No platform billing" placeholder (ingen fejl)
+- [ ] `pnpm typecheck` + `pnpm lint` grøn
+
+---
+
+<!-- Total: T001–T092 | AFK: 75 | HITL: 13 (T003, T008, T013, T023, T027, T033, T036, T053, T057, T064, T067, T074, T086) | Cancelled: T029 -->
+<!-- Sprints: S001–S048 | Milestones: M000–M020 -->
