@@ -77,9 +77,10 @@ export function SuspendTenantModal({
           Suspend tenant
         </h3>
         <p className="mt-2 text-sm text-content-secondary">
-          This disables the store and revokes publishable API keys for{" "}
+          This will disable the store, revoke API keys, and cancel the Stripe
+          subscription for{" "}
           <span className="font-medium text-content-primary">{activeTenant.name}</span>.
-          Store Admin login remains available for support contact.
+          This cannot be undone.
         </p>
 
         <label className="mt-4 grid gap-1 text-sm">

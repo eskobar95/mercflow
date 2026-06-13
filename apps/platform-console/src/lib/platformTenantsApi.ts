@@ -6,6 +6,21 @@ export type PlatformTenant = {
   created_at: string
 }
 
+export type PlatformTenantBilling = {
+  store_id: string
+  clerk_org_id: string
+  stripe_customer_id: string
+  stripe_subscription_id: string
+  stripe_price_id: string
+  plan_tier: string
+  billing_interval: string
+  billing_currency: string
+  subscription_status: string
+  current_period_end: string | null
+  created_at: string
+  updated_at: string
+}
+
 export type ProvisionProgressEvent = {
   step: string
   message: string
@@ -68,16 +83,36 @@ export async function fetchPlatformTenants(
   return body.tenants
 }
 
+export async function fetchPlatformTenantBilling(
+  storeId: string,
+  getToken: () => Promise<string | null>,
+): Promise<PlatformTenantBilling | null> {
+  const response = await authorizedFetch(
+    `/platform/admin/tenants/${encodeURIComponent(storeId)}/billing`,
+    getToken,
+  )
+
+  if (!response.ok) {
+    const body = (await response.json().catch(() => null)) as {
+      message?: string
+    } | null
+    throw new Error(body?.message ?? `Failed to load tenant billing (${response.status})`)
+  }
+
+  const body = (await response.json()) as { billing: PlatformTenantBilling | null }
+  return body.billing
+}
+
 export async function suspendPlatformTenant(
   tenantId: string,
   input: SuspendTenantInput,
   getToken: () => Promise<string | null>,
 ): Promise<void> {
   const response = await authorizedFetch(
-    `/platform/tenants/${encodeURIComponent(tenantId)}/suspend`,
+    `/platform/admin/tenants/${encodeURIComponent(tenantId)}/suspend`,
     getToken,
     {
-      method: "PUT",
+      method: "POST",
       body: JSON.stringify(input),
     },
   )

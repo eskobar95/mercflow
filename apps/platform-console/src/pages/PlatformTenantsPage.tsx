@@ -4,13 +4,11 @@ import { useState } from "react"
 import { InviteMerchantModal } from "@/components/tenants/InviteMerchantModal"
 import { InvitesTable } from "@/components/tenants/InvitesTable"
 import { ProvisionTenantForm } from "@/components/tenants/ProvisionTenantForm"
-import { SuspendTenantModal } from "@/components/tenants/SuspendTenantModal"
 import { TenantTable } from "@/components/tenants/TenantTable"
 import { usePlatformInvites } from "@/hooks/usePlatformInvites"
 import { usePlatformTenants } from "@/hooks/usePlatformTenants"
 import type { PlatformInvite } from "@/lib/platformInvitesApi"
 import { revokePlatformInvite } from "@/lib/platformInvitesApi"
-import type { PlatformTenant } from "@/lib/platformTenantsApi"
 
 type TenantsTab = "tenants" | "invites"
 
@@ -19,7 +17,6 @@ export function PlatformTenantsPage(): React.ReactElement {
   const { state: tenantsState, reload: reloadTenants } = usePlatformTenants(getToken)
   const { state: invitesState, reload: reloadInvites } = usePlatformInvites(getToken)
   const [activeTab, setActiveTab] = useState<TenantsTab>("tenants")
-  const [suspendTarget, setSuspendTarget] = useState<PlatformTenant | null>(null)
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
   const [revokingInviteId, setRevokingInviteId] = useState<string | null>(null)
   const [revokeError, setRevokeError] = useState<string | null>(null)
@@ -102,12 +99,7 @@ export function PlatformTenantsPage(): React.ReactElement {
           ) : null}
 
           {tenantsState.status === "ok" ? (
-            <TenantTable
-              tenants={tenantsState.tenants}
-              onSuspend={(tenant) => {
-                setSuspendTarget(tenant)
-              }}
-            />
+            <TenantTable tenants={tenantsState.tenants} />
           ) : null}
 
           <ProvisionTenantForm
@@ -154,17 +146,6 @@ export function PlatformTenantsPage(): React.ReactElement {
         onSent={() => {
           reloadInvites()
           setActiveTab("invites")
-        }}
-      />
-
-      <SuspendTenantModal
-        tenant={suspendTarget}
-        getToken={getToken}
-        onClose={() => {
-          setSuspendTarget(null)
-        }}
-        onSuspended={() => {
-          reloadTenants()
         }}
       />
     </div>

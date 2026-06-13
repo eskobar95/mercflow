@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom"
+
 import type { PlatformTenant } from "@/lib/platformTenantsApi"
 
 type TenantStatusBadgeProps = {
@@ -24,7 +26,6 @@ export function TenantStatusBadge({
 
 type TenantTableProps = {
   tenants: PlatformTenant[]
-  onSuspend: (tenant: PlatformTenant) => void
 }
 
 function formatCreatedAt(value: string): string {
@@ -37,7 +38,6 @@ function formatCreatedAt(value: string): string {
 
 export function TenantTable({
   tenants,
-  onSuspend,
 }: TenantTableProps): React.ReactElement {
   if (tenants.length === 0) {
     return (
@@ -78,16 +78,12 @@ export function TenantTable({
                 {formatCreatedAt(tenant.created_at)}
               </td>
               <td className="px-4 py-3 text-right">
-                <button
-                  type="button"
-                  className="rounded-md border border-border-subtle px-3 py-1.5 text-xs font-medium text-content-primary transition-colors hover:border-border-strong hover:bg-surface-subtle disabled:cursor-not-allowed disabled:opacity-50"
-                  disabled={tenant.is_disabled}
-                  onClick={() => {
-                    onSuspend(tenant)
-                  }}
+                <Link
+                  to={`/tenants/${encodeURIComponent(tenant.id)}`}
+                  className="rounded-md border border-border-subtle px-3 py-1.5 text-xs font-medium text-content-primary transition-colors hover:border-border-strong hover:bg-surface-subtle"
                 >
-                  Suspend
-                </button>
+                  View
+                </Link>
               </td>
             </tr>
           ))}

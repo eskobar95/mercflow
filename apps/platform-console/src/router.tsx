@@ -9,6 +9,7 @@ import { PlatformHomePage } from "@/pages/PlatformHomePage"
 import { PlatformQueuesPage } from "@/pages/PlatformQueuesPage"
 import { PlatformSystemPage } from "@/pages/PlatformSystemPage"
 import { PlatformTenantsPage } from "@/pages/PlatformTenantsPage"
+import { TenantDetailPage } from "@/pages/TenantDetailPage"
 import { SignupPage } from "@/signup/SignupPage"
 import { SignupShell } from "@/signup/SignupShell"
 
@@ -32,6 +33,10 @@ export const platformRouter = createBrowserRouter([
       {
         path: "tenants",
         element: <PlatformTenantsPage />,
+      },
+      {
+        path: "tenants/:storeId",
+        element: <TenantDetailPage />,
       },
       {
         path: "queues",
