@@ -68,7 +68,7 @@
 | S040 | M018 | Backend discount routes + Zod + top-level nav item | T083 | done |
 | S041 | M018 | Discount list + Product/Order forms + Buy X Get Y + Free Shipping forms (parallel) | T084, T085 | done |
 | S042 | M019 | HITL: Stripe platform setup + platform_invite table + Console invite UI | T086 | done |
-| S043 | M019 | Signup flow steps 1–4 + invite gate middleware | T087 | planned |
+| S043 | M019 | Signup flow steps 1–4 + invite gate middleware | T087 | done |
 | S044 | M019 | Signup step 5–7 + provision-tenant BullMQ job + billing webhook + welcome email | T088 | planned |
 
 ---
@@ -179,7 +179,7 @@
 ## S042–S044 — M019 Tenant Onboarding
 
 - **S042:** T086 (HITL — Stripe platform-konto opsætning + `platform_invite` tabel + backend invite-routes + Platform Console invite UI) — solo; prerequisite for alt i M019. HITL: operator opsætter Stripe platform account + `platform_invite` migrations godkendes.
-- **S043:** T087 (signup flow steps 1–4: invite-validering, Clerk SignUp, store-detaljer, domain + invite gate middleware) — blokkeret af T086.
+- **S043:** T087 (signup flow steps 1–4) — done (PR #134).
 - **S044:** T088 (signup steps 5–7: Stripe Payment Element + provisioning-progress + done + `provision-tenant` BullMQ job + platform billing webhook + "Welcome" email) — blokkeret af T087.
 
 ---

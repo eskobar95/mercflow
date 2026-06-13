@@ -4106,11 +4106,12 @@ Operator kan i Platform Console åbne "Tenants" → "Invite merchant", indtaste 
 
 **Sprint:** S043
 **Milestone:** M019
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** solo
 **Blocked by:** T086
 **Branch:** feature/S043/T087-signup-flow-steps-1-4
+**PR:** https://github.com/eskobar95/mercflow/pull/134
 **PRD journey:** J002 (PRD-tenant-onboarding.md)
 **ADRs:** ADR-014, ADR-011
 
@@ -4130,13 +4131,13 @@ Operator kan i Platform Console åbne "Tenants" → "Invite merchant", indtaste 
 
 ### Definition of done
 
-- [ ] `/signup` uden token → 403/fejlside (med gaten aktiv)
-- [ ] `/signup?invite=[ugyldigt]` → fejlside "Invalid or expired invite"
-- [ ] Clerk SignUp-step fungerer (test mode Clerk)
-- [ ] Store-detaljer valideres client-side (navn required, valuta+land+timezone required)
-- [ ] Domain-input accepterer subdomain og custom domain
-- [ ] `MERCFLOW_PUBLIC_SIGNUP=true` disabler gate (lokal test bekræftet)
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] `/signup` uden token → 403/fejlside (med gaten aktiv)
+- [x] `/signup?invite=[ugyldigt]` → fejlside "Invalid or expired invite"
+- [x] Clerk SignUp-step fungerer (test mode Clerk)
+- [x] Store-detaljer valideres client-side (navn required, valuta+land+timezone required)
+- [x] Domain-input accepterer subdomain og custom domain
+- [x] `MERCFLOW_PUBLIC_SIGNUP=true` disabler gate (lokal test bekræftet)
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 

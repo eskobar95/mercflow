@@ -2868,3 +2868,66 @@ T087
 ### Result
 - `development` @ merge commit — M019 S042 complete; T087 unblocked
 
+---
+
+## Task T087 — Signup flow steps 1–4 — 2026-06-13
+
+**Sprint:** S043 | **Milestone:** M019 | **Status:** done
+**Branch:** `feature/S043/T087-signup-flow-steps-1-4`
+**PR:** https://github.com/eskobar95/mercflow/pull/134
+**Mode:** AFK
+**Parallel group:** solo
+
+### Outcome
+Implemented /signup steps 1-4 in platform-console with invite gate, store-admin Clerk SignUp, store/domain forms, and wizard context for T088.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+T088
+
+---
+
+## Sprint retro — S043 — 2026-06-13
+
+**Milestone:** M019
+**Duration:** session
+**Tasks:** 1/1 done, 0 blocked
+
+### What went well
+- T086 foundation (validate route, platform_invite) integrated cleanly into platform-console sub-route
+- Solo AFK task completed in one subagent pass with zero revision cycles
+- CI green on first PR push (#134)
+
+### What failed or slowed down
+- None
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T087 | done | Task T087 — 2026-06-13 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| — | — | — |
+
+### Harness notes
+- Parallel groups used: solo (1 subagent)
+- Subagent issues: none
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Document platform-console dual auth (operator vs merchant signup) in implement skill | `.cursor/skills/harness/implement/SKILL.md` |
+
+### Next actions
+- [ ] Human: review and merge PR #134 to `development`
+- [ ] `/run-sprint S044` — T088 signup provisioning + billing
