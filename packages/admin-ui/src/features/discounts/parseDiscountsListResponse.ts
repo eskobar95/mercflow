@@ -6,7 +6,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null
 }
 
-function parseDiscountRow(value: unknown): AdminDiscountRow | null {
+export function parseDiscountRow(value: unknown): AdminDiscountRow | null {
   if (!isRecord(value)) {
     return null
   }

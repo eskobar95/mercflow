@@ -76,6 +76,30 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "discounts/new",
+        handle: { title: "Create discount" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { DiscountCreatePage } = await import("@/pages/discounts/DiscountCreatePage")
+          return { Component: DiscountCreatePage }
+        },
+      },
+      {
+        path: "discounts/:id/edit",
+        handle: { title: "Edit discount" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { DiscountEditPage } = await import("@/pages/discounts/DiscountEditPage")
+          return { Component: DiscountEditPage }
+        },
+      },
+      {
+        path: "discounts/:id",
+        handle: { title: "Discount" } satisfies AppRouteHandle,
+        lazy: async () => {
+          const { DiscountDetailPage } = await import("@/pages/discounts/DiscountDetailPage")
+          return { Component: DiscountDetailPage }
+        },
+      },
+      {
         path: "discounts",
         handle: { title: "Discounts" } satisfies AppRouteHandle,
         lazy: async () => {

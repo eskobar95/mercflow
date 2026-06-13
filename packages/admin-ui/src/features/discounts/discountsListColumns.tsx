@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import { Link } from "react-router-dom"
 
 import { DiscountStatusBadge } from "@/components/discounts/DiscountStatusBadge"
 import type { ListColumnDef } from "@/components/ui/list/types"
@@ -35,7 +36,14 @@ export const DISCOUNT_LIST_COLUMNS: ListColumnDef<AdminDiscountRow, DiscountList
     sortable: true,
     getSortValue: (row) => row.name.toLocaleLowerCase(),
     cellClassName: "font-medium",
-    renderCell: (row) => row.name,
+    renderCell: (row): ReactNode => (
+      <Link
+        to={`/discounts/${row.id}`}
+        className="text-content-primary hover:text-interactive-primary hover:underline"
+      >
+        {row.name}
+      </Link>
+    ),
   },
   {
     id: "type",

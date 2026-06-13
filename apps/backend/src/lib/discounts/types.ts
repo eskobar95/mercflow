@@ -19,10 +19,16 @@ export type AdminDiscountRow = {
   updated_at: string | null
 }
 
+export type DiscountTypeApi = "product" | "order" | "buyget" | "free_shipping"
+
 export type AdminDiscountDetail = AdminDiscountRow & {
   is_automatic: boolean
   promotion_type: "standard" | "buyget"
   raw_status: "draft" | "active" | "inactive"
+  discount_type: DiscountTypeApi
+  value_type: "percentage" | "fixed" | null
+  value: number | null
+  starts_at: string | null
 }
 
 export type AdminDiscountListResponse = {

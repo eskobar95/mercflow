@@ -113,12 +113,10 @@ function buildCreatePromotionPayload(body: CreateDiscountBody): Record<string, u
     payload.limit = body.usage_limit
   }
 
-  if (body.starts_at !== undefined || body.ends_at !== undefined) {
-    payload.campaign = {
-      name: body.name,
-      ...(body.starts_at !== undefined ? { starts_at: body.starts_at } : {}),
-      ...(body.ends_at !== undefined ? { ends_at: body.ends_at } : {}),
-    }
+  payload.campaign = {
+    name: body.name,
+    ...(body.starts_at !== undefined ? { starts_at: body.starts_at } : {}),
+    ...(body.ends_at !== undefined ? { ends_at: body.ends_at } : {}),
   }
 
   return payload
