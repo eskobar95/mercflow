@@ -3888,10 +3888,10 @@ Stripe-credentials fjernes fra `connector-module`. `payment-module` er nu den en
 
 ### Definition of done
 
-- [ ] `rg "from 'stripe'" packages/subscription-module/` returnerer 0 resultater
-- [ ] `rg "from 'stripe'" apps/worker/"` returnerer 0 resultater
-- [ ] Renewal job testes med mock `IPaymentProvider` — ikke Stripe SDK
-- [ ] `pnpm typecheck` + `pnpm test` grøn
+- [x] `rg "from 'stripe'" packages/subscription-module/` returnerer 0 resultater
+- [x] `rg "from 'stripe'" apps/worker/"` returnerer 0 resultater
+- [x] Renewal job testes med mock `IPaymentProvider` — ikke Stripe SDK
+- [x] `pnpm typecheck` + `pnpm test` grøn
 
 ---
 
