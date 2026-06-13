@@ -3792,11 +3792,12 @@ Merchant kan åbne Settings → Apps → Overview og se alle 4 connectors (Strip
 
 **Sprint:** S037
 **Milestone:** M017
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** solo
 **Blocked by:** T078
 **Branch:** feature/S037/T079-payment-module-foundation
+**PR:** https://github.com/eskobar95/mercflow/pull/125
 **PRD journey:** J003 (PRD-payment-module.md)
 **ADRs:** ADR-013
 
