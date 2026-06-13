@@ -2469,5 +2469,98 @@ T080, T081
 
 ### Next actions
 - [ ] Merge PR #125 to `development`
-- [ ] `/run-sprint S038` (T080 + T081 parallel)
+- [x] `/run-sprint S038` (T080 + T081 parallel)
+
+---
+
+## Task T080 — Credential migration: fjern Stripe fra connector-module — 2026-06-13
+
+**Sprint:** S038 | **Milestone:** M017 | **Status:** done
+**Branch:** `feature/S038/T080-stripe-credential-migration`
+**PR:** https://github.com/eskobar95/mercflow/pull/127
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Stripe credentials migrated from connector-module to payment-module; /webhooks/stripe uses PaymentModuleService HMAC validation
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+T082
+
+---
+
+## Task T081 — subscription-module payment delegation — 2026-06-13
+
+**Sprint:** S038 | **Milestone:** M017 | **Status:** done
+**Branch:** `feature/S038/T081-subscription-module-payment-delegation`
+**PR:** https://github.com/eskobar95/mercflow/pull/126
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Subscription renewal and webhooks delegate to payment-module IPaymentProvider; zero Stripe SDK imports in subscription-module/worker
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none
+
+---
+
+## Sprint retro — S038 — 2026-06-13
+
+**Milestone:** M017
+**Duration:** session
+**Tasks:** 2/2 done, 0 blocked
+
+### What went well
+- Parallel group A shipped both tasks with green CI on first or second attempt
+- T081 completed with zero revision cycles
+- Clean delegation pattern: subscription-module and worker no longer import Stripe SDK directly
+
+### What failed or slowed down
+- T080 required 1 revision cycle before verify/review passed
+- Harness preflight still references `dev`; MercFlow uses `development` (ADR-002)
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T080 | done | Task T080 — 2026-06-13 |
+| T081 | done | Task T081 — 2026-06-13 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T080 | 1 | implement retry after verify/review |
+| T081 | 0 | — |
+
+### Harness notes
+- Parallel group A: 2 subagents dispatched in one turn
+- Base branch: `development`
+- Unblocks S039 (T082)
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Preflight should accept `development` when `dev` missing | `.cursor/skills/harness/harness/SKILL.md` |
+
+### Next actions
+- [ ] Merge PR #126 and #127 to `development`
+- [ ] `/run-sprint S039` (T082 — Settings → Payments UI)
 

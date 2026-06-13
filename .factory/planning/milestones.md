@@ -622,7 +622,7 @@ flowchart LR
 | Sprint | Goal | Tasks | Status |
 |--------|------|-------|--------|
 | S037 | payment-module foundation: interface + model + Stripe provider + service + migrations | T079 | planned |
-| S038 | Credential migration + subscription-module delegation (parallel) | T080, T081 | planned |
+| S038 | Credential migration + subscription-module delegation (parallel) | T080, T081 | done |
 | S039 | Settings → Payments UI: test/live tabs + mode toggle + status badge | T082 | planned |
 
 **Dependencies:** M015 (subscription-module patterns), M016 (Settings navigation in place for Settings → Payments page)

@@ -62,7 +62,7 @@
 | S035 | M016 | SettingsShell layout + `settingsNav.ts` config + `/settings` redirect | T076 | done |
 | S036 | M016 | Settings route remapping + placeholder pages + Apps overview (parallel) | T077, T078 | done |
 | S037 | M017 | payment-module foundation: interface + model + Stripe provider + service + migrations | T079 | done |
-| S038 | M017 | Credential migration + subscription-module delegation (parallel) | T080, T081 | planned |
+| S038 | M017 | Credential migration + subscription-module delegation (parallel) | T080, T081 | done |
 | S039 | M017 | Settings → Payments UI: test/live tabs + mode toggle + status badge | T082 | planned |
 | S040 | M018 | Backend discount routes + Zod + top-level nav item | T083 | planned |
 | S041 | M018 | Discount list + Product/Order forms + Buy X Get Y + Free Shipping forms (parallel) | T084, T085 | planned |
