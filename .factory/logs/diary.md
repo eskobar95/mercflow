@@ -2617,3 +2617,67 @@ Single-task sprint delivering merchant-facing Payments settings on top of S038 c
 ### Next
 - `/run-sprint S040` (T083 discount routes + nav)
 
+---
+
+## Task T083 — Backend discount routes + Zod + "Discounts" top-level nav item — 2026-06-13
+
+**Sprint:** S040 | **Milestone:** M018 | **Status:** done
+**Branch:** `feature/S040/T083-discount-routes-nav`
+**PR:** https://github.com/eskobar95/mercflow/pull/129
+**Mode:** AFK
+**Parallel group:** solo
+
+### Outcome
+Added `/admin/discounts` CRUD routes with Zod validation and JWT `store_id` enforcement, "Discounts" top-level sidebar nav item, and list page with table/empty/loading states.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+T084, T085
+
+---
+
+## Sprint retro — S040 — 2026-06-13
+
+**Milestone:** M018
+**Duration:** session
+**Tasks:** 1/1 done, 0 blocked
+
+### What went well
+- Solo sprint completed in one subagent pass with zero revision cycles
+- CI green on first push (lint, typecheck, React Doctor, backend migrations, Playwright smoke)
+- Clean vertical slice: backend routes + nav + list page in single PR
+
+### What failed or slowed down
+- Harness preflight still references `dev` branch; MercFlow uses `development` (ADR-002) — subagent handled correctly
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T083 | done | Task T083 — 2026-06-13 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T083 | 0 | — |
+
+### Harness notes
+- Parallel groups used: solo (1 subagent)
+- Subagent issues: none
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Default integration branch to `development` in harness preflight | `.cursor/skills/harness/harness/SKILL.md` |
+
+### Next actions
+- [ ] `/run-sprint S041` (T084 + T085 discount UI forms — parallel group A)
+- [ ] Human: review and merge PR #129 to `development`
+
