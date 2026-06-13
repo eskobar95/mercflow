@@ -6,6 +6,7 @@ import {
   IconCategories,
   IconConnectors,
   IconCustomers,
+  IconDiscounts,
   IconEmail,
   IconFeed,
   IconGlobals,
@@ -75,6 +76,7 @@ export type SidebarNavSection = {
 export const primarySidebarNav: SidebarNavItem[] = [
   { label: "Home", to: "/", end: true, icon: IconHome },
   { label: "Orders", to: "/orders", icon: IconOrders },
+  { label: "Discounts", to: "/discounts", icon: IconDiscounts },
   {
     label: "Products",
     to: "/products",

@@ -3942,11 +3942,12 @@ Merchant kan åbne Settings → Payments, indtaste Stripe test- og live-credenti
 
 **Sprint:** S040
 **Milestone:** M018
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** solo
 **Blocked by:** T082
 **Branch:** feature/S040/T083-discount-routes-nav
+**PR:** https://github.com/eskobar95/mercflow/pull/129
 **PRD journey:** — (PRD-discount-system.md)
 **ADRs:** ADR-012
 
