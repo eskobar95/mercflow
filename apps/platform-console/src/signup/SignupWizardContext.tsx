@@ -13,7 +13,20 @@ import type {
   SignupStoreDetails,
 } from "@/lib/signupStoreOptions"
 
-export type SignupWizardStep = 1 | 2 | 3 | 4
+export type SignupWizardStep = 1 | 2 | 3 | 4 | 5 | 6 | 7
+
+export type SignupBillingDetails = {
+  clientSecret: string | null
+  customerId: string | null
+  subscriptionId: string | null
+  paymentIntentId: string | null
+}
+
+export type SignupProvisioningDetails = {
+  jobId: string | null
+  tenantUrl: string | null
+  adminUrl: string | null
+}
 
 export type SignupWizardState = {
   currentStep: SignupWizardStep
@@ -27,6 +40,8 @@ export type SignupWizardState = {
   domainType: SignupDomainType
   subdomain: string
   customDomain: string
+  billing: SignupBillingDetails
+  provisioning: SignupProvisioningDetails
 }
 
 type SignupWizardContextValue = {
@@ -35,7 +50,22 @@ type SignupWizardContextValue = {
   completeStep2: (clerkUserId: string) => void
   updateStoreDetails: (details: Partial<SignupStoreDetails>) => void
   updateDomainDetails: (details: Partial<SignupDomainDetails>) => void
+  setBillingDetails: (details: Partial<SignupBillingDetails>) => void
+  setProvisioningDetails: (details: Partial<SignupProvisioningDetails>) => void
   goToStep: (step: SignupWizardStep) => void
+}
+
+const DEFAULT_BILLING: SignupBillingDetails = {
+  clientSecret: null,
+  customerId: null,
+  subscriptionId: null,
+  paymentIntentId: null,
+}
+
+const DEFAULT_PROVISIONING: SignupProvisioningDetails = {
+  jobId: null,
+  tenantUrl: null,
+  adminUrl: null,
 }
 
 const DEFAULT_STATE: SignupWizardState = {
@@ -50,6 +80,8 @@ const DEFAULT_STATE: SignupWizardState = {
   domainType: "subdomain",
   subdomain: "",
   customDomain: "",
+  billing: DEFAULT_BILLING,
+  provisioning: DEFAULT_PROVISIONING,
 }
 
 const SignupWizardContext = createContext<SignupWizardContextValue | null>(null)
@@ -108,6 +140,29 @@ export function SignupWizardProvider({
     [],
   )
 
+  const setBillingDetails = useCallback((details: Partial<SignupBillingDetails>): void => {
+    setState((current) => ({
+      ...current,
+      billing: {
+        ...current.billing,
+        ...details,
+      },
+    }))
+  }, [])
+
+  const setProvisioningDetails = useCallback(
+    (details: Partial<SignupProvisioningDetails>): void => {
+      setState((current) => ({
+        ...current,
+        provisioning: {
+          ...current.provisioning,
+          ...details,
+        },
+      }))
+    },
+    [],
+  )
+
   const goToStep = useCallback((step: SignupWizardStep): void => {
     setState((current) => ({
       ...current,
@@ -122,6 +177,8 @@ export function SignupWizardProvider({
       completeStep2,
       updateStoreDetails,
       updateDomainDetails,
+      setBillingDetails,
+      setProvisioningDetails,
       goToStep,
     }),
     [
@@ -130,6 +187,8 @@ export function SignupWizardProvider({
       completeStep2,
       updateStoreDetails,
       updateDomainDetails,
+      setBillingDetails,
+      setProvisioningDetails,
       goToStep,
     ],
   )

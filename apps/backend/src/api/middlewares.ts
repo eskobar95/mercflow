@@ -123,6 +123,11 @@ export default defineMiddlewares({
     {
       method: ["POST"],
       bodyParser: { preserveRawBody: true },
+      matcher: "/webhooks/stripe-platform",
+    },
+    {
+      method: ["POST"],
+      bodyParser: { preserveRawBody: true },
       matcher: "/webhooks/stripe",
       middlewares: [mercflowPublicTenantMiddleware, tenantIsolationMiddleware],
     },

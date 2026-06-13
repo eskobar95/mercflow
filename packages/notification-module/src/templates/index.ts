@@ -19,8 +19,10 @@ export { LineItem } from "./line-item"
 export { OrderCancellationTemplate } from "./order-cancellation"
 export { OrderConfirmationTemplate } from "./order-confirmation"
 export { PlatformInviteTemplate } from "./platform-invite"
+export { PlatformWelcomeTemplate } from "./platform-welcome"
 export { ShippingUpdateTemplate } from "./shipping-update"
 export type { PlatformInviteTemplateProps } from "./platform-invite"
+export type { PlatformWelcomeTemplateProps } from "./platform-welcome"
 export type {
   CustomerWelcomeTemplateProps,
   EmailBrandingProps,
