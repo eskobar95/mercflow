@@ -688,7 +688,7 @@ flowchart LR
 
 | Sprint | Goal | Tasks | Status |
 |--------|------|-------|--------|
-| S042 | HITL: Stripe platform setup + platform_invite table + Console invite UI | T086 | planned |
+| S042 | HITL: Stripe platform setup + platform_invite table + Console invite UI | T086 | done |
 | S043 | Signup flow steps 1–4 + invite gate middleware | T087 | planned |
 | S044 | Signup step 5–7 + provision-tenant BullMQ job + billing webhook + welcome email | T088 | planned |
 

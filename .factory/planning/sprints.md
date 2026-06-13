@@ -21,6 +21,7 @@
 > Updated: 2026-06-11 (S029 T067 done — PR #107; local smoke + production checklist in platform-console README)
 > Updated: 2026-06-11 (`/run-sprint S030` — T068 PR #113, T069 PR #112; group A parallel done)
 
+> Updated: 2026-06-13 (S042 done — T086 PR #133)
 > Updated: 2026-06-11 (S025 done — T059 PR #108, T061 PR #109; `/run-sprint S025`)
 
 | ID | Milestone | Goal | Tasks | Status |
@@ -66,7 +67,7 @@
 | S039 | M017 | Settings → Payments UI: test/live tabs + mode toggle + status badge | T082 | done |
 | S040 | M018 | Backend discount routes + Zod + top-level nav item | T083 | done |
 | S041 | M018 | Discount list + Product/Order forms + Buy X Get Y + Free Shipping forms (parallel) | T084, T085 | done |
-| S042 | M019 | HITL: Stripe platform setup + platform_invite table + Console invite UI | T086 | planned |
+| S042 | M019 | HITL: Stripe platform setup + platform_invite table + Console invite UI | T086 | done |
 | S043 | M019 | Signup flow steps 1–4 + invite gate middleware | T087 | planned |
 | S044 | M019 | Signup step 5–7 + provision-tenant BullMQ job + billing webhook + welcome email | T088 | planned |
 
