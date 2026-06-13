@@ -88,12 +88,15 @@ that carry a tenant context (admin JWT routes + store routes with `Host` resolut
 
 | Service | Purpose | Where |
 |---------|---------|--------|
-| Stripe | Payments + subscription billing | `connector-module`, `subscription-module` |
+| Stripe (per-tenant) | Merchant payments + subscription charges | `payment-module` (M017+) |
+| Stripe (platform) | MercFlow platform billing (tenant subscription fee) | `apps/backend` platform routes (M019) |
 | Shipmondo | Shipping label + dimensions auto-fill | `connector-module`, `packaging-module` |
 | Amazon SES | Transactional email (per-tenant domain) | `notification-module` |
-| Google OAuth | Platform Console authentication | `apps/platform-console/` |
+| Clerk (store admin) | Merchant admin auth — org = store, JWT org_id → store_id | `apps/backend`, `packages/admin-ui` (ADR-011) |
+| Clerk (platform) | Operator auth for Platform Console | `apps/platform-console/` |
 | Hetzner Cloud API | System metrics for Platform Console | `apps/platform-console/` |
 | GTM | Analytics tag | `connector-module` |
+| Plunk | Transactional email connector (alternative to SES) | `connector-module` |
 | BullMQ / Redis | Platform-wide event bus + job queues | `apps/worker/`, all modules emitting events |
 
 Storefront consumes SEO/feed/metadata/subscriptions via backend public routes.
@@ -119,7 +122,8 @@ mercflow/
 │   ├── admin-ui/           # MercFlow admin (replaces Medusa dashboard)
 │   ├── design-tokens/      # CSS vars + Tailwind preset (no Medusa deps)
 │   ├── content-module/     # CMS fields, articles, pages, media (Batch 1+)
-│   ├── connector-module/   # Third-party credentials (Batch 1+)
+│   ├── connector-module/   # Third-party credentials: GTM, Plunk, Shipmondo (Batch 1+; Stripe removed M017)
+│   ├── payment-module/     # M017 — IPaymentProvider interface, StripePaymentProvider, credentials + mode per tenant
 │   ├── subscription-module/# Subscription records (Batch 1+)
 │   ├── seo-module/         # Redirects, sitemap, robots, slug utility (Batch 2)
 │   ├── feed-module/        # Google Shopping XML (Batch 2)
@@ -193,7 +197,8 @@ BDD: optional under `.factory/specs/` — link to PRD journeys when used.
 | Module | Milestone | Responsibility |
 |--------|-----------|----------------|
 | `notification-module` | **M012** | Transactional email on Amazon SES. Per-tenant domain identity (DKIM/SPF). React Email templates. BullMQ delivery queue with retry + DLQ. `EmailConfig` + `EmailDelivery` models. Admin: domain setup, branding variables, delivery history. |
-| `subscription-module` (full) | **M015** | Product subscriptions: `subscription`, `subscription_renewal_log`, `subscription_config` models. BullMQ `subscription-renewal` queue. Stripe manual PaymentIntent per renewal. Customer Club: `club_members` customer_group + Medusa price list. Club configuration in Settings. Per-product member price in Product → Pricing tab. |
+| `subscription-module` (full) | **M015** | Product subscriptions: `subscription`, `subscription_renewal_log`, `subscription_config` models. BullMQ `subscription-renewal` queue. Payment charges delegated to `payment-module`. Customer Club: `club_members` customer_group + Medusa price list. Club configuration in Settings. Per-product member price in Product → Pricing tab. |
+| `payment-module` | **M017** | `IPaymentProvider` interface. `StripePaymentProvider` (first implementation). `payment_provider_config` model (test/live keys + mode per tenant). Credential encryption (AES-256-GCM). Settings → Payments UI. Stripe credential migration from `connector-module`. |
 
 ---
 
@@ -214,6 +219,8 @@ BDD: optional under `.factory/specs/` — link to PRD journeys when used.
 | [ADR-011](ADR/ADR-011-authentication-strategy.md) | 2026-06-11 | Clerk (free) for Store Admin (org = store, JWT org_id → store_id) + Platform Console; Medusa native for customers | accepted |
 | PRD-api-hardening | 2026-06-08 | API hardening: pagination max, error shape, /v1/ store route versioning — see PRD-api-hardening.md | accepted |
 | [ADR-012](ADR/ADR-012-settings-navigation-model.md) | 2026-06-12 | Settings: persistent secondary sidebar + auto-redirect to /settings/general; merchant-mental-model grouping (Butik, Salg, Forsendelse, Kunder, Kommunikation, Team, Apps) | accepted |
+| [ADR-013](ADR/ADR-013-payment-module-provider-abstraction.md) | 2026-06-13 | Payment abstraction: new `payment-module` with `IPaymentProvider` interface; Stripe migrated from `connector-module`; test/live mode per tenant | accepted |
+| [ADR-014](ADR/ADR-014-tenant-onboarding-hybrid-invitation.md) | 2026-06-13 | Tenant onboarding: invitation-based self-service (invite from Platform Console, full signup + Stripe billing + auto-provisioning, public flag to remove gate) | accepted |
 
 ---
 
