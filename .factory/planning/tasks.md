@@ -4179,15 +4179,15 @@ Merchant gennemfører Step 5 (Stripe Payment Element for platform-abonnement), s
 
 ### Definition of done
 
-- [ ] Stripe Payment Element vises korrekt i step 5 (test mode)
-- [ ] `provision-tenant` job kører alle 8 trin idempotent — retry ved fejl genduplikerer ikke resources
-- [ ] Alle 8 trin logger til `platform_audit_log`
-- [ ] Provisioning-progress poller korrekt; trin vises med check-ikoner
-- [ ] `customer.subscription.created` webhook verificeres med HMAC og trigger korrekt
-- [ ] Welcome-email sendes inden for 60s af `tenant.provisioned`
-- [ ] `platform_invite.status` → redeemed + `tenant_id` sat
-- [ ] Platform Console Tenants-liste viser ny tenant som "Active" efter provisioning
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] Stripe Payment Element vises korrekt i step 5 (test mode)
+- [x] `provision-tenant` job kører alle 8 trin idempotent — retry ved fejl genduplikerer ikke resources
+- [x] Alle 8 trin logger til `platform_audit_log`
+- [x] Provisioning-progress poller korrekt; trin vises med check-ikoner
+- [x] `customer.subscription.created` webhook verificeres med HMAC og trigger korrekt
+- [x] Welcome-email sendes inden for 60s af `tenant.provisioned`
+- [x] `platform_invite.status` → redeemed + `tenant_id` sat
+- [x] Platform Console Tenants-liste viser ny tenant som "Active" efter provisioning
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 

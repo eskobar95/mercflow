@@ -2947,3 +2947,67 @@ T088
 
 ### Result
 - `development` @ `6cca710` — M019 S043 complete; T088 unblocked
+
+---
+
+## Task T088 — Signup step 5–7 + provision-tenant BullMQ job + platform billing webhook + welcome email — 2026-06-13
+
+**Sprint:** S044 | **Milestone:** M019 | **Status:** done
+**Branch:** `feature/S044/T088-signup-provisioning-billing`
+**PR:** https://github.com/eskobar95/mercflow/pull/135
+**Mode:** AFK
+**Parallel group:** solo
+
+### Outcome
+Signup steps 5–7 with Stripe billing, provision-tenant BullMQ job, platform webhook, and welcome email.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+none
+
+---
+
+## Sprint retro — S044 — 2026-06-13
+
+**Milestone:** M019
+**Duration:** session
+**Tasks:** 1/1 done, 0 blocked
+
+### What went well
+- T088 built cleanly on T087 wizard context and platform_invite foundation
+- Solo AFK task completed with CI green after 3 fix-ci iterations
+- M019 Tenant Onboarding milestone fully complete (S042–S044)
+
+### What failed or slowed down
+- CI required 3 iterations (worker export + lockfile sync fixes)
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T088 | done | Task T088 — 2026-06-13 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T088 | 1 | verify/review pass on first full cycle |
+
+### Harness notes
+- Parallel groups used: solo (1 subagent)
+- Subagent issues: none
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Document `development` as base branch (not `dev`) in harness preflight | `.cursor/skills/harness/harness/SKILL.md` |
+
+### Next actions
+- [ ] Human: review and merge PR #135 to `development`
+- [ ] `/milestone-review M019` — Tenant Onboarding complete
