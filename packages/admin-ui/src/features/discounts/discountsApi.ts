@@ -48,6 +48,8 @@ export type CreateDiscountPayload = {
   usage_limit?: number | null
   application_method?: CreateDiscountApplicationMethod
   minimum_purchase_amount?: number
+  shipping_country_codes?: string[]
+  shipping_exclude_above?: number | null
   starts_at?: string
   ends_at?: string | null
 }
