@@ -2775,3 +2775,18 @@ none
 - [ ] Human: review and merge PR #130 + PR #131 to `development`
 - [ ] Human: merge T084 before T085 if integrating sequentially (check for router overlap)
 
+---
+
+## Merge — S041 PRs #130 + #131 — 2026-06-13
+
+**Branch:** `development`
+**PRs merged:** #130 (T084) then #131 (T085)
+
+### Review notes
+- Both PRs CI green (lint, typecheck, tests, Playwright smoke, React Doctor, security)
+- Overlap in `router.tsx`, `discountsApi.ts`, `DiscountCreatePage.tsx` — merged T084 first as planned
+- Post-rebase fix: wired `BuyXGetYForm` + `FreeShippingForm` into `DiscountCreatePage` (T084 stub would otherwise block T085 create flow)
+
+### Result
+- `development` @ `6e14c00` — full M018 discount UI (4 types + list actions)
+
