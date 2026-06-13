@@ -3,15 +3,19 @@ import type {
   AdminDiscountRow,
   DiscountMethodLabel,
   DiscountStatus,
+  DiscountTypeApi,
   DiscountTypeLabel,
 } from "./types"
 
 type PromotionApplicationMethod = {
   target_type?: string | null
+  type?: string | null
+  value?: number | null
 }
 
 type PromotionCampaign = {
   name?: string | null
+  starts_at?: string | Date | null
   ends_at?: string | Date | null
 }
 
@@ -124,6 +128,31 @@ export function enrichPromotionToDiscountRow(
   }
 }
 
+export function resolveDiscountTypeApi(promotion: PromotionRecord): DiscountTypeApi {
+  if (promotion.type === "buyget") {
+    return "buyget"
+  }
+
+  const targetType = promotion.application_method?.target_type
+  if (targetType === "shipping_methods") {
+    return "free_shipping"
+  }
+  if (targetType === "order") {
+    return "order"
+  }
+  return "product"
+}
+
+function resolveValueType(
+  applicationMethod: PromotionApplicationMethod | null | undefined,
+): "percentage" | "fixed" | null {
+  const rawType = applicationMethod?.type
+  if (rawType === "percentage" || rawType === "fixed") {
+    return rawType
+  }
+  return null
+}
+
 export function enrichPromotionToDiscountDetail(
   storeId: string,
   promotion: PromotionRecord,
@@ -135,10 +164,17 @@ export function enrichPromotionToDiscountDetail(
       ? rawStatus
       : "draft"
 
+  const applicationMethod = promotion.application_method
+  const rawValue = applicationMethod?.value
+
   return {
     ...row,
     is_automatic: promotion.is_automatic === true,
     promotion_type: promotion.type === "buyget" ? "buyget" : "standard",
     raw_status: normalizedStatus,
+    discount_type: resolveDiscountTypeApi(promotion),
+    value_type: resolveValueType(applicationMethod),
+    value: typeof rawValue === "number" && Number.isFinite(rawValue) ? rawValue : null,
+    starts_at: toIsoString(promotion.campaign?.starts_at ?? null),
   }
 }

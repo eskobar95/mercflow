@@ -4,6 +4,8 @@ export type DiscountMethodLabel = "Code" | "Automatic"
 
 export type DiscountStatus = "draft" | "active" | "inactive" | "expired"
 
+export type DiscountTypeApi = "product" | "order" | "buyget" | "free_shipping"
+
 export type AdminDiscountRow = {
   id: string
   store_id: string
@@ -17,6 +19,16 @@ export type AdminDiscountRow = {
   expires_at: string | null
   created_at: string | null
   updated_at: string | null
+}
+
+export type AdminDiscountDetail = AdminDiscountRow & {
+  is_automatic: boolean
+  promotion_type: "standard" | "buyget"
+  raw_status: "draft" | "active" | "inactive"
+  discount_type: DiscountTypeApi
+  value_type: "percentage" | "fixed" | null
+  value: number | null
+  starts_at: string | null
 }
 
 export type AdminDiscountListResponse = {

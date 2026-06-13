@@ -34,6 +34,7 @@ export const createDiscountBodySchema = z
     status: z.enum(["draft", "active", "inactive"]).optional(),
     usage_limit: z.number().int().min(1).nullable().optional(),
     application_method: applicationMethodSchema.optional(),
+    minimum_purchase_amount: z.number().min(0).optional(),
     starts_at: z.string().datetime().optional(),
     ends_at: z.string().datetime().nullable().optional(),
   })
@@ -65,6 +66,9 @@ export const updateDiscountBodySchema = z
     status: z.enum(["draft", "active", "inactive"]).optional(),
     usage_limit: z.number().int().min(1).nullable().optional(),
     application_method: applicationMethodSchema.partial().optional(),
+    minimum_purchase_amount: z.number().min(0).optional(),
+    shipping_country_codes: z.array(z.string().length(2)).optional(),
+    shipping_exclude_above: z.number().min(0).nullable().optional(),
     starts_at: z.string().datetime().optional(),
     ends_at: z.string().datetime().nullable().optional(),
   })
