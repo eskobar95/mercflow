@@ -2931,3 +2931,19 @@ T088
 ### Next actions
 - [ ] Human: review and merge PR #134 to `development`
 - [ ] `/run-sprint S044` — T088 signup provisioning + billing
+
+---
+
+## Merge — S043 PR #134 — 2026-06-13
+
+**Branch:** `development`
+**PR merged:** #134 (T087 signup flow steps 1–4)
+
+### Review notes
+- All CI checks green (lint, typecheck, tests, Playwright smoke, Postgres+migrations, security, React Doctor)
+- Dual Clerk setup: operator (`OperatorClerkRoot`) vs merchant signup (`SignupShell` + store-admin key)
+- Invite gate validates via public `/platform/invites/validate`; `VITE_MERCFLOW_PUBLIC_SIGNUP=true` bypass documented
+- Wizard context preserves steps 1–4 state for T088; no secrets in code
+
+### Result
+- `development` @ `6cca710` — M019 S043 complete; T088 unblocked
