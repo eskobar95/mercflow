@@ -2836,3 +2836,11 @@ none
 - [ ] `/run-sprint S042` after HITL approval
 - [ ] `/run-sprint S043` blocked until T086 done
 
+---
+
+## HITL approved — T086 — 2026-06-13
+
+**Approver:** human
+**Note:** Stripe test platform keys supplied in session (not committed). `platform_invite` migration fields approved per task spec. `STRIPE_PLATFORM_PRICE_ID` still required before T088 billing step.
+**Next:** `/run-sprint S042`
+
