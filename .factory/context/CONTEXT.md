@@ -303,9 +303,66 @@
 
 ## Discount system (MercFlow-rebuilt)
 
-**Meaning:** MercFlow rebuilds the discount admin UI and extends the underlying discount logic on top of Medusa's promotion primitives. The goal is a discount system that makes sense to a non-technical merchant: clear rule builder, visible priority/stacking rules, coupon management.
+**Meaning:** A Shopify-inspired discount admin UI built on top of Medusa's `promotion` module API. MercFlow owns the UI and form logic — the underlying discount engine is Medusa's promotion data model (not rewritten). Goal: non-technical merchants can create and manage discounts without touching code.
 
-**Not:** Medusa's default promotion admin (described as "totally incomprehensible"). Not a from-scratch discount engine — Medusa's promotion data model is reused, the UI and rule-application logic is wrapped and extended.
+**Four discount types (v1):**
+1. **Product discount** — % or fixed amount on specific products or collections
+2. **Order discount** — % or fixed amount on the total order
+3. **Buy X, get Y** — buy N items/amount from product set, get M items at % / fixed / free
+4. **Free shipping** — waive shipping cost, optionally scoped to countries, optionally exclude above a price threshold
+
+**Two methods per type:** Coupon code (merchant-entered or random-generated) vs. Automatic (applies without code at checkout).
+
+**Conditions:** Min purchase amount, min item count, eligible customers (all / specific segments), usage limits (total + per customer), active date range, combination rules (stacks with product / order / shipping discounts).
+
+**Navigation:** Top-level nav item "Discounts" — same level as Orders and Products.
+
+**Not:** A new discount engine — Medusa's promotion API handles execution. Not Medusa's default promotion admin UI (that stays hidden). Not Buy X Get Y with complex nested rule trees (v1 is one-level).
+
+**Reference:** Shopify Discounts UI (screenshots, June 2026 align session).
+
+---
+
+## Payment module (MercFlow-owned)
+
+**Meaning:** `@mercflow/payment-module` — MercFlow's own payment abstraction layer. Owns payment provider credentials, defines `IPaymentProvider` interface, and handles checkout sessions, captures, refunds, and subscription charges. All payment operations go through this module — not directly through provider SDKs.
+
+**Architecture:**
+- `IPaymentProvider` interface: `createCheckoutSession`, `capturePayment`, `refundPayment`, `createSubscription`, `chargeSubscription`, `pauseSubscription`, `cancelSubscription`, `handleWebhook`
+- Stripe implements `IPaymentProvider` (first provider)
+- Future providers (MobilePay, Klarna) implement the same interface — no changes to subscription-module or admin UI when adding a provider
+- `subscription-module` calls `payment-module` for charge execution; scheduling and state machine remain in `subscription-module`
+
+**Credentials model:** `payment-module` owns its own credentials table (separate from `connector-module`). Per tenant, per provider:
+- `test_secret_key`, `test_publishable_key`, `test_webhook_secret`
+- `live_secret_key`, `live_publishable_key`, `live_webhook_secret`
+- `mode: "test" | "live"` — merchant-controlled toggle in Settings → Payments
+
+**Test/live mode:** Per-tenant toggle in Settings → Payments. Merchant can switch between test and live. BullMQ workers read mode per tenant when processing subscription jobs. Webhook endpoints validate against the correct secret per mode.
+
+**Stripe migration:** Stripe credentials currently in `connector-module` are migrated to `payment-module`. `connector-module` retains GTM, Plunk, Shipmondo, and future non-payment connectors.
+
+**Not:** Medusa's `@medusajs/payment-stripe` or `IPaymentProvider` pattern (MercFlow owns this independently of Medusa's provider system — Option B). Not a billing engine — Stripe handles money movement, `payment-module` handles provider abstraction and credential management.
+
+---
+
+## Tenant onboarding (invitation-based self-service)
+
+**Meaning:** MercFlow uses an invitation-based onboarding model. Full self-service infrastructure exists (signup flow, Stripe platform billing, auto-provisioning) but access is controlled via invite links issued from Platform Console. Not public.
+
+**Flow:**
+1. Operator opens Platform Console → "Invite tenant" → enters merchant email
+2. System generates a time-limited invite link and sends it to the merchant
+3. Merchant follows link → signup flow: account creation (Clerk), store details, domain input, Stripe billing setup
+4. Auto-provisioning triggers: Medusa Store, Sales Channel, Publishable API Key, Admin user created
+5. Traefik domain routing added automatically for merchant's custom domain
+6. Merchant lands in Store Admin — onboarded
+
+**Gate to public:** When ready, remove the invitation check — the underlying system is already full self-service. Platform Console becomes an override tool rather than a gate.
+
+**Platform billing:** Stripe subscription for the MercFlow platform fee. Merchant enters card during signup. Billing managed per tenant in Platform Console.
+
+**Not:** A public marketing site or signup page at this stage — invite-only. Not manual CLI provisioning (the script is replaced by automated provisioning triggered by the signup flow). Not per-tenant VMs or infra — shared backend, shared Neon DB.
 
 ---
 

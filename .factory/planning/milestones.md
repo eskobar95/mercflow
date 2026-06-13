@@ -9,6 +9,7 @@
 > Updated: 2026-06-10 (S018 merged to `development` — PRs #86 `6d89f1b`, #87 `b0ade41`; M009 ready for milestone review)
 > Updated: 2026-06-11 (M013, M014, M015 added — `/to-prd` session)
 > Updated: 2026-06-11 (M013–M015 sprints + tasks added — `/to-backlog`; ADR-011 Clerk auth)
+> Updated: 2026-06-13 (M017–M019 added — `/align` session: payment-module, discount system, tenant onboarding)
 
 ---
 
@@ -39,6 +40,9 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 | M014 | Platform Console | Internal operator tool at `console.mercflow.shop`; tenant provisioning; BullMQ queue monitor; cross-tenant email health; system metrics; audit log | M013 | done |
 | M015 | Subscription System | Product subscriptions with automatic renewal via BullMQ + Stripe; single-tier Customer Club with member pricing (per-product + fallback %) | M014 | done |
 | M016 | Settings Architecture | Persistent sidebar sub-nav for all `/settings/*`; merchant-mental-model groups (Store, Sales, Shipping, Customers, Communication, Team, Apps, Developers); `/settings` → auto-redirect; placeholder pages for upcoming sections | M013 | done |
+| M017 | Payment Module | MercFlow-owned `payment-module` with `IPaymentProvider` interface; Stripe implementation; test/live mode toggle; credential migration from `connector-module`; subscription billing delegation from `subscription-module` | M015, M016 | planned |
+| M018 | Discount System | Shopify-inspired discount admin UI on Medusa's promotion API; 4 types × 2 methods; top-level nav item | M016 | planned |
+| M019 | Tenant Onboarding | Invitation-based self-service onboarding from Platform Console; signup → Stripe billing → auto-provisioning flow | M014, M017 | planned |
 
 ---
 
@@ -558,6 +562,11 @@ flowchart LR
   M013 --> M014
   M013 --> M016
   M014 --> M015
+  M015 --> M017
+  M016 --> M017
+  M016 --> M018
+  M014 --> M019
+  M017 --> M019
 ```
 
 ---
@@ -591,3 +600,90 @@ flowchart LR
 - [ ] Admin: domain setup tab, branding tab with preview, delivery history with resend
 - [ ] `packages/notification-module/README.md` complete
 - [ ] `/milestone-review M012` grøn
+
+---
+
+## M017 — Payment Module
+
+**Outcome:** MercFlow owns its payment abstraction layer. Stripe credentials are migrated from `connector-module` to a new `payment-module` that implements an `IPaymentProvider` interface. Per-tenant test/live mode toggle works in Settings → Payments. `subscription-module` delegates charge execution to `payment-module`. Future payment providers (MobilePay, Klarna) can be added without touching `subscription-module` or admin UI.
+
+**PRD:** `.factory/context/PRD-payment-module.md` _(pending)_
+**Context:** `CONTEXT.md → Payment module (MercFlow-owned)`
+
+**Architecture:**
+- `packages/payment-module` — `IPaymentProvider` interface, credentials table per tenant+provider, mode toggle
+- `StripePaymentProvider` — first implementation; handles checkout sessions, captures, refunds, subscriptions
+- `apps/worker` — subscription renewal jobs call `payment-module.chargeSubscription()` instead of Stripe SDK directly
+- `connector-module` — Stripe connector removed; becomes GTM + Plunk + Shipmondo only
+
+**Sprints in this milestone:** _(pending `/to-prd` + `/to-backlog`)_
+
+**Dependencies:** M015 (subscription-module patterns), M016 (Settings navigation in place for Settings → Payments page)
+
+**Definition of done:**
+- [ ] `payment-module` has `IPaymentProvider` interface + Stripe implementation
+- [ ] Credentials table: `test_*` + `live_*` keys + `mode` per tenant
+- [ ] Test/live mode toggle in Settings → Payments works and persists
+- [ ] `subscription-module` calls `payment-module` — no direct Stripe SDK in subscription jobs
+- [ ] Stripe credentials migrated out of `connector-module`
+- [ ] Webhook validation uses mode-appropriate HMAC secret
+- [ ] `packages/payment-module/README.md` complete
+- [ ] `/milestone-review M017` grøn
+
+---
+
+## M018 — Discount System
+
+**Outcome:** Merchants can create and manage discounts through a clean, Shopify-inspired UI without understanding Medusa's promotion internals. Four types: product discount, order discount, buy X get Y, free shipping — each available as coupon-code or automatic. "Discounts" is a top-level nav item. Medusa's promotion API handles execution; MercFlow wraps and extends the admin surface.
+
+**PRD:** `.factory/context/PRD-discount-system.md` _(pending)_
+**Context:** `CONTEXT.md → Discount system (MercFlow-rebuilt)`
+**Reference:** Shopify Discounts UI (June 2026 align session)
+
+**Sprints in this milestone:** _(pending `/to-prd` + `/to-backlog`)_
+
+**Dependencies:** M016 (Settings + top-level nav architecture in place)
+
+**Definition of done:**
+- [ ] "Discounts" appears in sidebar as top-level nav item
+- [ ] Discount list view: name, type, method, status, usage, expiry
+- [ ] Create/edit flow for all 4 types × 2 methods
+- [ ] Conditions: min purchase, min quantity, customer eligibility, usage limits, date range, combination rules
+- [ ] Coupon code: manual entry + random-generate button
+- [ ] Automatic discounts apply without code at checkout
+- [ ] Free shipping scoped by country / excluded above price threshold
+- [ ] Medusa promotion API used for execution — no custom discount engine
+- [ ] `pnpm react-doctor:admin-ui` 0 issues
+- [ ] `/milestone-review M018` grøn
+
+---
+
+## M019 — Tenant Onboarding
+
+**Outcome:** New merchants can be onboarded via invitation link from Platform Console. The flow covers account creation (Clerk), store details, domain input, and Stripe billing setup. Provisioning is fully automated. Infrastructure is public-ready — access controlled by invitation gate until we open to public.
+
+**PRD:** `.factory/context/PRD-tenant-onboarding.md` _(pending)_
+**Context:** `CONTEXT.md → Tenant onboarding (invitation-based self-service)`
+
+**Flow:**
+1. Operator: Platform Console → "Invite tenant" → merchant email
+2. System: generates time-limited invite link, sends email
+3. Merchant: follows link → signup (Clerk) → store details → domain → Stripe billing
+4. System: auto-provisioning (Store, Sales Channel, Publishable Key, Admin user, Traefik domain routing)
+5. Merchant: lands in Store Admin — onboarded
+
+**Sprints in this milestone:** _(pending `/to-prd` + `/to-backlog`)_
+
+**Dependencies:** M014 (Platform Console + provisioning patterns), M017 (Stripe platform billing ready)
+
+**Definition of done:**
+- [ ] Platform Console "Invite tenant" form — email input → invite link generated + sent
+- [ ] Invite link time-limited (72h) and single-use
+- [ ] Signup flow: Clerk account → store details form → domain input → Stripe billing setup
+- [ ] Auto-provisioning: Store + Sales Channel + Publishable Key + Admin user created in < 2 min
+- [ ] Traefik routing for merchant domain added automatically
+- [ ] Stripe platform subscription created and activated on billing setup
+- [ ] Invitation gate: `/signup` returns 403 without valid invite token (hybrid control)
+- [ ] Platform Console shows invite status (sent / redeemed / expired)
+- [ ] `apps/platform-console` "Tenants" list updated live on provisioning
+- [ ] `/milestone-review M019` grøn
