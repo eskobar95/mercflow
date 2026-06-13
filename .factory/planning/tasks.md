@@ -4197,7 +4197,8 @@ Merchant gennemfører Step 5 (Stripe Payment Element for platform-abonnement), s
 
 **Sprint:** S045
 **Milestone:** M020
-**Status:** in-progress
+**Status:** done
+**PR:** https://github.com/eskobar95/mercflow/pull/136
 **Mode:** AFK
 **Parallel group:** solo
 **Blocked by:** none
