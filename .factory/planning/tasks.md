@@ -4131,13 +4131,13 @@ Operator kan i Platform Console åbne "Tenants" → "Invite merchant", indtaste 
 
 ### Definition of done
 
-- [ ] `/signup` uden token → 403/fejlside (med gaten aktiv)
-- [ ] `/signup?invite=[ugyldigt]` → fejlside "Invalid or expired invite"
-- [ ] Clerk SignUp-step fungerer (test mode Clerk)
-- [ ] Store-detaljer valideres client-side (navn required, valuta+land+timezone required)
-- [ ] Domain-input accepterer subdomain og custom domain
-- [ ] `MERCFLOW_PUBLIC_SIGNUP=true` disabler gate (lokal test bekræftet)
-- [ ] `pnpm typecheck` + `pnpm lint` grøn
+- [x] `/signup` uden token → 403/fejlside (med gaten aktiv)
+- [x] `/signup?invite=[ugyldigt]` → fejlside "Invalid or expired invite"
+- [x] Clerk SignUp-step fungerer (test mode Clerk)
+- [x] Store-detaljer valideres client-side (navn required, valuta+land+timezone required)
+- [x] Domain-input accepterer subdomain og custom domain
+- [x] `MERCFLOW_PUBLIC_SIGNUP=true` disabler gate (lokal test bekræftet)
+- [x] `pnpm typecheck` + `pnpm lint` grøn
 
 ---
 
