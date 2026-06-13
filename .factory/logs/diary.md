@@ -3011,3 +3011,20 @@ none
 ### Next actions
 - [ ] Human: review and merge PR #135 to `development`
 - [ ] `/milestone-review M019` — Tenant Onboarding complete
+
+---
+
+## Merge — S044 PR #135 — 2026-06-13
+
+**Branch:** `development`
+**PR merged:** #135 (T088 signup steps 5–7 + provision-tenant + billing webhook)
+
+### Review notes
+- All CI checks green (lint, typecheck, tests, Playwright smoke, Postgres+migrations, security, React Doctor)
+- Public signup routes bypass operator auth but validate invite token + Stripe payment intent on provision
+- Stripe platform webhook uses HMAC verification via `constructEvent`
+- Zod validation on billing setup and provision request bodies
+- Worker bootstrap colocated in backend; queue constants remain in apps/worker
+
+### Result
+- `development` @ `48a63a8` — M019 S044 complete; Tenant Onboarding milestone done
