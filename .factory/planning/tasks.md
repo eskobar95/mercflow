@@ -3983,11 +3983,12 @@ Merchant kan åbne Settings → Payments, indtaste Stripe test- og live-credenti
 
 **Sprint:** S041
 **Milestone:** M018
-**Status:** in-progress
+**Status:** in-review
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T083
 **Branch:** feature/S041/T084-discount-product-order-forms
+**PR:** https://github.com/eskobar95/mercflow/pull/130
 **PRD journey:** J001 (PRD-discount-system.md)
 **ADRs:** —
 
@@ -4022,11 +4023,12 @@ Merchant kan oprette og redigere Product discounts og Order discounts via en ren
 
 **Sprint:** S041
 **Milestone:** M018
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** T083
 **Branch:** feature/S041/T085-discount-bxgy-freeshipping
+**PR:** https://github.com/eskobar95/mercflow/pull/131
 **PRD journey:** J002, J003 (PRD-discount-system.md)
 **ADRs:** —
 
