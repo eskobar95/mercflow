@@ -78,6 +78,33 @@ export async function upsertPlatformTenantBilling(
   }
 }
 
+export type UpdatePlatformTenantBillingStatusInput = {
+  subscription_status: string
+  current_period_end?: Date | null
+}
+
+export async function updatePlatformTenantBillingStatus(
+  storeId: string,
+  input: UpdatePlatformTenantBillingStatusInput,
+): Promise<boolean> {
+  const client = await getPlatformDbPool().connect()
+
+  try {
+    const result = await client.query(
+      `UPDATE platform_tenant_billing
+       SET subscription_status = $2,
+           current_period_end = COALESCE($3, current_period_end),
+           updated_at = NOW()
+       WHERE store_id = $1`,
+      [storeId, input.subscription_status, input.current_period_end ?? null],
+    )
+
+    return (result.rowCount ?? 0) > 0
+  } finally {
+    client.release()
+  }
+}
+
 export async function getPlatformTenantBillingByStoreId(
   storeId: string,
 ): Promise<PlatformTenantBillingRow | null> {

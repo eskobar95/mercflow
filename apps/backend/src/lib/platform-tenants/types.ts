@@ -25,4 +25,8 @@ export type ProvisionCompletePayload = {
 export type SuspendTenantResult = {
   store_id: string
   revoked_api_key_ids: string[]
+  stripe_subscription_canceled: boolean
+  store_disabled: boolean
+  billing_status_updated: boolean
+  partial_errors: string[]
 }

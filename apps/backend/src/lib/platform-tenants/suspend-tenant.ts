@@ -1,14 +1,15 @@
 import { getPlatformDbPool, isPlatformDbConfigured } from "../platform-db/platform-db"
+import {
+  getPlatformTenantBillingByStoreId,
+  updatePlatformTenantBillingStatus,
+} from "../platform-db/platform-tenant-billing"
+import { getStripePlatformClient } from "../platform-billing/stripe-platform-client"
 import type { SuspendTenantResult } from "./types"
 
-export async function suspendPlatformTenant(
+async function disableStoreAndRevokeKeys(
   storeId: string,
   operatorEmail: string,
-): Promise<SuspendTenantResult> {
-  if (!isPlatformDbConfigured()) {
-    throw new Error("PLATFORM_DATABASE_URL is not configured")
-  }
-
+): Promise<{ revoked_api_key_ids: string[] }> {
   const pool = getPlatformDbPool()
   const client = await pool.connect()
 
@@ -60,14 +61,73 @@ export async function suspendPlatformTenant(
 
     await client.query("COMMIT")
 
-    return {
-      store_id: storeId,
-      revoked_api_key_ids: revokedApiKeyIds,
-    }
+    return { revoked_api_key_ids: revokedApiKeyIds }
   } catch (error) {
     await client.query("ROLLBACK")
     throw error
   } finally {
     client.release()
+  }
+}
+
+export async function suspendPlatformTenant(
+  storeId: string,
+  operatorEmail: string,
+): Promise<SuspendTenantResult> {
+  if (!isPlatformDbConfigured()) {
+    throw new Error("PLATFORM_DATABASE_URL is not configured")
+  }
+
+  const partialErrors: string[] = []
+  let stripeSubscriptionCanceled = false
+  let storeDisabled = false
+  let billingStatusUpdated = false
+  let revokedApiKeyIds: string[] = []
+
+  const billing = await getPlatformTenantBillingByStoreId(storeId)
+
+  if (billing?.stripe_subscription_id) {
+    const stripe = getStripePlatformClient()
+    await stripe.subscriptions.cancel(billing.stripe_subscription_id)
+    stripeSubscriptionCanceled = true
+  } else {
+    stripeSubscriptionCanceled = true
+  }
+
+  try {
+    const disableResult = await disableStoreAndRevokeKeys(storeId, operatorEmail)
+    storeDisabled = true
+    revokedApiKeyIds = disableResult.revoked_api_key_ids
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to disable store and revoke API keys"
+    console.error(`Suspend tenant partial failure for ${storeId}: ${message}`)
+    partialErrors.push(message)
+  }
+
+  try {
+    const updated = await updatePlatformTenantBillingStatus(storeId, {
+      subscription_status: "canceled",
+    })
+    billingStatusUpdated = updated
+    if (!updated) {
+      partialErrors.push(`No platform_tenant_billing row found for store ${storeId}`)
+    }
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Failed to update platform_tenant_billing subscription status"
+    console.error(`Suspend tenant partial failure for ${storeId}: ${message}`)
+    partialErrors.push(message)
+  }
+
+  return {
+    store_id: storeId,
+    revoked_api_key_ids: revokedApiKeyIds,
+    stripe_subscription_canceled: stripeSubscriptionCanceled,
+    store_disabled: storeDisabled,
+    billing_status_updated: billingStatusUpdated,
+    partial_errors: partialErrors,
   }
 }

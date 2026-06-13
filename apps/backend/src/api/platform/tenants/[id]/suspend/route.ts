@@ -62,15 +62,24 @@ export async function PUT(
       metadata: {
         reason: parsed.data.reason,
         revoked_api_key_ids: result.revoked_api_key_ids,
+        stripe_subscription_canceled: result.stripe_subscription_canceled,
+        store_disabled: result.store_disabled,
+        billing_status_updated: result.billing_status_updated,
+        partial_errors: result.partial_errors,
       },
     })
 
     res.status(200).json({
       tenant: {
         ...existing,
-        is_disabled: true,
+        is_disabled: result.store_disabled ? true : existing.is_disabled,
       },
       revoked_api_key_ids: result.revoked_api_key_ids,
+      stripe_subscription_canceled: result.stripe_subscription_canceled,
+      store_disabled: result.store_disabled,
+      billing_status_updated: result.billing_status_updated,
+      partial_success: result.partial_errors.length > 0,
+      errors: result.partial_errors,
     })
   } catch (error) {
     res.status(500).json({
