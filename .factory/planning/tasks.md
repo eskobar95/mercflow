@@ -4241,11 +4241,7 @@ Backend-fundamentet er på plads: `platform_tenant_billing` tabel eksisterer, `G
 **Parallel group:** A
 **Blocked by:** T089
 **Branch:** feature/S046/T090-webhook-suspend-audit
-<<<<<<< HEAD
 **PR:** https://github.com/eskobar95/mercflow/pull/137
-=======
-**PR:** #137
->>>>>>> 8c0e1b3 (chore(factory): mark T092 done with PR #138)
 **PRD journey:** J003, J004 (PRD-platform-billing-retrofit.md)
 **ADRs:** ADR-015
 
@@ -4282,11 +4278,7 @@ Webhooks fra Stripe platform-konto resolves korrekt via `store_id` (ikke `invite
 **Parallel group:** A
 **Blocked by:** T089
 **Branch:** feature/S046/T091-signup-plan-picker
-<<<<<<< HEAD
 **PR:** https://github.com/eskobar95/mercflow/pull/139
-=======
-**PR:** #139
->>>>>>> 8c0e1b3 (chore(factory): mark T092 done with PR #138)
 **PRD journey:** J001 (PRD-platform-billing-retrofit.md)
 **ADRs:** ADR-015
 

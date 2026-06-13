@@ -187,10 +187,11 @@
 
 ---
 
-## S045–S048 — M020 Platform Billing Retrofit
+## S045–S046 — M020 Platform Billing Retrofit
 
-- **S045:** T089 (billing foundation: `platform_tenant_billing` migration + `GET /platform/billing/plans` catalog API + provision step 7 metadata write + `POST /platform/signup/billing/setup` retrofit) — solo; prerequisite for alt i M020.
-- **S046 group A:** T090 (webhook retrofit + `store_id`-resolution + suspend action + audit log), T091 (Signup Step 5 plan picker UI), T092 (Platform Console Tenant billing panel) — alle tre parallelt; alle blokkeret af T089, indbyrdes uafhængige.
+- **S045:** T089 (billing foundation: `platform_tenant_billing` migration + `GET /platform/billing/plans` catalog API + provision step 7 metadata write + `POST /platform/signup/billing/setup` retrofit) — done (PR #136).
+- **S046 group A:** T090 (webhook retrofit + `store_id`-resolution + suspend action + audit log, PR #137), T091 (Signup Step 5 plan picker UI, PR #139), T092 (Platform Console Tenant billing panel, PR #138) — done; alle tre kørte parallelt efter T089.
+- **M020 Platform Billing Retrofit:** complete (S045–S046).
 
 ---
 

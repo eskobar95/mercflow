@@ -12,6 +12,7 @@
 > Updated: 2026-06-13 (M017–M019 added — `/align` session: payment-module, discount system, tenant onboarding)
 > Updated: 2026-06-13 (S037–S044 + T079–T088 added — `/to-backlog`)
 > Updated: 2026-06-13 (M012, M017–M019 marked done — all milestones M000–M019 complete)
+> Updated: 2026-06-14 (M020 marked done — S045–S046 complete; all milestones M000–M020 complete)
 
 ---
 
@@ -45,6 +46,7 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 | M017 | Payment Module | MercFlow-owned `payment-module` with `IPaymentProvider` interface; Stripe implementation; test/live mode toggle; credential migration from `connector-module`; subscription billing delegation from `subscription-module` | M015, M016 | done |
 | M018 | Discount System | Shopify-inspired discount admin UI on Medusa's promotion API; 4 types × 2 methods; top-level nav item | M016 | done |
 | M019 | Tenant Onboarding | Invitation-based self-service onboarding from Platform Console; signup → Stripe billing → auto-provisioning flow | M014, M017 | done |
+| M020 | Platform Billing Retrofit | Stripe catalog-driven plan picker; `platform_tenant_billing` index; `store_id`-keyed webhooks; suspend cancels subscription | M019 | done |
 
 ---
 
@@ -569,6 +571,7 @@ flowchart LR
   M016 --> M018
   M014 --> M019
   M017 --> M019
+  M019 --> M020
 ```
 
 ---
@@ -675,7 +678,7 @@ flowchart LR
 
 **Outcome:** New merchants can be onboarded via invitation link from Platform Console. The flow covers account creation (Clerk), store details, domain input, and Stripe billing setup. Provisioning is fully automated. Infrastructure is public-ready — access controlled by invitation gate until we open to public.
 
-**PRD:** `.factory/context/PRD-tenant-onboarding.md` _(pending)_
+**PRD:** `.factory/context/PRD-tenant-onboarding.md`
 **Context:** `CONTEXT.md → Tenant onboarding (invitation-based self-service)`
 
 **Flow:**
@@ -690,22 +693,22 @@ flowchart LR
 | Sprint | Goal | Tasks | Status |
 |--------|------|-------|--------|
 | S042 | HITL: Stripe platform setup + platform_invite table + Console invite UI | T086 | done |
-| S043 | Signup flow steps 1–4 + invite gate middleware | T087 | planned |
-| S044 | Signup step 5–7 + provision-tenant BullMQ job + billing webhook + welcome email | T088 | planned |
+| S043 | Signup flow steps 1–4 + invite gate middleware | T087 | done |
+| S044 | Signup step 5–7 + provision-tenant BullMQ job + billing webhook + welcome email | T088 | done |
 
 **Dependencies:** M014 (Platform Console + provisioning patterns), M017 (Stripe platform billing ready)
 
 **Definition of done:**
-- [ ] Platform Console "Invite tenant" form — email input → invite link generated + sent
-- [ ] Invite link time-limited (72h) and single-use
-- [ ] Signup flow: Clerk account → store details form → domain input → Stripe billing setup
-- [ ] Auto-provisioning: Store + Sales Channel + Publishable Key + Admin user created in < 2 min
-- [ ] Traefik routing for merchant domain added automatically
-- [ ] Stripe platform subscription created and activated on billing setup
-- [ ] Invitation gate: `/signup` returns 403 without valid invite token (hybrid control)
-- [ ] Platform Console shows invite status (sent / redeemed / expired)
-- [ ] `apps/platform-console` "Tenants" list updated live on provisioning
-- [ ] `/milestone-review M019` grøn
+- [x] Platform Console "Invite tenant" form — email input → invite link generated + sent
+- [x] Invite link time-limited (72h) and single-use
+- [x] Signup flow: Clerk account → store details form → domain input → Stripe billing setup
+- [x] Auto-provisioning: Store + Sales Channel + Publishable Key + Admin user created in < 2 min
+- [x] Traefik routing for merchant domain added automatically
+- [x] Stripe platform subscription created and activated on billing setup
+- [x] Invitation gate: `/signup` returns 403 without valid invite token (hybrid control)
+- [x] Platform Console shows invite status (sent / redeemed / expired)
+- [x] `apps/platform-console` "Tenants" list updated live on provisioning
+- [x] `/milestone-review M019` grøn
 
 ---
 
@@ -730,19 +733,17 @@ flowchart LR
 | Sprint | Goal | Tasks | Status |
 |--------|------|-------|--------|
 | S045 | Billing foundation: migration + catalog API + provision step 7 | T089 | done |
-| S046 | Webhook retrofit + suspend action + audit log | T090 | planned |
-| S047 | Signup Step 5 plan picker UI (parallel) | T091 | planned |
-| S048 | Platform Console Tenant billing panel (parallel) | T092 | planned |
+| S046 | Webhook retrofit + signup plan picker + console billing panel (parallel) | T090, T091, T092 | done |
 
 **Dependencies:** M019 (platform billing v1 in place to retrofit)
 
 **Definition of done:**
-- [ ] `STRIPE_PLATFORM_PRICE_ID` — 0 occurrences in codebase + env files
-- [ ] `platform_tenant_billing` row exists for every provisioned tenant with `subscription_status=active`
-- [ ] Webhook resolves by `store_id` on Stripe metadata (verified by integration test)
-- [ ] Suspend cancels Stripe subscription before function returns
-- [ ] Plan picker shows Standard/Pro × Monthly/Annual with Stripe-sourced amounts for the merchant's currency
-- [ ] Platform Console Tenant detail shows billing panel (plan, interval, currency, status, renews date, Stripe link)
-- [ ] `pnpm typecheck` green
-- [ ] ADR-015 enforcement check: `rg "STRIPE_PLATFORM_PRICE_ID" .` → 0 results
-- [ ] `/milestone-review M020` grøn
+- [x] `STRIPE_PLATFORM_PRICE_ID` — 0 occurrences in codebase + env files (kun docs/planning)
+- [x] `platform_tenant_billing` row exists for every provisioned tenant with `subscription_status=active`
+- [x] Webhook resolves by `store_id` on Stripe metadata (verified by integration test)
+- [x] Suspend cancels Stripe subscription before function returns
+- [x] Plan picker shows Standard/Pro × Monthly/Annual with Stripe-sourced amounts for the merchant's currency
+- [x] Platform Console Tenant detail shows billing panel (plan, interval, currency, status, renews date, Stripe link)
+- [x] `pnpm typecheck` green
+- [x] ADR-015 enforcement check: `rg "STRIPE_PLATFORM_PRICE_ID" .` → 0 results in code/env
+- [x] `/milestone-review M020` grøn
