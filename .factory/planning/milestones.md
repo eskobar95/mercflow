@@ -11,6 +11,7 @@
 > Updated: 2026-06-11 (M013–M015 sprints + tasks added — `/to-backlog`; ADR-011 Clerk auth)
 > Updated: 2026-06-13 (M017–M019 added — `/align` session: payment-module, discount system, tenant onboarding)
 > Updated: 2026-06-13 (S037–S044 + T079–T088 added — `/to-backlog`)
+> Updated: 2026-06-13 (M012, M017–M019 marked done — all milestones M000–M019 complete)
 
 ---
 
@@ -36,14 +37,14 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 | M009 | Product Form Polish | Unsaved state; progressive variant UX; SEO lazy preview; physical/digital toggle; product dimensions | M008 | done |
 | M010 | Fulfillment Intelligence | Merchant packaging catalog; bin-packing suggestion on order fulfillment; Shipmondo dimensions auto-fill | M009 | done |
 | M011 | Fulfillment Packaging Persistence | Confirmed packaging per fulfillment persisted and restored on order detail | M010 | done |
-| M012 | Notification System | Transactional email on Amazon SES; per-tenant domain identity; React Email templates; BullMQ delivery queue; admin domain + branding + delivery history | M011 | in progress (T060 remaining templates open) |
+| M012 | Notification System | Transactional email on Amazon SES; per-tenant domain identity; React Email templates; BullMQ delivery queue; admin domain + branding + delivery history | M011 | done |
 | M013 | Admin Shell & Navigation | Unified sidebar with grouped hierarchy; Settings sub-sections; breadcrumbs; collapse/drawer on narrow viewports | M012 | done |
 | M014 | Platform Console | Internal operator tool at `console.mercflow.shop`; tenant provisioning; BullMQ queue monitor; cross-tenant email health; system metrics; audit log | M013 | done |
 | M015 | Subscription System | Product subscriptions with automatic renewal via BullMQ + Stripe; single-tier Customer Club with member pricing (per-product + fallback %) | M014 | done |
 | M016 | Settings Architecture | Persistent sidebar sub-nav for all `/settings/*`; merchant-mental-model groups (Store, Sales, Shipping, Customers, Communication, Team, Apps, Developers); `/settings` → auto-redirect; placeholder pages for upcoming sections | M013 | done |
-| M017 | Payment Module | MercFlow-owned `payment-module` with `IPaymentProvider` interface; Stripe implementation; test/live mode toggle; credential migration from `connector-module`; subscription billing delegation from `subscription-module` | M015, M016 | planned |
-| M018 | Discount System | Shopify-inspired discount admin UI on Medusa's promotion API; 4 types × 2 methods; top-level nav item | M016 | planned |
-| M019 | Tenant Onboarding | Invitation-based self-service onboarding from Platform Console; signup → Stripe billing → auto-provisioning flow | M014, M017 | planned |
+| M017 | Payment Module | MercFlow-owned `payment-module` with `IPaymentProvider` interface; Stripe implementation; test/live mode toggle; credential migration from `connector-module`; subscription billing delegation from `subscription-module` | M015, M016 | done |
+| M018 | Discount System | Shopify-inspired discount admin UI on Medusa's promotion API; 4 types × 2 methods; top-level nav item | M016 | done |
+| M019 | Tenant Onboarding | Invitation-based self-service onboarding from Platform Console; signup → Stripe billing → auto-provisioning flow | M014, M017 | done |
 
 ---
 

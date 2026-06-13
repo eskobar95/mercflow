@@ -22,6 +22,7 @@
 > Updated: 2026-06-11 (`/run-sprint S030` — T068 PR #113, T069 PR #112; group A parallel done)
 
 > Updated: 2026-06-13 (S042 done — T086 PR #133)
+> Updated: 2026-06-13 (S026 done — T060/T062/T063; all sprints S001–S044 complete)
 > Updated: 2026-06-11 (S025 done — T059 PR #108, T061 PR #109; `/run-sprint S025`)
 
 | ID | Milestone | Goal | Tasks | Status |
@@ -51,7 +52,7 @@
 | S023 | M012 | notification-module foundation: models, migrations, RLS, service, admin API | T056 | done |
 | S024 | M012 | SES domain identity (HITL) + BullMQ worker infrastructure | T057, T058 | done |
 | S025 | M012 | order-confirmation template + order.placed subscriber + domain admin UI | T059, T061 | done |
-| S026 | M012 | Remaining templates + branding UI + delivery history UI | T060, T062, T063 | blocked (T060 todo) |
+| S026 | M012 | Remaining templates + branding UI + delivery history UI | T060, T062, T063 | done |
 | S027 | M013 | Clerk auth integration (Store Admin) + AppShell + sidebar (HITL) | T064 | done |
 | S028 | M013 | Settings landing page + route reorganisation + breadcrumbs | T065, T066 | done |
 | S029 | M014 | Platform Console scaffold + Clerk auth + /platform/ backend skeleton (HITL) | T067 | done |
