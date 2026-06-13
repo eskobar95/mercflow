@@ -2681,3 +2681,97 @@ T084, T085
 - [ ] `/run-sprint S041` (T084 + T085 discount UI forms — parallel group A)
 - [ ] Human: review and merge PR #129 to `development`
 
+---
+
+## Task T084 — Discount list + Product discount + Order discount create/edit forms — 2026-06-13
+
+**Sprint:** S041 | **Milestone:** M018 | **Status:** done
+**Branch:** `feature/S041/T084-discount-product-order-forms`
+**PR:** https://github.com/eskobar95/mercflow/pull/130
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Product/order discount create, edit, and detail pages with shared conditions section, code generator, and extended discounts API.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+none
+
+---
+
+## Task T085 — Buy X Get Y form + Free Shipping form + activate/deactivate/delete — 2026-06-13
+
+**Sprint:** S041 | **Milestone:** M018 | **Status:** done
+**Branch:** `feature/S041/T085-discount-bxgy-freeshipping`
+**PR:** https://github.com/eskobar95/mercflow/pull/131
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Buy X Get Y + Free Shipping create forms, list activate/deactivate, detail delete confirm, discountsApi extended.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+none
+
+---
+
+## Sprint retro — S041 — 2026-06-13
+
+**Milestone:** M018
+**Duration:** session
+**Tasks:** 2/2 done, 0 blocked
+
+### What went well
+- Parallel dispatch of T084 + T085 completed without merge conflicts between branches
+- Both tasks passed verify, review, and CI on first revision cycle (after one implement retry each)
+- T083 foundation (routes + list page) provided clean base for UI forms
+
+### What failed or slowed down
+- Harness preflight still references `dev` branch; MercFlow uses `development` (ADR-002)
+- PR #130 CI was still running main CI job at retro time; security + React Doctor already green
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T084 | done | Task T084 — 2026-06-13 |
+| T085 | done | Task T085 — 2026-06-13 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T084 | 1 | implement retry after verify/review feedback |
+| T085 | 1 | implement retry after verify/review feedback |
+
+### Harness notes
+- Parallel groups used: A (2 subagents)
+- Subagent issues: none
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Default integration branch to `development` in harness preflight + close | `.cursor/skills/harness/harness/SKILL.md` |
+| skill | Document parallel discount UI task file ownership to reduce router conflicts | `.factory/planning/tasks.md` |
+
+### Next actions
+- [ ] `/run-sprint S042` (T086 HITL — Stripe platform setup + platform_invite)
+- [ ] Human: review and merge PR #130 + PR #131 to `development`
+- [ ] Human: merge T084 before T085 if integrating sequentially (check for router overlap)
+
