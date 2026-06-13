@@ -2561,6 +2561,7 @@ none
 | skill | Preflight should accept `development` when `dev` missing | `.cursor/skills/harness/harness/SKILL.md` |
 
 ### Next actions
-- [ ] Merge PR #126 and #127 to `development`
+- [x] Merge PR #126 and #127 to `development` (2026-06-13 — #127 `e70595f`, #126 `3a12c39`)
+- [x] Merge PR #125 to `development` (2026-06-13 — `1b02cd0`, merged before S038 closeout)
 - [ ] `/run-sprint S039` (T082 — Settings → Payments UI)
 
