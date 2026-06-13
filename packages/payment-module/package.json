@@ -6,7 +6,9 @@
   "main": "src/modules/payment/index.ts",
   "exports": {
     ".": "./src/modules/payment/index.ts",
-    "./types": "./src/modules/payment/types.ts"
+    "./types": "./src/modules/payment/types.ts",
+    "./club-stripe-product-client": "./src/modules/payment/club-stripe-product-client.ts",
+    "./mercflow-stripe-webhook-route": "./src/integrations/mercflow-stripe-webhook-route.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

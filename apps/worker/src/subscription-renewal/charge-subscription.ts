@@ -1,9 +1,9 @@
+import type { IPaymentProvider } from "@mercflow/payment-module/types"
+
 import { buildRenewalIdempotencyKey } from "../lib/build-renewal-idempotency-key"
 import { isPaymentIntentSuccess } from "../lib/is-payment-intent-success"
 import type { ChargeSubscriptionJobPayload, HandleRenewalFailureJobPayload } from "../types"
 import type { SubscriptionEventEmitter } from "./emit-subscription-event"
-import type { StripePaymentIntentClient } from "./stripe-charge"
-import { createRenewalPaymentIntent } from "./stripe-charge"
 
 export type ChargeableSubscription = {
   id: string
@@ -34,7 +34,7 @@ export type ChargeSubscriptionDeps = {
     storeId: string,
     subscription: ChargeableSubscription
   ) => Promise<RenewalPaymentContext>
-  resolveStripeClient: (storeId: string) => Promise<StripePaymentIntentClient | null>
+  resolvePaymentProvider: (storeId: string) => Promise<IPaymentProvider | null>
   completeRenewalSuccess: (
     storeId: string,
     subscriptionId: string,
@@ -74,16 +74,16 @@ export async function chargeSubscription(
     payload.storeId,
     subscription
   )
-  const stripe = await deps.resolveStripeClient(payload.storeId)
+  const provider = await deps.resolvePaymentProvider(payload.storeId)
 
-  if (stripe === null) {
+  if (provider === null) {
     await deps.enqueueRenewalFailure({
       storeId: payload.storeId,
       subscriptionId: payload.subscriptionId,
       orderId: orderDraft.orderId,
       amount: orderDraft.amount,
       currency: orderDraft.currency,
-      errorMessage: "Stripe is not configured for this store",
+      errorMessage: "Payment provider is not configured for this store",
     })
     return
   }
@@ -93,14 +93,14 @@ export async function chargeSubscription(
     payload.nextRenewalAt
   )
 
-  let paymentIntent: { id: string; status: string }
+  let chargeResult: { paymentIntentId: string; status: string }
   try {
-    paymentIntent = await createRenewalPaymentIntent(stripe, {
+    chargeResult = await provider.chargeSubscription({
+      customerId: paymentContext.stripeCustomerId,
       amount: orderDraft.amount,
       currency: orderDraft.currency,
-      customerId: paymentContext.stripeCustomerId,
-      paymentMethodId: paymentContext.paymentMethodId,
       idempotencyKey,
+      paymentMethodId: paymentContext.paymentMethodId,
       metadata: {
         store_id: payload.storeId,
         subscription_id: payload.subscriptionId,
@@ -121,15 +121,15 @@ export async function chargeSubscription(
     return
   }
 
-  if (!isPaymentIntentSuccess(paymentIntent.status)) {
+  if (!isPaymentIntentSuccess(chargeResult.status)) {
     await deps.enqueueRenewalFailure({
       storeId: payload.storeId,
       subscriptionId: payload.subscriptionId,
       orderId: orderDraft.orderId,
       amount: orderDraft.amount,
       currency: orderDraft.currency,
-      stripePaymentIntentId: paymentIntent.id,
-      errorMessage: `PaymentIntent status: ${paymentIntent.status}`,
+      stripePaymentIntentId: chargeResult.paymentIntentId,
+      errorMessage: `PaymentIntent status: ${chargeResult.status}`,
     })
     return
   }
@@ -138,7 +138,7 @@ export async function chargeSubscription(
     order_id: orderDraft.orderId,
     amount: orderDraft.amount,
     currency: orderDraft.currency,
-    stripe_payment_intent_id: paymentIntent.id,
+    stripe_payment_intent_id: chargeResult.paymentIntentId,
     renewed_at: new Date(payload.nextRenewalAt),
   })
 
@@ -148,6 +148,6 @@ export async function chargeSubscription(
     orderId: orderDraft.orderId,
     amount: orderDraft.amount,
     currency: orderDraft.currency,
-    stripePaymentIntentId: paymentIntent.id,
+    stripePaymentIntentId: chargeResult.paymentIntentId,
   })
 }

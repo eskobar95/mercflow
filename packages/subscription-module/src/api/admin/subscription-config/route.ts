@@ -1,11 +1,7 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { MedusaError } from "@medusajs/utils"
-
-import { CONNECTOR_MODULE } from "@mercflow/connector-module"
-
-type StripeConnectorResolver = {
-  resolveStripeSecretKeyOrNull: () => Promise<string | null>
-}
+import { PAYMENT_MODULE } from "@mercflow/payment-module"
+import type { PaymentModuleService } from "@mercflow/payment-module"
 
 import { sendZodError } from "../../http/zod-error"
 import { upsertSubscriptionConfigBodySchema } from "../../../modules/subscription/http-schemas"
@@ -28,20 +24,22 @@ export const PUT = async (req: MedusaRequest, res: MedusaResponse): Promise<void
     sendZodError(body.error)
   }
 
-  const connectorService = req.scope.resolve(CONNECTOR_MODULE) as StripeConnectorResolver
-  const stripeSecretKey = await connectorService.resolveStripeSecretKeyOrNull()
+  const paymentService = req.scope.resolve(PAYMENT_MODULE) as unknown as PaymentModuleService
 
-  if (body.data.club_enabled && stripeSecretKey === null) {
-    throw new MedusaError(
-      MedusaError.Types.INVALID_DATA,
-      "Stripe is not configured — connect Stripe before enabling Customer Club"
-    )
+  if (body.data.club_enabled) {
+    const providerConfig = await paymentService.getProviderConfig(storeId)
+    if (providerConfig === null) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "Stripe is not configured — connect Stripe before enabling Customer Club"
+      )
+    }
   }
 
   const service = req.scope.resolve(SUBSCRIPTION_MODULE) as SubscriptionModuleService
   const config = await service.upsertSubscriptionConfig(storeId, body.data, {
     scope: req.scope,
-    stripeSecretKey: stripeSecretKey ?? "",
+    paymentService,
   })
 
   res.status(200).json({ subscription_config: subscriptionConfigToAdminJson(config) })

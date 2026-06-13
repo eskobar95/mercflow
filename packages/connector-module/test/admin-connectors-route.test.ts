@@ -18,20 +18,12 @@ describe("GET /admin/connectors route", (): void => {
         status: "not_configured",
       },
       {
-        type: "stripe",
+        type: "plunk",
         active: true,
         lastTestedAt: "2026-05-01T10:00:00.000Z",
         configured: true,
         connectionHealth: "ok",
         status: "connected",
-      },
-      {
-        type: "plunk",
-        active: false,
-        lastTestedAt: null,
-        configured: false,
-        connectionHealth: null,
-        status: "not_configured",
       },
       {
         type: "gtm",
@@ -63,28 +55,6 @@ describe("GET /admin/connectors route", (): void => {
 
     expect(status).toHaveBeenCalledWith(200)
     expect(json).toHaveBeenCalledWith({ connectors: sampleRows })
-
-    const payloadCall = json.mock.calls[0]?.[0]
-    expect(payloadCall).toBeDefined()
-    const payload = payloadCall as { connectors: unknown }
-    expect(Array.isArray(payload.connectors)).toBe(true)
-
-    const connectors = payload.connectors as ConnectorAdminListItem[]
-    expect(connectors).toHaveLength(4)
-
-    const first = connectors[0]
-    expect(first).toBeDefined()
-    expect(first).toMatchObject({
-      type: expect.any(String),
-      active: expect.any(Boolean),
-      configured: expect.any(Boolean),
-      status: expect.any(String),
-    })
-    expect(
-      first!.lastTestedAt === null || typeof first!.lastTestedAt === "string"
-    ).toBe(true)
-    expect(["shipmondo", "stripe", "plunk", "gtm"]).toContain(first!.type)
-
     expect(listConnectorsForAdmin).toHaveBeenCalledTimes(1)
   })
 })

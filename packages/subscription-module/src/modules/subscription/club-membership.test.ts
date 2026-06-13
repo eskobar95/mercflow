@@ -1,6 +1,6 @@
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import { describe, expect, it, vi } from "vitest"
-import type Stripe from "stripe"
+import type { WebhookEvent } from "@mercflow/payment-module/types"
 
 import {
   handleClubMembershipStripeEvent,
@@ -74,7 +74,8 @@ function makeScope(overrides: {
 describe("handleClubMembershipStripeEvent", (): void => {
   it("adds customer to club_members on subscription.created", async (): Promise<void> => {
     const scope = makeScope({ groupCustomers: [] })
-    const event = {
+    const event: WebhookEvent = {
+      id: "evt_1",
       type: "customer.subscription.created",
       data: {
         object: {
@@ -82,7 +83,7 @@ describe("handleClubMembershipStripeEvent", (): void => {
           items: { data: [{ price: { product: "prod_club" } }] },
         },
       },
-    } as Stripe.Event
+    }
 
     const result = await handleClubMembershipStripeEvent(scope as never, event, CONFIG)
 
@@ -94,7 +95,8 @@ describe("handleClubMembershipStripeEvent", (): void => {
     const scope = makeScope({
       groupCustomers: [{ customer_id: "cus_medusa", customer_group_id: "cgrp_club" }],
     })
-    const event = {
+    const event: WebhookEvent = {
+      id: "evt_1",
       type: "customer.subscription.created",
       data: {
         object: {
@@ -102,7 +104,7 @@ describe("handleClubMembershipStripeEvent", (): void => {
           items: { data: [{ price: { product: "prod_club" } }] },
         },
       },
-    } as Stripe.Event
+    }
 
     const result = await handleClubMembershipStripeEvent(scope as never, event, CONFIG)
 
@@ -113,7 +115,8 @@ describe("handleClubMembershipStripeEvent", (): void => {
     const scope = makeScope({
       groupCustomers: [{ customer_id: "cus_medusa", customer_group_id: "cgrp_club" }],
     })
-    const event = {
+    const event: WebhookEvent = {
+      id: "evt_2",
       type: "customer.subscription.deleted",
       data: {
         object: {
@@ -121,7 +124,7 @@ describe("handleClubMembershipStripeEvent", (): void => {
           items: { data: [{ price: { product: "prod_club" } }] },
         },
       },
-    } as Stripe.Event
+    }
 
     const result = await handleClubMembershipStripeEvent(scope as never, event, CONFIG)
 
@@ -131,7 +134,8 @@ describe("handleClubMembershipStripeEvent", (): void => {
 
   it("ignores subscriptions for non-club Stripe products", async (): Promise<void> => {
     const scope = makeScope({})
-    const event = {
+    const event: WebhookEvent = {
+      id: "evt_3",
       type: "customer.subscription.created",
       data: {
         object: {
@@ -139,7 +143,7 @@ describe("handleClubMembershipStripeEvent", (): void => {
           items: { data: [{ price: { product: "prod_other" } }] },
         },
       },
-    } as Stripe.Event
+    }
 
     const result = await handleClubMembershipStripeEvent(scope as never, event, CONFIG)
 

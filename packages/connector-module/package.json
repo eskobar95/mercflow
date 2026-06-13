@@ -18,13 +18,6 @@
     "./mercflow-shipmondo-fulfillment-provider": "./src/fulfillment-providers/shipmondo-checkout/index.ts",
     "./mercflow-shipmondo-fulfillment-option-data": "./src/fulfillment-providers/shipmondo-checkout/option-data.ts",
     "./mercflow-shipmondo-runtime-credentials": "./src/integrations/resolve-shipmondo-credentials.ts",
-    "./mercflow-stripe-admin-detail-route": "./src/integrations/mercflow-stripe-admin-detail-route.ts",
-    "./mercflow-stripe-admin-test-route": "./src/integrations/mercflow-stripe-admin-test-route.ts",
-    "./mercflow-stripe-admin-sync-products-route": "./src/integrations/mercflow-stripe-admin-sync-products-route.ts",
-    "./mercflow-stripe-admin-payments-route": "./src/integrations/mercflow-stripe-admin-payments-route.ts",
-    "./mercflow-store-stripe-vat-route": "./src/integrations/mercflow-store-stripe-vat-route.ts",
-    "./resolve-stripe-secret-key": "./src/integrations/resolve-stripe-secret-key.ts",
-    "./resolve-stripe-webhook-secret": "./src/integrations/resolve-stripe-webhook-secret.ts",
     "./mercflow-connector-plunk-admin-api": "./src/integrations/mercflow-connector-plunk-admin-api.ts",
     "./mercflow-connector-plunk-test-admin-api": "./src/integrations/mercflow-connector-plunk-test-admin-api.ts",
     "./mercflow-plunk-runtime-credentials": "./src/integrations/resolve-plunk-secret-api-key.ts",
@@ -44,7 +37,6 @@
     "@medusajs/types": "workspace:*",
     "@medusajs/utils": "workspace:*",
     "@mercflow/packaging-module": "workspace:*",
-    "stripe": "15.12.0",
     "zod": "^4.0.0"
   },
   "devDependencies": {

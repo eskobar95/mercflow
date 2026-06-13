@@ -57,6 +57,7 @@ export type ChargeSubscriptionParams = {
   amount: number
   currency: string
   idempotencyKey: string
+  paymentMethodId?: string
   metadata?: Record<string, string>
 }
 
