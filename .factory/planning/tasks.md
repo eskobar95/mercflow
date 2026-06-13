@@ -3989,7 +3989,6 @@ Merchant kan åbne Settings → Payments, indtaste Stripe test- og live-credenti
 **Blocked by:** T083
 **Branch:** feature/S041/T084-discount-product-order-forms
 **PR:** https://github.com/eskobar95/mercflow/pull/130
-**PR:** https://github.com/eskobar95/mercflow/pull/130
 **PRD journey:** J001 (PRD-discount-system.md)
 **ADRs:** —
 
