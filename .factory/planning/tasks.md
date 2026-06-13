@@ -3792,11 +3792,12 @@ Merchant kan åbne Settings → Apps → Overview og se alle 4 connectors (Strip
 
 **Sprint:** S037
 **Milestone:** M017
-**Status:** todo
+**Status:** done
 **Mode:** AFK
 **Parallel group:** solo
 **Blocked by:** T078
 **Branch:** feature/S037/T079-payment-module-foundation
+**PR:** https://github.com/eskobar95/mercflow/pull/125
 **PRD journey:** J003 (PRD-payment-module.md)
 **ADRs:** ADR-013
 
@@ -3817,15 +3818,15 @@ Merchant kan åbne Settings → Apps → Overview og se alle 4 connectors (Strip
 
 ### Definition of done
 
-- [ ] `payment_provider_config` migration kører rent; `down()` implementeret
-- [ ] `IPaymentProvider` interface kompilerer i strict TypeScript
-- [ ] `StripePaymentProvider` implementerer alle interface-metoder (kan kaste `NotImplemented` for v2-metoder)
-- [ ] Secret keys encrypted på `INSERT`, decrypted på `getActiveProvider()` — aldrig returneret til API callers
-- [ ] `MERCFLOW_ENCRYPTION_KEY` kræves ved startup (validation i module init)
-- [ ] `PaymentModuleService` registreret + resolverbar fra Medusa container
-- [ ] RLS policy på `payment_provider_config` — ingen cross-tenant rows
-- [ ] `pnpm typecheck` + `pnpm test` grøn
-- [ ] `README.md` komplet
+- [x] `payment_provider_config` migration kører rent; `down()` implementeret
+- [x] `IPaymentProvider` interface kompilerer i strict TypeScript
+- [x] `StripePaymentProvider` implementerer alle interface-metoder (kan kaste `NotImplemented` for v2-metoder)
+- [x] Secret keys encrypted på `INSERT`, decrypted på `getActiveProvider()` — aldrig returneret til API callers
+- [x] `MERCFLOW_ENCRYPTION_KEY` kræves ved startup (validation i module init)
+- [x] `PaymentModuleService` registreret + resolverbar fra Medusa container
+- [x] RLS policy på `payment_provider_config` — ingen cross-tenant rows
+- [x] `pnpm typecheck` + `pnpm test` grøn
+- [x] `README.md` komplet
 
 ---
 

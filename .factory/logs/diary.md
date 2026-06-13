@@ -2406,3 +2406,68 @@ Added shipping-update, order-cancellation, and customer-welcome React Email temp
 
 ### Unblocked
 none
+
+---
+
+## Task T079 — payment-module foundation — 2026-06-13
+
+**Sprint:** S037 | **Milestone:** M017 | **Status:** done
+**Branch:** `feature/S037/T079-payment-module-foundation`
+**PR:** https://github.com/eskobar95/mercflow/pull/125
+**Mode:** AFK
+**Parallel group:** solo
+
+### Outcome
+Added @mercflow/payment-module with IPaymentProvider, StripePaymentProvider, encrypted payment_provider_config, RLS migration, and backend registration.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+T080, T081
+
+---
+
+## Sprint retro — S037 — 2026-06-13
+
+**Milestone:** M017
+**Duration:** session
+**Tasks:** 1/1 done, 0 blocked
+
+### What went well
+- Solo task T079 shipped with zero revision cycles; CI green after 3 fix-ci iterations (pnpm audit pre-existing on development)
+- payment-module foundation unblocks S038 credential migration + subscription delegation
+
+### What failed or slowed down
+- CI required 3 iterations (likely lint/typecheck fixes on first push)
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T079 | done | Task T079 — 2026-06-13 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T079 | 0 | — |
+
+### Harness notes
+- Solo group: 1 subagent dispatched
+- Base branch: `development`
+- Unblocks S038 (T080, T081 parallel)
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Document `MERCFLOW_ENCRYPTION_KEY` vs `MERCFLOW_CONNECTOR_ENCRYPTION_KEY` in implement skill for payment tasks | `.cursor/skills/harness/implement/SKILL.md` |
+
+### Next actions
+- [ ] Merge PR #125 to `development`
+- [ ] `/run-sprint S038` (T080 + T081 parallel)
+

@@ -28,6 +28,7 @@
     "@mercflow/metafield-module": "workspace:*",
     "@mercflow/packaging-module": "workspace:*",
     "@mercflow/notification-module": "workspace:*",
+    "@mercflow/payment-module": "workspace:*",
     "@mercflow/seo-module": "workspace:*",
     "@mercflow/subscription-module": "workspace:*",
     "@mercflow/worker": "workspace:*",

@@ -54,6 +54,9 @@ export default defineConfig({
       resolve: "@mercflow/subscription-module",
     },
     {
+      resolve: "@mercflow/payment-module",
+    },
+    {
       resolve: "@mercflow/feed-module",
     },
     {
