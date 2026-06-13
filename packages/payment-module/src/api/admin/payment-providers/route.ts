@@ -36,7 +36,7 @@ function toAdminDto(
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void> => {
   const storeId = resolveMercflowStoreId(req)
-  const service = req.scope.resolve(PAYMENT_MODULE) as PaymentModuleService
+  const service = req.scope.resolve(PAYMENT_MODULE) as unknown as PaymentModuleService
   const snapshot = await service.getAdminProviderSnapshot(storeId)
   res.status(200).json({ payment_provider: toAdminDto(storeId, snapshot) })
 }
@@ -48,7 +48,7 @@ export const PUT = async (req: MedusaRequest, res: MedusaResponse): Promise<void
     sendZodError(body.error)
   }
 
-  const service = req.scope.resolve(PAYMENT_MODULE) as PaymentModuleService
+  const service = req.scope.resolve(PAYMENT_MODULE) as unknown as PaymentModuleService
   await service.upsertProviderConfig(storeId, body.data)
   const snapshot = await service.getAdminProviderSnapshot(storeId, body.data.provider)
   res.status(200).json({ payment_provider: toAdminDto(storeId, snapshot) })

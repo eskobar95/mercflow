@@ -41,7 +41,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse): Promise<voi
     sendZodError(body.error)
   }
 
-  const service = req.scope.resolve(PAYMENT_MODULE) as PaymentModuleService
+  const service = req.scope.resolve(PAYMENT_MODULE) as unknown as PaymentModuleService
   await service.setMode(storeId, body.data.mode, body.data.provider)
   const snapshot = await service.getAdminProviderSnapshot(storeId, body.data.provider)
   res.status(200).json({ payment_provider: toAdminDto(storeId, snapshot) })
