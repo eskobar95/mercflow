@@ -32,12 +32,11 @@ MercFlow Medusa v2 module that persists **per-store connector credentials** (`co
 |----------------|-----------|-----------------------------------------------------------------------|
 | `id`           | text (pk) | Medusa `model.id()`                                                   |
 | `connector_id` | text    | Matches `connector_config.id`                                         |
-| `event`        | text      | Machine-readable keys such as `connection_test_pass` or `stripe.sync_products.complete` |
+| `event`        | text      | Machine-readable keys such as `connection_test_pass` or `shipmondo.probe.ok` |
 | `payload_json` | jsonb     | Safe metadata (`summary`, optional `http_status`, `success`)       |
 
 ## Runtime helpers
 
-- `@mercflow/connector-module/resolve-stripe-secret-key` — `mercflowResolveStripeSecretKey(scope)` returns the Stripe secret key from encrypted config when configured, falling back to `STRIPE_API_KEY` / `STRIPE_SECRET_KEY`.
 - `@mercflow/connector-module/mercflow-plunk-runtime-credentials` — `resolvePlunkSecretApiKeyWithFallback(container)` returns `sk_*` from encrypted config when configured, falling back to `PLUNK_SECRET_KEY` for deployments that still rely on env injection.
 - `@mercflow/connector-module/mercflow-shipmondo-runtime-credentials` — `resolveShipmondoCredentialsWithFallback(container)` returns `{ api_user, api_key, shipping_module_key? }` from encrypted `connector_config` when persisted, falling back to `SHIPMONDO_API_USER` / `SHIPMONDO_API_KEY` when the connector row is absent or not yet migrated.
 
@@ -74,24 +73,6 @@ MercFlow Medusa v2 module that persists **per-store connector credentials** (`co
 
 > **Operational note:** External apps that previously depended on raw `SHIPMONDO_API_*` secrets should migrate to these APIs so deployments no longer mandate environment variables once credentials are persisted.
 
-### Stripe (`type = stripe`)
-
-Admin responses use `{ data: ... }`. Credentials are stored encrypted (`credentials_encrypted`); admin reads return **masked** previews built from `*_last4` fields.
-
-| Method  | Path                                    | Purpose |
-|---------|-----------------------------------------|---------|
-| `GET`   | `/admin/connectors/stripe`              | Stripe connector summary: `configured`, `active`, `vat_mode`, masked keys, `last_tested_at` |
-| `PATCH` | `/admin/connectors/stripe`             | Upsert Stripe keys / webhook secret and optional `vat_mode` / `active` (Zod-validated body) |
-| `POST`  | `/admin/connectors/stripe/test`         | Validates configured secret key against Stripe API |
-| `POST`  | `/admin/connectors/stripe/sync-products` | Full MercFlow catalogue → Stripe Products + Prices (idempotent via `metadata.medusa_product_id` / `medusa_variant_id`). Created prices set Stripe `tax_behavior` from persisted `vat_mode` (`inclusive` / `exclusive`). Product-only price rows use metadata `medusa_variant_id = __product_only`. |
-| `GET`   | `/admin/connectors/stripe/payments`     | Recent Stripe PaymentIntents overview (`limit` query, default `20`, max `50`) |
-
-Storefront VAT hint (unauthenticated catalog/checkout integrations may read this; enforce your own auth if needed):
-
-| Method | Path                                  | Purpose |
-|--------|---------------------------------------|---------|
-| `GET`  | `/v1/store/connectors/stripe/vat`        | `{ data: { vat_mode } }` where `vat_mode` is `inclusive` or `exclusive` |
-
 ### Plunk (`type = plunk`)
 
 | Method | Path                               | Purpose |
@@ -107,28 +88,6 @@ Storefront VAT hint (unauthenticated catalog/checkout integrations may read this
 | `GET`  | `/admin/connectors/gtm`   | `{ container_id: string \| null }` for the storefront GTM container identifier |
 | `PATCH`| `/admin/connectors/gtm`   | Persists `{ container_id }` (`GTM-` + alphanumeric; case-insensitive input, stored uppercase) encrypted like other connectors |
 | `GET`  | `/v1/store/connectors/gtm`   | Public read of `{ container_id }` for storefront injection (`AUTHENTICATE=false` route flag) |
-
-### Runtime Stripe secret resolution (payment providers)
-
-MercFlow backends can resolve the Stripe secret key **without** relying on `STRIPE_SECRET_KEY` / `STRIPE_API_KEY` when the Stripe connector row is configured:
-
-```ts
-import { mercflowResolveStripeSecretKey } from "@mercflow/connector-module/resolve-stripe-secret-key"
-
-const secret = await mercflowResolveStripeSecretKey(scope)
-```
-
-Resolution order matches `ConnectorModuleService.resolveStripeSecretKeyOrNull()` — env keys first when set, otherwise decrypted connector credentials.
-
-Webhook signing secret resolution (`resolveStripeWebhookSecretOrNull()` / `mercflowResolveStripeWebhookSecret`):
-
-```ts
-import { mercflowResolveStripeWebhookSecret } from "@mercflow/connector-module/resolve-stripe-webhook-secret"
-
-const webhookSecret = await mercflowResolveStripeWebhookSecret(scope)
-```
-
-Env fallback: `STRIPE_WEBHOOK_SECRET` when set; otherwise decrypted `webhook_secret` from the Stripe connector row.
 
 Backend apps should set `MERCFLOW_CONNECTOR_ENCRYPTION_KEY` in `.env` (see `apps/backend/.env.example`).
 

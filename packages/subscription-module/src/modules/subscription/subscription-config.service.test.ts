@@ -74,7 +74,10 @@ describe("SubscriptionModuleService subscription config", (): void => {
     const row = await svc.upsertSubscriptionConfig(
       STORE_A,
       { club_enabled: false },
-      { scope: { resolve: vi.fn() } as never, stripeSecretKey: "sk_test" }
+      {
+        scope: { resolve: vi.fn() } as never,
+        paymentService: { withClubStripeProductClient: vi.fn() } as never,
+      }
     )
 
     expect(row.club_enabled).toBe(false)

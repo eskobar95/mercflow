@@ -3,9 +3,10 @@ import { Modules } from "@medusajs/framework/utils"
 import type { Job, WorkerOptions } from "bullmq"
 import { Queue, Worker } from "bullmq"
 import IORedis from "ioredis"
-import StripeSdk from "stripe"
+import { PAYMENT_MODULE } from "@mercflow/payment-module"
+import type { PaymentModuleService } from "@mercflow/payment-module"
+import type { IPaymentProvider } from "@mercflow/payment-module/types"
 
-import { CONNECTOR_MODULE } from "@mercflow/connector-module"
 import { SUBSCRIPTION_MODULE } from "@mercflow/subscription-module"
 
 import {
@@ -29,7 +30,6 @@ import {
   processDueRenewals,
 } from "./process-due-renewals"
 import { resolveRenewalPaymentContext } from "./resolve-renewal-payment-context"
-import type { StripePaymentIntentClient } from "./stripe-charge"
 
 type SubscriptionRenewalService = {
   listDueRenewals: (storeId: string, asOf?: Date) => Promise<
@@ -77,10 +77,6 @@ type SubscriptionRenewalService = {
   ) => Promise<unknown>
 }
 
-type ConnectorStripeService = {
-  resolveStripeSecretKeyOrNull: () => Promise<string | null>
-}
-
 type StoreModule = {
   listStores: (
     filters?: Record<string, unknown>,
@@ -119,9 +115,19 @@ export async function startSubscriptionRenewalWorker(
   const subscriptionService = container.resolve(
     SUBSCRIPTION_MODULE
   ) as unknown as SubscriptionRenewalService
-  const connectorService = container.resolve(
-    CONNECTOR_MODULE
-  ) as unknown as ConnectorStripeService
+  const paymentService = container.resolve(
+    PAYMENT_MODULE
+  ) as unknown as PaymentModuleService
+
+  const resolvePaymentProvider = async (
+    storeId: string
+  ): Promise<IPaymentProvider | null> => {
+    try {
+      return await paymentService.getActiveProvider(storeId)
+    } catch {
+      return null
+    }
+  }
 
   const queue = new Queue(SUBSCRIPTION_RENEWAL_QUEUE_NAME, { connection })
   const deadLetterQueue = new Queue(SUBSCRIPTION_RENEWAL_DLQ_NAME, {
@@ -161,13 +167,7 @@ export async function startSubscriptionRenewalWorker(
             createRenewalOrderDraft(container, storeId, subscription),
           resolveRenewalPaymentContext: (_storeId, subscription) =>
             resolveRenewalPaymentContext(container, subscription),
-          resolveStripeClient: async () => {
-            const secret = await connectorService.resolveStripeSecretKeyOrNull()
-            if (secret === null) {
-              return null
-            }
-            return new StripeSdk(secret) as unknown as StripePaymentIntentClient
-          },
+          resolvePaymentProvider,
           completeRenewalSuccess: (storeId, subscriptionId, input) =>
             subscriptionService.completeRenewalSuccess(
               storeId,

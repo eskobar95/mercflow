@@ -2,13 +2,17 @@ import { createCustomerGroupsWorkflow } from "@medusajs/medusa/core-flows"
 import type { MedusaContainer } from "@medusajs/framework/types"
 import type { ICustomerModuleService } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys, MedusaError, Modules } from "@medusajs/framework/utils"
-import type Stripe from "stripe"
+import type { WebhookEvent } from "@mercflow/payment-module/types"
 
 import {
   CLUB_MEMBERS_GROUP_METADATA_KEY,
   CLUB_MEMBERS_GROUP_METADATA_VALUE,
   CLUB_MEMBERS_GROUP_NAME,
 } from "./club-constants"
+import {
+  parseClubMembershipWebhookEvent,
+  type ClubMembershipSubscriptionPayload,
+} from "./club-webhook-types"
 import type { SubscriptionConfigRecord } from "./types"
 
 type CustomerGroupWire = {
@@ -121,7 +125,7 @@ export async function resolveMedusaCustomerIdFromStripeCustomer(
   return null
 }
 
-function resolveStripeProductId(subscription: Stripe.Subscription): string | null {
+function resolveStripeProductId(subscription: ClubMembershipSubscriptionPayload): string | null {
   const item = subscription.items.data[0]
   if (item === undefined) {
     return null
@@ -138,7 +142,7 @@ function resolveStripeProductId(subscription: Stripe.Subscription): string | nul
 }
 
 function isClubMembershipSubscription(
-  subscription: Stripe.Subscription,
+  subscription: ClubMembershipSubscriptionPayload,
   config: SubscriptionConfigRecord
 ): boolean {
   const clubProductId = config.club_stripe_product_id
@@ -200,7 +204,7 @@ export type ClubMembershipWebhookResult = {
 
 export async function handleClubMembershipStripeEvent(
   scope: MedusaContainer,
-  event: Stripe.Event,
+  event: WebhookEvent,
   config: SubscriptionConfigRecord
 ): Promise<ClubMembershipWebhookResult> {
   if (!config.club_enabled) {
@@ -211,7 +215,8 @@ export async function handleClubMembershipStripeEvent(
     return { handled: false, action: "ignored" }
   }
 
-  const subscription = event.data.object as Stripe.Subscription
+  const parsed = parseClubMembershipWebhookEvent(event)
+  const subscription = parsed.data.object
   if (!isClubMembershipSubscription(subscription, config)) {
     return { handled: true, action: "ignored" }
   }

@@ -13,6 +13,7 @@ if (!isDbCliCommand && process.env.VITEST !== "true") {
 }
 
 export { PAYMENT_MODULE }
+export type { default as PaymentModuleService } from "./service"
 
 export default Module(PAYMENT_MODULE, {
   service: PaymentModuleService,

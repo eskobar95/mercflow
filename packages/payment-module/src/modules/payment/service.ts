@@ -1,7 +1,9 @@
 import type { Context } from "@medusajs/types"
 import { MedusaService } from "@medusajs/framework/utils"
 import { MedusaError } from "@medusajs/utils"
+import Stripe from "stripe"
 
+import type { ClubStripeProductClient } from "./club-stripe-product-client"
 import EncryptionService from "./encryption-service"
 import { MercflowPaymentProviderConfig } from "./models"
 import { StripePaymentProvider, verifyStripeWebhookSignature } from "./providers/stripe-payment-provider"
@@ -368,6 +370,63 @@ class PaymentModuleService extends MedusaService({
 
       const resolvedMode = isPaymentMode(String(updated.mode)) ? (updated.mode as PaymentMode) : mode
       return toPublicConfigRecord(updated, resolvePublishableKey(updated, resolvedMode))
+    })
+  }
+
+  async getWebhookSecret(
+    storeId: string,
+    provider: PaymentProviderKey = "stripe"
+  ): Promise<string> {
+    return this.withTenant(storeId, async (context) => {
+      const rows = await this.listMercflowPaymentProviderConfigs(
+        { store_id: storeId, provider },
+        { take: 1 },
+        context
+      )
+      const row = rows[0]
+      if (row === undefined) {
+        throw new MedusaError(
+          MedusaError.Types.NOT_FOUND,
+          `Payment provider config not found for store ${storeId}`
+        )
+      }
+
+      const record = row as Record<string, unknown>
+      const mode = typeof record.mode === "string" ? record.mode : "test"
+      const resolvedMode = isPaymentMode(mode) ? mode : "test"
+      const secret = resolveWebhookSecret(record, resolvedMode)
+      if (secret === null || secret.trim() === "") {
+        throw new MedusaError(
+          MedusaError.Types.INVALID_DATA,
+          `Stripe webhook secret is not configured for ${resolvedMode} mode`
+        )
+      }
+      return secret
+    })
+  }
+
+  async withClubStripeProductClient<T>(
+    storeId: string,
+    fn: (client: ClubStripeProductClient) => Promise<T>,
+    provider: PaymentProviderKey = "stripe"
+  ): Promise<T> {
+    return this.withTenant(storeId, async (context) => {
+      const rows = await this.listMercflowPaymentProviderConfigs(
+        { store_id: storeId, provider },
+        { take: 1 },
+        context
+      )
+      const row = rows[0]
+      if (row === undefined) {
+        throw new MedusaError(
+          MedusaError.Types.NOT_FOUND,
+          `Payment provider config not found for store ${storeId}`
+        )
+      }
+
+      const credentials = this.resolveCredentialsFromRow(row as Record<string, unknown>)
+      const stripe = new Stripe(credentials.secretKey)
+      return fn(stripe as unknown as ClubStripeProductClient)
     })
   }
 

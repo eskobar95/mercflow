@@ -170,6 +170,27 @@ describe("PaymentModuleService", (): void => {
     expect(updated.mode).toBe("live")
     expect(updated.publishable_key).toBe("pk_live")
   })
+
+  it("getWebhookSecret returns mode-scoped webhook secret", async (): Promise<void> => {
+    const listMercflowPaymentProviderConfigs = vi.fn().mockResolvedValue([
+      {
+        id: "ppc_1",
+        store_id: STORE_A,
+        provider: "stripe",
+        mode: "test",
+        test_webhook_secret: "whsec_test",
+        live_webhook_secret: "whsec_live",
+        test_secret_key: "enc",
+        created_at: new Date(),
+        updated_at: new Date(),
+        deleted_at: null,
+      },
+    ])
+    const svc = createServiceStub({ listMercflowPaymentProviderConfigs })
+
+    const secret = await svc.getWebhookSecret(STORE_A)
+    expect(secret).toBe("whsec_test")
+  })
 })
 
 describe("resolvePublishableKey", (): void => {
