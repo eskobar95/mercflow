@@ -65,3 +65,11 @@ export function settingsSubscriptionsBreadcrumbs(): BreadcrumbItem[] {
 export function settingsPaymentsBreadcrumbs(): BreadcrumbItem[] {
   return settingsBreadcrumb("Payments")
 }
+
+export function settingsShippingProfilesBreadcrumbs(): BreadcrumbItem[] {
+  return [settingsRoot(), { label: "Shipping", href: SETTINGS_PATHS.shipping }, { label: "Profiles" }]
+}
+
+export function settingsShippingCarriersBreadcrumbs(): BreadcrumbItem[] {
+  return [settingsRoot(), { label: "Shipping", href: SETTINGS_PATHS.shipping }, { label: "Carriers" }]
+}

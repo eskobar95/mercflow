@@ -1,9 +1,11 @@
 import { type ReactNode } from "react"
 
+import { AppConnectorStatusBadge } from "@/components/connectors/AppConnectorStatusBadge"
 import { ShipmondoShippingRulesSection } from "@/components/connectors/shipmondo/ShipmondoShippingRulesSection"
 import { PageHeader } from "@/components/ui/PageHeader"
+import { resolveShipmondoConnectorAppStatus } from "@/features/connectors/resolveShipmondoConnectorAppStatus"
 
-import { settingsConnectorBreadcrumbs } from "@/config/settingsBreadcrumbs"
+import { settingsShippingCarriersBreadcrumbs } from "@/config/settingsBreadcrumbs"
 
 import { ShipmondoCredentialsCard } from "./ShipmondoCredentialsCard"
 import { ShipmondoRecentTestsCard } from "./ShipmondoRecentTestsCard"
@@ -30,20 +32,24 @@ export function ShipmondoConnectorWorkspace(): ReactNode {
   } = useShipmondoConnectorWorkspace()
 
   const { draftActive, draftApiUser, draftApiKey, draftModuleKey, formError, testBanner } = ui
+  const connectorStatus = resolveShipmondoConnectorAppStatus(snapshot)
 
   return (
     <div className="p-6">
       <PageHeader
-        title="Shipmondo"
-        description="Store your Shipmondo API credentials securely, control whether rates are exposed to shoppers, and probe the live API without leaving the admin."
-        breadcrumbs={settingsConnectorBreadcrumbs("Shipmondo")}
+        title="Carriers"
+        description="Connect Shipmondo for label generation, sender details, and checkout shipping rates."
+        breadcrumbs={settingsShippingCarriersBreadcrumbs()}
         actions={
-          <p className="text-sm text-content-secondary">
-            Last probe:{" "}
-            <span className="font-medium text-content-primary">
-              {snapshot ? formatLastTestedAt(snapshot.lastTestedAt) : "—"}
-            </span>
-          </p>
+          <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
+            <AppConnectorStatusBadge status={connectorStatus} />
+            <p className="text-sm text-content-secondary">
+              Last probe:{" "}
+              <span className="font-medium text-content-primary">
+                {snapshot ? formatLastTestedAt(snapshot.lastTestedAt) : "—"}
+              </span>
+            </p>
+          </div>
         }
       />
 
