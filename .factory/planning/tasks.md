@@ -4384,11 +4384,12 @@ Tenant detail-siden i Platform Console har en "Billing" sektion der viser plan, 
 
 **Sprint:** S047
 **Milestone:** M021
-**Status:** planned
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S047/T094-platform-route-validation
+**PR:** #141
 **PRD journey:** J001 (PRD-security-hardening.md)
 **ADRs:** ADR-016
 
