@@ -4464,11 +4464,11 @@ Four high-risk endpoint groups have rate limiting. The `innerHTML` assignment in
 
 ### Definition of done
 
-- [ ] Rate limiting middleware registered on all 4 endpoint groups
-- [ ] 11th POST to `/platform/invites` within 15 min window → 429
-- [ ] `previewPlainText.ts` — no raw `innerHTML = untrustedInput` assignment
-- [ ] `pnpm typecheck` + `pnpm lint` green
-- [ ] Existing tests green
+- [x] Rate limiting middleware registered on all 4 endpoint groups
+- [x] 11th POST to `/platform/invites` within 15 min window → 429
+- [x] `previewPlainText.ts` — no raw `innerHTML = untrustedInput` assignment
+- [x] `pnpm typecheck` + `pnpm lint` green
+- [x] Existing tests green
 
 ---
 

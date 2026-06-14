@@ -3,17 +3,8 @@ export function previewPlainText(markup: string | null | undefined, maxChars: nu
   if (typeof markup !== "string" || markup.trim() === "") {
     return null
   }
-  if (typeof document !== "undefined") {
-    try {
-      const doc = document.implementation.createHTMLDocument("")
-      const div = doc.createElement("div")
-      div.innerHTML = markup
-      const text = div.textContent ?? ""
-      return clipLength(text.trim(), maxChars)
-    } catch {
-      // fall through
-    }
-  }
+  // Call sites pass Medusa plain-text descriptions for preview only — no HTML rendering.
+  // Regex strip avoids innerHTML/DOM parsing on untrusted strings (XSS-safe plain-text extraction).
   const stripped = markup.replace(/<[^>]+>/gu, "").replace(/\s+/gu, " ").trim()
   return clipLength(stripped, maxChars)
 }
