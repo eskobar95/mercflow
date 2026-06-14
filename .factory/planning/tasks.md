@@ -4342,5 +4342,300 @@ Tenant detail-siden i Platform Console har en "Billing" sektion der viser plan, 
 
 ---
 
-<!-- Total: T001–T092 | AFK: 75 | HITL: 13 (T003, T008, T013, T023, T027, T033, T036, T053, T057, T064, T067, T074, T086) | Cancelled: T029 -->
-<!-- Sprints: S001–S048 | Milestones: M000–M020 -->
+---
+
+## T093 — CVE remediation + audit gate
+
+**Sprint:** S047
+**Milestone:** M021
+**Status:** planned
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none
+**Branch:** feature/S047/T093-cve-remediation
+**PRD journey:** J003 (PRD-security-hardening.md)
+**ADRs:** ADR-016
+
+### Slice objective
+
+`pnpm audit --audit-level=high` returns exit code 0. The 1 high-severity esbuild CVE is resolved by bumping `tsx`. Moderate production-path CVEs are addressed where a safe upgrade exists. Dev-only moderate CVEs are documented in `infra/SECURITY.md` as accepted risk. `gitleaks detect --source . --staged` returns 0 secrets.
+
+### Layers in scope
+
+- **Dependencies:** Bump `tsx` to `>=4.23.0` in root `package.json` devDependencies → resolves esbuild `<0.28.1` high CVE. Verify `pnpm audit` clears the high entry.
+- **Dependencies:** Bump `react-router` to latest patch in `apps/platform-console` and `packages/admin-ui`. Bump `vite` to latest `5.x` in both apps. Check if `qs`, `ajv`, `ws` can be resolved by bumping `@medusajs/deps` in the fork — if yes, bump; if not, add `pnpm.overrides` with a comment referencing the CVE.
+- **Dependencies:** For each remaining moderate CVE: classify as production-path or dev-only. Production-path without a safe upgrade path → document in `infra/SECURITY.md` with version, CVE ID, rationale, and expiry sprint. Dev-only → document same.
+- **Infra:** Create `infra/SECURITY.md` — lists accepted-risk CVEs (package, CVE ID, severity, why dev-only/unexploitable, target sprint to revisit).
+- **Secrets:** Run `gitleaks detect --source . --staged` locally + add it to CI pipeline as a required check (or document how to run it manually pre-PR if CI config is out of scope for this task).
+- **Tests:** All existing tests pass (`pnpm test`). `pnpm typecheck` green.
+
+### Definition of done
+
+- [ ] `pnpm audit --audit-level=high` → exit code 0
+- [ ] `tsx` bumped to `>=4.23.0` in root devDependencies
+- [ ] `react-router` + `vite` bumped to latest patch in affected apps
+- [ ] `infra/SECURITY.md` created with documented accepted-risk CVEs
+- [ ] `gitleaks detect --source . --staged` → 0 secrets
+- [ ] `pnpm test` + `pnpm typecheck` green
+
+---
+
+## T094 — `validateBody` helper + Zod on all 20 platform routes
+
+**Sprint:** S047
+**Milestone:** M021
+**Status:** planned
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none
+**Branch:** feature/S047/T094-platform-route-validation
+**PRD journey:** J001 (PRD-security-hardening.md)
+**ADRs:** ADR-016
+
+### Slice objective
+
+Every POST/PATCH `/platform/*` route validates its request body with Zod before any business logic runs. URL params on parameterised routes are validated. A malformed payload receives a clean 400 with a human-readable message — no stack traces, no silent pass-through.
+
+### Layers in scope
+
+- **Shared helper:** Create `apps/backend/src/lib/platform-http/validateBody.ts`:
+  ```ts
+  export function validateBody<T>(schema: ZodSchema<T>, req: MedusaRequest): T {
+    const result = schema.safeParse(req.body)
+    if (!result.success) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        result.error.issues.map(i => i.message).join(', ')
+      )
+    }
+    return result.data
+  }
+  ```
+- **Routes — apply Zod schemas (all 20 platform routes):**
+  - `POST /platform/invites` → `{ email: z.string().email() }`
+  - `POST /platform/invites/:id/revoke` → params `{ id: z.string().min(1) }`
+  - `POST /platform/signup/billing/setup` → `{ price_id: z.string().startsWith('price_'), invite_token: z.string().min(1) }`
+  - `POST /platform/provision` → `{ payment_intent_id: z.string().min(1), invite_token: z.string().min(1) }`
+  - `POST /platform/admin/tenants/:store_id/suspend` → params `{ store_id: z.string().min(1) }`
+  - All remaining POST/PATCH routes: define body schema based on handler logic; read-only GET routes: validate required URL params inline
+- **Tests:** Unit test for `validateBody` — valid payload passes, invalid rejects with 400-mappable error. Integration test for at least 2 routes: one with valid body, one with invalid.
+
+### Definition of done
+
+- [ ] `validateBody` helper exists in `apps/backend/src/lib/platform-http/validateBody.ts`
+- [ ] All 20 platform routes call `validateBody` or inline param validation as first line
+- [ ] `POST /platform/invites` with `{ email: "not-an-email" }` → 400
+- [ ] `POST /platform/signup/billing/setup` with missing `price_id` → 400
+- [ ] Unit test for `validateBody` passes
+- [ ] `rg "validateBody" apps/backend/src/api/platform/` → matches all POST/PATCH route files
+- [ ] `pnpm typecheck` + `pnpm lint` green
+
+---
+
+## T095 — Rate limiting + `innerHTML` fix + SECURITY.md
+
+**Sprint:** S047
+**Milestone:** M021
+**Status:** planned
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none
+**Branch:** feature/S047/T095-rate-limiting-xss-fix
+**PRD journey:** J002 (PRD-security-hardening.md)
+**ADRs:** ADR-016
+
+### Slice objective
+
+Four high-risk endpoint groups have rate limiting. The `innerHTML` assignment in `previewPlainText.ts` is replaced with a safe alternative. Combined with T093 and T094, M021 is gate-complete.
+
+### Layers in scope
+
+- **Rate limiting:** Install `express-rate-limit` (or equivalent Medusa-compatible middleware). Create `apps/backend/src/lib/platform-http/rateLimits.ts` with four limit configs:
+  - `POST /platform/invites` — 10 req / 15 min per IP
+  - `POST /platform/signup/*` — 20 req / 15 min per IP
+  - `GET /platform/billing/plans` — 30 req / 1 min per IP
+  - `POST /platform/provision` — 5 req / 15 min per IP
+  - Storage: in-memory (MemoryStore). Document in `infra/SECURITY.md`: upgrade to Redis-backed when horizontal scaling is introduced.
+- **XSS fix:** Inspect call sites of `previewPlainText.ts`. If the function is extracting plain text from HTML markup → replace `div.innerHTML = markup` with `div.textContent = markup`. If HTML rendering is genuinely needed → wrap with `DOMPurify.sanitize(markup)` before assignment (add `dompurify` dep). Add a comment explaining the choice.
+- **Tests:** Verify rate limit config is applied (middleware registered). Verify `previewPlainText` returns expected output after fix. All existing tests green.
+
+### Definition of done
+
+- [ ] Rate limiting middleware registered on all 4 endpoint groups
+- [ ] 11th POST to `/platform/invites` within 15 min window → 429
+- [ ] `previewPlainText.ts` — no raw `innerHTML = untrustedInput` assignment
+- [ ] `pnpm typecheck` + `pnpm lint` green
+- [ ] Existing tests green
+
+---
+
+## T096 — General + Taxes settings pages
+
+**Sprint:** S048
+**Milestone:** M022
+**Status:** planned
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none
+**Branch:** feature/S048/T096-settings-general-taxes
+**PRD journey:** J001 (PRD-settings-completion.md)
+**ADRs:** ADR-012
+
+### Slice objective
+
+A new tenant can fill in their store name, contact email, default currency, timezone, and address — and configure tax regions with rates — entirely from Settings, without operator help.
+
+### Layers in scope
+
+- **UI — `/settings/general`:** Form with fields: store name, contact email, default currency (select from `GET /admin/currencies`), timezone (IANA select), address (street, city, postal code, country). Save button calls `POST /admin/stores/:id`. Unsaved changes → browser prompt on navigate-away (reuse `useUnsavedChanges` pattern from product form if it exists).
+- **UI — `/settings/taxes`:** List view of tax regions (country, name, rate %). Empty state: "No tax regions — add one to charge the right tax at checkout." Add/edit slide-over or inline form: country select, name, rate % input. Delete with confirm dialog. Wraps `GET/POST/DELETE /admin/tax-regions` and `GET/POST/DELETE /admin/tax-rates`.
+- **Both pages:** Loading skeletons, error banners, success toasts, token-backed styling. `pnpm react-doctor:admin-ui` 0 issues.
+
+### Definition of done
+
+- [ ] `/settings/general` saves store name + email + currency + timezone + address via Medusa API
+- [ ] `/settings/taxes` lists, adds, edits, deletes tax regions
+- [ ] Both pages have loading, error, and empty states
+- [ ] Unsaved changes prompt on General page
+- [ ] `pnpm react-doctor:admin-ui` 0 new issues
+- [ ] `pnpm typecheck` + `pnpm lint` green
+
+---
+
+## T097 — Shipping zones + Carriers settings pages
+
+**Sprint:** S048
+**Milestone:** M022
+**Status:** planned
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none
+**Branch:** feature/S048/T097-settings-shipping-carriers
+**PRD journey:** J001 (PRD-settings-completion.md)
+**ADRs:** ADR-012
+
+### Slice objective
+
+A merchant can configure shipping profiles and flat/weight-based rates, and connect Shipmondo with their API key — all from Settings without touching code or contacting support.
+
+### Layers in scope
+
+- **UI — `/settings/shipping`:** Tab layout: Profiles | Rates. Profiles tab: list of shipping profiles (name, type); add/edit/delete. Rates tab: shipping options scoped to selected profile (name, carrier label, price, conditions); add/edit/delete. Wraps Medusa `GET/POST/DELETE /admin/shipping-profiles` and `/admin/shipping-options`.
+- **UI — `/settings/shipping/carriers`:** Shipmondo connector config card. Fields: API key (masked password input), sender name, sender address. "Test connection" button → calls a validation endpoint (`POST /admin/connectors/shipmondo/test` or equivalent in connector-module). Status badge: Connected / Error / Not configured. Wraps `connector-module` Shipmondo config routes.
+- **Both pages:** Loading, error, empty states. Token-backed styling. `pnpm react-doctor:admin-ui` 0 issues.
+
+### Definition of done
+
+- [ ] `/settings/shipping` manages profiles and rates via Medusa API
+- [ ] `/settings/shipping/carriers` saves Shipmondo credentials + "Test connection" works
+- [ ] Shipmondo status badge reflects actual connection state
+- [ ] Both pages have loading, error, and empty states
+- [ ] `pnpm react-doctor:admin-ui` 0 new issues
+- [ ] `pnpm typecheck` + `pnpm lint` green
+
+---
+
+## T098 — Team settings page
+
+**Sprint:** S048
+**Milestone:** M022
+**Status:** planned
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none
+**Branch:** feature/S048/T098-settings-team
+**PRD journey:** J002 (PRD-settings-completion.md)
+**ADRs:** ADR-012, ADR-011
+
+### Slice objective
+
+A merchant can invite team members by email, assign roles (Admin / Staff), and revoke access — entirely from `/settings/team`. No Clerk Dashboard access needed.
+
+### Layers in scope
+
+- **Backend (if not existing):** Check for a Clerk org-members proxy route in `apps/backend`. If missing, create: `GET /admin/team/members` (list org members from Clerk), `POST /admin/team/invite` (send Clerk invitation with role), `DELETE /admin/team/members/:clerk_user_id` (remove from org). All routes use `validateBody` per ADR-016. Auth: Medusa admin JWT → extract `clerk_org_id` from JWT claims.
+- **UI — `/settings/team`:** Members table: avatar (initials fallback), name, email, role badge (Admin / Staff), joined date, row actions (Change role, Revoke). "Invite member" form above table: email input + role select → Submit sends invitation. Empty state: "Your team is just you — invite colleagues to help manage your store." Confirmation dialog on Revoke.
+- **Page:** Loading skeleton, error banner, success toast on invite sent / member revoked. Token-backed styling. `pnpm react-doctor:admin-ui` 0 issues.
+
+### Definition of done
+
+- [ ] `/admin/team/members` returns current org members (or existing route confirmed)
+- [ ] `/admin/team/invite` sends Clerk invitation with correct role
+- [ ] `/settings/team` lists members + invite form + revoke works
+- [ ] Role change persists via Clerk API
+- [ ] Empty state rendered when no other members
+- [ ] `pnpm react-doctor:admin-ui` 0 new issues
+- [ ] `pnpm typecheck` + `pnpm lint` green
+
+---
+
+## T099 — Notifications + Email settings pages
+
+**Sprint:** S048
+**Milestone:** M022
+**Status:** planned
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none
+**Branch:** feature/S048/T099-settings-notifications-email
+**PRD journey:** J001 (PRD-settings-completion.md)
+**ADRs:** ADR-012, ADR-009
+
+### Slice objective
+
+A merchant can configure their email branding (logo, color, from name, reply-to) and enable/disable individual notification templates — and verify their sending domain status — from Settings.
+
+### Layers in scope
+
+- **UI — `/settings/notifications`:** Two sections: Branding + Templates. Branding: from name (text), reply-to email, logo URL (text input or upload), brand color (hex color picker). Templates: list of notification types (Order confirmation, Shipping update, Cancellation) each with enable/disable toggle + "Preview" button. Preview opens a modal with rendered email (use existing React Email preview if available). Wraps `notification-module` branding config API.
+- **UI — `/settings/email`:** Verify M012 delivered a functional page. If it's a placeholder or incomplete: step-by-step layout — enter sending domain → DNS records shown (DKIM + SPF) → "Verify now" button polls SES status → status badge updates. Default from address field. Wraps `notification-module` SES domain identity routes. If already complete, add polish only (loading states, empty state copy, token styling).
+- **Both pages:** Loading, error, empty states. `pnpm react-doctor:admin-ui` 0 issues.
+
+### Definition of done
+
+- [ ] `/settings/notifications` saves branding fields + template toggles persist
+- [ ] Preview modal renders a sample email with the saved branding
+- [ ] `/settings/email` domain verification flow is complete end-to-end (enter → DNS records → verify → status)
+- [ ] Both pages have loading, error, and empty states
+- [ ] `pnpm react-doctor:admin-ui` 0 new issues
+- [ ] `pnpm typecheck` + `pnpm lint` green
+
+---
+
+## T100 — Apps overview + Developers settings pages
+
+**Sprint:** S048
+**Milestone:** M022
+**Status:** planned
+**Mode:** AFK
+**Parallel group:** A
+**Blocked by:** none
+**Branch:** feature/S048/T100-settings-apps-developers
+**PRD journey:** J003, J004 (PRD-settings-completion.md)
+**ADRs:** ADR-012
+
+### Slice objective
+
+A merchant can see all connected apps and their status at a glance from `/settings/apps`, and find their publishable API key for storefront integration from `/settings/developers`.
+
+### Layers in scope
+
+- **UI — `/settings/apps`:** 2-column card grid of connector-module connectors: Stripe, Shipmondo, Plunk, GTM. Each card: logo/icon, name, short description, status badge (Connected / Error / Not configured). "Configure" link navigates to the contextual settings page (Stripe → `/settings/payments`, Shipmondo → `/settings/shipping/carriers`, Plunk → `/settings/notifications`, GTM → connector config page). Status fetched from `GET /admin/connectors`. Refreshes on mount.
+- **UI — `/settings/developers`:** Tab layout: API Keys | Webhooks. API Keys tab: publishable key card — partially masked display, copy-to-clipboard icon button, "Revoke & regenerate" with confirmation dialog. Wraps `GET /admin/api-keys` (Medusa publishable key created during provisioning). Webhooks tab: informational placeholder — "Webhook management coming soon" with a brief explanation of what webhooks are for.
+- **Both pages:** Loading, error, empty states. Token-backed styling. `pnpm react-doctor:admin-ui` 0 issues.
+
+### Definition of done
+
+- [ ] `/settings/apps` shows all 4 connectors with correct status badges
+- [ ] "Configure" links navigate to correct contextual settings pages
+- [ ] `/settings/developers` displays publishable API key with copy-to-clipboard
+- [ ] Revoke & regenerate shows confirm dialog and calls Medusa API
+- [ ] Webhooks tab shows informational placeholder
+- [ ] Both pages have loading, error, and empty states
+- [ ] `pnpm react-doctor:admin-ui` 0 new issues
+- [ ] `pnpm typecheck` + `pnpm lint` green
+
+---
+
+<!-- Total: T001–T100 | AFK: 83 | HITL: 13 (T003, T008, T013, T023, T027, T033, T036, T053, T057, T064, T067, T074, T086) | Cancelled: T029 -->
+<!-- Sprints: S001–S048 | Milestones: M000–M022 -->

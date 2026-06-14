@@ -187,6 +187,13 @@
 
 ---
 
+## S047–S048 — M021 Security Hardening + M022 Settings Completion
+
+- **S047 group A (M021):** T093 (CVE remediation + audit gate), T094 (validateBody helper + Zod on all 20 platform routes), T095 (rate limiting + innerHTML fix + SECURITY.md) — alle tre parallelt; ingen indbyrdes afhængigheder. S047 + S048 kan starte simultant.
+- **S048 group A (M022):** T096 (General + Taxes), T097 (Shipping + Carriers), T098 (Team), T099 (Notifications + Email), T100 (Apps + Developers) — alle fem parallelt; alle wrapper eksisterende backend APIs, ingen indbyrdes afhængigheder.
+
+---
+
 ## S045–S046 — M020 Platform Billing Retrofit
 
 - **S045:** T089 (billing foundation: `platform_tenant_billing` migration + `GET /platform/billing/plans` catalog API + provision step 7 metadata write + `POST /platform/signup/billing/setup` retrofit) — done (PR #136).

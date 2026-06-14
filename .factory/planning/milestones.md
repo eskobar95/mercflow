@@ -753,3 +753,63 @@ flowchart LR
 - [x] `pnpm typecheck` green
 - [x] ADR-015 enforcement check: `rg "STRIPE_PLATFORM_PRICE_ID" .` → 0 results in code/env
 - [x] `/milestone-review M020` grøn
+
+---
+
+## M021 — Security Hardening
+
+**Outcome:** MercFlow is gate-ready for external tenants. All 20 platform API routes have Zod body validation. Rate limiting is active on invite, signup, billing, and provision endpoints. `pnpm audit --audit-level=high` returns 0. The `innerHTML` XSS vector in `previewPlainText.ts` is fixed. Accepted-risk dev-only CVEs are documented in `infra/SECURITY.md`.
+
+**PRD:** `.factory/context/PRD-security-hardening.md`
+**ADR:** `ADR-016-security-hardening-api-validation.md`
+**Context:** `CONTEXT.md → Security hardening gate (M021)`
+
+**Sprints in this milestone:**
+
+| Sprint | Goal | Tasks | Status |
+|--------|------|-------|--------|
+| S047 | CVE remediation + validateBody + rate limiting + innerHTML fix (parallel) | T093, T094, T095 | planned |
+
+**Dependencies:** M020 (all platform routes exist to validate)
+
+**Definition of done:**
+- [ ] `pnpm audit --audit-level=high` → exit code 0
+- [ ] All 20 `/platform/*` routes call `validateBody` or inline param validation
+- [ ] Rate limiting on invite / signup / billing / provision endpoint groups
+- [ ] `previewPlainText.ts` — no raw `innerHTML = untrustedInput`
+- [ ] `infra/SECURITY.md` documents accepted-risk CVEs
+- [ ] `gitleaks detect --source . --staged` → 0 secrets
+- [ ] `pnpm typecheck` + `pnpm test` green
+
+---
+
+## M022 — Settings Completion
+
+**Outcome:** All 9 placeholder settings pages are fully functional. A new tenant can configure their entire store (name, taxes, shipping, team, notifications, email domain, apps, API keys) without operator assistance.
+
+**PRD:** `.factory/context/PRD-settings-completion.md`
+**Context:** `CONTEXT.md → Settings completion (M022)`
+
+**Pages shipped:** General · Taxes · Shipping · Carriers · Team · Notifications · Email · Apps · Developers
+
+**Sprints in this milestone:**
+
+| Sprint | Goal | Tasks | Status |
+|--------|------|-------|--------|
+| S048 | All 9 settings pages functional (parallel) | T096, T097, T098, T099, T100 | planned |
+
+**Dependencies:** M016 (Settings shell + sidebar nav in place)
+
+**Definition of done:**
+- [ ] `/settings/general` — store name, email, currency, timezone, address saves via Medusa API
+- [ ] `/settings/taxes` — tax regions + rates: list, add, edit, delete
+- [ ] `/settings/shipping` — shipping profiles + rates: list, add, edit, delete
+- [ ] `/settings/shipping/carriers` — Shipmondo API key + test connection
+- [ ] `/settings/team` — invite by email, assign role, revoke (Clerk org members)
+- [ ] `/settings/notifications` — branding fields + template toggles + preview
+- [ ] `/settings/email` — SES domain entry + DNS records + verify flow complete
+- [ ] `/settings/apps` — connector status grid with navigate-to-config links
+- [ ] `/settings/developers` — publishable API key display + copy + revoke
+- [ ] All pages: loading, error, empty states
+- [ ] `pnpm react-doctor:admin-ui` 0 new issues
+- [ ] `pnpm typecheck` + `pnpm lint` green
