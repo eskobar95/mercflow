@@ -73,6 +73,9 @@
 | S044 | M019 | Signup step 5–7 + provision-tenant BullMQ job + billing webhook + welcome email | T088 | done |
 | S045 | M020 | Billing foundation: migration + catalog API + provision step 7 | T089 | done |
 | S046 | M020 | Webhook retrofit + signup plan picker + console billing panel (parallel) | T090, T091, T092 | done |
+| S047 | M021 | CVE remediation + platform route validation + rate limiting/XSS fix (parallel) | T093, T094, T095 | active |
+
+> Updated: 2026-06-14 (`/run-sprint S047` — group A dispatch: T093, T094, T095 parallel)
 
 ---
 

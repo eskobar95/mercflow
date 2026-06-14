@@ -4348,7 +4348,7 @@ Tenant detail-siden i Platform Console har en "Billing" sektion der viser plan, 
 
 **Sprint:** S047
 **Milestone:** M021
-**Status:** planned
+**Status:** in-progress
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
@@ -4384,7 +4384,7 @@ Tenant detail-siden i Platform Console har en "Billing" sektion der viser plan, 
 
 **Sprint:** S047
 **Milestone:** M021
-**Status:** planned
+**Status:** in-progress
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
@@ -4436,7 +4436,7 @@ Every POST/PATCH `/platform/*` route validates its request body with Zod before 
 
 **Sprint:** S047
 **Milestone:** M021
-**Status:** planned
+**Status:** in-progress
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
