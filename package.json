@@ -36,7 +36,8 @@
       "zod": "^4.0.0",
       "qs": ">=6.15.2",
       "ws": ">=8.20.1",
-      "tsx>esbuild": ">=0.28.1"
+      "tsx>esbuild": ">=0.28.1",
+      "esbuild": ">=0.28.1"
     }
   },
   "devDependencies": {

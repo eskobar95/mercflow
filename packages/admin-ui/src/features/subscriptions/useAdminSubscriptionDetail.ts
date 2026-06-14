@@ -51,8 +51,14 @@ export function useAdminSubscriptionDetail(subscriptionId: string | undefined): 
 
   useAdjustStateWhenKeyChanges(subscriptionId ?? "", () => {
     setDetail(null)
-    setErrorMessage(null)
     setLoading(false)
+    if (resolveMedusaAdminBackendUrl() === null) {
+      setErrorMessage(
+        "Missing backend URL. Configure VITE_MEDUSA_ADMIN_BACKEND_URL to load subscription data."
+      )
+    } else {
+      setErrorMessage(null)
+    }
   })
 
   useEffect(() => {
@@ -60,9 +66,6 @@ export function useAdminSubscriptionDetail(subscriptionId: string | undefined): 
       return
     }
     if (resolveMedusaAdminBackendUrl() === null) {
-      setErrorMessage(
-        "Missing backend URL. Configure VITE_MEDUSA_ADMIN_BACKEND_URL to load subscription data."
-      )
       return
     }
     void refresh()

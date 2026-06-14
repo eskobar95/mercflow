@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 
+import { useAdjustStateWhenSnapshotChanges } from "@/lib/react/useAdjustStateWhenKeyChanges"
+
 import { listMetafieldDefinitions } from "@/features/metafields/metafieldDefinitionsApi"
 import {
   metafieldValueToDraftString,
@@ -61,11 +63,14 @@ export function useCategoryMetafields(categoryId: string): UseCategoryMetafields
     setLoadToken((token) => token + 1)
   }, [])
 
-  useEffect(() => {
-    let cancelled = false
+  useAdjustStateWhenSnapshotChanges([categoryId, loadToken], () => {
     setState({ status: "loading" })
     setSaveError(null)
     setSaveMessage(null)
+  })
+
+  useEffect(() => {
+    let cancelled = false
 
     void (async (): Promise<void> => {
       try {
