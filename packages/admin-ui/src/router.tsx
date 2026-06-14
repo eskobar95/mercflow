@@ -310,10 +310,8 @@ export const router = createBrowserRouter([
             path: "general",
             handle: { title: "General settings" } satisfies AppRouteHandle,
             lazy: async () => {
-              const { SettingsGeneralPlaceholderRoute } = await import(
-                "@/routing/settingsRouteComponents"
-              )
-              return { Component: SettingsGeneralPlaceholderRoute }
+              const { GeneralSettingsPage } = await import("@/pages/settings/GeneralSettingsPage")
+              return { Component: GeneralSettingsPage }
             },
           },
           {
@@ -330,10 +328,8 @@ export const router = createBrowserRouter([
             path: "taxes",
             handle: { title: "Taxes" } satisfies AppRouteHandle,
             lazy: async () => {
-              const { SettingsTaxesPlaceholderRoute } = await import(
-                "@/routing/settingsPlaceholderRoutes"
-              )
-              return { Component: SettingsTaxesPlaceholderRoute }
+              const { TaxesSettingsPage } = await import("@/pages/settings/TaxesSettingsPage")
+              return { Component: TaxesSettingsPage }
             },
           },
           {

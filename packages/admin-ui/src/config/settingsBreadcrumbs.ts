@@ -77,3 +77,11 @@ export function settingsShippingProfilesBreadcrumbs(): BreadcrumbItem[] {
 export function settingsShippingCarriersBreadcrumbs(): BreadcrumbItem[] {
   return [settingsRoot(), { label: "Shipping", href: SETTINGS_PATHS.shipping }, { label: "Carriers" }]
 }
+
+export function settingsGeneralBreadcrumbs(): BreadcrumbItem[] {
+  return settingsBreadcrumb("General")
+}
+
+export function settingsTaxesBreadcrumbs(): BreadcrumbItem[] {
+  return settingsBreadcrumb("Taxes")
+}
