@@ -4348,11 +4348,12 @@ Tenant detail-siden i Platform Console har en "Billing" sektion der viser plan, 
 
 **Sprint:** S047
 **Milestone:** M021
-**Status:** in-progress
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S047/T093-cve-remediation
+**PR:** https://github.com/eskobar95/mercflow/pull/142
 **PRD journey:** J003 (PRD-security-hardening.md)
 **ADRs:** ADR-016
 
