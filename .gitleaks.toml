@@ -22,6 +22,8 @@ paths = [
   '''packages/subscription-module/README\.md''',
   # Upstream Medusa fork source (placeholder env examples in tests and config helpers)
   '''packages/medusa-fork/''',
+  # Admin UI test fixtures (publishable API key shapes, not real credentials)
+  '''packages/admin-ui/test/fixtures/''',
 ]
 regexes = [
   # Medusa's placeholder secrets used in docs and test fixtures
