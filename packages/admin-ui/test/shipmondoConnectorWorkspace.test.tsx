@@ -74,7 +74,7 @@ describe("ShipmondoConnectorWorkspace", (): void => {
       </MemoryRouter>
     )
 
-    expect(screen.getByRole("heading", { name: "Shipmondo" })).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Carriers" })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Save settings" })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Test connection" })).toBeEnabled()
   })
