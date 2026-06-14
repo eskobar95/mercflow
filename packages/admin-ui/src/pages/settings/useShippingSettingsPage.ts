@@ -3,7 +3,7 @@ import { type Dispatch, useCallback, useEffect, useMemo, useReducer } from "reac
 import type { ListColumnDef } from "@/components/ui/list/types"
 import type { RowActionItem } from "@/components/ui/list/RowActionsMenu"
 import {
-  formatShippingOptionCarrierLabel,
+  resolveShippingOptionCarrierLabel,
   formatShippingOptionConditions,
   formatShippingOptionPrice,
   formatShippingPriceType,
@@ -33,7 +33,9 @@ import {
   type ShippingSettingsState,
 } from "./shippingSettingsState"
 
+type ProfileCol = "name" | "type"
 type ProfileRow = { id: string; name: string; type: string }
+type RateCol = "name" | "carrier" | "price" | "priceType" | "conditions"
 type RateRow = { id: string; name: string; carrier: string; price: string; priceType: string; conditions: string }
 
 export function useShippingSettingsPage(): {
@@ -41,8 +43,8 @@ export function useShippingSettingsPage(): {
   state: ShippingSettingsState
   dispatch: Dispatch<ShippingSettingsAction>
   reload: () => Promise<void>
-  profileColumns: ListColumnDef<ProfileRow>[]
-  rateColumns: ListColumnDef<RateRow>[]
+  profileColumns: ListColumnDef<ProfileRow, ProfileCol>[]
+  rateColumns: ListColumnDef<RateRow, RateCol>[]
   profileRows: ProfileRow[]
   rateRows: RateRow[]
   getProfileRowActions: (row: ProfileRow) => RowActionItem[]
@@ -105,7 +107,7 @@ export function useShippingSettingsPage(): {
       state.rates.map((rate) => ({
         id: rate.id,
         name: rate.name,
-        carrier: formatShippingOptionCarrierLabel(rate),
+        carrier: resolveShippingOptionCarrierLabel(rate),
         price: formatShippingOptionPrice(rate),
         priceType: formatShippingPriceType(rate.price_type),
         conditions: formatShippingOptionConditions(rate),
@@ -114,14 +116,14 @@ export function useShippingSettingsPage(): {
   )
 
   const profileColumns = useMemo(
-    (): ListColumnDef<ProfileRow>[] => [
+    (): ListColumnDef<ProfileRow, ProfileCol>[] => [
       { id: "name", header: "Name", renderCell: (row) => row.name },
       { id: "type", header: "Type", renderCell: (row) => formatShippingProfileType(row.type) },
     ],
     [],
   )
   const rateColumns = useMemo(
-    (): ListColumnDef<RateRow>[] => [
+    (): ListColumnDef<RateRow, RateCol>[] => [
       { id: "name", header: "Name", renderCell: (row) => row.name },
       { id: "carrier", header: "Carrier", renderCell: (row) => row.carrier },
       { id: "price", header: "Price", renderCell: (row) => row.price },

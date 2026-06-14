@@ -129,9 +129,7 @@ export function shippingSettingsReducer(
       return { ...state, rateSaving: false, rateSheetError: action.message }
     case "setMessage":
       return { ...state, message: action.message }
-    default: {
-      const _never: never = action
+    default:
       return state
-    }
   }
 }
