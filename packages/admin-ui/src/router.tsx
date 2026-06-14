@@ -406,10 +406,8 @@ export const router = createBrowserRouter([
             path: "shipping",
             handle: { title: "Shipping profiles" } satisfies AppRouteHandle,
             lazy: async () => {
-              const { SettingsShippingProfilesPlaceholderRoute } = await import(
-                "@/routing/settingsPlaceholderRoutes"
-              )
-              return { Component: SettingsShippingProfilesPlaceholderRoute }
+              const { ShippingSettingsPage } = await import("@/pages/settings/ShippingSettingsPage")
+              return { Component: ShippingSettingsPage }
             },
           },
           {
