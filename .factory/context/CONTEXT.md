@@ -525,4 +525,51 @@ Settings
 
 ---
 
+## Security hardening gate (M021)
+
+**Meaning:** A mandatory gate milestone that must ship before the first external (paying) tenant is onboarded. It has two layers: (1) MercFlow-owned code gaps — Zod validation on all platform API routes, rate limiting on invite/signup/billing endpoints, sanitize the `innerHTML` in `previewPlainText.ts`; (2) transitive CVEs — upgrade `tsx` to resolve the high-severity `esbuild` binary-integrity CVE, address remaining moderate CVEs where a safe upgrade path exists. Gate passes when `pnpm audit --audit-level=high` returns 0.
+
+**CVE landscape (June 2026 audit):**
+- All CVEs are in transitive dependencies — no MercFlow-owned package is directly vulnerable
+- 1 high: `esbuild <0.28.1` via `tsx → postcss-load-config` (build-tool chain, not runtime)
+- 10 moderate: `vite`, `vitest`, `react-router`, `qs`, `ajv`, `ws`, `uuid`, `brace-expansion`, `prismjs`, `i18next-http-backend`
+- Fix strategy: bump `tsx` to latest; bump `vite`/`vitest` to latest; for Medusa-fork transitive deps (ajv, ws, qs) — upgrade the parent dep where possible, else add `pnpm.overrides` as a last resort
+
+**Platform API route validation gap:**
+- 20 out of 20 `/platform/*` routes have no Zod validation (discovered June 2026 audit)
+- Every POST/PATCH route must validate body; every parameterised route must validate params
+- Use a shared `validateBody(schema)` helper to avoid duplication across routes
+
+**Rate limiting:**
+- No rate limiting exists anywhere in the codebase (June 2026)
+- Priority endpoints for limiting: `/platform/invites` (POST), `/platform/signup/*`, `/platform/billing/plans`, auth-adjacent routes
+- Implementation: Medusa middleware layer or Express-compatible rate-limit middleware at the route group level
+
+**Not:** Blocking development of M022 (Settings) — both milestones run in parallel. Not a full penetration test — this is the minimum bar for first external tenant. Not about Platform Console auth (already handled by Clerk/Google OAuth).
+
+**See:** M021 PRD (to be written), ADR-015 (tenant billing linkage)
+
+---
+
+## Settings completion (M022)
+
+**Meaning:** All Settings pages that were created as placeholders in M016 are now fully functional. A new tenant can configure everything needed to open their store without operator assistance.
+
+**Day-1 required pages (blocking for first external tenant):**
+- **General** — store name, contact email, address, timezone, default currency (wraps Medusa store config API)
+- **Domains** — view active domain (set during provisioning), request domain change (operator action)
+- **Payments** — already functional (M017: Stripe test/live toggle) — verify UI complete
+- **Shipping** — shipping zones + flat/weight-based rates; Shipmondo credentials + enable/disable (wraps `connector-module`)
+- **Taxes** — tax regions + rates (wraps Medusa tax API)
+- **Team** — invite team members by email, assign admin/staff role, revoke access (Clerk org member management)
+- **Notifications** — per-tenant email branding: logo, color, reply-to, from name (notification-module branding fields)
+- **Apps** — connector config pages: GTM (tag ID), Plunk (API key), Shipmondo (API key + sender) — already exists in connector-module, verify UI is complete and polished
+- **Developers** — view publishable API key (created during provisioning), view/revoke webhook endpoints
+
+**Not:** Building new backend modules — all backend exists. This is primarily admin UI wiring existing APIs to settings pages. Not the Platform Console settings. Not Medusa's native settings pages — MercFlow owns these entirely.
+
+**See:** M016 (settings shell + navigation), PRD-settings-architecture.md, M022 PRD (to be written)
+
+---
+
 <!-- Add terms below during /align sessions -->
