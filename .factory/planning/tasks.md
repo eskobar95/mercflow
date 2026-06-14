@@ -4609,11 +4609,12 @@ A merchant can configure their email branding (logo, color, from name, reply-to)
 
 **Sprint:** S048
 **Milestone:** M022
-**Status:** planned
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S048/T100-settings-apps-developers
+**PR:** https://github.com/eskobar95/mercflow/pull/146
 **PRD journey:** J003, J004 (PRD-settings-completion.md)
 **ADRs:** ADR-012
 
@@ -4629,14 +4630,14 @@ A merchant can see all connected apps and their status at a glance from `/settin
 
 ### Definition of done
 
-- [ ] `/settings/apps` shows all 4 connectors with correct status badges
-- [ ] "Configure" links navigate to correct contextual settings pages
-- [ ] `/settings/developers` displays publishable API key with copy-to-clipboard
-- [ ] Revoke & regenerate shows confirm dialog and calls Medusa API
-- [ ] Webhooks tab shows informational placeholder
-- [ ] Both pages have loading, error, and empty states
-- [ ] `pnpm react-doctor:admin-ui` 0 new issues
-- [ ] `pnpm typecheck` + `pnpm lint` green
+- [x] `/settings/apps` shows all 4 connectors with correct status badges
+- [x] "Configure" links navigate to correct contextual settings pages
+- [x] `/settings/developers` displays publishable API key with copy-to-clipboard
+- [x] Revoke & regenerate shows confirm dialog and calls Medusa API
+- [x] Webhooks tab shows informational placeholder
+- [x] Both pages have loading, error, and empty states
+- [x] `pnpm react-doctor:admin-ui` 0 new issues
+- [x] `pnpm typecheck` + `pnpm lint` green
 
 ---
 
