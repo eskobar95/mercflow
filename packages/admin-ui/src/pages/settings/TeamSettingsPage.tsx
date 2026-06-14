@@ -12,7 +12,7 @@ import { TeamMembersTable } from "./TeamMembersTable"
 import { TeamRevokeMemberDialog } from "./TeamRevokeMemberDialog"
 import { useTeamSettingsPage } from "./useTeamSettingsPage"
 
-export function TeamSettingsPage(): ReactNode {
+function TeamSettingsPageContent(): ReactNode {
   const {
     hasBackend,
     state,
@@ -123,4 +123,25 @@ export function TeamSettingsPage(): ReactNode {
       />
     </div>
   )
+}
+
+export function TeamSettingsPage(): ReactNode {
+  const hasClerk = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY)
+
+  if (!hasClerk) {
+    return (
+      <div className="min-h-[50vh] bg-surface-appCanvas">
+        <PageHeader title="Team" breadcrumbs={settingsTeamBreadcrumbs()} />
+        <div className="p-6">
+          <p className="text-sm text-content-secondary">
+            Configure{" "}
+            <code className="rounded bg-surface-subtle px-1">VITE_CLERK_PUBLISHABLE_KEY</code> to
+            manage team settings.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  return <TeamSettingsPageContent />
 }
