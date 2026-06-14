@@ -4542,11 +4542,12 @@ A merchant can configure shipping profiles and flat/weight-based rates, and conn
 
 **Sprint:** S048
 **Milestone:** M022
-**Status:** planned
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S048/T098-settings-team
+**PR:** https://github.com/eskobar95/mercflow/pull/143
 **PRD journey:** J002 (PRD-settings-completion.md)
 **ADRs:** ADR-012, ADR-011
 
