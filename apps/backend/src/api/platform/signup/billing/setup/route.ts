@@ -4,8 +4,8 @@ import { isStripePlatformConfigured } from "../../../../../lib/platform-billing/
 import { createSignupBillingSetup } from "../../../../../lib/platform-billing/create-signup-billing-setup"
 import { validatePlatformInviteToken } from "../../../../../lib/platform-db/platform-invites"
 import { requirePlatformDatabase } from "../../../../../lib/platform-http/require-platform-operator"
+import { validateBody } from "../../../../../lib/platform-http/validateBody"
 import { signupBillingSetupBodySchema } from "../../../../../lib/platform-provisioning/validators"
-import { sendPlatformZodError } from "../../../../../lib/platform-http/list-query"
 
 export async function POST(
   req: MedusaRequest,
@@ -23,29 +23,25 @@ export async function POST(
     return
   }
 
-  const parsed = signupBillingSetupBodySchema.safeParse(req.body)
-  if (!parsed.success) {
-    sendPlatformZodError(res, parsed.error)
-    return
-  }
+  const body = validateBody(signupBillingSetupBodySchema, req)
 
-  const invite = await validatePlatformInviteToken(parsed.data.invite_token)
+  const invite = await validatePlatformInviteToken(body.invite_token)
   if (!invite.valid) {
     res.status(403).json({ message: "Invalid or expired invite token" })
     return
   }
 
-  if (invite.email && invite.email.toLowerCase() !== parsed.data.email.toLowerCase()) {
+  if (invite.email && invite.email.toLowerCase() !== body.email.toLowerCase()) {
     res.status(400).json({ message: "Email must match the invited address" })
     return
   }
 
   try {
     const billing = await createSignupBillingSetup({
-      priceId: parsed.data.price_id,
-      email: parsed.data.email,
-      inviteToken: parsed.data.invite_token,
-      storeName: parsed.data.store_name,
+      priceId: body.price_id,
+      email: body.email,
+      inviteToken: body.invite_token,
+      storeName: body.store_name,
     })
 
     res.status(200).json(billing)

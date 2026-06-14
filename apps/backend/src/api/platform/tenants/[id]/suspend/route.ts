@@ -6,6 +6,11 @@ import { writePlatformAuditLog } from "../../../../../lib/platform-tenants/audit
 import { getPlatformTenantById } from "../../../../../lib/platform-tenants/list-tenants"
 import { suspendPlatformTenant } from "../../../../../lib/platform-tenants/suspend-tenant"
 import { suspendTenantBodySchema } from "../../../../../lib/platform-tenants/validators"
+import {
+  platformTenantIdParamsSchema,
+  validateBody,
+  validateParams,
+} from "../../../../../lib/platform-http/validateBody"
 
 export async function PUT(
   req: PlatformAuthRequest & MedusaRequest,
@@ -25,25 +30,13 @@ export async function PUT(
     return
   }
 
-  const storeId = req.params.id
-  if (typeof storeId !== "string" || storeId.trim() === "") {
-    res.status(400).json({ message: "Missing tenant id" })
-    return
-  }
-
-  const parsed = suspendTenantBodySchema.safeParse(req.body)
-  if (!parsed.success) {
-    res.status(400).json({
-      message: "Invalid request body",
-      errors: parsed.error.flatten(),
-    })
-    return
-  }
+  const params = validateParams(platformTenantIdParamsSchema, req.params)
+  const body = validateBody(suspendTenantBodySchema, req)
 
   try {
-    const existing = await getPlatformTenantById(storeId)
+    const existing = await getPlatformTenantById(params.id)
     if (existing === null) {
-      res.status(404).json({ message: `Tenant not found: ${storeId}` })
+      res.status(404).json({ message: `Tenant not found: ${params.id}` })
       return
     }
 
@@ -52,15 +45,15 @@ export async function PUT(
       return
     }
 
-    const result = await suspendPlatformTenant(storeId, operator.email)
+    const result = await suspendPlatformTenant(params.id, operator.email)
 
     await writePlatformAuditLog(req.scope, {
       operator_email: operator.email,
       action: "suspend_tenant",
       entity_type: "tenant",
-      entity_id: storeId,
+      entity_id: params.id,
       metadata: {
-        reason: parsed.data.reason,
+        reason: body.reason,
         revoked_api_key_ids: result.revoked_api_key_ids,
         stripe_subscription_canceled: result.stripe_subscription_canceled,
         store_disabled: result.store_disabled,

@@ -4385,11 +4385,12 @@ Tenant detail-siden i Platform Console har en "Billing" sektion der viser plan, 
 
 **Sprint:** S047
 **Milestone:** M021
-**Status:** in-progress
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S047/T094-platform-route-validation
+**PR:** https://github.com/eskobar95/mercflow/pull/141
 **PRD journey:** J001 (PRD-security-hardening.md)
 **ADRs:** ADR-016
 
@@ -4437,11 +4438,12 @@ Every POST/PATCH `/platform/*` route validates its request body with Zod before 
 
 **Sprint:** S047
 **Milestone:** M021
-**Status:** in-progress
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S047/T095-rate-limiting-xss-fix
+**PR:** https://github.com/eskobar95/mercflow/pull/140
 **PRD journey:** J002 (PRD-security-hardening.md)
 **ADRs:** ADR-016
 
@@ -4462,11 +4464,11 @@ Four high-risk endpoint groups have rate limiting. The `innerHTML` assignment in
 
 ### Definition of done
 
-- [ ] Rate limiting middleware registered on all 4 endpoint groups
-- [ ] 11th POST to `/platform/invites` within 15 min window → 429
-- [ ] `previewPlainText.ts` — no raw `innerHTML = untrustedInput` assignment
-- [ ] `pnpm typecheck` + `pnpm lint` green
-- [ ] Existing tests green
+- [x] Rate limiting middleware registered on all 4 endpoint groups
+- [x] 11th POST to `/platform/invites` within 15 min window → 429
+- [x] `previewPlainText.ts` — no raw `innerHTML = untrustedInput` assignment
+- [x] `pnpm typecheck` + `pnpm lint` green
+- [x] Existing tests green
 
 ---
 

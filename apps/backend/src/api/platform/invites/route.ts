@@ -12,11 +12,11 @@ import {
 } from "../../../lib/platform-invites/send-invite-email"
 import { createPlatformInviteBodySchema } from "../../../lib/platform-invites/validators"
 import { writePlatformAuditLog } from "../../../lib/platform-tenants/audit-log"
-import { sendPlatformZodError } from "../../../lib/platform-http/list-query"
 import {
   requirePlatformDatabase,
   requirePlatformOperator,
 } from "../../../lib/platform-http/require-platform-operator"
+import { validateBody } from "../../../lib/platform-http/validateBody"
 
 export async function GET(
   req: PlatformAuthRequest,
@@ -66,15 +66,11 @@ export async function POST(
     return
   }
 
-  const parsed = createPlatformInviteBodySchema.safeParse(req.body)
-  if (!parsed.success) {
-    sendPlatformZodError(res, parsed.error)
-    return
-  }
+  const body = validateBody(createPlatformInviteBodySchema, req)
 
   try {
     const { invite, rawToken } = await createPlatformInvite({
-      email: parsed.data.email.toLowerCase(),
+      email: body.email.toLowerCase(),
       invitedBy: operator.userId,
     })
 
