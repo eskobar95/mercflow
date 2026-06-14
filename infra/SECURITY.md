@@ -22,7 +22,6 @@ Root `package.json` overrides applied to resolve transitive CVEs where direct de
 |---|---|---|
 | `esbuild >=0.28.1` | GHSA-gv7w-rqvm-qjhr | High-severity esbuild Deno integrity issue; pulled by `tsx` and `vite`. Node-only runtime; patched via override until vite@6 migration. |
 | `qs >=6.15.2` | GHSA-q8mj-m7cp-5q26 | Express/body-parser transitive; production query parsing path. |
-| `ajv >=8.18.0` | GHSA-2g4f-4pwh-qvx6 | ESLint/schema validation transitive ReDoS with `$data`. |
 | `ws >=8.20.1` | GHSA-58qx-3vcg-4xpx | WebSocket client transitive memory disclosure. |
 
 ---
@@ -36,6 +35,7 @@ Root `package.json` overrides applied to resolve transitive CVEs where direct de
 | `i18next-http-backend` | 2.4.2 | GHSA-q89c-q3h5-w34g | moderate | `@medusajs/dashboard` via medusa-fork admin-bundler | **dev-only / unused** | MercFlow replaces Medusa dashboard with `@mercflow/admin-ui`. Bundler dep remains in fork but is not served in production. | M022 (fork cleanup) |
 | `uuid` | 9.0.1 | GHSA-w5hq-g745-h8pq | moderate | `@medusajs/telemetry`, `bullmq` via medusa-fork | **production (low exploitability)** | Buffer bounds check in v3/v5/v6 when caller supplies `buf`. MercFlow does not pass attacker-controlled buffers to uuid v3/v5/v6 APIs. Major bump to uuid@11 needs fork validation. | M022 |
 | `react-router` | 6.30.3 | GHSA-2j2x-hqr9-3h42 | moderate | `@medusajs/draft-order`, `@medusajs/dashboard` via medusa-fork | **dev-only / unused** | Open redirect via protocol-relative URL in same-origin redirect. MercFlow admin uses `react-router-dom@6.30.4` in `admin-ui` and `platform-console`; fork dashboard bundle is not production-served. | M022 |
+| `ajv` | 6.15.0 | GHSA-2g4f-4pwh-qvx6 | moderate | eslint via `@eslint/eslintrc` | **dev-only** | ReDoS with `$data` option in schema validation. ESLint config schemas do not enable `$data`. Override to ajv@8 breaks ESLint (`defaultMeta` crash). | S048 |
 | `brace-expansion` | 5.0.5 | GHSA-jxxr-4gwj-5jf2 | moderate | eslint, rimraf, react-doctor dev tooling | **dev-only** | ReDoS in glob expansion during lint/test/CI only. No production runtime path. | S048 |
 
 ---
@@ -49,7 +49,6 @@ Root `package.json` overrides applied to resolve transitive CVEs where direct de
 | `react-router-dom` | `6.30.4` in admin-ui + platform-console | GHSA-2j2x-hqr9-3h42 (MercFlow apps) |
 | `vite` | `^5.4.21` in admin-ui + platform-console | latest 5.x patch |
 | `qs` | Override `>=6.15.2` | GHSA-q8mj-m7cp-5q26 |
-| `ajv` | Override `>=8.18.0` | GHSA-2g4f-4pwh-qvx6 |
 | `ws` | Override `>=8.20.1` | GHSA-58qx-3vcg-4xpx |
 
 ---
