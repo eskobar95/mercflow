@@ -11,17 +11,19 @@ import { Spinner } from "@/components/ui/Spinner"
 import { useEmailDomainTab } from "./useEmailDomainTab"
 
 export function EmailDomainTab(): ReactNode {
-  const { state, reload, setDomainInput, setupDomain, domainLocked, showFallbackInfo } =
+  const { state, reload, setDomainInput, setupDomain, verifyNow, domainLocked, showFallbackInfo } =
     useEmailDomainTab()
   const {
     phase,
     message,
     domainInput,
     configuredDomain,
+    fromEmail,
     status,
     records,
     fallbackFrom,
     settingUp,
+    verifying,
     setupError,
     pollingError,
   } = state
@@ -45,8 +47,8 @@ export function EmailDomainTab(): ReactNode {
     <div className="space-y-6">
       {showFallbackInfo ? (
         <aside className="rounded-lg border border-feedback-warning-border bg-feedback-warning-subtle p-4 text-sm text-content-primary">
-          Emails send from{" "}
-          <span className="font-medium">{fallbackFrom}</span> until your domain is verified.
+          Emails send from <span className="font-medium">{fallbackFrom}</span> until your domain is
+          verified.
         </aside>
       ) : null}
 
@@ -62,13 +64,19 @@ export function EmailDomainTab(): ReactNode {
           {configuredDomain !== null ? <SesDomainStatusBadge status={status} /> : null}
         </div>
 
+        {configuredDomain === null ? (
+          <p className="text-sm text-content-secondary">
+            No sending domain configured yet. Enter your store domain below to begin verification.
+          </p>
+        ) : null}
+
         <FormField
           label="Domain"
           htmlFor="email-domain-input"
           hint={
             domainLocked
               ? "Domain cannot be changed after setup. Contact support if you need to switch."
-              : "Example: guapo.dk"
+              : "Example: your-store.com"
           }
         >
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
@@ -96,6 +104,18 @@ export function EmailDomainTab(): ReactNode {
           </div>
         </FormField>
 
+        <FormField
+          label="Default from address"
+          htmlFor="email-from-address"
+          hint={
+            status === "verified"
+              ? "Used as the sender for transactional emails."
+              : "This address activates automatically once your domain is verified."
+          }
+        >
+          <Input id="email-from-address" value={fromEmail} readOnly disabled />
+        </FormField>
+
         {setupError !== null ? (
           <p role="alert" className="text-sm text-content-danger">
             {setupError}
@@ -109,10 +129,22 @@ export function EmailDomainTab(): ReactNode {
 
         {status === "verified" && configuredDomain !== null ? (
           <p className="text-sm text-feedback-success-content">
-            Domain verified —{" "}
-            <span className="font-medium">noreply@{configuredDomain}</span> is now your sending
+            Domain verified — <span className="font-medium">{fromEmail}</span> is now your sending
             address.
           </p>
+        ) : null}
+
+        {configuredDomain !== null && status === "pending" ? (
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={verifying}
+            onClick={() => {
+              void verifyNow()
+            }}
+          >
+            {verifying ? "Checking verification…" : "Verify now"}
+          </Button>
         ) : null}
       </Card>
 
@@ -123,7 +155,9 @@ export function EmailDomainTab(): ReactNode {
             <p className="mt-1 text-sm text-content-secondary">
               Add these records at your DNS provider. Verification usually completes within a few
               minutes after propagation.
-              {status === "pending" ? " Status refreshes automatically every 30 seconds." : null}
+              {status === "pending"
+                ? " Status refreshes automatically every 30 seconds, or use Verify now."
+                : null}
             </p>
           </div>
           <DnsRecordsTable records={records} />
