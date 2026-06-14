@@ -231,12 +231,14 @@ export function GeneralSettingsPage(): ReactNode {
           description="Store name, contact details, currency, timezone, and business address."
           breadcrumbs={settingsGeneralBreadcrumbs()}
         />
-        <Card className="space-y-4 p-6" role="alert">
-          <p className="font-medium text-content-primary">Could not load store settings.</p>
-          <p className="text-sm text-content-secondary">{state.message}</p>
-          <Button type="button" variant="secondary" onClick={() => void reload()}>
-            Try again
-          </Button>
+        <Card className="space-y-4 p-6">
+          <div role="alert">
+            <p className="font-medium text-content-primary">Could not load store settings.</p>
+            <p className="text-sm text-content-secondary">{state.message}</p>
+            <Button type="button" variant="secondary" className="mt-4" onClick={() => void reload()}>
+              Try again
+            </Button>
+          </div>
         </Card>
       </div>
     )
