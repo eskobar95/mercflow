@@ -4476,11 +4476,12 @@ Four high-risk endpoint groups have rate limiting. The `innerHTML` assignment in
 
 **Sprint:** S048
 **Milestone:** M022
-**Status:** planned
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S048/T096-settings-general-taxes
+**PR:** https://github.com/eskobar95/mercflow/pull/145
 **PRD journey:** J001 (PRD-settings-completion.md)
 **ADRs:** ADR-012
 
