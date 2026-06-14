@@ -3255,3 +3255,126 @@ none
 
 ### Result
 - `development` @ `1d3aa9f` — M020 S045 complete; unblocks T090, T091, T092
+
+---
+
+## Task T093 — CVE remediation + audit gate — 2026-06-14
+
+**Sprint:** S047 | **Milestone:** M021 | **Status:** done
+**Branch:** `feature/S047/T093-cve-remediation`
+**PR:** https://github.com/eskobar95/mercflow/pull/142
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+CVE deps bumped, infra/SECURITY.md created, scoped esbuild override + CI allowlist; all PR checks green
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+none
+
+---
+
+## Task T094 — validateBody helper + Zod on all 20 platform routes — 2026-06-14
+
+**Sprint:** S047 | **Milestone:** M021 | **Status:** done
+**Branch:** `feature/S047/T094-platform-route-validation`
+**PR:** https://github.com/eskobar95/mercflow/pull/141
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+validateBody/validateParams helper wired to all platform POST/PUT routes and parametrised GET routes with unit + integration tests
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+none
+
+---
+
+## Task T095 — Rate limiting + innerHTML fix + SECURITY.md — 2026-06-14
+
+**Sprint:** S047 | **Milestone:** M021 | **Status:** done
+**Branch:** `feature/S047/T095-rate-limiting-xss-fix`
+**PR:** https://github.com/eskobar95/mercflow/pull/140
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Platform rate limits on 4 endpoint groups, XSS-safe previewPlainText regex strip, SECURITY.md in-memory store docs
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none
+
+---
+
+## Sprint retro — S047 — 2026-06-14
+
+**Milestone:** M021
+**Duration:** session
+**Tasks:** 3/3 done, 0 blocked
+
+### What went well
+- All three parallel group A tasks completed with green CI on first or second revision cycle
+- Clear separation of concerns: T093 (deps/audit), T094 (input validation), T095 (rate limits/XSS)
+- Existing local implementation on branches accelerated close-out
+
+### What failed or slowed down
+- T093 required 1 revision cycle (CI/audit alignment)
+- T094 required 1 revision cycle (route coverage completeness)
+- Planning files drifted between lead preflight and subagent updates — reconciled at sprint end
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T093 | done | Task T093 — 2026-06-14 |
+| T094 | done | Task T094 — 2026-06-14 |
+| T095 | done | Task T095 — 2026-06-14 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T093 | 1 | CI allowlist + esbuild override |
+| T094 | 1 | Complete route validation coverage |
+| T095 | 0 | — |
+
+### Harness notes
+- Parallel groups used: A (3 subagents simultaneous)
+- Subagent issues: none — all returned valid YAML
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | Note that subagents may update tasks.md on feature branches — lead must merge planning sync to development | skills/harness/harness/SKILL.md |
+| rule | Document T093/T095 both touch infra/SECURITY.md — coordinate merge order if conflicts | .factory/planning/sprints.md |
+
+### Next actions
+- [ ] Merge PRs #140, #141, #142 to `development`
+- [ ] `/run-sprint S048` — M022 Settings Completion (T096–T100)
+- [ ] `/milestone-review M021` after PRs merged
+
