@@ -17,6 +17,12 @@ import {
 import { sentryStoreIdMiddleware } from "../lib/sentry-store-id-middleware"
 import { storeRouteVersionRedirectMiddleware } from "../lib/store-route-versioning/store-route-version-redirect"
 import { clerkAdminAuthMiddleware } from "../lib/clerk-admin-auth/clerk-admin-auth-middleware"
+import {
+  platformBillingPlansRateLimitMiddleware,
+  platformInvitesRateLimitMiddleware,
+  platformProvisionRateLimitMiddleware,
+  platformSignupRateLimitMiddleware,
+} from "../lib/platform-http/rateLimits"
 import { clerkPlatformAuthMiddleware } from "../lib/platform-auth/clerk-platform-auth-middleware"
 import { platformCorsMiddleware } from "../lib/platform-auth/platform-cors-middleware"
 import { tenantBootstrapMiddleware } from "../lib/tenant-isolation/tenant-bootstrap-middleware"
@@ -62,6 +68,26 @@ export default defineMiddlewares({
     {
       matcher: "/platform*",
       middlewares: [platformCorsMiddleware, clerkPlatformAuthMiddleware],
+    },
+    {
+      matcher: "/platform/invites",
+      method: ["POST"],
+      middlewares: [platformInvitesRateLimitMiddleware],
+    },
+    {
+      matcher: "/platform/signup*",
+      method: ["POST"],
+      middlewares: [platformSignupRateLimitMiddleware],
+    },
+    {
+      matcher: "/platform/billing/plans",
+      method: ["GET"],
+      middlewares: [platformBillingPlansRateLimitMiddleware],
+    },
+    {
+      matcher: "/platform/provision",
+      method: ["POST"],
+      middlewares: [platformProvisionRateLimitMiddleware],
     },
     {
       matcher: "/admin*",
