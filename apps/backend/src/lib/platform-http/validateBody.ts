@@ -46,3 +46,9 @@ export const platformQueueJobParamsSchema = z
     id: z.string().trim().min(1),
   })
   .strict()
+
+export const platformTenantIdParamsSchema = z
+  .object({
+    id: z.string().trim().min(1),
+  })
+  .strict()

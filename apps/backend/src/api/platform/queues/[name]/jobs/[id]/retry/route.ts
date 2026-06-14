@@ -6,6 +6,10 @@ import {
   PlatformQueueMonitorError,
 } from "../../../../../../../lib/platform-queues/platform-queue-monitor"
 import { resolvePlatformQueueDefinition } from "../../../../../../../lib/platform-queues/queue-registry"
+import {
+  platformQueueJobParamsSchema,
+  validateParams,
+} from "../../../../../../../lib/platform-http/validateBody"
 
 export async function POST(
   req: PlatformAuthRequest,
@@ -16,23 +20,17 @@ export async function POST(
     return
   }
 
-  const queueName = req.params.name
-  const jobId = req.params.id
+  const params = validateParams(platformQueueJobParamsSchema, req.params)
 
-  if (!queueName || !resolvePlatformQueueDefinition(queueName)) {
-    res.status(404).json({ message: `Unknown queue "${queueName ?? ""}"` })
-    return
-  }
-
-  if (!jobId) {
-    res.status(400).json({ message: "Missing job id" })
+  if (!resolvePlatformQueueDefinition(params.name)) {
+    res.status(404).json({ message: `Unknown queue "${params.name}"` })
     return
   }
 
   const monitor = getPlatformQueueMonitor()
 
   try {
-    const result = await monitor.retryJob(queueName, jobId)
+    const result = await monitor.retryJob(params.name, params.id)
     res.status(200).json(result)
   } catch (error) {
     if (error instanceof PlatformQueueMonitorError) {
