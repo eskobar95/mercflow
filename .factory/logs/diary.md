@@ -3378,3 +3378,178 @@ none
 - [ ] `/run-sprint S048` — M022 Settings Completion (T096–T100)
 - [ ] `/milestone-review M021` after PRs merged
 
+---
+
+## Task T096 — General + Taxes settings pages — 2026-06-14
+
+**Sprint:** S048 | **Milestone:** M022 | **Status:** done
+**Branch:** `feature/S048/T096-settings-general-taxes`
+**PR:** https://github.com/eskobar95/mercflow/pull/145
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Implemented /settings/general and /settings/taxes with Medusa store/tax API clients, forms, loading/error/empty states, and unsaved-changes guard.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+none
+
+---
+
+## Task T097 — Shipping zones + Carriers settings pages — 2026-06-14
+
+**Sprint:** S048 | **Milestone:** M022 | **Status:** done
+**Branch:** `feature/S048/T097-settings-shipping-carriers`
+**PR:** https://github.com/eskobar95/mercflow/pull/144
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Added /settings/shipping Profiles|Rates CRUD via Medusa SDK and Shipmondo carriers status badge; fixed shipmondoConnectorWorkspace.test.tsx heading assertion after CI failure.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+none
+
+---
+
+## Task T098 — Team settings page — 2026-06-14
+
+**Sprint:** S048 | **Milestone:** M022 | **Status:** done
+**Branch:** `feature/S048/T098-settings-team`
+**PR:** https://github.com/eskobar95/mercflow/pull/143
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Team settings slice — Clerk org proxy routes plus /settings/team UI for invite, list, role change, and revoke.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none
+
+---
+
+## Task T099 — Notifications + Email settings pages — 2026-06-14
+
+**Sprint:** S048 | **Milestone:** M022 | **Status:** done
+**Branch:** `feature/S048/T099-settings-notifications-email`
+**PR:** https://github.com/eskobar95/mercflow/pull/147
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Notifications settings page (branding + template toggles + preview) and polished email domain tab; branding moved off /settings/email.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 0 |
+
+### Unblocked
+none
+
+---
+
+## Task T100 — Apps overview + Developers settings pages — 2026-06-14
+
+**Sprint:** S048 | **Milestone:** M022 | **Status:** done
+**Branch:** `feature/S048/T100-settings-apps-developers`
+**PR:** https://github.com/eskobar95/mercflow/pull/146
+**Mode:** AFK
+**Parallel group:** A
+
+### Outcome
+Apps overview empty state + Developers settings (API keys copy/regenerate, webhooks placeholder) shipped with all CI checks green.
+
+### Pipeline
+| Step | Result |
+|------|--------|
+| Verify | pass |
+| Review (task fit) | pass |
+| Review (thermo-nuclear) | pass |
+| CI | pass |
+| Revision cycles | 1 |
+
+### Unblocked
+none
+
+---
+
+## Sprint retro — S048 — 2026-06-14
+
+**Milestone:** M022
+**Duration:** session
+**Tasks:** 5/5 done, 0 blocked
+
+### What went well
+- All 5 parallel settings slices shipped independently with no cross-task blockers
+- T098 (Team) completed with zero revision cycles — backend + UI in one pass
+- T097 CI failure was a stale test assertion; fixed quickly on resume without code rework
+
+### What failed or slowed down
+- T097 initially blocked on CI — shipmondoConnectorWorkspace.test.tsx expected "Shipmondo" heading after page renamed to "Carriers"
+- Planning file drift: subagents updated tasks.md on feature branches; lead reconciled at sprint end
+
+### Task log index
+| Task | Final status | See diary section |
+|------|--------------|-------------------|
+| T096 | done | Task T096 — 2026-06-14 |
+| T097 | done | Task T097 — 2026-06-14 |
+| T098 | done | Task T098 — 2026-06-14 |
+| T099 | done | Task T099 — 2026-06-14 |
+| T100 | done | Task T100 — 2026-06-14 |
+
+### Revision loops (aggregate)
+| Task | Cycles | Resolved by |
+|------|--------|-------------|
+| T096 | 1 | — |
+| T097 | 1 | Test heading fix + CI resume |
+| T098 | 0 | — |
+| T099 | 0 | — |
+| T100 | 1 | — |
+
+### Harness notes
+- Parallel groups used: A (5 subagents simultaneous)
+- Subagent issues: T097 required resume for CI fix; all returned valid YAML
+
+### Factory improvement suggestions
+| Area | Suggestion | Target file |
+|------|------------|-------------|
+| skill | When renaming page titles, grep for test assertions on old heading text in fix-ci | skills/harness/fix-ci/SKILL.md |
+| skill | Note that subagents may update tasks.md on feature branches — lead must reconcile at sprint end | skills/harness/harness/SKILL.md |
+
+### Next actions
+- [ ] Merge PRs #143, #144, #145, #146, #147 to `development`
+- [ ] `/milestone-review M022` after PRs merged
+- [ ] Human: smoke-test all 9 settings pages in admin UI
+

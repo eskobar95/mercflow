@@ -49,7 +49,7 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 | M019 | Tenant Onboarding | Invitation-based self-service onboarding from Platform Console; signup → Stripe billing → auto-provisioning flow | M014, M017 | done |
 | M020 | Platform Billing Retrofit | Stripe catalog-driven plan picker; `platform_tenant_billing` index; `store_id`-keyed webhooks; suspend cancels subscription | M019 | done |
 | M021 | Security Hardening | Zod validation on all platform routes; rate limiting on invite/signup/billing; CVE remediation; innerHTML fix; `pnpm audit --audit-level=high` → 0 | M020 | planned |
-| M022 | Settings Completion | All 9 placeholder settings pages functional; new tenant can configure store without operator help | M016 | planned |
+| M022 | Settings Completion | All 9 placeholder settings pages functional; new tenant can configure store without operator help | M016 | done |
 
 ---
 
@@ -796,20 +796,20 @@ flowchart LR
 
 | Sprint | Goal | Tasks | Status |
 |--------|------|-------|--------|
-| S048 | All 9 settings pages functional (parallel) | T096, T097, T098, T099, T100 | planned |
+| S048 | All 9 settings pages functional (parallel) | T096, T097, T098, T099, T100 | done |
 
 **Dependencies:** M016 (Settings shell + sidebar nav in place)
 
 **Definition of done:**
-- [ ] `/settings/general` — store name, email, currency, timezone, address saves via Medusa API
-- [ ] `/settings/taxes` — tax regions + rates: list, add, edit, delete
-- [ ] `/settings/shipping` — shipping profiles + rates: list, add, edit, delete
-- [ ] `/settings/shipping/carriers` — Shipmondo API key + test connection
-- [ ] `/settings/team` — invite by email, assign role, revoke (Clerk org members)
-- [ ] `/settings/notifications` — branding fields + template toggles + preview
-- [ ] `/settings/email` — SES domain entry + DNS records + verify flow complete
-- [ ] `/settings/apps` — connector status grid with navigate-to-config links
-- [ ] `/settings/developers` — publishable API key display + copy + revoke
-- [ ] All pages: loading, error, empty states
-- [ ] `pnpm react-doctor:admin-ui` 0 new issues
+- [x] `/settings/general` — store name, email, currency, timezone, address saves via Medusa API
+- [x] `/settings/taxes` — tax regions + rates: list, add, edit, delete
+- [x] `/settings/shipping` — shipping profiles + rates: list, add, edit, delete
+- [x] `/settings/shipping/carriers` — Shipmondo API key + test connection
+- [x] `/settings/team` — invite by email, assign role, revoke (Clerk org members)
+- [x] `/settings/notifications` — branding fields + template toggles + preview
+- [x] `/settings/email` — SES domain entry + DNS records + verify flow complete
+- [x] `/settings/apps` — connector status grid with navigate-to-config links
+- [x] `/settings/developers` — publishable API key display + copy + revoke
+- [x] All pages: loading, error, empty states
+- [x] `pnpm react-doctor:admin-ui` 0 new issues
 - [ ] `pnpm typecheck` + `pnpm lint` green

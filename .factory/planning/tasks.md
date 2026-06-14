@@ -4476,11 +4476,12 @@ Four high-risk endpoint groups have rate limiting. The `innerHTML` assignment in
 
 **Sprint:** S048
 **Milestone:** M022
-**Status:** planned
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S048/T096-settings-general-taxes
+**PR:** https://github.com/eskobar95/mercflow/pull/145
 **PRD journey:** J001 (PRD-settings-completion.md)
 **ADRs:** ADR-012
 
@@ -4509,11 +4510,12 @@ A new tenant can fill in their store name, contact email, default currency, time
 
 **Sprint:** S048
 **Milestone:** M022
-**Status:** planned
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S048/T097-settings-shipping-carriers
+**PR:** https://github.com/eskobar95/mercflow/pull/144
 **PRD journey:** J001 (PRD-settings-completion.md)
 **ADRs:** ADR-012
 
@@ -4542,11 +4544,12 @@ A merchant can configure shipping profiles and flat/weight-based rates, and conn
 
 **Sprint:** S048
 **Milestone:** M022
-**Status:** planned
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S048/T098-settings-team
+**PR:** https://github.com/eskobar95/mercflow/pull/143
 **PRD journey:** J002 (PRD-settings-completion.md)
 **ADRs:** ADR-012, ADR-011
 
@@ -4576,11 +4579,12 @@ A merchant can invite team members by email, assign roles (Admin / Staff), and r
 
 **Sprint:** S048
 **Milestone:** M022
-**Status:** planned
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S048/T099-settings-notifications-email
+**PR:** https://github.com/eskobar95/mercflow/pull/147
 **PRD journey:** J001 (PRD-settings-completion.md)
 **ADRs:** ADR-012, ADR-009
 
@@ -4609,11 +4613,12 @@ A merchant can configure their email branding (logo, color, from name, reply-to)
 
 **Sprint:** S048
 **Milestone:** M022
-**Status:** planned
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S048/T100-settings-apps-developers
+**PR:** https://github.com/eskobar95/mercflow/pull/146
 **PRD journey:** J003, J004 (PRD-settings-completion.md)
 **ADRs:** ADR-012
 

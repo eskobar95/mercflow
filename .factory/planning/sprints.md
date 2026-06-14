@@ -74,8 +74,10 @@
 | S045 | M020 | Billing foundation: migration + catalog API + provision step 7 | T089 | done |
 | S046 | M020 | Webhook retrofit + signup plan picker + console billing panel (parallel) | T090, T091, T092 | done |
 | S047 | M021 | CVE remediation + platform route validation + rate limiting/XSS fix (parallel) | T093, T094, T095 | done |
+| S048 | M022 | All 9 settings pages functional (parallel) | T096, T097, T098, T099, T100 | done |
 
 > Updated: 2026-06-14 (`/run-sprint S047` complete — T093 PR #142, T094 PR #141, T095 PR #140)
+> Updated: 2026-06-14 (`/run-sprint S048` complete — T096 PR #145, T097 PR #144, T098 PR #143, T099 PR #147, T100 PR #146)
 
 ---
 
