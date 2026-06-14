@@ -14,6 +14,7 @@
 > Updated: 2026-06-13 (M012, M017–M019 marked done — all milestones M000–M019 complete)
 > Updated: 2026-06-14 (M020 marked done — S045–S046 complete; all milestones M000–M020 complete)
 > Updated: 2026-06-14 (M021 Security Hardening + M022 Settings Completion added — /align + /to-prd session)
+> Updated: 2026-06-14 (M021 + M022 marked done — S047 PR #140–#142, S048 PR #143–#147)
 
 ---
 
@@ -48,7 +49,7 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 | M018 | Discount System | Shopify-inspired discount admin UI on Medusa's promotion API; 4 types × 2 methods; top-level nav item | M016 | done |
 | M019 | Tenant Onboarding | Invitation-based self-service onboarding from Platform Console; signup → Stripe billing → auto-provisioning flow | M014, M017 | done |
 | M020 | Platform Billing Retrofit | Stripe catalog-driven plan picker; `platform_tenant_billing` index; `store_id`-keyed webhooks; suspend cancels subscription | M019 | done |
-| M021 | Security Hardening | Zod validation on all platform routes; rate limiting on invite/signup/billing; CVE remediation; innerHTML fix; `pnpm audit --audit-level=high` → 0 | M020 | planned |
+| M021 | Security Hardening | Zod validation on all platform routes; rate limiting on invite/signup/billing; CVE remediation; innerHTML fix; `pnpm audit --audit-level=high` → 0 | M020 | done |
 | M022 | Settings Completion | All 9 placeholder settings pages functional; new tenant can configure store without operator help | M016 | done |
 
 ---
@@ -768,18 +769,18 @@ flowchart LR
 
 | Sprint | Goal | Tasks | Status |
 |--------|------|-------|--------|
-| S047 | CVE remediation + validateBody + rate limiting + innerHTML fix (parallel) | T093, T094, T095 | planned |
+| S047 | CVE remediation + validateBody + rate limiting + innerHTML fix (parallel) | T093, T094, T095 | done |
 
 **Dependencies:** M020 (all platform routes exist to validate)
 
 **Definition of done:**
-- [ ] `pnpm audit --audit-level=high` → exit code 0
-- [ ] All 20 `/platform/*` routes call `validateBody` or inline param validation
-- [ ] Rate limiting on invite / signup / billing / provision endpoint groups
-- [ ] `previewPlainText.ts` — no raw `innerHTML = untrustedInput`
-- [ ] `infra/SECURITY.md` documents accepted-risk CVEs
-- [ ] `gitleaks detect --source . --staged` → 0 secrets
-- [ ] `pnpm typecheck` + `pnpm test` green
+- [x] `pnpm audit --audit-level=high` → exit code 0
+- [x] All 20 `/platform/*` routes call `validateBody` or inline param validation
+- [x] Rate limiting on invite / signup / billing / provision endpoint groups
+- [x] `previewPlainText.ts` — no raw `innerHTML = untrustedInput`
+- [x] `infra/SECURITY.md` documents accepted-risk CVEs
+- [x] `gitleaks detect --source . --staged` → 0 secrets
+- [x] `pnpm typecheck` + `pnpm test` green
 
 ---
 
