@@ -222,6 +222,7 @@ BDD: optional under `.factory/specs/` — link to PRD journeys when used.
 | [ADR-013](ADR/ADR-013-payment-module-provider-abstraction.md) | 2026-06-13 | Payment abstraction: new `payment-module` with `IPaymentProvider` interface; Stripe migrated from `connector-module`; test/live mode per tenant | accepted |
 | [ADR-014](ADR/ADR-014-tenant-onboarding-hybrid-invitation.md) | 2026-06-13 | Tenant onboarding: invitation-based self-service (invite from Platform Console, full signup + Stripe billing + auto-provisioning, public flag to remove gate) | accepted |
 | [ADR-015](ADR/ADR-015-platform-billing-tenant-linkage.md) | 2026-06-13 | Platform billing: `store_id` as canonical Stripe linkage key; `platform_tenant_billing` as authoritative billing index; plans fetched from Stripe catalog (no `STRIPE_PLATFORM_PRICE_ID`); suspend atomically cancels Stripe subscription | accepted |
+| [ADR-016](ADR/ADR-016-security-hardening-api-validation.md) | 2026-06-14 | Security hardening: Zod on all platform routes via `validateBody` helper; rate limiting on invite/signup/billing/provision endpoints; CVE remediation policy (high = fix, moderate dev-only = document) | accepted |
 
 ---
 

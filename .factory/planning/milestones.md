@@ -13,6 +13,7 @@
 > Updated: 2026-06-13 (S037–S044 + T079–T088 added — `/to-backlog`)
 > Updated: 2026-06-13 (M012, M017–M019 marked done — all milestones M000–M019 complete)
 > Updated: 2026-06-14 (M020 marked done — S045–S046 complete; all milestones M000–M020 complete)
+> Updated: 2026-06-14 (M021 Security Hardening + M022 Settings Completion added — /align + /to-prd session)
 
 ---
 
@@ -47,6 +48,8 @@ MercFlow becomes a complete SaaS Medusa distribution: multiple shops run on one 
 | M018 | Discount System | Shopify-inspired discount admin UI on Medusa's promotion API; 4 types × 2 methods; top-level nav item | M016 | done |
 | M019 | Tenant Onboarding | Invitation-based self-service onboarding from Platform Console; signup → Stripe billing → auto-provisioning flow | M014, M017 | done |
 | M020 | Platform Billing Retrofit | Stripe catalog-driven plan picker; `platform_tenant_billing` index; `store_id`-keyed webhooks; suspend cancels subscription | M019 | done |
+| M021 | Security Hardening | Zod validation on all platform routes; rate limiting on invite/signup/billing; CVE remediation; innerHTML fix; `pnpm audit --audit-level=high` → 0 | M020 | planned |
+| M022 | Settings Completion | All 9 placeholder settings pages functional; new tenant can configure store without operator help | M016 | planned |
 
 ---
 
@@ -572,6 +575,9 @@ flowchart LR
   M014 --> M019
   M017 --> M019
   M019 --> M020
+  M020 --> M021
+  M016 --> M022
+  M021 -.->|gate| M022
 ```
 
 ---
