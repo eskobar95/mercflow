@@ -58,6 +58,10 @@ export function settingsEmailBreadcrumbs(): BreadcrumbItem[] {
   return settingsBreadcrumb("Email")
 }
 
+export function settingsNotificationsBreadcrumbs(): BreadcrumbItem[] {
+  return settingsBreadcrumb("Notifications")
+}
+
 export function settingsSubscriptionsBreadcrumbs(): BreadcrumbItem[] {
   return settingsBreadcrumb("Subscriptions")
 }

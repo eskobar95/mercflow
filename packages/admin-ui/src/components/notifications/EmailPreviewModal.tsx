@@ -11,6 +11,7 @@ import { cn } from "@/lib/cn"
 type EmailPreviewModalProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
+  title?: string
   html: string | null
   loading: boolean
   error: string | null
@@ -20,6 +21,7 @@ type EmailPreviewModalProps = {
 export function EmailPreviewModal({
   open,
   onOpenChange,
+  title = "Order confirmation preview",
   html,
   loading,
   error,
@@ -37,7 +39,7 @@ export function EmailPreviewModal({
         >
           <div className="flex items-start justify-between border-b border-border-subtle px-4 py-3 pr-12">
             <DialogPrimitive.Title className="text-base font-semibold text-content-primary">
-              Order confirmation preview
+              {title}
             </DialogPrimitive.Title>
             <DialogPrimitive.Close aria-label="Close preview" className={cn(formIconButtonClass, "absolute right-3 top-3")}>
               <IconClose size={16} />
@@ -54,7 +56,7 @@ export function EmailPreviewModal({
               </div>
             ) : null}
             {!loading && error === null && html !== null ? (
-              <iframe title="Order confirmation email preview" srcDoc={html} className="h-[min(70vh,640px)] w-full rounded-lg border border-border-default bg-surface-default" sandbox="" />
+              <iframe title={`${title} email`} srcDoc={html} className="h-[min(70vh,640px)] w-full rounded-lg border border-border-default bg-surface-default" sandbox="" />
             ) : null}
           </div>
         </DialogPrimitive.Content>

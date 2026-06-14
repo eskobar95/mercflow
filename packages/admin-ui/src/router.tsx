@@ -370,10 +370,8 @@ export const router = createBrowserRouter([
             path: "notifications",
             handle: { title: "Notifications" } satisfies AppRouteHandle,
             lazy: async () => {
-              const { SettingsNotificationsPlaceholderRoute } = await import(
-                "@/routing/settingsPlaceholderRoutes"
-              )
-              return { Component: SettingsNotificationsPlaceholderRoute }
+              const { NotificationsSettingsPage } = await import("@/pages/NotificationsSettingsPage")
+              return { Component: NotificationsSettingsPage }
             },
           },
           {

@@ -6,7 +6,6 @@ import { parseEmailSettingsTab } from "@/config/emailSettingsTabs"
 import { settingsEmailBreadcrumbs } from "@/config/settingsBreadcrumbs"
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
-import { EmailBrandingTab } from "./email-settings/EmailBrandingTab"
 import { EmailDeliveryHistoryTab } from "./email-settings/EmailDeliveryHistoryTab"
 import { EmailDomainTab } from "./email-settings/EmailDomainTab"
 import { EmailSettingsTabNav } from "./email-settings/EmailSettingsTabNav"
@@ -32,14 +31,13 @@ export function EmailSettingsPage(): ReactNode {
     <div className="space-y-6 p-6">
       <PageHeader
         title="Email"
-        description="Sending domain, branding, and delivery history for transactional emails."
+        description="Verify your sending domain and review delivery history for transactional emails."
         breadcrumbs={settingsEmailBreadcrumbs()}
       />
 
       <EmailSettingsTabNav />
 
       {activeTab === "domain" ? <EmailDomainTab /> : null}
-      {activeTab === "branding" ? <EmailBrandingTab /> : null}
       {activeTab === "delivery-history" ? <EmailDeliveryHistoryTab /> : null}
     </div>
   )

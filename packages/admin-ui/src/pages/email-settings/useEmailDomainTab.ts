@@ -19,10 +19,12 @@ type EmailDomainTabState = {
   message: string | null
   domainInput: string
   configuredDomain: string | null
+  fromEmail: string
   status: SesDomainStatus
   records: DomainDnsRecordRow[]
   fallbackFrom: string
   settingUp: boolean
+  verifying: boolean
   setupError: string | null
   pollingError: string | null
 }
@@ -33,6 +35,7 @@ type EmailDomainTabAction =
       type: "loadSuccess"
       domainInput: string
       configuredDomain: string | null
+      fromEmail: string
       status: SesDomainStatus
       records: DomainDnsRecordRow[]
       fallbackFrom: string
@@ -40,9 +43,24 @@ type EmailDomainTabAction =
   | { type: "loadError"; message: string }
   | { type: "setDomainInput"; value: string }
   | { type: "setupStart" }
-  | { type: "setupSuccess"; domain: string; status: SesDomainStatus; records: DomainDnsRecordRow[]; fallbackFrom: string }
+  | {
+      type: "setupSuccess"
+      domain: string
+      fromEmail: string
+      status: SesDomainStatus
+      records: DomainDnsRecordRow[]
+      fallbackFrom: string
+    }
   | { type: "setupError"; message: string }
-  | { type: "statusPollSuccess"; status: SesDomainStatus; records: DomainDnsRecordRow[]; fallbackFrom: string }
+  | { type: "verifyStart" }
+  | { type: "verifyFinish" }
+  | {
+      type: "statusPollSuccess"
+      status: SesDomainStatus
+      records: DomainDnsRecordRow[]
+      fallbackFrom: string
+      fromEmail?: string
+    }
   | { type: "statusPollError"; message: string }
 
 const INITIAL_STATE: EmailDomainTabState = {
@@ -50,12 +68,28 @@ const INITIAL_STATE: EmailDomainTabState = {
   message: null,
   domainInput: "",
   configuredDomain: null,
+  fromEmail: DEFAULT_FALLBACK_FROM,
   status: "pending",
   records: [],
   fallbackFrom: DEFAULT_FALLBACK_FROM,
   settingUp: false,
+  verifying: false,
   setupError: null,
   pollingError: null,
+}
+
+function resolveFromEmail(
+  fromEmail: string | null,
+  domain: string | null,
+  fallbackFrom: string,
+): string {
+  if (fromEmail !== null && fromEmail.trim() !== "") {
+    return fromEmail
+  }
+  if (domain !== null && domain.trim() !== "") {
+    return `noreply@${domain}`
+  }
+  return fallbackFrom
 }
 
 function emailDomainTabReducer(
@@ -71,6 +105,7 @@ function emailDomainTabReducer(
         phase: "ready",
         domainInput: action.domainInput,
         configuredDomain: action.configuredDomain,
+        fromEmail: action.fromEmail,
         status: action.status,
         records: action.records,
         fallbackFrom: action.fallbackFrom,
@@ -90,6 +125,7 @@ function emailDomainTabReducer(
         settingUp: false,
         configuredDomain: action.domain,
         domainInput: action.domain,
+        fromEmail: action.fromEmail,
         status: action.status,
         records: action.records,
         fallbackFrom: action.fallbackFrom,
@@ -98,19 +134,24 @@ function emailDomainTabReducer(
       }
     case "setupError":
       return { ...state, settingUp: false, setupError: action.message }
+    case "verifyStart":
+      return { ...state, verifying: true, pollingError: null }
+    case "verifyFinish":
+      return { ...state, verifying: false }
     case "statusPollSuccess":
       return {
         ...state,
         status: action.status,
         records: action.records,
         fallbackFrom: action.fallbackFrom,
+        fromEmail: action.fromEmail ?? state.fromEmail,
         pollingError: null,
       }
     case "statusPollError":
       return { ...state, pollingError: action.message }
     default: {
-      const _exhaustive: never = action
-      return _exhaustive
+      const exhaustive: never = action
+      return exhaustive
     }
   }
 }
@@ -120,7 +161,7 @@ export type UseEmailDomainTabResult = {
   reload: () => Promise<void>
   setDomainInput: (value: string) => void
   setupDomain: () => Promise<void>
-  checkStatus: () => Promise<void>
+  verifyNow: () => Promise<void>
   domainLocked: boolean
   showFallbackInfo: boolean
 }
@@ -132,16 +173,19 @@ export function useEmailDomainTab(): UseEmailDomainTabResult {
     dispatch({ type: "loadStart" })
     try {
       const config = await getAdminEmailConfig()
+      const fallbackFrom = config.fallback_from ?? DEFAULT_FALLBACK_FROM
       dispatch({
         type: "loadSuccess",
         domainInput: config.domain ?? "",
         configuredDomain: config.domain,
+        fromEmail: resolveFromEmail(config.from_email, config.domain, fallbackFrom),
         status: config.ses_domain_status,
         records: flattenDnsRecords(config.dns_records),
-        fallbackFrom: config.fallback_from ?? DEFAULT_FALLBACK_FROM,
+        fallbackFrom,
       })
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to load email domain settings"
+      const message =
+        error instanceof Error ? error.message : "Failed to load email domain settings"
       dispatch({ type: "loadError", message })
     }
   }, [])
@@ -150,27 +194,36 @@ export function useEmailDomainTab(): UseEmailDomainTabResult {
     void reload()
   }, [reload])
 
-  const checkStatus = useCallback(async (): Promise<void> => {
+  const verifyNow = useCallback(async (): Promise<void> => {
     if (state.configuredDomain === null) {
       return
     }
+    dispatch({ type: "verifyStart" })
     try {
       const result = await getAdminDomainStatus()
+      const fromEmail =
+        result.status === "verified" && state.configuredDomain !== null
+          ? `noreply@${state.configuredDomain}`
+          : state.fromEmail
       dispatch({
         type: "statusPollSuccess",
         status: result.status,
         records: flattenDnsRecords(result.records),
         fallbackFrom: result.fallback_from,
+        fromEmail,
       })
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to refresh domain status"
+      const message =
+        error instanceof Error ? error.message : "Failed to refresh domain status"
       dispatch({ type: "statusPollError", message })
+    } finally {
+      dispatch({ type: "verifyFinish" })
     }
-  }, [state.configuredDomain])
+  }, [state.configuredDomain, state.fromEmail])
 
   useInterval(
     () => {
-      void checkStatus()
+      void verifyNow()
     },
     DOMAIN_STATUS_POLL_INTERVAL_MS,
     state.phase === "ready" && state.status === "pending" && state.configuredDomain !== null,
@@ -188,6 +241,7 @@ export function useEmailDomainTab(): UseEmailDomainTabResult {
       dispatch({
         type: "setupSuccess",
         domain: result.domain,
+        fromEmail: `noreply@${result.domain}`,
         status: result.ses_domain_status,
         records: flattenDnsRecords(result.records),
         fallbackFrom: result.fallback_from,
@@ -203,14 +257,15 @@ export function useEmailDomainTab(): UseEmailDomainTabResult {
   }, [])
 
   const domainLocked = state.configuredDomain !== null
-  const showFallbackInfo = state.status === "pending" || state.status === "failed"
+  const showFallbackInfo =
+    state.configuredDomain === null || state.status === "pending" || state.status === "failed"
 
   return {
     state,
     reload,
     setDomainInput,
     setupDomain,
-    checkStatus,
+    verifyNow,
     domainLocked,
     showFallbackInfo,
   }
