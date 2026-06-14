@@ -4,10 +4,6 @@ import type { PlatformAuthRequest } from "../../../../../../lib/platform-auth/cl
 import { getPlatformTenantBillingByStoreId } from "../../../../../../lib/platform-db/platform-tenant-billing"
 import { isPlatformDbConfigured } from "../../../../../../lib/platform-db/platform-db"
 import { getPlatformTenantById } from "../../../../../../lib/platform-tenants/list-tenants"
-import {
-  platformStoreIdParamsSchema,
-  validateParams,
-} from "../../../../../../lib/platform-http/validateBody"
 
 type PlatformTenantBillingResponse = {
   store_id: string
@@ -41,16 +37,20 @@ export async function GET(
     return
   }
 
-  const params = validateParams(platformStoreIdParamsSchema, req.params)
+  const storeId = req.params.store_id
+  if (typeof storeId !== "string" || storeId.trim() === "") {
+    res.status(400).json({ message: "Missing store id" })
+    return
+  }
 
   try {
-    const tenant = await getPlatformTenantById(params.store_id)
+    const tenant = await getPlatformTenantById(storeId)
     if (tenant === null) {
-      res.status(404).json({ message: `Tenant not found: ${params.store_id}` })
+      res.status(404).json({ message: `Tenant not found: ${storeId}` })
       return
     }
 
-    const billing = await getPlatformTenantBillingByStoreId(params.store_id)
+    const billing = await getPlatformTenantBillingByStoreId(storeId)
     if (billing === null) {
       res.status(200).json({ billing: null })
       return

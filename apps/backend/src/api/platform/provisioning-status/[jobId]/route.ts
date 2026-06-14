@@ -1,21 +1,21 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 
 import { getProvisioningJobState } from "../../../../lib/platform-provisioning/job-state"
-import {
-  platformJobIdParamsSchema,
-  validateParams,
-} from "../../../../lib/platform-http/validateBody"
 
 export async function GET(
   req: MedusaRequest,
   res: MedusaResponse,
 ): Promise<void> {
-  const params = validateParams(platformJobIdParamsSchema, req.params)
+  const jobId = req.params.jobId
+  if (typeof jobId !== "string" || jobId.trim() === "") {
+    res.status(400).json({ message: "Missing job id" })
+    return
+  }
 
   try {
-    const state = await getProvisioningJobState(params.jobId)
+    const state = await getProvisioningJobState(jobId)
     if (!state) {
-      res.status(404).json({ message: `Provisioning job not found: ${params.jobId}` })
+      res.status(404).json({ message: `Provisioning job not found: ${jobId}` })
       return
     }
 
