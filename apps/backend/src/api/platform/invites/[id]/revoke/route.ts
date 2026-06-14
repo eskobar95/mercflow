@@ -8,11 +8,11 @@ import {
 } from "../../../../../lib/platform-db/platform-invites"
 import { platformInviteIdParamsSchema } from "../../../../../lib/platform-invites/validators"
 import { writePlatformAuditLog } from "../../../../../lib/platform-tenants/audit-log"
-import { sendPlatformZodError } from "../../../../../lib/platform-http/list-query"
 import {
   requirePlatformDatabase,
   requirePlatformOperator,
 } from "../../../../../lib/platform-http/require-platform-operator"
+import { validateParams } from "../../../../../lib/platform-http/validateBody"
 
 export async function POST(
   req: PlatformAuthRequest & MedusaRequest,
@@ -27,16 +27,12 @@ export async function POST(
     return
   }
 
-  const parsed = platformInviteIdParamsSchema.safeParse(req.params)
-  if (!parsed.success) {
-    sendPlatformZodError(res, parsed.error)
-    return
-  }
+  const params = validateParams(platformInviteIdParamsSchema, req.params)
 
   try {
-    const existing = await getPlatformInviteById(parsed.data.id)
+    const existing = await getPlatformInviteById(params.id)
     if (existing === null) {
-      res.status(404).json({ message: `Invite not found: ${parsed.data.id}` })
+      res.status(404).json({ message: `Invite not found: ${params.id}` })
       return
     }
 
@@ -47,7 +43,7 @@ export async function POST(
       return
     }
 
-    const revoked = await revokePlatformInvite(parsed.data.id)
+    const revoked = await revokePlatformInvite(params.id)
     if (revoked === null) {
       res.status(409).json({ message: "Invite is no longer pending" })
       return

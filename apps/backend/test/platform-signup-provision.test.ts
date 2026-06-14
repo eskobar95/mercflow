@@ -24,6 +24,17 @@ describe("signup billing setup validators", () => {
 
     expect(result.success).toBe(false)
   })
+
+  it("rejects price_id without price_ prefix", () => {
+    const result = signupBillingSetupBodySchema.safeParse({
+      price_id: "prod_123",
+      invite_token: "token-123",
+      email: "hello@example.com",
+      store_name: "Kaffehuset",
+    })
+
+    expect(result.success).toBe(false)
+  })
 })
 
 describe("signup provision validators", () => {

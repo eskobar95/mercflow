@@ -6,6 +6,7 @@ import { writePlatformAuditLog } from "../../../../lib/platform-tenants/audit-lo
 import { provisionPlatformTenant } from "../../../../lib/platform-tenants/provision-tenant-service"
 import type { ProvisionProgressEvent } from "../../../../lib/platform-tenants/types"
 import { provisionTenantBodySchema } from "../../../../lib/platform-tenants/validators"
+import { validateBody } from "../../../../lib/platform-http/validateBody"
 
 function writeSseEvent(
   res: MedusaResponse,
@@ -34,14 +35,7 @@ export async function POST(
     return
   }
 
-  const parsed = provisionTenantBodySchema.safeParse(req.body)
-  if (!parsed.success) {
-    res.status(400).json({
-      message: "Invalid request body",
-      errors: parsed.error.flatten(),
-    })
-    return
-  }
+  const body = validateBody(provisionTenantBodySchema, req)
 
   res.setHeader("Content-Type", "text/event-stream; charset=utf-8")
   res.setHeader("Cache-Control", "no-cache, no-transform")
@@ -50,7 +44,7 @@ export async function POST(
 
   try {
     const result = await provisionPlatformTenant(
-      parsed.data,
+      body,
       (progress: ProvisionProgressEvent) => {
         writeSseEvent(res, "progress", progress)
       },
@@ -62,11 +56,11 @@ export async function POST(
       entity_type: "tenant",
       entity_id: result.store_id,
       metadata: {
-        name: parsed.data.name,
-        domain: parsed.data.domain,
-        email: parsed.data.email,
-        currency: parsed.data.currency,
-        timezone: parsed.data.timezone ?? null,
+        name: body.name,
+        domain: body.domain,
+        email: body.email,
+        currency: body.currency,
+        timezone: body.timezone ?? null,
         sales_channel_id: result.sales_channel_id,
       },
     })
