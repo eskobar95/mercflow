@@ -4348,11 +4348,12 @@ Tenant detail-siden i Platform Console har en "Billing" sektion der viser plan, 
 
 **Sprint:** S047
 **Milestone:** M021
-**Status:** in-progress
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S047/T093-cve-remediation
+**PR:** https://github.com/eskobar95/mercflow/pull/142
 **PRD journey:** J003 (PRD-security-hardening.md)
 **ADRs:** ADR-016
 
@@ -4384,11 +4385,12 @@ Tenant detail-siden i Platform Console har en "Billing" sektion der viser plan, 
 
 **Sprint:** S047
 **Milestone:** M021
-**Status:** in-progress
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S047/T094-platform-route-validation
+**PR:** https://github.com/eskobar95/mercflow/pull/141
 **PRD journey:** J001 (PRD-security-hardening.md)
 **ADRs:** ADR-016
 
@@ -4436,11 +4438,12 @@ Every POST/PATCH `/platform/*` route validates its request body with Zod before 
 
 **Sprint:** S047
 **Milestone:** M021
-**Status:** in-progress
+**Status:** done
 **Mode:** AFK
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S047/T095-rate-limiting-xss-fix
+**PR:** https://github.com/eskobar95/mercflow/pull/140
 **PRD journey:** J002 (PRD-security-hardening.md)
 **ADRs:** ADR-016
 
