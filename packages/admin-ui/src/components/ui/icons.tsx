@@ -221,6 +221,16 @@ export function IconCheck({ size = 14, ...rest }: IconProps): ReactNode {
   )
 }
 
+/** Copy — clipboard affordance. */
+export function IconCopy({ size = 16, ...rest }: IconProps): ReactNode {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+      <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+    </svg>
+  )
+}
+
 /** Chevron used for expandable parent nav items. Rotates 90° when open. */
 export function IconChevronRight({ size = 14, ...rest }: IconProps): ReactNode {
   return (

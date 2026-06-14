@@ -40,7 +40,20 @@ export function AppsOverviewSettingsPage(): ReactNode {
         </div>
       ) : null}
 
-      {state.status === "success" ? (
+      {state.status === "success" && state.connectors.length === 0 ? (
+        <div
+          className="rounded-lg border border-border-default bg-surface-subtle px-4 py-6"
+          role="status"
+        >
+          <p className="font-medium text-content-primary">No apps configured</p>
+          <p className="mt-2 text-sm text-content-secondary">
+            Connect Stripe, Shipmondo, Plunk, or Google Tag Manager from their settings pages. Status
+            will appear here once integrations are available.
+          </p>
+        </div>
+      ) : null}
+
+      {state.status === "success" && state.connectors.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2">
           {state.connectors.map((item) => (
             <AppConnectorCard key={item.type} item={item} />

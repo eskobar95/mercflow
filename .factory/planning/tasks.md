@@ -4634,14 +4634,14 @@ A merchant can see all connected apps and their status at a glance from `/settin
 
 ### Definition of done
 
-- [ ] `/settings/apps` shows all 4 connectors with correct status badges
-- [ ] "Configure" links navigate to correct contextual settings pages
-- [ ] `/settings/developers` displays publishable API key with copy-to-clipboard
-- [ ] Revoke & regenerate shows confirm dialog and calls Medusa API
-- [ ] Webhooks tab shows informational placeholder
-- [ ] Both pages have loading, error, and empty states
-- [ ] `pnpm react-doctor:admin-ui` 0 new issues
-- [ ] `pnpm typecheck` + `pnpm lint` green
+- [x] `/settings/apps` shows all 4 connectors with correct status badges
+- [x] "Configure" links navigate to correct contextual settings pages
+- [x] `/settings/developers` displays publishable API key with copy-to-clipboard
+- [x] Revoke & regenerate shows confirm dialog and calls Medusa API
+- [x] Webhooks tab shows informational placeholder
+- [x] Both pages have loading, error, and empty states
+- [x] `pnpm react-doctor:admin-ui` 0 new issues
+- [x] `pnpm typecheck` + `pnpm lint` green
 
 ---
 

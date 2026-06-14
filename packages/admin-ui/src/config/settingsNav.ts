@@ -31,6 +31,7 @@ export const SETTINGS_PATHS = {
   notifications: "/settings/notifications",
   team: "/settings/team",
   apps: "/settings/apps",
+  developers: "/settings/developers",
   customData: "/settings/custom-data",
   subscriptions: "/settings/subscriptions",
   /** @deprecated Use SETTINGS_PATHS.apps — removed in T077 redirect. */
@@ -112,6 +113,9 @@ export const SETTINGS_NAV_GROUPS: SettingsNavGroup[] = [
   {
     label: "Developers",
     icon: IconCustomData,
-    items: [{ label: "Custom data", path: SETTINGS_PATHS.customData, icon: IconCustomData }],
+    items: [
+      { label: "API keys", path: SETTINGS_PATHS.developers, icon: IconConnectors },
+      { label: "Custom data", path: SETTINGS_PATHS.customData, icon: IconCustomData },
+    ],
   },
 ]

@@ -46,6 +46,10 @@ export function settingsSeoBreadcrumbs(pageLabel: string): BreadcrumbItem[] {
   ]
 }
 
+export function settingsDevelopersBreadcrumbs(): BreadcrumbItem[] {
+  return settingsBreadcrumb("Developers")
+}
+
 export function settingsConnectorBreadcrumbs(connectorLabel: string): BreadcrumbItem[] {
   return [
     settingsRoot(),
