@@ -34,7 +34,7 @@ jobs:
           # GHSA-5xrq-8626-4rwp: vitest UI server file read.
           # Only exploitable via `vitest --ui`; we use `vitest run` only.
           # Remove when vite@6 + vitest@4 migration is complete.
-          allow-ghsas: GHSA-5xrq-8626-4rwp
+          allow-ghsas: GHSA-5xrq-8626-4rwp, GHSA-gv7w-rqvm-qjhr
 
   # ─────────────────────────────────────────────────────────────────────────────
   # 2. pnpm audit — blocks on HIGH/CRITICAL CVEs in lockfile
@@ -76,6 +76,12 @@ jobs:
             // MercFlow never runs vitest --ui in CI or production; uses `vitest run` only.
             // Track: upgrade vitest to >=4.1.0 once vite@6 migration is complete.
             'GHSA-5xrq-8626-4rwp',
+            // esbuild Deno module integrity (GHSA-gv7w-rqvm-qjhr):
+            // Exploit requires Deno + attacker-controlled NPM_CONFIG_REGISTRY.
+            // MercFlow is Node-only; esbuild is a dev/build transitive dep (vite/tsx).
+            // Global esbuild >=0.28.1 override breaks vite 5 production build — track vite@6.
+            // tsx path patched via pnpm override `tsx>esbuild`; vite path accepted until S048.
+            'GHSA-gv7w-rqvm-qjhr',
           ]);
 
           let audit;
