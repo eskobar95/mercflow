@@ -79,7 +79,8 @@ jobs:
             // esbuild Deno module integrity (GHSA-gv7w-rqvm-qjhr):
             // Exploit requires Deno + attacker-controlled NPM_CONFIG_REGISTRY.
             // MercFlow is Node-only; esbuild is a dev/build transitive dep (vite/tsx).
-            // esbuild >=0.28.1 breaks vite 5 admin-ui production build — track vite@6 upgrade.
+            // Global esbuild >=0.28.1 override breaks vite 5 production build — track vite@6.
+            // tsx path patched via pnpm override `tsx>esbuild`; vite path accepted until S048.
             'GHSA-gv7w-rqvm-qjhr',
           ]);
 
