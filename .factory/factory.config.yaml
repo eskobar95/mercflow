@@ -1,0 +1,83 @@
+# Factory 2.0 — project configuration
+# Commit this file. Override per-environment with env vars if needed.
+
+# ── Git ───────────────────────────────────────────────────────────────────────
+git:
+  integration_branch: dev       # PRs merge to this branch (e.g. dev, development, main)
+  worktrees_dir: .worktrees     # isolated worktrees for parallel Pi runs
+
+# ── Execution engines ─────────────────────────────────────────────────────────
+# Default engine for tasks without an explicit Engine: field.
+# Override per-task with: **Engine:** cursor | pi
+execution:
+  default_engine: cursor        # cursor | pi
+  parallel_strategy: independent  # independent = no force-serialization across engines
+
+# ── Pi (optional) ─────────────────────────────────────────────────────────────
+pi:
+  enabled: false                # set true after running scripts/bootstrap-pi.sh
+  harness: ultimate-pi          # harness package name
+  handoff_dir: .factory/handoff # TaskBrief YAML files written here
+  review_in_cursor: true        # load executor-summary.yaml back into Cursor after Pi run
+  # Model routing — edit .factory/pi/agents.policy.yaml (synced to .pi/ on update)
+  policy_file: .factory/pi/agents.policy.yaml
+  models_profile: .factory/pi/models.profile.yaml
+  # Parent session defaults (orchestrator only — subagents use agents.policy.yaml)
+  session:
+    plan_provider: openrouter
+    plan_model: tencent/hy3-preview
+    run_provider: cursor
+    run_model: composer-2.5          # heavy tier: glm-5.2 (edit agents.policy.yaml too)
+    review_provider: cursor
+    review_model: grok-4.3
+
+# ── Graphify (optional) ───────────────────────────────────────────────────────
+graphify:
+  enabled: true                # set true after: pip install graphifyy && graphify init .
+  graph_dir: graphify-out       # where GRAPH_REPORT.md lives
+
+# ── Sentrux (optional, self-hosted) ───────────────────────────────────────────
+sentrux:
+  enabled: false                # set true after: sentrux init (see scripts/bootstrap-pi.sh)
+  rules_file: .sentrux/rules.toml
+  block_on_violation: true      # block /ship if sentrux check_rules fails
+
+# ── Quality gates ─────────────────────────────────────────────────────────────
+quality:
+  profile: standard             # standard | strict | minimal
+  # standard:  verify + deslop + thermo + react-doctor + check-compiler
+  # strict:    + sentrux session_end + make-pr-easy-to-review
+  # minimal:   verify only
+
+# ── Linear (human task management) ───────────────────────────────────────────
+# tasks.md is SSOT — Linear is the human overview. Sync is one-way: tasks.md → Linear.
+# First-time setup: run /linear-setup (guided — fetches all IDs, creates labels + cycles).
+# Ongoing sync: /linear-sync or automatic via log-task (status changes) and /to-backlog.
+linear:
+  enabled: false                # set true after /linear-setup completes
+  team_id: ""                   # populated by /linear-setup
+  project_id: ""                # populated by /linear-setup (scopes issues to a project)
+  sync_close: true              # mark Linear issue done when task status → done
+  # Workflow state IDs — populated by /linear-setup
+  state_ids:
+    todo: ""
+    in_progress: ""
+    blocked: ""
+    done: ""
+  # Label IDs — created and populated by /linear-setup
+  label_ids:
+    engine_cursor: ""           # label "engine:cursor" on cursor tasks
+    engine_pi: ""               # label "engine:pi" on pi tasks
+    mode_afk: ""                # label "mode:AFK"
+    mode_hitl: ""               # label "mode:HITL"
+    blocked: ""                 # label "blocked"
+  # Cycle IDs — one per sprint, populated by /linear-setup
+  # cycle_ids:
+  #   S001: ""
+  #   S002: ""
+
+# ── Review policies ───────────────────────────────────────────────────────────
+policies:
+  security_reviewer: .factory/policies/security-reviewer.md   # focus areas for Cursor Security Agent
+  quality_gates:     .factory/policies/quality.gates.yaml     # CI + PR gate thresholds
+  approval_policy:   .factory/policies/approval.policy.yaml   # Cursor Approval Agent rules

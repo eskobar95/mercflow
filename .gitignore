@@ -22,3 +22,8 @@ playwright-report/
 test-results/
 **/migrations/.snapshot-neondb.json
 **/migrations/.snapshot-mercflow.json
+# Factory 2.0
+.worktrees/
+.factory/handoff/*.yaml
+graphify-out/
+.kit-meta.json
