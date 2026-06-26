@@ -1,0 +1,83 @@
+# Factory 2.0 — Approval Agent policy
+# Controls when Cursor's Approval Agent auto-approves vs requires human review.
+# Commit this file.
+
+version: "1"
+
+# ── Auto-approve conditions ────────────────────────────────────────────────────
+auto_approve:
+  # All local gates must pass before auto-approve is considered
+  requires_local_gates: true
+
+  rules:
+    - id: small-safe-change
+      description: "Small changes to non-critical paths with full test coverage"
+      conditions:
+        - files_changed: "<= 10"
+        - lines_changed: "<= 200"
+        - paths_exclude:
+            - "src/auth/**"
+            - "src/payments/**"
+            - "migrations/**"
+            - "*.env*"
+        - security_reviewer: pass
+        - bugbot: pass
+      action: approve
+
+    - id: docs-only
+      description: "Documentation and comment changes"
+      conditions:
+        - paths_include:
+            - "**/*.md"
+            - "**/*.mdx"
+            - "docs/**"
+        - paths_exclude:
+            - "**/*.ts"
+            - "**/*.tsx"
+      action: approve
+
+    - id: test-only
+      description: "Test file additions/updates with no production code changes"
+      conditions:
+        - paths_include:
+            - "**/*.test.ts"
+            - "**/*.spec.ts"
+            - "**/__tests__/**"
+        - production_files_changed: false
+        - bugbot: pass
+      action: approve
+
+# ── Always require human review ───────────────────────────────────────────────
+require_human_review:
+  - id: auth-changes
+    description: "Any change to authentication or authorization code"
+    paths:
+      - "src/auth/**"
+      - "middleware.ts"
+      - "**/clerk/**"
+
+  - id: payment-changes
+    description: "Any change to payment processing"
+    paths:
+      - "src/payments/**"
+      - "**/stripe/**"
+      - "**/webhook*"
+
+  - id: schema-migrations
+    description: "Database schema changes always require human review"
+    paths:
+      - "migrations/**"
+      - "src/db/schema/**"
+
+  - id: security-finding
+    description: "Security Reviewer found high or critical finding"
+    condition: security_reviewer_severity >= high
+
+  - id: large-change
+    description: "Large changes with significant blast radius"
+    conditions:
+      - files_changed: "> 20"
+
+  - id: pi-engine-task
+    description: "Tasks executed by Pi harness — review executor-summary.yaml"
+    condition: task_engine == pi

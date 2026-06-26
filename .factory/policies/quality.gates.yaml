@@ -1,0 +1,84 @@
+# Factory 2.0 — Quality gates
+# Defines pass/fail thresholds for /ship and CI checks.
+# Commit this file. Adjust thresholds per project maturity.
+
+local_gates:
+  # Run by /ship before PR opens
+  verify:
+    required: true
+    commands:
+      typecheck: "pnpm typecheck"
+      lint: "pnpm lint"
+      test: "pnpm test"
+    block_on_fail: true
+
+  deslop:
+    required: true
+    block_on_fail: false  # report only; human decides
+    auto_fix: true        # agent fixes and commits
+
+  thermo_nuclear:
+    required: true
+    block_on_fail: true
+    thresholds:
+      max_file_lines: 1000
+      max_function_lines: 80
+      # Files over threshold in the diff block the PR
+    report_only:
+      - god_objects
+      - deep_nesting
+
+  react_doctor:
+    required: true        # runs when admin-ui files changed
+    block_on_fail: true   # pnpm react-doctor:admin-ui:ci must be 0 issues
+    commands:
+      ci: "pnpm react-doctor:admin-ui:ci"   # diff vs development — matches CI
+      full: "pnpm react-doctor:admin-ui"    # full scan (100/100 target)
+    checks:
+      - no_hardcoded_colors
+      - no_inline_styles
+      - component_max_lines: 200
+      - props_drilling_max_depth: 3
+
+  check_compiler:
+    required: true
+    block_on_fail: true
+    mode: strict
+
+  sentrux:
+    required: false       # enable when sentrux.enabled: true in factory.config.yaml
+    block_on_fail: true
+    checks:
+      - check_rules       # .sentrux/rules.toml violations
+      - session_end       # compare vs session_start baseline
+
+pr_gates:
+  # Enforced by Cursor Cloud Agents on PR open/update
+  bugbot:
+    enabled: true
+    severity_block: critical  # block on critical bugs only
+
+  security_reviewer:
+    enabled: true
+    policy_file: .factory/policies/security-reviewer.md
+    severity_block: high  # block on high + critical
+
+  vulnerability_scanner:
+    enabled: true
+    schedule: weekly
+    create_task_on_finding: true  # creates task in tasks.md
+
+  approval_policy:
+    policy_file: .factory/policies/approval.policy.yaml
+
+ci_gates:
+  # Minimum CI checks that must pass before merge
+  required_checks:
+    - typecheck
+    - lint
+    - test
+  # sentrux CI check (add to CI pipeline after bootstrap-pi.sh)
+  sentrux_ci:
+    enabled: false
+    command: "sentrux check_rules"
+    block_on_fail: true
