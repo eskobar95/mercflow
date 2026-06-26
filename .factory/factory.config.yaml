@@ -38,7 +38,7 @@ graphify:
 
 # ── Sentrux (optional, self-hosted) ───────────────────────────────────────────
 sentrux:
-  enabled: false                # set true after: sentrux init (see scripts/bootstrap-pi.sh)
+  enabled: true                # set true after: sentrux init (see scripts/bootstrap-pi.sh)
   rules_file: .sentrux/rules.toml
   block_on_violation: true      # block /ship if sentrux check_rules fails
 

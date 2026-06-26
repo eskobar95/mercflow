@@ -27,3 +27,4 @@ test-results/
 .factory/handoff/*.yaml
 graphify-out/
 .kit-meta.json
+.sentrux/cache/

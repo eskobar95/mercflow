@@ -1,0 +1,54 @@
+# Sentrux architectural rules — MercFlow
+# Run: ~/bin/sentrux check .
+#
+# Layer ordering: LOWER index = top of stack (imports foundation below it).
+# HIGHER index = foundation (cannot import layers above).
+
+[project]
+name = "mercflow"
+
+# ── Layer definitions ─────────────────────────────────────────────────────────
+
+[[layers]]
+name = "admin-ui"
+paths = [
+  "packages/admin-ui/src/pages",
+  "packages/admin-ui/src/components",
+  "packages/admin-ui/src/hooks",
+  "packages/admin-ui/src/features",
+  "packages/admin-ui/src/lib",
+]
+
+[[layers]]
+name = "backend-api"
+paths = ["apps/backend/src/api"]
+
+[[layers]]
+name = "backend-lib"
+paths = ["apps/backend/src/lib"]
+
+[[layers]]
+name = "content-module"
+paths = ["packages/content-module/src/modules"]
+
+[[layers]]
+name = "design-tokens"
+paths = ["packages/design-tokens/src"]
+
+# ── Cross-package boundary rules ──────────────────────────────────────────────
+
+[[rules]]
+name = "no-backend-in-admin-ui"
+description = "Admin UI must never import directly from backend source"
+deny = [
+  { from = "admin-ui", to = "backend-lib" },
+  { from = "admin-ui", to = "backend-api" },
+]
+
+[[rules]]
+name = "no-admin-ui-in-backend"
+description = "Backend must never import from admin-ui packages"
+deny = [
+  { from = "backend-api", to = "admin-ui" },
+  { from = "backend-lib", to = "admin-ui" },
+]
