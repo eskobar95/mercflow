@@ -22,6 +22,7 @@
 **Milestone:** M000
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S001/T001-tenancy-backfill-store-id
@@ -111,6 +112,7 @@ Backfill value: `store_01KG0VBTT0714XV2CCTEBRVC47`
 **Milestone:** M000
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** B
 **Blocked by:** T001
 **Branch:** feature/S001/T002-rls-tenant-policies
@@ -189,6 +191,7 @@ All 17 tables from T001 where MercFlow owns the service layer. Guapo-custom tabl
 **Milestone:** M000
 **Status:** done
 **Mode:** HITL
+**Engine:** cursor
 **Parallel group:** C
 **Blocked by:** T002
 **Branch:** feature/S001/T003-rate-limiting
@@ -265,6 +268,7 @@ Before merging: human adds Railway static egress IPs to Neon project `allowed_ip
 **PR:** https://github.com/eskobar95/mercflow/pull/55
 **Merge:** `b378e22`
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** M000 done (T003 merged)
 **Branch:** feature/S002/T004-seo-module-scaffold
@@ -324,6 +328,7 @@ Before merging: human adds Railway static egress IPs to Neon project `allowed_ip
 **PR:** https://github.com/eskobar95/mercflow/pull/55
 **Merge:** `b378e22`
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** B
 **Blocked by:** T004
 **Branch:** feature/S002/T005-nordic-slug-utility
@@ -384,6 +389,7 @@ Admin can choose a slug strategy (Nordic: ø→oe, or Omit: ø→o) in Settings.
 **PR:** https://github.com/eskobar95/mercflow/pull/55
 **Merge:** `b378e22`
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** B
 **Blocked by:** T004
 **Branch:** feature/S002/T006-redirect-backend
@@ -440,6 +446,7 @@ When a product or category slug changes, a 301 redirect is automatically created
 **PR:** https://github.com/eskobar95/mercflow/pull/55
 **Merge:** `b378e22`
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** C
 **Blocked by:** T006
 **Branch:** feature/S002/T007-redirect-admin-ui
@@ -487,6 +494,7 @@ Admin can view all redirects for their tenant, create manual redirects, delete s
 **Milestone:** M001
 **Status:** done
 **Mode:** HITL
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T004
 **Branch:** `cursor/s003-sitemap-robots-tenant-6449` (merged)
@@ -536,6 +544,7 @@ Before implementing: human approves the host-mapping strategy (A, B, or C above)
 **Milestone:** M001
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** B
 **Blocked by:** T008
 **Branch:** `cursor/s003-sitemap-robots-tenant-6449` (merged PR #60)
@@ -578,6 +587,7 @@ Before implementing: human approves the host-mapping strategy (A, B, or C above)
 **Milestone:** M001
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** C
 **Blocked by:** T009
 **Branch:** `cursor/s003-sitemap-robots-tenant-6449` (merged PR #60)
@@ -615,6 +625,7 @@ Admin can configure sitemap priority/changefreq per page type, exclude specific 
 **Milestone:** M001
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** B
 **Blocked by:** T008
 **Branch:** `cursor/s003-sitemap-robots-tenant-6449` (merged PR #60)
@@ -654,6 +665,7 @@ Admin can configure sitemap priority/changefreq per page type, exclude specific 
 **Milestone:** M001
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** C
 **Blocked by:** T011
 **Branch:** `cursor/s003-sitemap-robots-tenant-6449` (merged PR #60)
@@ -694,6 +706,7 @@ Admin can manage robots.txt rules via a structured UI (allow/block per path and 
 **PR:** https://github.com/eskobar95/mercflow/pull/62
 **Merge:** `e9f0c6f`
 **Mode:** HITL
+**Engine:** cursor
 **Branch:** `feature/S004/metadata-json-ld-og-canonical`
 **HITL log:** `.factory/logs/hitl/S004-T013-global-config-table.md` (option A — `mercflow_seo_config`)
 **Parallel group:** A
@@ -741,6 +754,7 @@ Before implementing: confirm `mercflow_seo_config` carries these fields (already
 **PR:** https://github.com/eskobar95/mercflow/pull/62
 **Merge:** `e9f0c6f`
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** B
 **Blocked by:** T013
 **Branch:** feature/S004/T014-json-ld-generation
@@ -781,6 +795,7 @@ Storefront can request JSON-LD blocks from the MercFlow API. Product pages get `
 **PR:** https://github.com/eskobar95/mercflow/pull/62
 **Merge:** `e9f0c6f`
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** B
 **Blocked by:** T013
 **Branch:** feature/S004/T015-og-social-meta
@@ -819,6 +834,7 @@ Storefront can request OG and Twitter Card meta values from MercFlow API. All va
 **PR:** https://github.com/eskobar95/mercflow/pull/62
 **Merge:** `e9f0c6f`
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** B
 **Blocked by:** T013
 **Branch:** feature/S004/T016-canonical-url
@@ -864,6 +880,7 @@ Storefront can request the canonical URL for any product or category. Auto-calcu
 **PR:** https://github.com/eskobar95/mercflow/pull/54
 **Merge:** `35fa81c`
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** M000 done (T003 merged)
 **Branch:** feature/S005/T017-feed-module-scaffold
@@ -903,6 +920,7 @@ Storefront can request the canonical URL for any product or category. Auto-calcu
 **PR:** https://github.com/eskobar95/mercflow/pull/57
 **Merge:** `05aa41f`
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** B
 **Blocked by:** T017
 **Branch:** feature/S005/T018-feed-xml-generation
@@ -957,6 +975,7 @@ Storefront can request the canonical URL for any product or category. Auto-calcu
 **PR:** https://github.com/eskobar95/mercflow/pull/58
 **Merge:** `c5dee78`
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** C
 **Blocked by:** T018
 **Branch:** feature/S005/T019-feed-admin-ui
@@ -995,6 +1014,7 @@ Admin can view feed status (product count, last updated, validation errors), exc
 **Milestone:** M004
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** M000 done (T003 merged)
 **Branch:** cursor/s006-inventory-suppliers-po-e302
@@ -1036,6 +1056,7 @@ Admin can view feed status (product count, last updated, validation errors), exc
 **Milestone:** M004
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** B
 **Blocked by:** T020
 **Branch:** cursor/s006-inventory-suppliers-po-e302
@@ -1070,6 +1091,7 @@ Admin can create, edit, and delete suppliers. Supplier list available as dropdow
 **Milestone:** M004
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** B
 **Blocked by:** T020
 **Branch:** cursor/s006-inventory-suppliers-po-e302
@@ -1109,6 +1131,7 @@ Admin can create a PO (select supplier, add lines, set expected date, reference,
 **Milestone:** M004
 **Status:** done
 **Mode:** HITL
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T022
 **Branch:** feature/S007/T023-po-receive-flow
@@ -1149,6 +1172,7 @@ Before implementing: decide — does `receive` also call Medusa `createReservati
 **Milestone:** M004
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** B
 **Blocked by:** T023
 **Branch:** feature/S007/T023-po-receive-flow
@@ -1191,6 +1215,7 @@ Admin sees a unified inventory table: stocked (Medusa), reserved (Medusa), avail
 **Milestone:** M005
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** M000 done (T003 merged)
 **Branch:** cursor/s008-order-flow-b792
@@ -1228,6 +1253,7 @@ Orders list shows status badges, customer, amount, date, fulfillment status. Fil
 **Milestone:** M005
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** M000 done (T003 merged)
 **Branch:** cursor/s008-order-flow-b792
@@ -1277,6 +1303,7 @@ Order detail page shows all info without modal navigation. Internal notes sectio
 **Milestone:** M006
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S009/T027-hetzner-docker-compose
@@ -1368,6 +1395,7 @@ Full MercFlow stack runs on Hetzner via Docker Compose. Traefik routes configure
 **Milestone:** M006
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none (code); T027 deployed for uptime check config
 **Branch:** feature/S009/T028-observability
@@ -1429,6 +1457,7 @@ Sentry.setTag("store_id", resolvedStoreId)
 **Milestone:** M006
 **Status:** cancelled
 **Mode:** HITL
+**Engine:** cursor
 **Parallel group:** B
 **Blocked by:** n/a
 **Branch:** feature/S009/T029-backup-restore (not started)
@@ -1497,6 +1526,7 @@ Daily automated pg_dump from Neon runs via a cron container. Backup uploaded to 
 **Milestone:** M006
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** B
 **Blocked by:** none (T027 done; T029 cancelled)
 **Branch:** feature/S009/T030-provision-tenant
@@ -1567,6 +1597,7 @@ pnpm provision-tenant \
 **Milestone:** M006
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S009/T031-pagination-error-shape
@@ -1615,6 +1646,7 @@ Every MercFlow list endpoint enforces `limit = Math.min(query.limit ?? 50, 100)`
 **Milestone:** M006
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S009/T032-store-route-versioning
@@ -1684,11 +1716,12 @@ All routes under `apps/backend/src/api/store/` registered by MercFlow modules:
 **Milestone:** M007
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S010/T033-medusa-fork-workspace
 **PR:** https://github.com/eskobar95/mercflow/pull/72
-**PRD journey:** J001 (PRD-fork-setup.md)
+**PRD journey:** J001 (context/features/PRD-fork-setup.md)
 **ADRs:** ADR-007
 **HITL approved:** 2026-06-09 — Packages: framework, medusa, utils, types, cli; js-sdk npm; zod@^4.x override
 
@@ -1754,11 +1787,12 @@ Inden implementering: godkend (1) hvilke Medusa packages forkes og (2) zod-retni
 **Milestone:** M007
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S010/T034-shared-package
 **PR:** https://github.com/eskobar95/mercflow/pull/71
-**PRD journey:** J005 (PRD-fork-setup.md)
+**PRD journey:** J005 (context/features/PRD-fork-setup.md)
 **ADRs:** ADR-007
 
 ### Slice objective
@@ -1814,12 +1848,13 @@ Ny `@mercflow/shared` pakke oprettet i `packages/shared/`. `slugifyForStrategy` 
 **Milestone:** M007
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** B
 **Blocked by:** T033
 **Branch:** feature/S011/T035-remove-medusa-dashboard
 **PR:** https://github.com/eskobar95/mercflow/pull/73
 **Merge:** `e5cf6ea`
-**PRD journey:** J004 (PRD-fork-setup.md)
+**PRD journey:** J004 (context/features/PRD-fork-setup.md)
 **ADRs:** ADR-007
 
 ### Slice objective
@@ -1871,12 +1906,13 @@ Ny `@mercflow/shared` pakke oprettet i `packages/shared/`. `slugifyForStrategy` 
 **Milestone:** M007
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** C
 **Blocked by:** T033
 **Branch:** feature/S011/T036-core-tables-store-id-rls
 **PR:** https://github.com/eskobar95/mercflow/pull/74
 **Merge:** `6001fa3`
-**PRD journey:** J003 (PRD-fork-setup.md)
+**PRD journey:** J003 (context/features/PRD-fork-setup.md)
 **ADRs:** ADR-004, ADR-005, ADR-007
 **HITL approved:** 2026-06-09 — Migration + RLS + triggers; 6 M0 tables; Guapo backfill local dev; WITH CHECK; merge T037 before prod deploy
 
@@ -1951,12 +1987,13 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 **Milestone:** M007
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T036
 **Branch:** feature/S012/T037-tenant-startup-wiring
 **PR:** https://github.com/eskobar95/mercflow/pull/75
 **Merge:** `4bfc586`
-**PRD journey:** J002 (PRD-fork-setup.md)
+**PRD journey:** J002 (context/features/PRD-fork-setup.md)
 **ADRs:** ADR-004, ADR-005, ADR-007
 
 ### Slice objective
@@ -2019,6 +2056,7 @@ Inden implementering: godkend (1) de 6 M0 tabeller, (2) migrationsstrategi (DML 
 **Milestone:** M008
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **PRD journeys:** J001
@@ -2072,6 +2110,7 @@ A merchant-admin can create, list, update, and delete metafield definitions for 
 **Milestone:** M008
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **PRD journeys:** J002
@@ -2122,6 +2161,7 @@ A merchant-admin can store and retrieve typed metafield values for a product or 
 **Milestone:** M008
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T038
 **PRD journeys:** J003
@@ -2169,6 +2209,7 @@ A merchant-admin can browse MercFlow's curated standard definitions and activate
 **Milestone:** M008
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T038
 **PRD journeys:** J001
@@ -2220,6 +2261,7 @@ A merchant-admin can navigate to Settings → Custom Data, see their product and
 **Milestone:** M008
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** B
 **Blocked by:** T039, T041
 **PRD journeys:** J002, J004
@@ -2272,6 +2314,7 @@ When editing a product, the merchant-admin sees their metafield definitions as e
 **Milestone:** M008
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** B
 **Blocked by:** T039
 **PRD journeys:** J004, J006
@@ -2312,6 +2355,7 @@ When editing a category, the merchant-admin sees category-level metafield defini
 **Milestone:** M008
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** B
 **Blocked by:** T039
 **PRD journeys:** J005
@@ -2351,6 +2395,7 @@ A storefront can fetch metafield values for a product or category via the public
 **Milestone:** M008
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T040, T041
 **PRD journeys:** J003
@@ -2401,10 +2446,11 @@ A merchant-admin can open the standard library from Settings → Custom Data, fi
 **PR:** https://github.com/eskobar95/mercflow/pull/85
 **Merge:** `f71c460`
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S017/T046-unsaved-state-indicator
-**PRD journey:** J002 (PRD-product-form-polish.md)
+**PRD journey:** J002 (context/features/PRD-product-form-polish.md)
 
 ### Slice objective
 
@@ -2441,10 +2487,11 @@ Merchant ser tydeligt når produktformularen har ændringer der ikke er gemt. Na
 **PR:** https://github.com/eskobar95/mercflow/pull/84
 **Merge:** `622ad70`
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S017/T048-seo-lazy-preview
-**PRD journey:** J003 (PRD-product-form-polish.md)
+**PRD journey:** J003 (context/features/PRD-product-form-polish.md)
 
 ### Slice objective
 
@@ -2476,10 +2523,11 @@ SEO-sektionen viser instruktionstekst når ingen data er udfyldt, og et live Goo
 **PR:** https://github.com/eskobar95/mercflow/pull/86
 **Merge:** `6d89f1b`
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S018/T047-variant-progressive-ux
-**PRD journey:** J001 (PRD-product-form-polish.md)
+**PRD journey:** J001 (context/features/PRD-product-form-polish.md)
 
 ### Slice objective
 
@@ -2518,10 +2566,11 @@ Variants-sektionen starter med ét simpelt CTA frem for den fulde variant-matrix
 **PR:** https://github.com/eskobar95/mercflow/pull/87
 **Merge:** `b0ade41`
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S018/T049-physical-toggle-dimensions
-**PRD journey:** J004, J005 (PRD-product-form-polish.md)
+**PRD journey:** J004, J005 (context/features/PRD-product-form-polish.md)
 
 ### Slice objective
 
@@ -2565,10 +2614,11 @@ Shipping-sektionen har et "Physical product" toggle (default ON). Toggle OFF kol
 **Status:** done
 **PR:** https://github.com/eskobar95/mercflow/pull/88
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S019/T050-packaging-module
-**PRD journey:** J001, J002, J003 (PRD-fulfillment-intelligence.md)
+**PRD journey:** J001, J002, J003 (context/features/PRD-fulfillment-intelligence.md)
 
 ### Slice objective
 
@@ -2606,10 +2656,11 @@ Packaging-modulet eksisterer med `packaging_types` tabel, fuld CRUD service og `
 **Status:** done
 **PR:** https://github.com/eskobar95/mercflow/pull/89
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T050
 **Branch:** feature/S020/T051-packaging-settings-ui
-**PRD journey:** J001, J005 (PRD-fulfillment-intelligence.md)
+**PRD journey:** J001, J005 (context/features/PRD-fulfillment-intelligence.md)
 
 ### Slice objective
 
@@ -2640,10 +2691,11 @@ Merchant kan administrere deres pakke-katalog i Admin → Settings → Packaging
 **Status:** done
 **PR:** https://github.com/eskobar95/mercflow/pull/90
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T050
 **Branch:** feature/S020/T052-fulfillment-packaging-widget
-**PRD journey:** J002, J003 (PRD-fulfillment-intelligence.md)
+**PRD journey:** J002, J003 (context/features/PRD-fulfillment-intelligence.md)
 
 ### Slice objective
 
@@ -2677,11 +2729,12 @@ Order detail-siden viser et "Suggested packaging" widget i fulfillment-sektionen
 **PR:** https://github.com/eskobar95/mercflow/pull/91
 **Follow-up PR:** https://github.com/eskobar95/mercflow/pull/93 — merged `b891b26` (local E2E fixes + reproducible dev setup)
 **Mode:** HITL
+**Engine:** cursor
 **HITL reason:** Kræver live Shipmondo API-verifikation — label-generering kan ikke mockes fuldt ud; menneskelig bekræftelse af korrekt dimension-payload er nødvendig
 **Parallel group:** A
 **Blocked by:** T052
 **Branch:** feature/S021/T053-shipmondo-packaging-autofill
-**PRD journey:** J004 (PRD-fulfillment-intelligence.md)
+**PRD journey:** J004 (context/features/PRD-fulfillment-intelligence.md)
 
 ### Slice objective
 
@@ -2724,6 +2777,7 @@ Shipmondo label-generering præ-udfyldes med dimensioner fra bekræftet emballag
 **Milestone:** M011
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S022/T054-shipment-packaging-model
@@ -2761,11 +2815,12 @@ Bekræftet emballage per fulfillment persisteres i packaging-modulet. Admin API 
 **Milestone:** M011
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T054
 **Branch:** feature/S022/T055-order-packaging-persist-ui
 **PR:** https://github.com/eskobar95/mercflow/pull/95
-**PRD journey:** J003, J004 (PRD-fulfillment-intelligence.md)
+**PRD journey:** J003, J004 (context/features/PRD-fulfillment-intelligence.md)
 
 ### Slice objective
 
@@ -2803,8 +2858,10 @@ Order detail gemmer merchant's packaging-valg (suggestion accept eller override)
 **Sprint:** S023
 **Milestone:** M012
 **Status:** done
+**Mode:** AFK
+**Engine:** cursor
 **PR:** https://github.com/eskobar95/mercflow/pull/97
-**PRD journey:** J003, J004 (PRD-notification-system.md)
+**PRD journey:** J003, J004 (context/features/PRD-notification-system.md)
 **ADRs:** ADR-009
 
 ### Slice objective
@@ -2855,6 +2912,7 @@ Order detail gemmer merchant's packaging-valg (suggestion accept eller override)
 **Milestone:** M012
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **HITL approved:** 2026-06-11 — mail.mercflow.shop verified (eu-north-1); IAM user mercflow + AWS_* in apps/backend/.env; production SES (50k/day quota, no sandbox banner)
 **HITL reason:** AWS SES account prerequisites kræver menneskelig handling inden T057 kan køre end-to-end: (1) IAM-bruger med SES send+identity permissions, (2) SES sandbox exit for production sending, (3) `mail.mercflow.shop` verificeret som fallback sending domain (PRD OQ-04)
 **Parallel group:** A
@@ -2863,7 +2921,7 @@ Order detail gemmer merchant's packaging-valg (suggestion accept eller override)
 **Branch:** cursor/s024-t057-ses-domain-identity-dc6a
 **PR:** https://github.com/eskobar95/mercflow/pull/104
 **Merged:** `development` @ `33a98d2` (2026-06-11)
-**PRD journey:** J001 (PRD-notification-system.md)
+**PRD journey:** J001 (context/features/PRD-notification-system.md)
 **ADRs:** ADR-009
 
 ### Slice objective
@@ -2911,13 +2969,14 @@ Merchant kan sætte deres sending domain op i MercFlow og modtager de 4 DNS reco
 **Milestone:** M012
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Unblocked by:** T056 (PR #97 merged `d7194a4`)
 **Branch:** cursor/s024-t058-notification-worker-dc6a
 **PR:** https://github.com/eskobar95/mercflow/pull/103
 **Merged:** `development` @ `eea674c` (2026-06-11)
-**PRD journey:** J003 (PRD-notification-system.md)
+**PRD journey:** J003 (context/features/PRD-notification-system.md)
 **ADRs:** ADR-009
 
 ### Slice objective
@@ -2967,12 +3026,13 @@ BullMQ notification worker kører i `apps/backend`, henter `send-email` jobs fra
 **Milestone:** M012
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none (T058 merged PR #103 `eea674c`)
 **Unblocked by:** T058 (PR #103 merged `eea674c`)
 **Branch:** feature/S025/T059-order-confirmation-template
 **PR:** https://github.com/eskobar95/mercflow/pull/108
-**PRD journey:** J003 (PRD-notification-system.md)
+**PRD journey:** J003 (context/features/PRD-notification-system.md)
 **ADRs:** ADR-009
 
 ### Slice objective
@@ -3018,12 +3078,13 @@ En kunde modtager automatisk en ordrebekræftelse med butikslogo, ordreresumé o
 **Milestone:** M012
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none (T059 done PR #108)
 **Unblocked by:** T059 (PR #108)
 **Branch:** feature/S026/T060-remaining-notification-templates
 **PR:** https://github.com/eskobar95/mercflow/pull/124
-**PRD journey:** J005 (PRD-notification-system.md)
+**PRD journey:** J005 (context/features/PRD-notification-system.md)
 **ADRs:** ADR-009
 
 ### Slice objective
@@ -3058,12 +3119,13 @@ Alle v1 transaktionelle emails er aktive: shipping update med tracking link, ord
 **Milestone:** M012
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** B
 **Blocked by:** none (T057 merged PR #104 `33a98d2`)
 **Unblocked by:** T057 (PR #104 merged `33a98d2`)
 **Branch:** feature/S025/T061-email-domain-settings-ui
 **PR:** https://github.com/eskobar95/mercflow/pull/109
-**PRD journey:** J001 (PRD-notification-system.md)
+**PRD journey:** J001 (context/features/PRD-notification-system.md)
 
 ### Slice objective
 
@@ -3096,12 +3158,13 @@ Merchant kan konfigurere og verificere deres sending domain i admin. DNS records
 **Milestone:** M012
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Unblocked by:** T056 (PR #97 merged `d7194a4`)
 **Branch:** feature/S026/T062-email-branding-ui
 **PR:** https://github.com/eskobar95/mercflow/pull/106
-**PRD journey:** J002 (PRD-notification-system.md)
+**PRD journey:** J002 (context/features/PRD-notification-system.md)
 
 ### Slice objective
 
@@ -3131,12 +3194,13 @@ Merchant kan tilpasse emailbranding (logo, farve, butiksnavns, reply-to, support
 **Milestone:** M012
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Unblocked by:** T056 (PR #97 merged `d7194a4`)
 **Branch:** feature/S026/T063-email-delivery-history-ui
 **PR:** https://github.com/eskobar95/mercflow/pull/105
-**PRD journey:** J004 (PRD-notification-system.md)
+**PRD journey:** J004 (context/features/PRD-notification-system.md)
 
 ### Slice objective
 
@@ -3173,12 +3237,13 @@ Merchant kan se leveringshistorik for alle transaktionelle emails og kan gensend
 **Milestone:** M013
 **Status:** done
 **Mode:** HITL
+**Engine:** cursor
 **Parallel group:** solo
 **Blocked by:** T063
 **Branch:** feature/S027/T064-clerk-auth-appshell-sidebar
 **PR:** https://github.com/eskobar95/mercflow/pull/96
 **Merge:** `3fe6dc0`
-**PRD journey:** J001, J003 (PRD-admin-shell-navigation.md)
+**PRD journey:** J001, J003 (context/features/PRD-admin-shell-navigation.md)
 **ADRs:** ADR-011
 
 ### Slice objective
@@ -3229,11 +3294,12 @@ Kræver at operatøren opretter Clerk-konto + to apps (`mercflow-store-admin`, `
 **Milestone:** M013
 **Status:** done — superseded by T076 (M016)
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T064
 **Branch:** feature/S028/T065-settings-landing-sub-nav
 **PR:** #98
-**PRD journey:** J001, J004 (PRD-admin-shell-navigation.md)
+**PRD journey:** J001, J004 (context/features/PRD-admin-shell-navigation.md)
 **ADRs:** ADR-011
 
 ### Slice objective
@@ -3269,11 +3335,12 @@ Alle settings-sider er samlet under `/settings` med en landing page der viser su
 **Milestone:** M013
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T064
 **PR:** #99
 **Branch:** feature/S028/T066-breadcrumb-detail-pages
-**PRD journey:** J002 (PRD-admin-shell-navigation.md)
+**PRD journey:** J002 (context/features/PRD-admin-shell-navigation.md)
 
 ### Slice objective
 
@@ -3309,11 +3376,12 @@ Alle detail-sider og second-level sider har breadcrumbs der viser hierarki og li
 **Milestone:** M014
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** solo
 **Blocked by:** T066
 **Branch:** feature/S029/T067-platform-console-scaffold
 **PR:** https://github.com/eskobar95/mercflow/pull/107
-**PRD journey:** — (PRD-platform-console.md)
+**PRD journey:** — (context/features/PRD-platform-console.md)
 **ADRs:** ADR-011
 **HITL approved:** 2026-06-11 — Traefik allowlist documented in T067 PR; mercflow-platform Clerk app + session `email` claim; Hetzner deploy post-merge per README checklist
 
@@ -3363,11 +3431,12 @@ Continue S030 feature work (T068/T069) against local dev; production infra steps
 **Milestone:** M014
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T067
 **Branch:** feature/S030/T068-platform-tenant-management
 **PR:** https://github.com/eskobar95/mercflow/pull/113
-**PRD journey:** J001, J005 (PRD-platform-console.md)
+**PRD journey:** J001, J005 (context/features/PRD-platform-console.md)
 
 ### Slice objective
 
@@ -3396,11 +3465,12 @@ Operatorer kan se alle tenants, provisionere en ny tenant via UI (med progress l
 **Milestone:** M014
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T067
 **Branch:** feature/S030/T069-platform-queue-monitor
 **PR:** https://github.com/eskobar95/mercflow/pull/112
-**PRD journey:** J002 (PRD-platform-console.md)
+**PRD journey:** J002 (context/features/PRD-platform-console.md)
 
 ### Slice objective
 
@@ -3429,11 +3499,12 @@ Operatorer kan se alle BullMQ køer med live job-counts, DLQ-størrelse markeret
 **Milestone:** M014
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** B
 **Blocked by:** T067
 **Branch:** feature/S031/T070-platform-email-system-audit
 **PR:** https://github.com/eskobar95/mercflow/pull/111
-**PRD journey:** J003, J004 (PRD-platform-console.md)
+**PRD journey:** J003, J004 (context/features/PRD-platform-console.md)
 
 ### Slice objective
 
@@ -3473,11 +3544,12 @@ Operatorer kan søge i email-leveringshistorik på tværs af alle tenants, se sy
 **Milestone:** M015
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** solo
 **Blocked by:** T070
 **Branch:** feature/S032/T071-subscription-module-foundation
 **PR:** https://github.com/eskobar95/mercflow/pull/115
-**PRD journey:** J001 (PRD-subscription-system.md)
+**PRD journey:** J001 (context/features/PRD-subscription-system.md)
 
 ### Slice objective
 
@@ -3512,11 +3584,12 @@ Operatorer kan søge i email-leveringshistorik på tværs af alle tenants, se sy
 **Milestone:** M015
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T071
 **Branch:** feature/S033/T072-subscription-renewal-worker
 **PR:** https://github.com/eskobar95/mercflow/pull/117
-**PRD journey:** J002 (PRD-subscription-system.md)
+**PRD journey:** J002 (context/features/PRD-subscription-system.md)
 **ADRs:** ADR-010
 
 ### Slice objective
@@ -3549,11 +3622,12 @@ BullMQ `subscription-renewal` kø i `apps/worker/` kører cron hvert time og pro
 **Milestone:** M015
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T071
 **Branch:** feature/S033/T073-subscription-admin-ui
 **PR:** https://github.com/eskobar95/mercflow/pull/116
-**PRD journey:** J003 (PRD-subscription-system.md)
+**PRD journey:** J003 (context/features/PRD-subscription-system.md)
 
 ### Slice objective
 
@@ -3587,12 +3661,13 @@ Merchants kan se og administrere alle subscriptions fra Store Admin — søge ef
 **Milestone:** M015
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **HITL approved:** 2026-06-11 — Stripe test credentials supplied for local dev; production uses connector-module encrypted credentials (Settings → Connectors → Stripe), not merchant secrets in env.
 **Parallel group:** A
 **Blocked by:** T071
 **Branch:** feature/S034/T074-customer-club-stripe-setup
 **PR:** https://github.com/eskobar95/mercflow/pull/119
-**PRD journey:** J004, J005 (PRD-subscription-system.md)
+**PRD journey:** J004, J005 (context/features/PRD-subscription-system.md)
 
 ### HITL reason
 
@@ -3625,11 +3700,12 @@ Merchants kan konfigurere en Customer Club (navn, månedspris, fallback % rabat)
 **Milestone:** M015
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T071
 **Branch:** feature/S034/T075-product-club-price-ui
 **PR:** https://github.com/eskobar95/mercflow/pull/118
-**PRD journey:** J006 (PRD-subscription-system.md)
+**PRD journey:** J006 (context/features/PRD-subscription-system.md)
 
 ### Slice objective
 
@@ -3662,10 +3738,11 @@ Merchants kan sætte en eksplicit Club-pris på et produkt direkte fra Product-f
 **Status:** done
 **PR:** https://github.com/eskobar95/mercflow/pull/120
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** solo
 **Blocked by:** T064 (AppShell + router foundation)
 **Branch:** feature/S035/T076-settings-shell
-**PRD journey:** J001, J002 (PRD-settings-architecture.md)
+**PRD journey:** J001, J002 (context/features/PRD-settings-architecture.md)
 **ADRs:** ADR-012
 
 ### Slice objective
@@ -3700,10 +3777,11 @@ Alle `/settings/*` routes er pakket ind i en `SettingsShell` layout der viser en
 **Status:** done
 **PR:** https://github.com/eskobar95/mercflow/pull/122
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T076
 **Branch:** feature/S036/T077-settings-route-remapping
-**PRD journey:** J001, J004 (PRD-settings-architecture.md)
+**PRD journey:** J001, J004 (context/features/PRD-settings-architecture.md)
 **ADRs:** ADR-012
 
 ### Slice objective
@@ -3747,10 +3825,11 @@ Alle eksisterende settings-sider er korrekt placeret i de nye grupper i `Setting
 **Status:** done
 **PR:** https://github.com/eskobar95/mercflow/pull/123
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T076
 **Branch:** feature/S036/T078-settings-apps-overview
-**PRD journey:** J003 (PRD-settings-architecture.md)
+**PRD journey:** J003 (context/features/PRD-settings-architecture.md)
 **ADRs:** ADR-012
 
 ### Slice objective
@@ -3794,11 +3873,12 @@ Merchant kan åbne Settings → Apps → Overview og se alle 4 connectors (Strip
 **Milestone:** M017
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** solo
 **Blocked by:** T078
 **Branch:** feature/S037/T079-payment-module-foundation
 **PR:** https://github.com/eskobar95/mercflow/pull/125
-**PRD journey:** J003 (PRD-payment-module.md)
+**PRD journey:** J003 (context/features/PRD-payment-module.md)
 **ADRs:** ADR-013
 
 ### Slice objective
@@ -3836,11 +3916,12 @@ Merchant kan åbne Settings → Apps → Overview og se alle 4 connectors (Strip
 **Milestone:** M017
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T079
 **Branch:** feature/S038/T080-stripe-credential-migration
 **PR:** https://github.com/eskobar95/mercflow/pull/127
-**PRD journey:** J001 (PRD-payment-module.md)
+**PRD journey:** J001 (context/features/PRD-payment-module.md)
 **ADRs:** ADR-013
 
 ### Slice objective
@@ -3869,11 +3950,12 @@ Stripe-credentials fjernes fra `connector-module`. `payment-module` er nu den en
 **Milestone:** M017
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T079
 **Branch:** feature/S038/T081-subscription-module-payment-delegation
 **PR:** https://github.com/eskobar95/mercflow/pull/126
-**PRD journey:** J003 (PRD-payment-module.md)
+**PRD journey:** J003 (context/features/PRD-payment-module.md)
 **ADRs:** ADR-013
 
 ### Slice objective
@@ -3901,11 +3983,12 @@ Stripe-credentials fjernes fra `connector-module`. `payment-module` er nu den en
 **Milestone:** M017
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** solo
 **Blocked by:** T080
 **Branch:** feature/S039/T082-settings-payments-ui
 **PR:** https://github.com/eskobar95/mercflow/pull/128 (merged `049760e`)
-**PRD journey:** J001, J002 (PRD-payment-module.md)
+**PRD journey:** J001, J002 (context/features/PRD-payment-module.md)
 **ADRs:** ADR-013, ADR-012
 
 ### Slice objective
@@ -3944,11 +4027,12 @@ Merchant kan åbne Settings → Payments, indtaste Stripe test- og live-credenti
 **Milestone:** M018
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** solo
 **Blocked by:** T082
 **Branch:** feature/S040/T083-discount-routes-nav
 **PR:** https://github.com/eskobar95/mercflow/pull/129
-**PRD journey:** — (PRD-discount-system.md)
+**PRD journey:** — (context/features/PRD-discount-system.md)
 **ADRs:** ADR-012
 
 ### Slice objective
@@ -3985,11 +4069,12 @@ Merchant kan åbne Settings → Payments, indtaste Stripe test- og live-credenti
 **Milestone:** M018
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T083
 **Branch:** feature/S041/T084-discount-product-order-forms
 **PR:** https://github.com/eskobar95/mercflow/pull/130
-**PRD journey:** J001 (PRD-discount-system.md)
+**PRD journey:** J001 (context/features/PRD-discount-system.md)
 **ADRs:** —
 
 ### Slice objective
@@ -4025,11 +4110,12 @@ Merchant kan oprette og redigere Product discounts og Order discounts via en ren
 **Milestone:** M018
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T083
 **Branch:** feature/S041/T085-discount-bxgy-freeshipping
 **PR:** https://github.com/eskobar95/mercflow/pull/131
-**PRD journey:** J002, J003 (PRD-discount-system.md)
+**PRD journey:** J002, J003 (context/features/PRD-discount-system.md)
 **ADRs:** —
 
 ### Slice objective
@@ -4065,12 +4151,13 @@ Merchant kan oprette Buy X Get Y og Free Shipping discounts. Activate/deactivate
 **Milestone:** M019
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **HITL approved:** 2026-06-13 — Stripe test keys supplied in session; `platform_invite` migration fields approved; `STRIPE_PLATFORM_PRICE_ID` to be created in Stripe before T088 billing step
 **PR:** https://github.com/eskobar95/mercflow/pull/133
 **Parallel group:** solo
 **Blocked by:** T082
 **Branch:** feature/S042/T086-tenant-onboarding-invite-foundation
-**PRD journey:** J001 (PRD-tenant-onboarding.md)
+**PRD journey:** J001 (context/features/PRD-tenant-onboarding.md)
 **ADRs:** ADR-014
 
 ### Slice objective
@@ -4108,11 +4195,12 @@ Operator kan i Platform Console åbne "Tenants" → "Invite merchant", indtaste 
 **Milestone:** M019
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** solo
 **Blocked by:** T086
 **Branch:** feature/S043/T087-signup-flow-steps-1-4
 **PR:** https://github.com/eskobar95/mercflow/pull/134
-**PRD journey:** J002 (PRD-tenant-onboarding.md)
+**PRD journey:** J002 (context/features/PRD-tenant-onboarding.md)
 **ADRs:** ADR-014, ADR-011
 
 ### Slice objective
@@ -4147,11 +4235,12 @@ Operator kan i Platform Console åbne "Tenants" → "Invite merchant", indtaste 
 **Milestone:** M019
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** solo
 **Blocked by:** T087
 **Branch:** feature/S044/T088-signup-provisioning-billing
 **PR:** https://github.com/eskobar95/mercflow/pull/135
-**PRD journey:** J002, J003 (PRD-tenant-onboarding.md)
+**PRD journey:** J002, J003 (context/features/PRD-tenant-onboarding.md)
 **ADRs:** ADR-014, ADR-010
 
 ### Slice objective
@@ -4200,10 +4289,11 @@ Merchant gennemfører Step 5 (Stripe Payment Element for platform-abonnement), s
 **Status:** done
 **PR:** https://github.com/eskobar95/mercflow/pull/136
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** solo
 **Blocked by:** none
 **Branch:** cursor/t089-billing-foundation-2b04
-**PRD journey:** J001 (PRD-platform-billing-retrofit.md)
+**PRD journey:** J001 (context/features/PRD-platform-billing-retrofit.md)
 **ADRs:** ADR-015
 
 ### Slice objective
@@ -4238,11 +4328,12 @@ Backend-fundamentet er på plads: `platform_tenant_billing` tabel eksisterer, `G
 **Milestone:** M020
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T089
 **Branch:** feature/S046/T090-webhook-suspend-audit
 **PR:** https://github.com/eskobar95/mercflow/pull/137
-**PRD journey:** J003, J004 (PRD-platform-billing-retrofit.md)
+**PRD journey:** J003, J004 (context/features/PRD-platform-billing-retrofit.md)
 **ADRs:** ADR-015
 
 ### Slice objective
@@ -4275,11 +4366,12 @@ Webhooks fra Stripe platform-konto resolves korrekt via `store_id` (ikke `invite
 **Milestone:** M020
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T089
 **Branch:** feature/S046/T091-signup-plan-picker
 **PR:** https://github.com/eskobar95/mercflow/pull/139
-**PRD journey:** J001 (PRD-platform-billing-retrofit.md)
+**PRD journey:** J001 (context/features/PRD-platform-billing-retrofit.md)
 **ADRs:** ADR-015
 
 ### Slice objective
@@ -4313,11 +4405,12 @@ Signup Step 5 viser en plan picker med tier-cards (Standard / Pro) og et Monthly
 **Milestone:** M020
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** T089
 **Branch:** feature/S046/T092-console-billing-panel
 **PR:** https://github.com/eskobar95/mercflow/pull/138
-**PRD journey:** J002, J004 (PRD-platform-billing-retrofit.md)
+**PRD journey:** J002, J004 (context/features/PRD-platform-billing-retrofit.md)
 **ADRs:** ADR-015
 
 ### Slice objective
@@ -4350,11 +4443,12 @@ Tenant detail-siden i Platform Console har en "Billing" sektion der viser plan, 
 **Milestone:** M021
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S047/T093-cve-remediation
 **PR:** https://github.com/eskobar95/mercflow/pull/142
-**PRD journey:** J003 (PRD-security-hardening.md)
+**PRD journey:** J003 (context/features/PRD-security-hardening.md)
 **ADRs:** ADR-016
 
 ### Slice objective
@@ -4387,11 +4481,12 @@ Tenant detail-siden i Platform Console har en "Billing" sektion der viser plan, 
 **Milestone:** M021
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S047/T094-platform-route-validation
 **PR:** https://github.com/eskobar95/mercflow/pull/141
-**PRD journey:** J001 (PRD-security-hardening.md)
+**PRD journey:** J001 (context/features/PRD-security-hardening.md)
 **ADRs:** ADR-016
 
 ### Slice objective
@@ -4440,11 +4535,12 @@ Every POST/PATCH `/platform/*` route validates its request body with Zod before 
 **Milestone:** M021
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S047/T095-rate-limiting-xss-fix
 **PR:** https://github.com/eskobar95/mercflow/pull/140
-**PRD journey:** J002 (PRD-security-hardening.md)
+**PRD journey:** J002 (context/features/PRD-security-hardening.md)
 **ADRs:** ADR-016
 
 ### Slice objective
@@ -4478,11 +4574,12 @@ Four high-risk endpoint groups have rate limiting. The `innerHTML` assignment in
 **Milestone:** M022
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S048/T096-settings-general-taxes
 **PR:** https://github.com/eskobar95/mercflow/pull/145
-**PRD journey:** J001 (PRD-settings-completion.md)
+**PRD journey:** J001 (context/features/PRD-settings-completion.md)
 **ADRs:** ADR-012
 
 ### Slice objective
@@ -4512,11 +4609,12 @@ A new tenant can fill in their store name, contact email, default currency, time
 **Milestone:** M022
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S048/T097-settings-shipping-carriers
 **PR:** https://github.com/eskobar95/mercflow/pull/144
-**PRD journey:** J001 (PRD-settings-completion.md)
+**PRD journey:** J001 (context/features/PRD-settings-completion.md)
 **ADRs:** ADR-012
 
 ### Slice objective
@@ -4546,11 +4644,12 @@ A merchant can configure shipping profiles and flat/weight-based rates, and conn
 **Milestone:** M022
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S048/T098-settings-team
 **PR:** https://github.com/eskobar95/mercflow/pull/143
-**PRD journey:** J002 (PRD-settings-completion.md)
+**PRD journey:** J002 (context/features/PRD-settings-completion.md)
 **ADRs:** ADR-012, ADR-011
 
 ### Slice objective
@@ -4581,11 +4680,12 @@ A merchant can invite team members by email, assign roles (Admin / Staff), and r
 **Milestone:** M022
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S048/T099-settings-notifications-email
 **PR:** https://github.com/eskobar95/mercflow/pull/147
-**PRD journey:** J001 (PRD-settings-completion.md)
+**PRD journey:** J001 (context/features/PRD-settings-completion.md)
 **ADRs:** ADR-012, ADR-009
 
 ### Slice objective
@@ -4615,11 +4715,12 @@ A merchant can configure their email branding (logo, color, from name, reply-to)
 **Milestone:** M022
 **Status:** done
 **Mode:** AFK
+**Engine:** cursor
 **Parallel group:** A
 **Blocked by:** none
 **Branch:** feature/S048/T100-settings-apps-developers
 **PR:** https://github.com/eskobar95/mercflow/pull/146
-**PRD journey:** J003, J004 (PRD-settings-completion.md)
+**PRD journey:** J003, J004 (context/features/PRD-settings-completion.md)
 **ADRs:** ADR-012
 
 ### Slice objective

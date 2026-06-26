@@ -1,0 +1,4 @@
+[submodule ".factory/kit"]
+	path = .factory/kit
+	url = https://github.com/eskobar95/factory.git
+	branch = factory-2.0
