@@ -243,6 +243,14 @@ function DiscountDetailPageContent({ discountId }: { discountId: string }): Reac
                 <dt className="text-content-secondary">Value</dt>
                 <dd className="text-content-primary">{formatValue(detail)}</dd>
               </div>
+              {detail.discount_type === "product" || detail.discount_type === "order" ? (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-content-secondary">Applies to</dt>
+                  <dd className="text-content-primary">
+                    {detail.catalog_targeting_summary ?? "All products"}
+                  </dd>
+                </div>
+              ) : null}
             </dl>
           </Card>
 
@@ -259,7 +267,47 @@ function DiscountDetailPageContent({ discountId }: { discountId: string }): Reac
 
         <Card compact>
           <h2 className="text-sm font-semibold text-content-primary">Conditions</h2>
+          {detail.conditions_summary !== null ? (
+            <p className="mt-3 text-sm text-content-primary">{detail.conditions_summary}</p>
+          ) : null}
           <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+            {detail.discount_type !== "buyget" ? (
+              <div>
+                <dt className="text-content-secondary">Minimum order value</dt>
+                <dd className="text-content-primary">
+                  {detail.minimum_order_amount !== null
+                    ? `${detail.minimum_order_amount} ${detail.currency_code.toUpperCase()}`
+                    : "No minimum"}
+                </dd>
+              </div>
+            ) : null}
+            {detail.discount_type === "product" && detail.product_ids.length > 0 ? (
+              <div>
+                <dt className="text-content-secondary">Selected products</dt>
+                <dd className="text-content-primary">{detail.product_ids.length} product(s)</dd>
+              </div>
+            ) : null}
+            {detail.discount_type === "free_shipping" ? (
+              <>
+                <div>
+                  <dt className="text-content-secondary">Maximum order value</dt>
+                  <dd className="text-content-primary">
+                    {detail.maximum_order_amount !== null
+                      ? `${detail.maximum_order_amount} ${detail.currency_code.toUpperCase()}`
+                      : "No limit"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-content-secondary">Shipping countries</dt>
+                  <dd className="text-content-primary">
+                    {detail.shipping_country_codes !== null &&
+                    detail.shipping_country_codes.length > 0
+                      ? detail.shipping_country_codes.join(", ")
+                      : "All countries"}
+                  </dd>
+                </div>
+              </>
+            ) : null}
             <div>
               <dt className="text-content-secondary">Start date</dt>
               <dd className="text-content-primary">{formatDateTime(detail.starts_at)}</dd>

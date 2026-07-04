@@ -24,7 +24,7 @@ import { BuyXGetYForm } from "./BuyXGetYForm"
 import { DiscountTypeSelector } from "./DiscountTypeSelector"
 import { FreeShippingForm } from "./FreeShippingForm"
 import { OrderDiscountForm } from "./OrderDiscountForm"
-import { ProductDiscountForm } from "./ProductDiscountForm"
+import { ProductDiscountForm, validateProductDiscountForm } from "./ProductDiscountForm"
 
 function DiscountCreateBackendMissingNotice(): ReactNode {
   return (
@@ -62,6 +62,13 @@ function DiscountCreatePageContent(): ReactNode {
     async (event: FormEvent, type: "product" | "order"): Promise<void> => {
       event.preventDefault()
       const form = type === "product" ? productForm : orderForm
+      if (type === "product") {
+        const scopeError = validateProductDiscountForm(productForm)
+        if (scopeError !== null) {
+          setError(scopeError)
+          return
+        }
+      }
       const payload = buildCreateDiscountPayload(type, form, { status: "draft" })
       if (payload === null) {
         setError("Check the form — name, value, code, and date fields must be valid.")

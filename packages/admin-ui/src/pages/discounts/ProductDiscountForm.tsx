@@ -1,9 +1,8 @@
 import type { FormEvent, ReactNode } from "react"
 
-import { FormField } from "@/components/ui/FormField"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/RadioGroup"
-import type { ProductScope, ProductDiscountFormState } from "@/features/discounts/discountFormTypes"
+import type { ProductDiscountFormState } from "@/features/discounts/discountFormTypes"
 
+import { DiscountCatalogTargetingFields } from "./DiscountCatalogTargetingFields"
 import { DiscountFormShell } from "./DiscountFormShell"
 
 type ProductDiscountFormProps = {
@@ -37,29 +36,31 @@ export function ProductDiscountForm({
       error={error}
       disabled={disabled}
     >
-      <FormField label="Applies to" htmlFor="discount-applies-all">
-        <RadioGroup
-          value={form.appliesTo}
-          disabled={disabled || saving}
-          onValueChange={(next) => {
-            if (next === "all" || next === "collections" || next === "products") {
-              onChange({ ...form, appliesTo: next as ProductScope })
-            }
-          }}
-        >
-          <RadioGroupItem id="discount-applies-all" value="all" label="All products" />
-          <RadioGroupItem
-            id="discount-applies-collections"
-            value="collections"
-            label="Specific collections"
-          />
-          <RadioGroupItem
-            id="discount-applies-products"
-            value="products"
-            label="Specific products"
-          />
-        </RadioGroup>
-      </FormField>
+      <DiscountCatalogTargetingFields
+        appliesTo={form.appliesTo}
+        collectionIds={form.collectionIds}
+        productIds={form.productIds}
+        disabled={disabled || saving}
+        onAppliesToChange={(appliesTo) => {
+          onChange({ ...form, appliesTo })
+        }}
+        onCollectionIdsChange={(collectionIds) => {
+          onChange({ ...form, collectionIds })
+        }}
+        onProductIdsChange={(productIds) => {
+          onChange({ ...form, productIds })
+        }}
+      />
     </DiscountFormShell>
   )
+}
+
+export function validateProductDiscountForm(form: ProductDiscountFormState): string | null {
+  if (form.appliesTo === "collections" && form.collectionIds.length === 0) {
+    return "Select at least one collection, or choose All products."
+  }
+  if (form.appliesTo === "products" && form.productIds.length === 0) {
+    return "Select at least one product, or choose All products."
+  }
+  return null
 }

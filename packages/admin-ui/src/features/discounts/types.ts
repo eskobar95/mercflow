@@ -29,6 +29,15 @@ export type AdminDiscountDetail = AdminDiscountRow & {
   value_type: "percentage" | "fixed" | null
   value: number | null
   starts_at: string | null
+  currency_code: string
+  minimum_order_amount: number | null
+  maximum_order_amount: number | null
+  shipping_country_codes: string[] | null
+  applies_to: "all" | "collections" | "products"
+  collection_ids: string[]
+  product_ids: string[]
+  catalog_targeting_summary: string | null
+  conditions_summary: string | null
 }
 
 export type AdminDiscountListResponse = {

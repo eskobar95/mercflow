@@ -48,6 +48,8 @@ export type CreateDiscountPayload = {
   usage_limit?: number | null
   application_method?: CreateDiscountApplicationMethod
   minimum_purchase_amount?: number
+  collection_ids?: string[]
+  product_ids?: string[]
   shipping_country_codes?: string[]
   shipping_exclude_above?: number | null
   starts_at?: string
@@ -117,6 +119,32 @@ function parseDiscountDetail(raw: unknown): AdminDiscountDetail | null {
     value_type: parsedValueType,
     value: typeof row.value === "number" && Number.isFinite(row.value) ? row.value : null,
     starts_at: row.starts_at === null || typeof row.starts_at === "string" ? row.starts_at : null,
+    currency_code: typeof row.currency_code === "string" ? row.currency_code : "dkk",
+    minimum_order_amount:
+      typeof row.minimum_order_amount === "number" && Number.isFinite(row.minimum_order_amount)
+        ? row.minimum_order_amount
+        : null,
+    maximum_order_amount:
+      typeof row.maximum_order_amount === "number" && Number.isFinite(row.maximum_order_amount)
+        ? row.maximum_order_amount
+        : null,
+    shipping_country_codes: Array.isArray(row.shipping_country_codes)
+      ? row.shipping_country_codes.filter((code): code is string => typeof code === "string")
+      : null,
+    conditions_summary:
+      typeof row.conditions_summary === "string" ? row.conditions_summary : null,
+    applies_to:
+      row.applies_to === "collections" || row.applies_to === "products" || row.applies_to === "all"
+        ? row.applies_to
+        : "all",
+    collection_ids: Array.isArray(row.collection_ids)
+      ? row.collection_ids.filter((id): id is string => typeof id === "string")
+      : [],
+    product_ids: Array.isArray(row.product_ids)
+      ? row.product_ids.filter((id): id is string => typeof id === "string")
+      : [],
+    catalog_targeting_summary:
+      typeof row.catalog_targeting_summary === "string" ? row.catalog_targeting_summary : null,
   }
 }
 

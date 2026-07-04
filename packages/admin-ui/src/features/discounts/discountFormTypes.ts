@@ -28,6 +28,8 @@ export type DiscountFormCoreState = {
 
 export type ProductDiscountFormState = DiscountFormCoreState & {
   appliesTo: ProductScope
+  collectionIds: string[]
+  productIds: string[]
 }
 
 export type OrderDiscountFormState = DiscountFormCoreState
@@ -55,6 +57,8 @@ export function createDefaultProductDiscountFormState(): ProductDiscountFormStat
     valueType: "percentage",
     value: "10",
     appliesTo: "all",
+    collectionIds: [],
+    productIds: [],
     conditions: createDefaultConditionsState(),
   }
 }
@@ -94,6 +98,7 @@ export type FreeShippingFormValues = {
   name: string
   method: DiscountMethod
   code: string
+  minimumOrderAmount: string
   countryMode: "all" | "specific"
   countryCodes: string[]
   excludeAbove: string
@@ -119,6 +124,7 @@ export const DEFAULT_FREE_SHIPPING_VALUES: FreeShippingFormValues = {
   name: "",
   method: "automatic",
   code: "",
+  minimumOrderAmount: "",
   countryMode: "all",
   countryCodes: [],
   excludeAbove: "",

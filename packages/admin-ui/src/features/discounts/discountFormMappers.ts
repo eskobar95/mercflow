@@ -43,7 +43,9 @@ export function mapDetailToProductFormState(detail: AdminDiscountDetail): Produc
     code: detail.code ?? "",
     valueType: detail.value_type ?? "percentage",
     value: detail.value !== null ? String(detail.value) : "10",
-    appliesTo: "all",
+    appliesTo: detail.applies_to,
+    collectionIds: detail.collection_ids,
+    productIds: detail.product_ids,
     conditions: mapConditionsFromDetail(detail),
   }
 }

@@ -90,6 +90,11 @@ export function buildFreeShippingCreatePayload(
     payload.code = values.code.trim()
   }
 
+  const minimumAmount = parseOptionalAmount(values.minimumOrderAmount)
+  if (minimumAmount !== null) {
+    payload.minimum_purchase_amount = minimumAmount
+  }
+
   if (values.countryMode === "specific" && values.countryCodes.length > 0) {
     payload.shipping_country_codes = values.countryCodes
   }

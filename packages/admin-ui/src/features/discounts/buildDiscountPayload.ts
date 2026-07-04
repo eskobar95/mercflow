@@ -1,4 +1,8 @@
-import type { DiscountFormCoreState, DiscountFormType } from "./discountFormTypes"
+import type {
+  DiscountFormCoreState,
+  DiscountFormType,
+  ProductDiscountFormState,
+} from "./discountFormTypes"
 import type { CreateDiscountPayload } from "./discountsApi"
 
 export type UpdateDiscountPayload = Partial<CreateDiscountPayload>
@@ -50,8 +54,18 @@ function resolveTargetType(discountType: DiscountFormType): "order" | "items" | 
 }
 
 export function buildCreateDiscountPayload(
-  discountType: "product" | "order",
+  discountType: "product",
+  form: ProductDiscountFormState,
+  options?: { status?: "draft" | "active" | "inactive" },
+): CreateDiscountPayload | null
+export function buildCreateDiscountPayload(
+  discountType: "order",
   form: DiscountFormCoreState,
+  options?: { status?: "draft" | "active" | "inactive" },
+): CreateDiscountPayload | null
+export function buildCreateDiscountPayload(
+  discountType: "product" | "order",
+  form: DiscountFormCoreState | ProductDiscountFormState,
   options?: { status?: "draft" | "active" | "inactive" },
 ): CreateDiscountPayload | null {
   const name = form.name.trim()
@@ -116,6 +130,19 @@ export function buildCreateDiscountPayload(
     payload.ends_at = endsAt
   } else {
     payload.ends_at = null
+  }
+
+  if (discountType === "product" && "appliesTo" in form) {
+    if (form.appliesTo === "collections") {
+      payload.collection_ids = form.collectionIds
+      payload.product_ids = []
+    } else if (form.appliesTo === "products") {
+      payload.product_ids = form.productIds
+      payload.collection_ids = []
+    } else {
+      payload.collection_ids = []
+      payload.product_ids = []
+    }
   }
 
   return payload

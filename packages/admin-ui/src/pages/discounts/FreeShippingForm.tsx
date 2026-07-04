@@ -93,6 +93,26 @@ export function FreeShippingForm({ disabled = false, onCreated }: FreeShippingFo
       </Card>
 
       <Card compact className="space-y-4">
+        <h2 className="text-base font-semibold text-content-primary">When does free shipping apply?</h2>
+        <FormField
+          label="Minimum order value"
+          htmlFor="minimum-order-amount"
+          hint="Customers get free shipping only when their order total is at least this amount. Leave empty to apply to all order sizes."
+        >
+          <Input
+            id="minimum-order-amount"
+            inputMode="decimal"
+            value={values.minimumOrderAmount}
+            disabled={fieldDisabled}
+            placeholder="e.g. 499"
+            onChange={(event) => {
+              setValues((previous) => ({ ...previous, minimumOrderAmount: event.target.value }))
+            }}
+          />
+        </FormField>
+      </Card>
+
+      <Card compact className="space-y-4">
         <h2 className="text-base font-semibold text-content-primary">Shipping countries</h2>
         <FormField label="Countries" required>
           <RadioGroup

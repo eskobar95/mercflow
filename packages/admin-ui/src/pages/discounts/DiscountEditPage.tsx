@@ -21,7 +21,7 @@ import type { AdminDiscountDetail } from "@/features/discounts/types"
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
 import { OrderDiscountForm } from "./OrderDiscountForm"
-import { ProductDiscountForm } from "./ProductDiscountForm"
+import { ProductDiscountForm, validateProductDiscountForm } from "./ProductDiscountForm"
 import { discountTypeTitle, isDiscountTypeSupportedForForms } from "@/features/discounts/discountTypeLabels"
 
 function DiscountEditBackendMissingNotice(): ReactNode {
@@ -94,6 +94,14 @@ function DiscountEditPageContent({ discountId }: { discountId: string }): ReactN
 
       if (detail.discount_type !== "product" && detail.discount_type !== "order") {
         return
+      }
+
+      if (detail.discount_type === "product") {
+        const scopeError = validateProductDiscountForm(form as ProductDiscountFormState)
+        if (scopeError !== null) {
+          setError(scopeError)
+          return
+        }
       }
 
       const payload = buildUpdateDiscountPayload(detail.discount_type, form)
