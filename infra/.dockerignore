@@ -8,6 +8,7 @@ node_modules
 **/dist
 apps/backend/.medusa
 packages/admin-ui/dist
+apps/platform-console
 coverage
 playwright-report
 test-results

@@ -8,25 +8,16 @@ WORKDIR /app
 
 FROM base AS deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages packages
 COPY apps/backend/package.json apps/backend/
-COPY packages/content-module/package.json packages/content-module/
-COPY packages/connector-module/package.json packages/connector-module/
-COPY packages/feed-module/package.json packages/feed-module/
-COPY packages/inventory-module/package.json packages/inventory-module/
-COPY packages/seo-module/package.json packages/seo-module/
-COPY packages/subscription-module/package.json packages/subscription-module/
+COPY apps/worker/package.json apps/worker/
 RUN pnpm install --frozen-lockfile
 
 FROM deps AS build
 COPY apps/backend apps/backend
-COPY packages/content-module packages/content-module
-COPY packages/connector-module packages/connector-module
-COPY packages/feed-module packages/feed-module
-COPY packages/inventory-module packages/inventory-module
-COPY packages/seo-module packages/seo-module
-COPY packages/subscription-module packages/subscription-module
+COPY apps/worker apps/worker
 ENV NODE_ENV=production
-RUN pnpm --filter @mercflow/backend build
+RUN pnpm build:medusa-fork && pnpm --filter @mercflow/backend build
 # Production start runs from `.medusa/server` and expects config + app source alongside the build output
 RUN cp apps/backend/medusa-config.ts apps/backend/.medusa/server/medusa-config.ts && \
     cp -r apps/backend/src apps/backend/.medusa/server/src
