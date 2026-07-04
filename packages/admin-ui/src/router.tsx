@@ -620,4 +620,6 @@ export const router = createBrowserRouter([
       },
     ],
   },
-])
+], {
+  basename: import.meta.env.BASE_URL.replace(/\/$/, "") || undefined,
+})

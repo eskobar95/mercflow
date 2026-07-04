@@ -186,6 +186,19 @@ services:
     networks:
       - mercflow
 
+  admin-ui:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.admin-ui
+      args:
+        VITE_MEDUSA_ADMIN_BACKEND_URL: https://${DOMAIN}
+        VITE_ADMIN_BASE_PATH: /app/
+        VITE_CLERK_PUBLISHABLE_KEY: ${VITE_CLERK_PUBLISHABLE_KEY:-}
+        VITE_MERCFLOW_DEFAULT_STORE_ID: ${VITE_MERCFLOW_DEFAULT_STORE_ID:-}
+    restart: unless-stopped
+    networks:
+      - mercflow
+
 networks:
   mercflow:
     name: mercflow

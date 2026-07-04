@@ -1,8 +1,17 @@
 # Traefik dynamic routes (T027). Update hostnames when DOMAIN changes.
 http:
   routers:
+    admin-ui:
+      rule: Host(`api.mercflow.shop`) && PathPrefix(`/app`)
+      priority: 100
+      entryPoints:
+        - websecure
+      service: admin-ui
+      tls:
+        certResolver: letsencrypt
     medusa:
       rule: Host(`api.mercflow.shop`)
+      priority: 1
       entryPoints:
         - websecure
       service: medusa
@@ -23,6 +32,10 @@ http:
       tls:
         certResolver: letsencrypt
   services:
+    admin-ui:
+      loadBalancer:
+        servers:
+          - url: http://admin-ui:8080
     medusa:
       loadBalancer:
         servers:
