@@ -7,23 +7,9 @@ import {
   type ProductOptionRowModel,
   type VariantRowModel,
 } from "@/lib/products/productOptionMatrix"
-import { economicsMapFromVariantRows } from "@/lib/products/productFormEconomics"
-import { captureUnifiedCatalogFormSnapshot } from "@/lib/products/unifiedProductFormSnapshot"
 import { medusaGToDisplayG, medusaMmToDisplayCm } from "@/lib/products/productVariantShippingUnits"
 import type { VariantShippingDraft } from "@/lib/products/variantShippingDraft"
 import { readVariantSelections } from "@/lib/products/productUnifiedPersistence"
-
-export type CatalogEditFormBootstrap = {
-  title: string
-  description: string
-  isPublished: boolean
-  optionRows: ProductOptionRowModel[]
-  economicsMap: ReturnType<typeof economicsMapFromVariantRows>
-  selectedCategoryIds: Set<string>
-  isPhysicalProduct: boolean
-  shippingByComboKey: Partial<Record<string, VariantShippingDraft>>
-  savedSnapshot: ReturnType<typeof captureUnifiedCatalogFormSnapshot>
-}
 
 type VariantInventoryLink = { inventory?: { requires_shipping?: boolean } | null }
 
@@ -38,32 +24,6 @@ export function readVariantRequiresShipping(variant: AdminProductVariant): boole
     }
   }
   return true
-}
-
-function readVariantPriceRows(
-  variant: AdminProductVariant,
-): Array<{ amount?: number; currency_code?: string }> {
-  if (Array.isArray(variant.prices) && variant.prices.length > 0) {
-    return variant.prices
-  }
-
-  const withPriceSet = variant as AdminProductVariant & {
-    price_set?: { prices?: Array<{ amount?: number; currency_code?: string }> }
-  }
-
-  return withPriceSet.price_set?.prices ?? []
-}
-
-function readVariantPriceDkkMinor(variant: AdminProductVariant): number | undefined {
-  for (const price of readVariantPriceRows(variant)) {
-    if (typeof price.currency_code === "string" && price.currency_code.toLowerCase() === "dkk") {
-      const raw = price.amount
-      if (typeof raw === "number" && Number.isFinite(raw)) {
-        return raw
-      }
-    }
-  }
-  return undefined
 }
 
 function readVariantShippingDraft(variant: AdminProductVariant): VariantShippingDraft {
@@ -110,7 +70,14 @@ export function hydrateEditorModelsFromAdminProduct(product: AdminProduct): {
     const comboKey = buildVariantComboKey(selections)
     shippingByComboKey[comboKey] = readVariantShippingDraft(variant)
     if (!readVariantRequiresShipping(variant)) isPhysicalProduct = false
-    const priceMinor = readVariantPriceDkkMinor(variant)
+    let priceMinor: number | undefined
+    for (const price of variant.prices ?? []) {
+      if (typeof price.currency_code === "string" && price.currency_code.toLowerCase() === "dkk") {
+        const raw = price.amount
+        if (typeof raw === "number" && Number.isFinite(raw)) priceMinor = raw
+        break
+      }
+    }
     const priceDkk = priceMinor !== undefined ? (priceMinor / 100).toFixed(2).replace(/\.00$/u, "") : ""
     const stockQty =
       typeof variant.inventory_quantity === "number" && Number.isFinite(variant.inventory_quantity)
@@ -120,49 +87,4 @@ export function hydrateEditorModelsFromAdminProduct(product: AdminProduct): {
   })
 
   return { optionRows, variantRows, isPhysicalProduct, shippingByComboKey }
-}
-
-export function buildCatalogEditFormBootstrap(product: AdminProduct): CatalogEditFormBootstrap {
-  const hydrated = hydrateEditorModelsFromAdminProduct(product)
-
-  const title = product.title?.trim() ?? ""
-  const description =
-    typeof product.description === "string" && product.description.trim() !== ""
-      ? product.description
-      : ""
-
-  const selectedCategoryIds = new Set<string>()
-  if (Array.isArray(product.categories)) {
-    for (const category of product.categories) {
-      const candidate = category?.id ?? ""
-      if (candidate !== "") {
-        selectedCategoryIds.add(candidate)
-      }
-    }
-  }
-
-  const optionRows =
-    hydrated.optionRows.length > 0 ? hydrated.optionRows : [{ title: "", values: [] }]
-  const economicsMap = economicsMapFromVariantRows(hydrated.variantRows)
-
-  const savedSnapshot = captureUnifiedCatalogFormSnapshot({
-    title,
-    description,
-    isPublished: product.status === "published",
-    optionRows,
-    economicsMap,
-    selectedCategoryIds,
-  })
-
-  return {
-    title,
-    description,
-    isPublished: product.status === "published",
-    optionRows,
-    economicsMap,
-    selectedCategoryIds,
-    isPhysicalProduct: hydrated.isPhysicalProduct,
-    shippingByComboKey: hydrated.shippingByComboKey,
-    savedSnapshot,
-  }
 }

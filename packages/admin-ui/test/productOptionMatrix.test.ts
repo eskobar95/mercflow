@@ -6,8 +6,6 @@ import {
   DEFAULT_SINGLE_OPTION_TITLE,
   DEFAULT_SINGLE_OPTION_VALUE,
   hasDefinedProductOptions,
-  normalizeOptionValuesInput,
-  readOptionValuesInput,
   splitOptionValuesCsv,
   type VariantRowModel,
 } from "@/lib/products/productOptionMatrix"
@@ -48,17 +46,6 @@ function mergePresetVariantEconomics(params: {
 describe("productOptionMatrix helpers", (): void => {
   it("splits comma- and semicolon-separated option values", (): void => {
     expect(splitOptionValuesCsv("S, M; L")).toEqual(["S", "M", "L"])
-  })
-
-  it("normalizes option value input after editing", (): void => {
-    expect(normalizeOptionValuesInput("S, M, L,")).toEqual({
-      valuesInput: "S, M, L",
-      values: ["S", "M", "L"],
-    })
-    expect(readOptionValuesInput({ title: "Size", values: ["S", "M"] })).toBe("S, M")
-    expect(
-      readOptionValuesInput({ title: "Size", values: ["S"], valuesInput: "S, " }),
-    ).toBe("S, ")
   })
 
   it("builds deterministic combo keys", (): void => {

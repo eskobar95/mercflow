@@ -27,38 +27,6 @@ function extractBearerToken(authHeader: string | undefined): string | null {
   return match?.[1] ?? null
 }
 
-/** Full pathname — req.path is mount-relative under `/platform*` middleware. */
-export function resolvePlatformRequestPathname(req: MedusaRequest): string {
-  const fromOriginal = req.originalUrl?.split("?")[0]
-  if (fromOriginal && fromOriginal.length > 0) {
-    return fromOriginal
-  }
-
-  const fromUrl = req.url?.split("?")[0]
-  if (fromUrl && fromUrl.length > 0) {
-    return fromUrl.startsWith("/") ? fromUrl : `/${fromUrl}`
-  }
-
-  const base = req.baseUrl ?? ""
-  const path = req.path ?? ""
-  const combined = `${base}${path}`.replace(/\/{2,}/g, "/")
-  return combined.length > 0 ? combined : "/"
-}
-
-export function isPublicPlatformSignupRoute(req: MedusaRequest): boolean {
-  const pathname = resolvePlatformRequestPathname(req)
-  const method = req.method?.toUpperCase() ?? "GET"
-
-  return (
-    (pathname === "/platform/invites/validate" && method === "GET") ||
-    (pathname === "/platform/billing/plans" && method === "GET") ||
-    (pathname === "/platform/signup/billing/setup" && method === "POST") ||
-    (pathname === "/platform/signup/billing/complete" && method === "POST") ||
-    (pathname === "/platform/provision" && method === "POST") ||
-    (pathname.startsWith("/platform/provisioning-status/") && method === "GET")
-  )
-}
-
 export type PlatformOperator = {
   userId: string
   email: string
@@ -73,7 +41,13 @@ export async function clerkPlatformAuthMiddleware(
   res: MedusaResponse,
   next: MedusaNextFunction,
 ): Promise<void> {
-  if (isPublicPlatformSignupRoute(req)) {
+  if (
+    (req.path === "/platform/invites/validate" && req.method === "GET") ||
+    (req.path === "/platform/billing/plans" && req.method === "GET") ||
+    (req.path === "/platform/signup/billing/setup" && req.method === "POST") ||
+    (req.path === "/platform/provision" && req.method === "POST") ||
+    (req.path?.startsWith("/platform/provisioning-status/") && req.method === "GET")
+  ) {
     await Promise.resolve(next())
     return
   }

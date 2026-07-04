@@ -5,18 +5,12 @@ import type {
   MedusaResponse,
 } from "@medusajs/framework/http"
 
-import {
-  readClerkOrganizationIdFromJwt,
-  resolveMercflowStoreIdFromClerkSession,
-} from "./resolve-clerk-mercflow-store-id"
-
 /**
  * Middleware that verifies an incoming Bearer token as a Clerk JWT for admin
  * routes. When valid it sets:
  *
  *   req.auth_context   — satisfies Medusa's authenticate() pre-set check
- *   req.mercflowStoreId — Medusa store_id resolved from JWT claim or org metadata
- *   req.mercflowClerkOrgId — Clerk organization id from JWT (for team APIs)
+ *   req.mercflowStoreId — org_id from the Clerk session maps to store_id
  *
  * The middleware is non-blocking: if the token is absent or not a valid Clerk
  * JWT it calls next() without error so Medusa's own authenticate() can still
@@ -27,7 +21,6 @@ import {
  */
 
 const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY ?? ""
-const SUPER_ADMIN_ROLE_ID = "role_super_admin"
 
 function extractBearerToken(authHeader: string | undefined): string | null {
   if (!authHeader) return null
@@ -44,7 +37,6 @@ type ClerkAdminRequest = MedusaRequest & {
     user_metadata: Record<string, unknown>
   }
   mercflowStoreId?: string
-  mercflowClerkOrgId?: string
 }
 
 export async function clerkAdminAuthMiddleware(
@@ -65,7 +57,6 @@ export async function clerkAdminAuthMiddleware(
 
   try {
     const payload = await verifyToken(token, { secretKey: CLERK_SECRET_KEY })
-    const claims = payload as Record<string, unknown>
 
     const userId = typeof payload.sub === "string" ? payload.sub : null
     if (!userId) {
@@ -73,31 +64,24 @@ export async function clerkAdminAuthMiddleware(
       return
     }
 
-    const storeId = await resolveMercflowStoreIdFromClerkSession({
-      payload: claims,
-      secretKey: CLERK_SECRET_KEY,
-    })
-    const clerkOrgId = readClerkOrganizationIdFromJwt(claims)
+    // org_id from the active Clerk organization maps to a MercFlow store_id.
+    const orgId =
+      typeof (payload as Record<string, unknown>).org_id === "string" &&
+      ((payload as Record<string, unknown>).org_id as string).length > 0
+        ? ((payload as Record<string, unknown>).org_id as string)
+        : null
 
     const typedReq = req as ClerkAdminRequest
     typedReq.auth_context = {
       actor_id: userId,
       actor_type: "user",
       auth_identity_id: userId,
-      app_metadata: storeId
-        ? {
-            roles: [SUPER_ADMIN_ROLE_ID],
-          }
-        : {},
+      app_metadata: {},
       user_metadata: {},
     }
 
-    if (storeId) {
-      typedReq.mercflowStoreId = storeId
-    }
-
-    if (clerkOrgId) {
-      typedReq.mercflowClerkOrgId = clerkOrgId
+    if (orgId) {
+      typedReq.mercflowStoreId = orgId
     }
   } catch {
     // Not a valid Clerk JWT — fall through to Medusa's own authenticate().

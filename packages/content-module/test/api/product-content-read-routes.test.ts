@@ -15,15 +15,9 @@ vi.mock("@medusajs/framework/http", async (orig) => {
     refetchEntity: vi.fn(async () => ({
       id: "prod_z",
       status: "published",
-      store_id: "store_test",
     })),
   }
 })
-
-vi.mock("../../src/api/http/resolve-entity-store-id", () => ({
-  resolveProductStoreId: vi.fn(async () => "store_test"),
-  resolveCategoryStoreId: vi.fn(async () => "store_test"),
-}))
 
 describe("GET /admin/product-content/:id (product lookup)", () => {
   beforeEach(async () => {
@@ -31,7 +25,6 @@ describe("GET /admin/product-content/:id (product lookup)", () => {
     vi.mocked(http.refetchEntity).mockResolvedValue({
       id: "prod_z",
       status: "published",
-      store_id: "store_test",
     })
   })
 
@@ -77,7 +70,7 @@ describe("GET /admin/product-content/:id (product lookup)", () => {
 
     await adminProductContentGet(req, res)
 
-    expect(findByProductId).toHaveBeenCalledWith("prod_z", "da", "store_test")
+    expect(findByProductId).toHaveBeenCalledWith("prod_z", "da")
     expect(res.status).toHaveBeenCalledWith(200)
     expect(resJson.mock.calls[0]?.[0]).toMatchObject({
       id: "pc",
@@ -98,9 +91,7 @@ describe("GET /store/product-content/:handle", () => {
       url: "https://cdn.example.com/x.png",
     }))
 
-    const listProducts = vi.fn(async () => [
-      { id: "prod_z", status: "published" as const, store_id: "store_test" },
-    ])
+    const listProducts = vi.fn(async () => [{ id: "prod_z", status: "published" as const }])
     const findByProductId = vi.fn(async () => ({
       id: "pc",
       product_id: "prod_z",
@@ -143,7 +134,7 @@ describe("GET /store/product-content/:handle", () => {
     await storeProductContentGet(req, res)
 
     expect(listProducts).toHaveBeenCalledWith({ handle: "coffee-mug" }, { take: 2 })
-    expect(findByProductId).toHaveBeenCalledWith("prod_z", "en", "store_test")
+    expect(findByProductId).toHaveBeenCalledWith("prod_z", "en")
     expect(res.status).toHaveBeenCalledWith(200)
     expect(resJson.mock.calls[0]?.[0]).toMatchObject({
       locale: "en",

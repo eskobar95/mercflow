@@ -1,7 +1,6 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 
 import { getProvisioningJobState } from "../../../../lib/platform-provisioning/job-state"
-import { reconcileProvisioningJobState } from "../../../../lib/platform-provisioning/reconcile-provisioning-job-state"
 import {
   platformJobIdParamsSchema,
   validateParams,
@@ -14,7 +13,6 @@ export async function GET(
   const params = validateParams(platformJobIdParamsSchema, req.params)
 
   try {
-    await reconcileProvisioningJobState(params.jobId)
     const state = await getProvisioningJobState(params.jobId)
     if (!state) {
       res.status(404).json({ message: `Provisioning job not found: ${params.jobId}` })

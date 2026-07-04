@@ -3,7 +3,7 @@ import type { AdminProduct } from "@medusajs/types"
 import { useCallback, useMemo, useRef, useState, type MutableRefObject } from "react"
 
 import { ADMIN_PRODUCT_EDITOR_FIELDS } from "@/lib/products/adminProductEditorFields"
-import { hydrateEditorModelsFromAdminProduct, type CatalogEditFormBootstrap } from "@/lib/products/productFormHydration"
+import { hydrateEditorModelsFromAdminProduct } from "@/lib/products/productFormHydration"
 import {
   buildVariantRowsFromOptionMatrix,
   hasDefinedProductOptions,
@@ -13,19 +13,12 @@ import {
 import {
   extractMessageFromMedusaError,
   fetchProductFormPrerequisites,
-  fetchVariantStockQuantitiesAtLocation,
   persistUnifiedProductCreate,
   persistUnifiedProductUpdate,
   resolvePersistVariantShipping,
   type PersistVariantEconomics,
   type PersistVariantShipping,
 } from "@/lib/products/productUnifiedPersistence"
-import {
-  applyStockQuantitiesToEconomicsMap,
-  economicsMapFromVariantRows,
-  mergeEconomicsMapForComboKeys,
-  type VariantEconomicsDraft,
-} from "@/lib/products/productFormEconomics"
 import type { ProductFormPrerequisites } from "@/lib/products/productUnifiedPersistence"
 import { createMercflowMedusaSdk } from "@/medusa-admin/createMercflowMedusaSdk"
 import {
@@ -93,7 +86,11 @@ export class UnifiedFormValidationError extends Error {
 
 type ComboSnapshot = Pick<VariantRowModel, "comboKey" | "selections">
 
-type VariantEconomics = VariantEconomicsDraft
+type VariantEconomics = {
+  priceDkk: string
+  stock: string
+  medusaVariantId?: string | null
+}
 
 function emptyEconomicsSnapshot(): VariantEconomics {
   return { priceDkk: "", stock: "", medusaVariantId: null }
@@ -102,10 +99,6 @@ function emptyEconomicsSnapshot(): VariantEconomics {
 export function useUnifiedCatalogProductForm(params: {
   mode: ProductFormMode
   productId?: string
-  /** When set (keyed edit surface), product data is pre-loaded and form state initializes from this snapshot. */
-  editBootstrap?: CatalogEditFormBootstrap
-  /** Pre-fetched product for edit saves and stock enrichment; skips the editor retrieve query. */
-  hydratedProduct?: AdminProduct
   onSuccessfulCreateNavigate?: (productId: string) => void
   shippingContextRef?: MutableRefObject<UnifiedCatalogProductShippingContext | null>
 }): {
@@ -146,30 +139,21 @@ export function useUnifiedCatalogProductForm(params: {
 
   const queryClient = useQueryClient()
 
-  const bootstrap = params.editBootstrap
+  const [title, setTitle] = useState("")
+  const [description, setDescription] = useState("")
+  const [isPublished, setIsPublished] = useState(false)
 
-  const [title, setTitle] = useState(() => bootstrap?.title ?? "")
-  const [description, setDescription] = useState(() => bootstrap?.description ?? "")
-  const [isPublished, setIsPublished] = useState(() => bootstrap?.isPublished ?? false)
-
-  const [optionRows, setOptionRows] = useState<ProductOptionRowModel[]>(
-    () => bootstrap?.optionRows ?? [],
-  )
+  const [optionRows, setOptionRows] = useState<ProductOptionRowModel[]>(() => [])
 
   const [economicsMap, setEconomicsMap] = useState<
     Partial<Record<string, VariantEconomics>>
-  >(() => bootstrap?.economicsMap ?? {})
+  >(() => ({}))
 
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<Set<string>>(
-    () => bootstrap?.selectedCategoryIds ?? new Set(),
-  )
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<Set<string>>(() => new Set())
 
   const [fieldErrors, setFieldErrors] = useState<UnifiedCatalogProductFormErrors>(() => ({}))
   const [formError, setFormError] = useState<string | null>(null)
   const [savedSnapshot, setSavedSnapshot] = useState<UnifiedCatalogFormSnapshot | null>(() => {
-    if (bootstrap !== undefined) {
-      return bootstrap.savedSnapshot
-    }
     if (params.mode !== "create") {
       return null
     }
@@ -184,9 +168,6 @@ export function useUnifiedCatalogProductForm(params: {
   })
 
   const createBootstrapped = useRef(params.mode !== "create")
-  const hydratedEconomicsRef = useRef<Partial<Record<string, VariantEconomics>>>(
-    bootstrap?.economicsMap ?? {},
-  )
 
   const {
     data: prerequisites,
@@ -217,11 +198,7 @@ export function useUnifiedCatalogProductForm(params: {
     isLoading: isProductQueryLoading,
     isFetching: isProductQueryFetching,
   } = useQuery({
-    enabled:
-      sdk !== null &&
-      params.mode === "edit" &&
-      params.productId !== undefined &&
-      params.hydratedProduct === undefined,
+    enabled: sdk !== null && params.mode === "edit" && params.productId !== undefined,
     queryKey: ["catalog-product-detail-editor", params.productId],
     queryFn: async (): Promise<{ product: AdminProduct }> =>
       sdk!.admin.product.retrieve(params.productId!, { fields: ADMIN_PRODUCT_EDITOR_FIELDS }),
@@ -252,64 +229,28 @@ export function useUnifiedCatalogProductForm(params: {
   useAdjustStateWhenKeyChanges(derivedComboKeys === "" ? null : derivedComboKeys, () => {
     const keysNext = derivedCombos.map((combo) => combo.comboKey)
 
-    setEconomicsMap((previous) =>
-      mergeEconomicsMapForComboKeys(keysNext, previous, hydratedEconomicsRef.current),
-    )
+    setEconomicsMap((previous) => {
+      const cloned: Partial<Record<string, VariantEconomics>> = {}
+
+      for (const key of keysNext) {
+        const existing = previous[key] ?? emptyEconomicsSnapshot()
+
+        cloned[key] = {
+          priceDkk: existing.priceDkk,
+          stock: existing.stock,
+          medusaVariantId: existing.medusaVariantId,
+        }
+      }
+
+      return cloned
+    })
   })
 
-  const productEntity = params.hydratedProduct ?? productPayload?.product
-  const productEntityKey =
+  const productEntity = productPayload?.product
+  const productHydrationKey =
     params.mode === "edit" && productEntity !== undefined
       ? `${productEntity.id}:${productEntity.updated_at ?? ""}`
       : null
-
-  const productHydrationKey =
-    params.editBootstrap === undefined ? productEntityKey : null
-
-  const {
-    data: stockByVariantId,
-  } = useQuery({
-    enabled:
-      sdk !== null &&
-      params.mode === "edit" &&
-      params.productId !== undefined &&
-      productEntity !== undefined &&
-      prerequisites !== undefined &&
-      (productEntity.variants?.length ?? 0) > 0,
-    queryKey: [
-      "catalog-product-editor-stock",
-      params.productId,
-      productEntity?.updated_at ?? "",
-      prerequisites?.primaryStockLocationId ?? "",
-    ],
-    queryFn: async (): Promise<Map<string, number>> =>
-      fetchVariantStockQuantitiesAtLocation({
-        sdk: sdk!,
-        variants: productEntity!.variants ?? [],
-        locationId: prerequisites!.primaryStockLocationId,
-      }),
-  })
-
-  const stockHydrationKey =
-    stockByVariantId !== undefined && productEntityKey !== null
-      ? `${productEntityKey}:stock:${[...stockByVariantId.entries()]
-          .map(([variantId, quantity]) => `${variantId}=${quantity}`)
-          .join("\u0000")}`
-      : null
-
-  useAdjustStateWhenKeyChanges(stockHydrationKey, () => {
-    if (stockByVariantId === undefined) {
-      return
-    }
-
-    setEconomicsMap((previous) => {
-      const next = applyStockQuantitiesToEconomicsMap(previous, stockByVariantId)
-      if (next !== previous) {
-        hydratedEconomicsRef.current = next
-      }
-      return next
-    })
-  })
 
   useAdjustStateWhenKeyChanges(productHydrationKey, () => {
     if (
@@ -349,9 +290,15 @@ export function useUnifiedCatalogProductForm(params: {
       setOptionRows([])
     }
 
-    const economicsHydrated = economicsMapFromVariantRows(hydrated.variantRows)
+    const economicsHydrated: Partial<Record<string, VariantEconomics>> = {}
+    for (const rowVariant of hydrated.variantRows) {
+      economicsHydrated[rowVariant.comboKey] = {
+        priceDkk: rowVariant.priceDkk,
+        stock: rowVariant.stock,
+        medusaVariantId: rowVariant.medusaVariantId ?? null,
+      }
+    }
 
-    hydratedEconomicsRef.current = economicsHydrated
     setEconomicsMap(economicsHydrated)
 
     setSavedSnapshot(
@@ -421,9 +368,7 @@ export function useUnifiedCatalogProductForm(params: {
   currentSnapshotRef.current = currentSnapshot
 
   const isLoadingProductDetail =
-    params.mode === "edit" &&
-    params.hydratedProduct === undefined &&
-    (isProductQueryLoading || isProductQueryFetching)
+    params.mode === "edit" && (isProductQueryLoading || isProductQueryFetching)
 
   const isDirty = useMemo((): boolean => {
     if (savedSnapshot === null || isLoadingProductDetail) {
@@ -570,7 +515,7 @@ export function useUnifiedCatalogProductForm(params: {
         }
         if (title !== "" && values.length > 0) {
           trimmedOptionRows.push({
-            medusaOptionId: rowOption.medusaOptionId,
+            ...rowOption,
             title,
             values,
           })
@@ -624,9 +569,6 @@ export function useUnifiedCatalogProductForm(params: {
             queryKey: ["catalog-product-detail-editor", params.productId],
           }),
           queryClient.invalidateQueries({
-            queryKey: ["catalog-product-editor-stock", params.productId],
-          }),
-          queryClient.invalidateQueries({
             queryKey: ["admin-product-detail", params.productId],
           }),
         ])
@@ -666,7 +608,7 @@ export function useUnifiedCatalogProductForm(params: {
     categories,
     prerequisitesError,
     categoriesError,
-    hydratedProduct: productEntity ?? undefined,
+    hydratedProduct: productPayload?.product ?? undefined,
     productHydrationError,
     isLoadingProductDetail,
 

@@ -1,7 +1,7 @@
 import { type ReactNode, useId } from "react"
 
 import { ProductContentEmptyView } from "./ProductContentEmptyView"
-import { ProductContentTabFormController } from "./ProductContentTabFormController"
+import { ProductContentTabForm } from "./ProductContentTabForm"
 import { renderProductContentTabStatus } from "./ProductContentTabStatusViews"
 import { useProductContentTab } from "./useProductContentTab"
 
@@ -23,23 +23,35 @@ export function ProductContentTab({
     localesLoading,
     localesError,
     activeLocaleCode,
-    editingLocaleCode,
-    setActiveLocaleCode,
     content,
     loading,
     saving,
     bannerError,
+    descriptionJson,
+    seoTitle,
+    seoDescription,
+    ogUrl,
+    canonicalUrl,
+    seoTitleTooLong,
+    seoDescriptionTooLong,
     disabled,
-    formBootstrapKey,
-    save,
-    load,
-    clearError,
+    isDirty,
+    localeDialogOpen,
+    setLocaleDialogOpen,
+    dispatchForm,
     onAddContent,
+    onDiscard,
+    runSave,
     onRetryLoad,
+    requestLocaleChange,
+    closeLocaleDialog,
+    onSaveAndSwitchLocale,
+    onDiscardAndSwitchLocale,
   } = controller
 
   const statusView = renderProductContentTabStatus({
     localesLoading,
+    localesError,
     loading,
     bannerError,
     contentIsNull: content === null,
@@ -59,34 +71,51 @@ export function ProductContentTab({
         activeLocaleCode={activeLocaleCode}
         saving={saving}
         localesLoading={localesLoading}
-        localesWarning={localesError}
-        onLocaleChange={setActiveLocaleCode}
+        localeDialogOpen={localeDialogOpen}
+        onLocaleDialogOpenChange={setLocaleDialogOpen}
+        requestLocaleChange={requestLocaleChange}
         onAddContent={() => {
           void onAddContent()
         }}
+        onSaveAndSwitchLocale={onSaveAndSwitchLocale}
+        onDiscardAndSwitchLocale={onDiscardAndSwitchLocale}
+        closeLocaleDialog={closeLocaleDialog}
       />
     )
   }
 
+  const seoPreviewTitle =
+    seoTitle.trim() !== "" ? seoTitle : productTitleFallback.trim() !== "" ? productTitleFallback : ""
+
   return (
-    <ProductContentTabFormController
-      key={formBootstrapKey ?? "loading"}
+    <ProductContentTabForm
       formId={formId}
-      productId={productId}
       content={content}
-      editingLocaleCode={editingLocaleCode}
       locales={locales}
       activeLocaleCode={activeLocaleCode}
       localesLoading={localesLoading}
-      localesWarning={localesError}
       saving={saving}
       disabled={disabled}
       bannerError={bannerError}
+      descriptionJson={descriptionJson}
+      seoTitle={seoTitle}
+      seoDescription={seoDescription}
+      ogUrl={ogUrl}
+      canonicalUrl={canonicalUrl}
+      seoTitleTooLong={seoTitleTooLong}
+      seoDescriptionTooLong={seoDescriptionTooLong}
+      isDirty={isDirty}
+      seoPreviewTitle={seoPreviewTitle}
       productTitleFallback={productTitleFallback}
-      setActiveLocaleCode={setActiveLocaleCode}
-      save={save}
-      load={load}
-      clearError={clearError}
+      localeDialogOpen={localeDialogOpen}
+      onLocaleDialogOpenChange={setLocaleDialogOpen}
+      requestLocaleChange={requestLocaleChange}
+      runSave={runSave}
+      onDiscard={onDiscard}
+      onSaveAndSwitchLocale={onSaveAndSwitchLocale}
+      onDiscardAndSwitchLocale={onDiscardAndSwitchLocale}
+      closeLocaleDialog={closeLocaleDialog}
+      dispatchForm={dispatchForm}
     />
   )
 }

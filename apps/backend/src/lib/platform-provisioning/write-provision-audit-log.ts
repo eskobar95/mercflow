@@ -2,17 +2,6 @@ import { randomUUID } from "node:crypto"
 
 import { getPlatformDbPool, isPlatformDbConfigured } from "../platform-db/platform-db"
 
-function isMissingAuditLogTableError(error: unknown): boolean {
-  if (!(error instanceof Error)) {
-    return false
-  }
-
-  return (
-    error.message.includes("platform_audit_log") &&
-    error.message.includes("does not exist")
-  )
-}
-
 export async function writeProvisionAuditLog(input: {
   action: string
   entity_id: string
@@ -45,12 +34,6 @@ export async function writeProvisionAuditLog(input: {
         input.metadata ?? null,
       ],
     )
-  } catch (error) {
-    if (isMissingAuditLogTableError(error)) {
-      return
-    }
-
-    throw error
   } finally {
     client.release()
   }

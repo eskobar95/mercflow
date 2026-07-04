@@ -1,5 +1,3 @@
-import { useQuery } from "@tanstack/react-query"
-import type { AdminProduct } from "@medusajs/types"
 import { type ReactNode, type FormEvent, useId, useMemo, useRef } from "react"
 import { Link } from "react-router-dom"
 
@@ -18,13 +16,7 @@ import {
 import type { UnifiedCatalogProductShippingContext } from "@/hooks/products/useUnifiedCatalogProductForm"
 import { useUnifiedCatalogProductShipping } from "@/hooks/products/useUnifiedCatalogProductShipping"
 
-import { ADMIN_PRODUCT_EDITOR_FIELDS } from "@/lib/products/adminProductEditorFields"
-import {
-  buildCatalogEditFormBootstrap,
-  type CatalogEditFormBootstrap,
-} from "@/lib/products/productFormHydration"
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
-import { createMercflowMedusaSdk } from "@/medusa-admin/createMercflowMedusaSdk"
 
 import { useClubPricingSection } from "@/features/subscriptions/useClubPricingSection"
 
@@ -40,124 +32,7 @@ type Props = {
   productId?: string
 }
 
-type UnifiedProductFormSurfaceProps = {
-  mode: "create" | "edit"
-  productId?: string
-  editBootstrap?: CatalogEditFormBootstrap
-  hydratedProduct?: AdminProduct
-}
-
 export function UnifiedProductForm({ mode, productId }: Props): ReactNode {
-  if (mode === "edit") {
-    if (productId === undefined || productId.trim() === "") {
-      return (
-        <div className="p-4 md:p-6">
-          <p className="text-sm text-feedback-danger-content" role="alert">
-            Missing product id for edit.
-          </p>
-        </div>
-      )
-    }
-
-    return <UnifiedProductFormEditLoader productId={productId} />
-  }
-
-  return <UnifiedProductFormSurface mode="create" />
-}
-
-function UnifiedProductFormEditLoader({ productId }: { productId: string }): ReactNode {
-  const sdk = useMemo(() => createMercflowMedusaSdk(), [])
-  const hasBackend = resolveMedusaAdminBackendUrl() !== null
-
-  const {
-    data: productPayload,
-    error: productLoadError,
-    isLoading,
-    isFetching,
-    refetch,
-  } = useQuery({
-    enabled: sdk !== null,
-    queryKey: ["catalog-product-detail-editor", productId],
-    queryFn: async (): Promise<{ product: AdminProduct }> =>
-      sdk!.admin.product.retrieve(productId, { fields: ADMIN_PRODUCT_EDITOR_FIELDS }),
-  })
-
-  if (!hasBackend) {
-    return (
-      <div className="p-4 md:p-6">
-        <p className="rounded-md border border-border-subtle bg-surface-subtle px-4 py-3 text-sm text-content-secondary">
-          Connect <code className="text-xs">VITE_MEDUSA_ADMIN_BACKEND_URL</code> to edit products.
-        </p>
-      </div>
-    )
-  }
-
-  if (isLoading || (isFetching && productPayload?.product === undefined)) {
-    return (
-      <div className="p-4 md:p-6">
-        <div className="mx-auto max-w-4xl space-y-4">
-          <p className="text-sm text-content-secondary" role="status">
-            Loading product…
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  if (productLoadError !== null && productLoadError !== undefined) {
-    const message =
-      productLoadError instanceof Error
-        ? productLoadError.message
-        : "Unable to load this product."
-
-    return (
-      <div className="p-4 md:p-6">
-        <div className="mx-auto max-w-4xl space-y-4">
-          <p
-            className="rounded-md border border-feedback-danger-border bg-feedback-danger-subtle px-4 py-3 text-sm text-feedback-danger-content"
-            role="alert"
-          >
-            {message}
-          </p>
-          <Button type="button" variant="secondary" onClick={() => void refetch()}>
-            Retry
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
-  const product = productPayload?.product
-  if (product === undefined) {
-    return (
-      <div className="p-4 md:p-6">
-        <p className="text-sm text-feedback-danger-content" role="alert">
-          Product not found.
-        </p>
-      </div>
-    )
-  }
-
-  const bootstrap = buildCatalogEditFormBootstrap(product)
-  const surfaceKey = `${product.id}:${product.updated_at ?? ""}`
-
-  return (
-    <UnifiedProductFormSurface
-      key={surfaceKey}
-      mode="edit"
-      productId={productId}
-      editBootstrap={bootstrap}
-      hydratedProduct={product}
-    />
-  )
-}
-
-function UnifiedProductFormSurface({
-  mode,
-  productId,
-  editBootstrap,
-  hydratedProduct,
-}: UnifiedProductFormSurfaceProps): ReactNode {
   const baseId = useId()
   const { toast } = useToast()
   const hasBackend = resolveMedusaAdminBackendUrl() !== null
@@ -167,8 +42,6 @@ function UnifiedProductFormSurface({
   const controller = useUnifiedCatalogProductForm({
     mode,
     productId,
-    editBootstrap,
-    hydratedProduct,
     onSuccessfulCreateNavigate: undefined,
     shippingContextRef,
   })
@@ -181,7 +54,7 @@ function UnifiedProductFormSurface({
     hasDefinedOptions,
     derivedCombos,
     variantRowsPreview,
-    hydratedProduct: resolvedHydratedProduct,
+    hydratedProduct,
     categories,
     selectedCategoryIds,
     fieldErrors,
@@ -202,22 +75,13 @@ function UnifiedProductFormSurface({
     submit,
   } = controller
 
-  const productHydrationKey =
-    mode === "edit" && resolvedHydratedProduct !== undefined
-      ? `${resolvedHydratedProduct.id}:${resolvedHydratedProduct.updated_at ?? ""}`
-      : null
-
   const shipping = useUnifiedCatalogProductShipping({
     derivedCombos,
-    productHydrationKey,
-    productEntity: resolvedHydratedProduct,
-    shippingBootstrap:
-      editBootstrap !== undefined
-        ? {
-            isPhysicalProduct: editBootstrap.isPhysicalProduct,
-            shippingByComboKey: editBootstrap.shippingByComboKey,
-          }
-        : undefined,
+    productHydrationKey:
+      mode === "edit" && hydratedProduct !== undefined
+        ? `${hydratedProduct.id}:${hydratedProduct.updated_at ?? ""}`
+        : null,
+    productEntity: hydratedProduct,
   })
 
   shippingContextRef.current = {
@@ -239,7 +103,7 @@ function UnifiedProductFormSurface({
 
   const selectedCategories = useMemo(
     () => categories.filter((category) => selectedCategoryIds.has(category.id)),
-    [categories, selectedCategoryIds],
+    [categories, selectedCategoryIds]
   )
 
   const titleTrimmed = title.trim()
@@ -255,7 +119,7 @@ function UnifiedProductFormSurface({
   useUnsavedFormGuard({
     isDirty: isFormDirty,
     baseTitle: documentTitle,
-    enabled: mode === "create" || !isLoadingProductDetail,
+    enabled: !isLoadingProductDetail,
   })
 
   const metafieldsLoadState =
@@ -386,6 +250,12 @@ function UnifiedProductFormSurface({
           </p>
         ) : null}
 
+        {mode === "edit" && isLoadingProductDetail ? (
+          <p className="text-sm text-content-secondary" role="status">
+            Loading product…
+          </p>
+        ) : null}
+
         <form className="space-y-8" onSubmit={onSubmit} noValidate>
           <UnifiedProductDetailsSection
             baseId={baseId}
@@ -473,11 +343,7 @@ function UnifiedProductFormSurface({
           />
 
           <div className="flex flex-wrap gap-3">
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={!hasBackend || isSubmitting || isLoadingProductDetail}
-            >
+            <Button type="submit" variant="primary" disabled={!hasBackend || isSubmitting || isLoadingProductDetail}>
               {mode === "create" ? "Create product" : "Save changes"}
             </Button>
             <Link

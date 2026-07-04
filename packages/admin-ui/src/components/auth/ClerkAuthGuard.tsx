@@ -2,10 +2,7 @@ import { createContext, type ReactNode, useContext, useMemo } from "react"
 import { SignIn, useAuth, useClerk, useOrganization, useUser } from "@clerk/react"
 
 import { MainLoadingFallback } from "@/components/ui/MainLoadingFallback"
-import { AdminAuthReadyProvider } from "@/components/auth/AdminAuthReadyContext"
 import { useAdminTokenSync } from "@/hooks/useAdminTokenSync"
-import { useAutoActivateProvisionedOrganization } from "@/hooks/useAutoActivateProvisionedOrganization"
-import { useMerchantOrganizationReady } from "@/hooks/useMerchantOrganizationReady"
 
 // ---------------------------------------------------------------------------
 // Context — Clerk session data available to all children of ClerkAuthGuard
@@ -60,10 +57,7 @@ export function ClerkAuthGuard({ children }: Props): ReactNode {
   const { organization } = useOrganization()
   const clerk = useClerk()
 
-  const isOrganizationReady = useMerchantOrganizationReady()
-  useAutoActivateProvisionedOrganization()
-  const { isTokenReady } = useAdminTokenSync(getToken, organization?.id)
-  const isAdminAuthReady = isOrganizationReady && isTokenReady
+  useAdminTokenSync(getToken)
 
   const session = useMemo<ClerkSession | null>(() => {
     if (!user) return null
@@ -94,15 +88,9 @@ export function ClerkAuthGuard({ children }: Props): ReactNode {
     )
   }
 
-  if (!isAdminAuthReady) {
-    return <MainLoadingFallback />
-  }
-
   return (
-    <AdminAuthReadyProvider value={isAdminAuthReady}>
-      <ClerkSessionContext.Provider value={session}>
-        {children}
-      </ClerkSessionContext.Provider>
-    </AdminAuthReadyProvider>
+    <ClerkSessionContext.Provider value={session}>
+      {children}
+    </ClerkSessionContext.Provider>
   )
 }

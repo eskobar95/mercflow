@@ -20,7 +20,7 @@ Finalize **one** task: self-review, PR to `dev`, update planning files.
 
 ## Pull request
 
-- **Base:** read `git.integration_branch` from `.factory/factory.config.yaml` (default: `dev`)
+- **Base:** `dev`
 - **Head:** task branch `feature/[sprint]/[task-id]-[slug]`
 - **Title:** `feat([scope]): [task title]` or conventional type matching change
 
@@ -67,25 +67,7 @@ If repo has no GitHub Actions, fix-ci runs local verify as fallback and notes `c
 In `.factory/planning/tasks.md` for this task:
 
 - Set `**Status:** done` only when **CI green** (or local-only pass)
-- Add `**PR:** #[number]` under metadata if not already present
-
-## Linear sync (when enabled)
-
-After setting status `done` in tasks.md:
-
-1. Read `factory.config.yaml linear.enabled` and `linear.sync_close`
-2. If both `true` and task has `**Linear:** LIN-NNN` field:
-
-```bash
-# Fetch done state ID first (or use cached from factory.config.yaml)
-curl -s -X POST https://api.linear.app/graphql \
-  -H "Authorization: ${LINEAR_API_KEY}" \
-  -H "Content-Type: application/json" \
-  -d "{\"query\": \"mutation { issueUpdate(id: \\\"LINEAR_ISSUE_ID\\\", input: { stateId: \\\"DONE_STATE_ID\\\" }) { success } }\"}"
-```
-
-If `LINEAR_API_KEY` is not in environment: skip silently, note in harness YAML as `linear_sync: skipped`.
-If API call fails: log warning, do not block task done status.
+- Optional: add `**PR:** #123` under metadata
 
 ## Unblock next work
 

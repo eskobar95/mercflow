@@ -17,15 +17,9 @@ vi.mock("@medusajs/framework/http", async (orig) => {
       id: "pcat_z",
       is_active: true,
       is_internal: false,
-      store_id: "store_test",
     })),
   }
 })
-
-vi.mock("../../src/api/http/resolve-entity-store-id", () => ({
-  resolveProductStoreId: vi.fn(async () => "store_test"),
-  resolveCategoryStoreId: vi.fn(async () => "store_test"),
-}))
 
 describe("GET /admin/category-content/:id (category lookup)", () => {
   beforeEach(async () => {
@@ -80,7 +74,7 @@ describe("GET /admin/category-content/:id (category lookup)", () => {
 
     await adminCategoryContentGet(req, res)
 
-    expect(findByCategoryId).toHaveBeenCalledWith("pcat_z", "da", "store_test")
+    expect(findByCategoryId).toHaveBeenCalledWith("pcat_z", "da")
     expect(res.status).toHaveBeenCalledWith(200)
     expect(resJson.mock.calls[0]?.[0]).toMatchObject({
       id: "cc",

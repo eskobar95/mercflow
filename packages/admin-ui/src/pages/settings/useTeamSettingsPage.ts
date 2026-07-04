@@ -1,16 +1,14 @@
 import { useCallback, useEffect, useMemo, useReducer } from "react"
 import { useUser } from "@clerk/react"
 
-import { useAdminAuthReady } from "@/components/auth/AdminAuthReadyContext"
 import { useToast } from "@/components/ui/Toast"
 import {
   inviteTeamMember,
   listTeamMembers,
-  revokeTeamInvitation,
   revokeTeamMember,
   updateTeamMemberRole,
 } from "@/features/team/teamApi"
-import type { TeamInvitationDto, TeamMemberDto, TeamMemberRole } from "@/features/team/types"
+import type { TeamMemberDto, TeamMemberRole } from "@/features/team/types"
 import { resolveMedusaAdminBackendUrl } from "@/medusa-admin/medusaAdminFetch"
 
 type TeamSettingsPhase = "idle" | "loading" | "ready" | "error"
@@ -18,7 +16,6 @@ type TeamSettingsPhase = "idle" | "loading" | "ready" | "error"
 type TeamSettingsState = {
   phase: TeamSettingsPhase
   members: TeamMemberDto[]
-  invitations: TeamInvitationDto[]
   errorMessage: string | null
   inviteEmail: string
   inviteRole: TeamMemberRole
@@ -33,7 +30,7 @@ type TeamSettingsState = {
 
 export type TeamSettingsAction =
   | { type: "loadStart" }
-  | { type: "loadSuccess"; members: TeamMemberDto[]; invitations: TeamInvitationDto[] }
+  | { type: "loadSuccess"; members: TeamMemberDto[] }
   | { type: "loadError"; message: string }
   | { type: "setInviteEmail"; email: string }
   | { type: "setInviteRole"; role: TeamMemberRole }
@@ -53,7 +50,6 @@ export type TeamSettingsAction =
 const INITIAL_STATE: TeamSettingsState = {
   phase: "idle",
   members: [],
-  invitations: [],
   errorMessage: null,
   inviteEmail: "",
   inviteRole: "staff",
@@ -74,13 +70,7 @@ function teamSettingsReducer(
     case "loadStart":
       return { ...state, phase: "loading", errorMessage: null }
     case "loadSuccess":
-      return {
-        ...state,
-        phase: "ready",
-        members: action.members,
-        invitations: action.invitations,
-        errorMessage: null,
-      }
+      return { ...state, phase: "ready", members: action.members, errorMessage: null }
     case "loadError":
       return { ...state, phase: "error", errorMessage: action.message }
     case "setInviteEmail":
@@ -133,7 +123,6 @@ export function useTeamSettingsPage() {
   const { toast } = useToast()
   const { user } = useUser()
   const hasBackend = resolveMedusaAdminBackendUrl() !== null
-  const isAdminAuthReady = useAdminAuthReady()
   const currentUserId = user?.id ?? null
 
   const reload = useCallback(async (): Promise<void> => {
@@ -143,8 +132,8 @@ export function useTeamSettingsPage() {
 
     dispatch({ type: "loadStart" })
     try {
-      const { members, invitations } = await listTeamMembers()
-      dispatch({ type: "loadSuccess", members, invitations })
+      const members = await listTeamMembers()
+      dispatch({ type: "loadSuccess", members })
     } catch (error) {
       dispatch({
         type: "loadError",
@@ -154,9 +143,8 @@ export function useTeamSettingsPage() {
   }, [hasBackend])
 
   useEffect(() => {
-    if (!isAdminAuthReady) return
     void reload()
-  }, [isAdminAuthReady, reload])
+  }, [reload])
 
   const otherMembers = useMemo(() => {
     if (currentUserId === null) {
@@ -165,10 +153,7 @@ export function useTeamSettingsPage() {
     return state.members.filter((member) => member.clerk_user_id !== currentUserId)
   }, [currentUserId, state.members])
 
-  const showEmptyState =
-    state.phase === "ready" &&
-    otherMembers.length === 0 &&
-    state.invitations.length === 0
+  const showEmptyState = state.phase === "ready" && otherMembers.length === 0
 
   const handleInvite = useCallback(async (): Promise<void> => {
     const email = state.inviteEmail.trim()
@@ -183,7 +168,7 @@ export function useTeamSettingsPage() {
       dispatch({ type: "inviteSuccess" })
       toast({
         title: "Invitation sent",
-        description: `An invite was sent to ${email}. They will receive an email from Clerk to join your store.`,
+        description: `An invite was sent to ${email}.`,
       })
       await reload()
     } catch (error) {
@@ -244,26 +229,6 @@ export function useTeamSettingsPage() {
     }
   }, [reload, state.roleSelection, state.roleTarget, toast])
 
-  const handleRevokeInvitation = useCallback(
-    async (invitation: TeamInvitationDto): Promise<void> => {
-      try {
-        await revokeTeamInvitation(invitation.invitation_id)
-        toast({
-          title: "Invitation revoked",
-          description: `The invite to ${invitation.email} was cancelled.`,
-        })
-        await reload()
-      } catch (error) {
-        toast({
-          variant: "error",
-          title: "Could not revoke invitation",
-          description: error instanceof Error ? error.message : "Try again.",
-        })
-      }
-    },
-    [reload, toast],
-  )
-
   return {
     hasBackend,
     state,
@@ -275,6 +240,5 @@ export function useTeamSettingsPage() {
     handleInvite,
     handleConfirmRevoke,
     handleConfirmRoleChange,
-    handleRevokeInvitation,
   }
 }

@@ -19,8 +19,8 @@ describe("platform queue registry", (): void => {
   it("resolves queue definitions by short name", (): void => {
     expect(resolvePlatformQueueDefinition("notifications")).toEqual({
       name: "notifications",
-      queueName: "mercflow-notifications",
-      dlqName: "mercflow-notifications-dead",
+      queueName: "mercflow:notifications",
+      dlqName: "mercflow:notifications:dead",
     })
   })
 

@@ -1,11 +1,17 @@
 /**
- * Default editing locale from Medusa's locale list (first entry), without forcing Danish.
- * Content rows are locale-specific — auto-picking `da-DK` breaks reload when CMS data
- * was saved under another code such as `en-US`.
+ * Picks Danish (`da` / `da-*`) when present in Medusa locales so storefront `locale=da` matches
+ * the admin save path without Sprint 4 locale switching UX.
  */
 export function preferProductContentLocale(
   locales: readonly { code: string }[],
   fallback: string
 ): string {
+  const match = locales.find((l): boolean => {
+    const normalized = l.code.trim().toLowerCase()
+    return normalized === "da" || normalized.startsWith("da-")
+  })
+  if (match) {
+    return match.code
+  }
   return locales[0]?.code ?? fallback
 }

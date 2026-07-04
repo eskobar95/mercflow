@@ -17,29 +17,6 @@ export type CreateClerkOrgResult = {
   created: boolean
 }
 
-function formatClerkError(error: unknown): string {
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "errors" in error &&
-    Array.isArray((error as { errors: unknown }).errors)
-  ) {
-    const messages = (error as { errors: Array<{ message?: string }> }).errors
-      .map((entry) => entry.message)
-      .filter((message): message is string => typeof message === "string" && message.length > 0)
-
-    if (messages.length > 0) {
-      return messages.join("; ")
-    }
-  }
-
-  if (error instanceof Error && error.message.trim().length > 0) {
-    return error.message
-  }
-
-  return "Clerk organization request failed"
-}
-
 export async function createClerkOrgForTenant(input: {
   storeId: string
   storeName: string
@@ -55,6 +32,7 @@ export async function createClerkOrgForTenant(input: {
   const matched = existing.data.find(
     (org) =>
       org.publicMetadata?.store_id === input.storeId ||
+      org.slug === input.storeId ||
       org.name === input.storeName,
   )
 
@@ -62,19 +40,16 @@ export async function createClerkOrgForTenant(input: {
     return { organization_id: matched.id, created: false }
   }
 
-  try {
-    const organization = await clerk.organizations.createOrganization({
-      name: input.storeName,
-      createdBy: input.clerkUserId,
-      publicMetadata: {
-        store_id: input.storeId,
-      },
-    })
+  const organization = await clerk.organizations.createOrganization({
+    name: input.storeName,
+    slug: input.storeId.replace(/[^a-zA-Z0-9_-]/g, "-").slice(0, 48),
+    createdBy: input.clerkUserId,
+    publicMetadata: {
+      store_id: input.storeId,
+    },
+  })
 
-    return { organization_id: organization.id, created: true }
-  } catch (error) {
-    throw new Error(formatClerkError(error))
-  }
+  return { organization_id: organization.id, created: true }
 }
 
 export async function ensureClerkOrgAdminMembership(input: {

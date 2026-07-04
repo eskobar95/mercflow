@@ -7,28 +7,28 @@ export type PlatformQueueDefinition = {
 export const PLATFORM_QUEUE_DEFINITIONS: PlatformQueueDefinition[] = [
   {
     name: "notifications",
-    queueName: "mercflow-notifications",
-    dlqName: "mercflow-notifications-dead",
+    queueName: "mercflow:notifications",
+    dlqName: "mercflow:notifications:dead",
   },
   {
     name: "subscriptions",
-    queueName: "mercflow-subscriptions",
-    dlqName: "mercflow-subscriptions-dead",
+    queueName: "mercflow:subscriptions",
+    dlqName: "mercflow:subscriptions:dead",
   },
   {
     name: "feed-invalidation",
-    queueName: "mercflow-feed-invalidation",
-    dlqName: "mercflow-feed-invalidation-dead",
+    queueName: "mercflow:feed-invalidation",
+    dlqName: "mercflow:feed-invalidation:dead",
   },
   {
     name: "sitemap",
-    queueName: "mercflow-sitemap",
-    dlqName: "mercflow-sitemap-dead",
+    queueName: "mercflow:sitemap",
+    dlqName: "mercflow:sitemap:dead",
   },
   {
     name: "provision-tenant",
-    queueName: "mercflow-provision-tenant",
-    dlqName: "mercflow-provision-tenant-dead",
+    queueName: "mercflow:provision-tenant",
+    dlqName: "mercflow:provision-tenant:dead",
   },
 ]
 

@@ -17,7 +17,6 @@ type ProductContentTabFormProps = {
   locales: AdminLocale[]
   activeLocaleCode: string
   localesLoading: boolean
-  localesWarning?: string | null
   saving: boolean
   disabled: boolean
   bannerError: string | null
@@ -48,7 +47,6 @@ export function ProductContentTabForm({
   locales,
   activeLocaleCode,
   localesLoading,
-  localesWarning = null,
   saving,
   disabled,
   bannerError,
@@ -77,16 +75,6 @@ export function ProductContentTabForm({
       <div aria-live="polite" className="sr-only">
         {saving ? "Saving product content." : ""}
       </div>
-
-      {localesWarning !== null ? (
-        <div
-          role="status"
-          className="rounded-md border border-border-strong bg-surface-subtle px-3 py-2 text-sm text-content-secondary"
-        >
-          Store languages could not be loaded ({localesWarning}). Editing continues with locale{" "}
-          <code className="text-xs">{activeLocaleCode}</code>.
-        </div>
-      ) : null}
 
       <ContentLocaleSwitcher
         locales={locales}

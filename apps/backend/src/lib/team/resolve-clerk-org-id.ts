@@ -2,12 +2,12 @@ import type { MedusaRequest } from "@medusajs/framework/http"
 import { MedusaError } from "@medusajs/utils"
 
 type MercflowAdminRequest = MedusaRequest & {
-  mercflowClerkOrgId?: string
+  mercflowStoreId?: string
 }
 
 export function resolveClerkOrgId(req: MedusaRequest): string {
-  const orgId = (req as MercflowAdminRequest).mercflowClerkOrgId
-  if (typeof orgId === "string" && orgId.trim() !== "" && orgId.startsWith("org_")) {
+  const orgId = (req as MercflowAdminRequest).mercflowStoreId
+  if (typeof orgId === "string" && orgId.trim() !== "") {
     return orgId.trim()
   }
 

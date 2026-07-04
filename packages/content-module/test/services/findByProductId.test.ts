@@ -9,10 +9,10 @@ describe("ContentModuleService.findByProductId", () => {
       .mockResolvedValue(null)
 
     const svc = Object.create(ContentModuleService.prototype) as ContentModuleService
-    await svc.findByProductId("prod_abc", "da", "store_test")
+    await svc.findByProductId("prod_abc", "da")
 
     expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledWith("prod_abc", "da", { storeId: "store_test" })
+    expect(spy).toHaveBeenCalledWith("prod_abc", "da")
     spy.mockRestore()
   })
 })

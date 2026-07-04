@@ -9,14 +9,6 @@ export type TeamMemberDto = {
   joined_at: string | null
 }
 
-export type TeamInvitationDto = {
-  invitation_id: string
-  email: string
-  role: TeamMemberRole
-  status: "pending"
-  created_at: string | null
-}
-
 export type InviteTeamMemberInput = {
   email: string
   role: TeamMemberRole

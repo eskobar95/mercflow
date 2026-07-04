@@ -105,53 +105,6 @@ function deriveVariantPayloadTitle(selections: Record<string, string>): string {
   return parts.join(" · ")
 }
 
-function readFirstVariantInventoryItemId(variant: AdminProductVariant): string | null {
-  return medianFirstInventoryItem(variant)
-}
-
-export async function fetchVariantStockQuantitiesAtLocation(params: {
-  sdk: Medusa
-  variants: readonly AdminProductVariant[]
-  locationId: string
-}): Promise<Map<string, number>> {
-  const stockByVariantId = new Map<string, number>()
-
-  await Promise.all(
-    params.variants.map(async (variant): Promise<void> => {
-      if (variant.manage_inventory === false) {
-        return
-      }
-
-      const inventoryItemId = medianFirstInventoryItem(variant)
-      if (inventoryItemId === null) {
-        return
-      }
-
-      const levels = await params.sdk.admin.inventoryItem.listLevels(inventoryItemId, {
-        limit: 50,
-      })
-
-      const match = levels.inventory_levels?.find(
-        (level) => level.location_id === params.locationId,
-      )
-
-      if (
-        typeof match?.stocked_quantity === "number" &&
-        Number.isFinite(match.stocked_quantity)
-      ) {
-        stockByVariantId.set(
-          variant.id,
-          Math.max(0, Math.floor(match.stocked_quantity)),
-        )
-      }
-    }),
-  )
-
-  return stockByVariantId
-}
-
-export { readFirstVariantInventoryItemId }
-
 function medianFirstInventoryItem(variant: AdminProductVariant): string | null {
   const link = variant.inventory_items?.find(
     (row) =>
@@ -533,14 +486,15 @@ export async function persistUnifiedProductUpdate(params: {
   }
 
   if (createPayload.length > 0 || updatePayload.length > 0 || deleteIds.length > 0) {
-    // Do not pass `fields` — Medusa's post-batch variant list query crashes MikroORM
-    // on several nested populate paths (+variants.options.option, inventory_items, etc.).
-    // We re-fetch the product with editor fields immediately after.
-    await params.sdk.admin.product.batchVariants(params.productId, {
-      create: createPayload,
-      update: updatePayload,
-      delete: deleteIds,
-    })
+    await params.sdk.admin.product.batchVariants(
+      params.productId,
+      {
+        create: createPayload,
+        update: updatePayload,
+        delete: deleteIds,
+      },
+      { fields: ADMIN_PRODUCT_EDITOR_FIELDS },
+    )
   }
 
   const refreshed = await params.sdk.admin.product.retrieve(params.productId, {

@@ -8,7 +8,7 @@ MercFlow Medusa v2 module for operational inventory extensions: internal order n
 - Expose admin routes for order notes, pick lists, supplier CRUD, purchase order create/list/status/receive.
 - Enforce `store_id` tenancy and PostgreSQL RLS on MercFlow tables (ADR-004, ADR-005).
 
-Does **not** own Medusa core order, payment, fulfillment, or stock levels. Registers as Medusa module key `mercflow_inventory` (not `inventory`, which is reserved for `@medusajs/inventory`). Does **not** mutate Medusa stock unless a future task explicitly designs that behavior (receipt flow in S007).
+Does **not** own Medusa core order, payment, fulfillment, or stock levels. Does **not** mutate Medusa stock unless a future task explicitly designs that behavior (receipt flow in S007).
 
 ## Run and test in isolation
 

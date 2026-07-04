@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import type { AdminProduct } from "@medusajs/types"
 import type { VariantRowModel } from "@/lib/products/productOptionMatrix"
 import { hydrateEditorModelsFromAdminProduct } from "@/lib/products/productFormHydration"
@@ -12,47 +12,25 @@ export function useUnifiedCatalogProductShipping(params: {
   derivedCombos: ComboSnapshot[]
   productHydrationKey: string | null
   productEntity: AdminProduct | undefined
-  /** Pre-loaded shipping state from keyed edit bootstrap; skips async hydration. */
-  shippingBootstrap?: {
-    isPhysicalProduct: boolean
-    shippingByComboKey: Partial<Record<string, VariantShippingDraft>>
-  }
 }) {
-  const shippingBootstrap = params.shippingBootstrap
-
-  const [isPhysicalProduct, setIsPhysicalProduct] = useState(
-    () => shippingBootstrap?.isPhysicalProduct ?? true,
-  )
-  const [shippingMap, setShippingMap] = useState<
-    Partial<Record<string, VariantShippingDraft>>
-  >(() => shippingBootstrap?.shippingByComboKey ?? {})
-  const hydratedShippingRef = useRef<Partial<Record<string, VariantShippingDraft>>>(
-    shippingBootstrap?.shippingByComboKey ?? {},
-  )
+  const [isPhysicalProduct, setIsPhysicalProduct] = useState(true)
+  const [shippingMap, setShippingMap] = useState<Partial<Record<string, VariantShippingDraft>>>(() => ({}))
   const derivedComboKeys = params.derivedCombos.map((c) => c.comboKey).join("\u0000")
 
   useAdjustStateWhenKeyChanges(derivedComboKeys === "" ? null : derivedComboKeys, () => {
     setShippingMap((prev) => {
       const next: Partial<Record<string, VariantShippingDraft>> = {}
-      for (const key of params.derivedCombos.map((c) => c.comboKey)) {
-        next[key] = prev[key] ?? hydratedShippingRef.current[key] ?? emptyVariantShippingDraft()
-      }
+      for (const key of params.derivedCombos.map((c) => c.comboKey)) next[key] = prev[key] ?? emptyVariantShippingDraft()
       return next
     })
   })
 
-  useAdjustStateWhenKeyChanges(
-    shippingBootstrap === undefined ? params.productHydrationKey : null,
-    () => {
-      if (!params.productEntity) {
-        return
-      }
-      const hydrated = hydrateEditorModelsFromAdminProduct(params.productEntity)
-      setIsPhysicalProduct(hydrated.isPhysicalProduct)
-      hydratedShippingRef.current = hydrated.shippingByComboKey
-      setShippingMap(hydrated.shippingByComboKey)
-    },
-  )
+  useAdjustStateWhenKeyChanges(params.productHydrationKey, () => {
+    if (!params.productEntity) return
+    const hydrated = hydrateEditorModelsFromAdminProduct(params.productEntity)
+    setIsPhysicalProduct(hydrated.isPhysicalProduct)
+    setShippingMap(hydrated.shippingByComboKey)
+  })
 
   const shippingVariantRowsPreview = useMemo(
     () => params.derivedCombos.map((combo) => ({ comboKey: combo.comboKey, selections: combo.selections, priceDkk: "", stock: "" })),

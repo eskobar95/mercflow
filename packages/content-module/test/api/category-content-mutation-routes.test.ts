@@ -16,15 +16,9 @@ vi.mock("@medusajs/framework/http", async (orig) => {
       id: "pcat_z",
       is_active: true,
       is_internal: false,
-      store_id: "store_test",
     })),
   }
 })
-
-vi.mock("../../src/api/http/resolve-entity-store-id", () => ({
-  resolveProductStoreId: vi.fn(async () => "store_test"),
-  resolveCategoryStoreId: vi.fn(async () => "store_test"),
-}))
 
 describe("POST /admin/category-content", () => {
   beforeEach(async () => {
@@ -95,8 +89,7 @@ describe("POST /admin/category-content", () => {
         seo_description: "Hi",
         seo_og_image_id: "https://example.com/og.png",
         banner_image_id: "https://example.com/b.png",
-      }),
-      "store_test"
+      })
     )
     expect(res.status).toHaveBeenCalledWith(200)
     expect(resJson.mock.calls[0]?.[0]).toMatchObject({
@@ -179,7 +172,7 @@ describe("PATCH /admin/category-content/:id (cms row id)", () => {
     expect(upsertCategoryContent).toHaveBeenCalledWith("pcat_z", "da", {
       description_rich: { type: "doc", content: [{ type: "paragraph" }] },
       seo_title: "Next",
-    }, "store_test")
+    })
     expect(res.status).toHaveBeenCalledWith(200)
     expect(resJson.mock.calls[0]?.[0]).toMatchObject({
       version: 3,

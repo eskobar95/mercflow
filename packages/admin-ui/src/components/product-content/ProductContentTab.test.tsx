@@ -10,10 +10,6 @@ type UseAdminLocalesReturn = ReturnType<
 const mockUseProductContentState = vi.fn()
 const mockUseAdminLocales = vi.hoisted(() => vi.fn())
 
-vi.mock("@/components/auth/AdminAuthReadyContext", () => ({
-  useAdminAuthReady: (): boolean => true,
-}))
-
 vi.mock("@/features/content-locale", () => ({
   useAdminLocales: (): UseAdminLocalesReturn => mockUseAdminLocales() as UseAdminLocalesReturn,
   useContentLocale: ({
@@ -24,7 +20,6 @@ vi.mock("@/features/content-locale", () => ({
     preferredCode?: string
   }) => ({
     activeLocaleCode: preferredCode ?? locales[0]?.code ?? "en",
-    editingLocaleCode: preferredCode ?? locales[0]?.code ?? "en",
     setActiveLocaleCode: vi.fn(),
     activeLocale: locales[0] ?? null,
   }),
@@ -83,7 +78,6 @@ describe("ProductContentTab", () => {
         seo_title: "Sample CMS meta title",
         seo_description: "Snippet",
         og_image_url: "https://example.com/img.png",
-        canonical_url_override: null,
         status: "published",
       },
       loading: false,
@@ -103,7 +97,5 @@ describe("ProductContentTab", () => {
     expect(screen.getByLabelText("Content save version 2")).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "SEO" })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Save content" })).toBeInTheDocument()
-    expect(screen.getByLabelText("Meta title")).toHaveValue("Sample CMS meta title")
-    expect(screen.getByLabelText("Meta description")).toHaveValue("Snippet")
   })
 })

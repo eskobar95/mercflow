@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useReducer } from "react"
 
-import { useAdminAuthReady } from "@/components/auth/AdminAuthReadyContext"
 import {
   canPreviewEmailBranding,
   hasEmailBrandingFieldErrors,
@@ -182,7 +181,6 @@ function reducer(state: State, action: Action): State {
 }
 
 export function useNotificationsSettingsPage() {
-  const isAdminAuthReady = useAdminAuthReady()
   const [state, dispatch] = useReducer(reducer, {
     phase: "loading",
     message: null,
@@ -216,11 +214,8 @@ export function useNotificationsSettingsPage() {
   }, [])
 
   useEffect(() => {
-    if (!isAdminAuthReady) {
-      return
-    }
     void reload()
-  }, [isAdminAuthReady, reload])
+  }, [reload])
 
   const fieldErrors = useMemo(
     (): EmailBrandingFieldErrors =>

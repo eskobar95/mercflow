@@ -130,55 +130,14 @@ error_reason: optional (status error)
 **Sprint:** S[id] | **Group:** A | **Branch:** `feature/...`
 ```
 
-## Linear auto-sync (when linear.enabled: true)
-
-After writing the diary entry, trigger a **targeted Linear update** for this single task.
-
-Check `factory.config.yaml linear.enabled`. If `false`: skip silently.
-
-### What to update
-
-Load `linear.state_ids`, `linear.label_ids`, `linear.cycle_ids` from config.
-
-Get the task's `**Linear:** LIN-NNN` field from `tasks.md`. If absent: skip (issue not yet created — next `/linear-sync` will create it).
-
-Make a single `issueUpdate` call:
-
-```bash
-linear_gql "mutation {
-  issueUpdate(id: \"ISSUE_ID\", input: {
-    stateId: \"MAPPED_STATE_ID\"
-    labelIds: [\"engine_label_id\", \"mode_label_id\"]
-  }) { success }
-}"
-```
-
-State mapping per task status:
-
-| status | Linear state |
-|--------|-------------|
-| `in-progress` | `state_ids.in_progress` |
-| `blocked` | `state_ids.blocked` |
-| `done` | `state_ids.done` (only if `sync_close: true`) |
-| `skipped` | no update |
-| `error` | `state_ids.blocked` |
-
-Label update: always re-apply Engine + Mode labels. Add `blocked` label if status is `blocked` or `error`.
-
-Also add PR URL to issue description if `pr_url` is present in the input.
-
-On API error: log a warning in diary, do not block harness from continuing.
-
 ## Output to harness
 
 ```markdown
 ## Log-task — T[id]
 **Diary:** appended to .factory/logs/diary.md
-**Linear:** LIN-NNN updated to [state] (or: skipped — linear.enabled: false)
 ```
 
 ## Do not
 
 - Duplicate full PRD, task spec, or diff in diary
 - Replace sprint retro section (retro runs after all tasks)
-- Block harness on Linear API failure — log and continue

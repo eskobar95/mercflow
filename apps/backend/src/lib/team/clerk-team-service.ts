@@ -17,14 +17,6 @@ export type TeamMemberDto = {
   joined_at: string | null
 }
 
-export type TeamInvitationDto = {
-  invitation_id: string
-  email: string
-  role: TeamMemberRole
-  status: "pending"
-  created_at: string | null
-}
-
 function resolveMemberName(input: {
   firstName: string | null | undefined
   lastName: string | null | undefined
@@ -102,53 +94,6 @@ export async function listTeamMembers(organizationId: string): Promise<TeamMembe
   }
 }
 
-export async function listTeamInvitations(
-  organizationId: string,
-): Promise<TeamInvitationDto[]> {
-  try {
-    const clerk = getStoreAdminClerkClient()
-    const response = await clerk.organizations.getOrganizationInvitationList({
-      organizationId,
-      status: ["pending"],
-      limit: 100,
-    })
-
-    return response.data
-      .map((invitation) => {
-        const email = invitation.emailAddress?.trim() ?? ""
-        if (email === "") {
-          return null
-        }
-
-        return {
-          invitation_id: invitation.id,
-          email,
-          role: toMercflowTeamRole(invitation.role),
-          status: "pending" as const,
-          created_at: Number.isFinite(invitation.createdAt)
-            ? new Date(invitation.createdAt).toISOString()
-            : null,
-        }
-      })
-      .filter((entry): entry is TeamInvitationDto => entry !== null)
-  } catch (error) {
-    wrapClerkError(error, "Failed to list team invitations")
-  }
-}
-
-function resolveStoreAdminRedirectUrl(): string | undefined {
-  const configured = process.env.MERCFLOW_STORE_ADMIN_URL?.trim()
-  if (configured !== undefined && configured.length > 0) {
-    return configured.replace(/\/$/, "")
-  }
-
-  if (process.env.NODE_ENV === "development") {
-    return "http://localhost:5173"
-  }
-
-  return undefined
-}
-
 export async function inviteTeamMember(input: {
   organizationId: string
   email: string
@@ -156,12 +101,10 @@ export async function inviteTeamMember(input: {
 }): Promise<{ invitation_id: string }> {
   try {
     const clerk = getStoreAdminClerkClient()
-    const redirectUrl = resolveStoreAdminRedirectUrl()
     const invitation = await clerk.organizations.createOrganizationInvitation({
       organizationId: input.organizationId,
       emailAddress: input.email,
       role: toClerkTeamRole(input.role),
-      ...(redirectUrl !== undefined ? { redirectUrl } : {}),
     })
 
     return { invitation_id: invitation.id }
@@ -209,20 +152,5 @@ export async function revokeTeamMember(input: {
     })
   } catch (error) {
     wrapClerkError(error, "Failed to revoke team member access")
-  }
-}
-
-export async function revokeTeamInvitation(input: {
-  organizationId: string
-  invitationId: string
-}): Promise<void> {
-  try {
-    const clerk = getStoreAdminClerkClient()
-    await clerk.organizations.revokeOrganizationInvitation({
-      organizationId: input.organizationId,
-      invitationId: input.invitationId,
-    })
-  } catch (error) {
-    wrapClerkError(error, "Failed to revoke team invitation")
   }
 }

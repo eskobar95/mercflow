@@ -137,7 +137,6 @@ export class MiddlewareFileLoader {
               handler: middleware,
               matcher: matcher,
               methods: route.methods,
-              beforeAuth: route.beforeAuth,
               policies: route.policies,
             })
           })

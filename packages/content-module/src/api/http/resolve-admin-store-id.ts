@@ -3,28 +3,11 @@ import { MedusaError } from "@medusajs/utils"
 
 const STORE_ID_HEADER = "x-store-id"
 
-type MercflowAdminRequest = MedusaRequest & {
-  mercflowStoreId?: string
-}
-
-function readStoreIdFromJwt(req: MedusaRequest): string | null {
-  const fromJwt = (req as MercflowAdminRequest).mercflowStoreId
-  if (typeof fromJwt === "string" && fromJwt.length > 0) {
-    return fromJwt
-  }
-  return null
-}
-
 /**
  * Resolves tenant store id for admin content routes.
- * Order: Clerk JWT (`req.mercflowStoreId`) → query `store_id` → `X-Store-Id` header → `MERCFLOW_DEFAULT_STORE_ID` env.
+ * Order: query `store_id` → `X-Store-Id` header → `MERCFLOW_DEFAULT_STORE_ID` env.
  */
 export function resolveAdminStoreId(req: MedusaRequest): string {
-  const fromJwt = readStoreIdFromJwt(req)
-  if (fromJwt !== null) {
-    return fromJwt
-  }
-
   const query = (req.query ?? {}) as { store_id?: string }
   if (typeof query.store_id === "string" && query.store_id.length > 0) {
     return query.store_id

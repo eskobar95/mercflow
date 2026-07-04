@@ -7,8 +7,6 @@ export type ProductOptionRowModel = {
   title: string
   /** Separate values trim non-empty splits on comma optional */
   values: string[]
-  /** Raw CSV while editing so trailing commas are not stripped on each keystroke. */
-  valuesInput?: string
 }
 
 /** True when at least one option row has a non-empty title and one or more values. */
@@ -47,18 +45,6 @@ export function splitOptionValuesCsv(raw: string): string[] {
     .split(/[,;]/u)
     .map((segment) => segment.trim())
     .filter((segment) => segment !== "")
-}
-
-export function readOptionValuesInput(row: ProductOptionRowModel): string {
-  return row.valuesInput ?? row.values.join(", ")
-}
-
-export function normalizeOptionValuesInput(raw: string): {
-  valuesInput: string
-  values: string[]
-} {
-  const values = splitOptionValuesCsv(raw)
-  return { valuesInput: values.join(", "), values }
 }
 
 /**

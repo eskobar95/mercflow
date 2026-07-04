@@ -9,7 +9,6 @@ import {
 } from "react"
 
 import type { SelectOption } from "@/components/ui/Select"
-import { useAdminAuthReady } from "@/components/auth/AdminAuthReadyContext"
 import { validateGeneralSettingsForm } from "@/features/settings/storeGeneralFormValidation"
 import {
   buildStoreUpdatePayload,
@@ -112,7 +111,6 @@ export function useGeneralSettingsPage(): {
     address: { street: "", city: "", postalCode: "", country: "dk" },
   })
   const hasBackend = resolveMedusaAdminBackendUrl() !== null
-  const isAdminAuthReady = useAdminAuthReady()
 
   const reload = useCallback(async (): Promise<void> => {
     if (!hasBackend) return
@@ -131,9 +129,8 @@ export function useGeneralSettingsPage(): {
   }, [hasBackend])
 
   useEffect(() => {
-    if (!isAdminAuthReady) return
     void reload()
-  }, [isAdminAuthReady, reload])
+  }, [reload])
 
   const isDirty = useMemo((): boolean => {
     if (state.savedValues === null) return false

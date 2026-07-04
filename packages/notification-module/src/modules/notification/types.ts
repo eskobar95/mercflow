@@ -106,8 +106,8 @@ export type SendEmailJobPayload = {
 
 export const NOTIFICATION_MODULE = "notification"
 
-export const NOTIFICATION_QUEUE_NAME = "mercflow-notifications"
-export const NOTIFICATION_DLQ_NAME = "mercflow-notifications-dead"
+export const NOTIFICATION_QUEUE_NAME = "mercflow:notifications"
+export const NOTIFICATION_DLQ_NAME = "mercflow:notifications:dead"
 export const SEND_EMAIL_JOB_NAME = "send-email"
 export const CHECK_PENDING_DOMAINS_JOB_NAME = "check-pending-domains"
 export const DOMAIN_STATUS_POLL_INTERVAL_MS = 15 * 60 * 1000

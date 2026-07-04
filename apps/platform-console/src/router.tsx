@@ -11,17 +11,13 @@ import { PlatformSystemPage } from "@/pages/PlatformSystemPage"
 import { PlatformTenantsPage } from "@/pages/PlatformTenantsPage"
 import { TenantDetailPage } from "@/pages/TenantDetailPage"
 import { SignupPage } from "@/signup/SignupPage"
-import { SignupBillingReturnPage } from "@/signup/steps/SignupStep5Billing"
 import { SignupShell } from "@/signup/SignupShell"
 
 export const platformRouter = createBrowserRouter([
   {
     path: "/signup",
     element: <SignupShell />,
-    children: [
-      { index: true, element: <SignupPage /> },
-      { path: "billing/return", element: <SignupBillingReturnPage /> },
-    ],
+    children: [{ index: true, element: <SignupPage /> }],
   },
   {
     path: "/",

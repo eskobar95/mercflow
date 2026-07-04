@@ -1,7 +1,6 @@
 import type { JSONContent } from "@tiptap/core"
 
-import type { ProductContentReadPayload } from "@/features/product-content/types"
-import { EMPTY_TIPTAP_DOC, tiptapDocFromUnknown } from "@/lib/tiptap"
+import { EMPTY_TIPTAP_DOC } from "@/lib/tiptap"
 
 export const SEO_DESCRIPTION_MAX = 160
 export const SEO_TITLE_MAX = 255
@@ -54,16 +53,5 @@ export function productContentFormReducer(
       return action.payload
     default:
       return state
-  }
-}
-
-export function formStateFromProductContent(content: ProductContentReadPayload): ProductContentFormState {
-  return {
-    descriptionJson: tiptapDocFromUnknown(content.body_json),
-    seoTitle: content.seo_title ?? "",
-    seoDescription: content.seo_description ?? "",
-    ogUrl: content.og_image_url ?? "",
-    canonicalUrl: content.canonical_url_override ?? "",
-    validationError: null,
   }
 }

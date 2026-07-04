@@ -3,7 +3,6 @@ import { refetchEntity } from "@medusajs/framework/http"
 import { MedusaError } from "@medusajs/utils"
 
 import { mapResolvedCategoryToReadPayload } from "../../../http/category-content-read-payload"
-import { resolveCategoryStoreId } from "../../../http/resolve-entity-store-id"
 import { sendZodError } from "../../../http/zod-error"
 import { CONTENT_MODULE } from "../../../../modules/content"
 import {
@@ -51,8 +50,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
   const catalogVisibilityStatus = isListed ? "published" : "draft"
 
   const contentService = req.scope.resolve(CONTENT_MODULE) as ContentModuleService
-  const storeId = await resolveCategoryStoreId(req, categoryId)
-  const resolved = await contentService.findByCategoryId(categoryId, locale, storeId)
+  const resolved = await contentService.findByCategoryId(categoryId, locale)
   if (!resolved) {
     throw new MedusaError(MedusaError.Types.NOT_FOUND, "Category content not found")
   }
@@ -95,8 +93,7 @@ export const PATCH = async (req: MedusaRequest, res: MedusaResponse): Promise<vo
   const resolved = await contentService.upsertCategoryContent(
     row.category_id,
     row.locale,
-    body.data,
-    await resolveCategoryStoreId(req, row.category_id)
+    body.data
   )
 
   const category = await refetchEntity({

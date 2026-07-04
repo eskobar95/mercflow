@@ -59,7 +59,7 @@ describe("PlatformQueueMonitor", (): void => {
 
       const stub = createQueueStub(
         name,
-        name.endsWith("-dead")
+        name.endsWith(":dead")
           ? {
               getJobCounts: vi.fn().mockResolvedValue({
                 waiting: 2,
@@ -68,7 +68,7 @@ describe("PlatformQueueMonitor", (): void => {
                 failed: 1,
               }),
             }
-          : name === "mercflow-notifications"
+          : name === "mercflow:notifications"
             ? {
                 getJobCounts: vi.fn().mockResolvedValue({
                   active: 1,
@@ -106,13 +106,13 @@ describe("PlatformQueueMonitor", (): void => {
 
   it("retries failed jobs in the main queue", async (): Promise<void> => {
     const job = buildJob()
-    const mainQueue = createQueueStub("mercflow-notifications", {
+    const mainQueue = createQueueStub("mercflow:notifications", {
       getJob: vi.fn().mockResolvedValue(job),
     })
-    const dlq = createQueueStub("mercflow-notifications-dead", {})
+    const dlq = createQueueStub("mercflow:notifications:dead", {})
 
     const monitor = new PlatformQueueMonitor("redis://localhost:6379", (name) => {
-      if (name === "mercflow-notifications") {
+      if (name === "mercflow:notifications") {
         return mainQueue
       }
       return dlq
@@ -128,16 +128,16 @@ describe("PlatformQueueMonitor", (): void => {
 
   it("re-enqueues DLQ jobs into the main queue", async (): Promise<void> => {
     const dlqJob = buildJob({ id: "dlq:job_01" })
-    const mainQueue = createQueueStub("mercflow-notifications", {
+    const mainQueue = createQueueStub("mercflow:notifications", {
       getJob: vi.fn().mockResolvedValue(undefined),
       add: vi.fn().mockResolvedValue({ id: "retry:dlq:job_01:123" }),
     })
-    const dlq = createQueueStub("mercflow-notifications-dead", {
+    const dlq = createQueueStub("mercflow:notifications:dead", {
       getJob: vi.fn().mockResolvedValue(dlqJob),
     })
 
     const monitor = new PlatformQueueMonitor("redis://localhost:6379", (name) => {
-      if (name === "mercflow-notifications") {
+      if (name === "mercflow:notifications") {
         return mainQueue
       }
       return dlq

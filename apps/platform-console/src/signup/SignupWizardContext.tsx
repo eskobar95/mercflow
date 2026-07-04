@@ -3,15 +3,9 @@ import {
   type ReactNode,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from "react"
-
-import {
-  loadPersistedSignupWizardState,
-  persistSignupWizardState,
-} from "@/lib/signupWizardStorage"
 
 import type {
   SignupDomainDetails,
@@ -99,13 +93,7 @@ type SignupWizardProviderProps = {
 export function SignupWizardProvider({
   children,
 }: SignupWizardProviderProps): React.ReactElement {
-  const [state, setState] = useState<SignupWizardState>(
-    () => loadPersistedSignupWizardState() ?? DEFAULT_STATE,
-  )
-
-  useEffect(() => {
-    persistSignupWizardState(state)
-  }, [state])
+  const [state, setState] = useState<SignupWizardState>(DEFAULT_STATE)
 
   const setInviteValidation = useCallback(
     (input: { token: string; email: string | null }): void => {
@@ -113,7 +101,7 @@ export function SignupWizardProvider({
         ...current,
         inviteToken: input.token,
         inviteEmail: input.email,
-        currentStep: current.currentStep > 1 ? current.currentStep : (2 as SignupWizardStep),
+        currentStep: 2,
       }))
     },
     [],
