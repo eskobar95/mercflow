@@ -149,8 +149,19 @@ export function buildCreateDiscountPayload(
 }
 
 export function buildUpdateDiscountPayload(
-  discountType: "product" | "order",
+  discountType: "product",
+  form: ProductDiscountFormState,
+): UpdateDiscountPayload | null
+export function buildUpdateDiscountPayload(
+  discountType: "order",
   form: DiscountFormCoreState,
+): UpdateDiscountPayload | null
+export function buildUpdateDiscountPayload(
+  discountType: "product" | "order",
+  form: DiscountFormCoreState | ProductDiscountFormState,
 ): UpdateDiscountPayload | null {
-  return buildCreateDiscountPayload(discountType, form)
+  if (discountType === "product") {
+    return buildCreateDiscountPayload("product", form as ProductDiscountFormState)
+  }
+  return buildCreateDiscountPayload("order", form as DiscountFormCoreState)
 }

@@ -14,6 +14,7 @@ import {
   mapDetailToProductFormState,
 } from "@/features/discounts/discountFormMappers"
 import type {
+  DiscountFormCoreState,
   OrderDiscountFormState,
   ProductDiscountFormState,
 } from "@/features/discounts/discountFormTypes"
@@ -104,7 +105,10 @@ function DiscountEditPageContent({ discountId }: { discountId: string }): ReactN
         }
       }
 
-      const payload = buildUpdateDiscountPayload(detail.discount_type, form)
+      const payload =
+        detail.discount_type === "product"
+          ? buildUpdateDiscountPayload("product", form as ProductDiscountFormState)
+          : buildUpdateDiscountPayload("order", form as DiscountFormCoreState)
       if (payload === null) {
         setError("Check the form — name, value, code, and date fields must be valid.")
         return
