@@ -1,26 +1,43 @@
 # MercFlow infrastructure runbook
 
-Production stack: Hetzner VPS + Docker Compose (`infra/docker-compose.yml`). Database: Neon Frankfurt (`withered-salad-42833300`).
+Production stack: **Hetzner app VPS** + Docker Compose (`infra/docker-compose.yml`). Database: **self-hosted PostgreSQL 16 + pgvector** on a dedicated DB VPS (`infra/db/`). See [ADR-018](../.factory/context/ADR/ADR-018-self-hosted-postgresql.md).
 
 ## Prerequisites
 
-- DNS A records → Hetzner IP `46.225.226.143`:
+- DNS A records → Hetzner app VPS IP:
   - `api.mercflow.shop`
   - `grafana.mercflow.shop`
   - `portainer.mercflow.shop`
-- Neon project **allowed IPs** includes Hetzner egress IP (and your dev IP for local migrations).
-- `infra/.env` on the server with all vars from `infra/.env.example` (no real values in git).
+- DB VPS on Hetzner private network; firewall allows **5432 only from app VPS private IP**
+- `infra/.env` on app server and `infra/db/.env` on DB server (no real values in git)
+- Hetzner Object Storage bucket for database backups
 
 ## First deploy
 
+### DB server (once)
+
 ```bash
-# On the VPS (as root or deploy user with docker access)
+git clone https://github.com/eskobar95/mercflow.git /opt/mercflow-db
+cd /opt/mercflow-db/infra/db
+cp .env.example .env
+# Edit passwords + S3 credentials
+
+docker compose up -d
+./setup-roles.sh
+docker compose exec backup /backup.sh   # verify first backup reaches Object Storage
+```
+
+See `infra/db/README.md` for role details and Neon cutover steps.
+
+### App server
+
+```bash
 git clone https://github.com/eskobar95/mercflow.git /opt/mercflow
 cd /opt/mercflow
-git checkout development   # or the release branch after T027 merges
+git checkout development
 
 cp infra/.env.example infra/.env
-# Edit infra/.env — set NEON_DATABASE_URL, secrets, GRAFANA_ADMIN_PASSWORD, SENTRY_DSN
+# Edit infra/.env — DATABASE_URL (mercflow_app), PLATFORM_DATABASE_URL (mercflow_owner), secrets
 
 touch infra/traefik/acme.json && chmod 600 infra/traefik/acme.json
 
@@ -28,10 +45,10 @@ docker compose -f infra/docker-compose.yml --env-file infra/.env build
 docker compose -f infra/docker-compose.yml --env-file infra/.env up -d
 ```
 
-Migrations run against Neon from your machine or once on the server:
+Migrations (operator machine with DB network access, **mercflow_migration** role):
 
 ```bash
-# From laptop (Neon allowlist must include your IP)
+# Export migration superuser connection from infra/db/.env.example, then:
 pnpm migration:run
 ```
 
@@ -41,11 +58,12 @@ pnpm migration:run
 | --- | --- |
 | Health | `curl -sf https://api.mercflow.shop/health` |
 | Admin | `https://api.mercflow.shop/app` |
+| RLS | `pnpm --filter @mercflow/backend exec -- tsx src/scripts/test-rls-medusa.ts` |
 | Portainer | `https://portainer.mercflow.shop` |
-| Grafana | `https://grafana.mercflow.shop` (login `admin` + `GRAFANA_ADMIN_PASSWORD`) |
-| Containers | `docker compose -f infra/docker-compose.yml ps` — all healthy |
-
-Grafana → **MercFlow** folder → **MercFlow overview** dashboard should show CPU/RAM within ~2 minutes.
+| Grafana | `https://grafana.mercflow.shop` |
+| DB backup | Object Storage — file `mercflow-backup-YYYY-MM-DD-*.sql.gz` |
+| Containers (app) | `docker compose -f infra/docker-compose.yml ps` — all healthy |
+| Containers (db) | `docker compose -f infra/db/docker-compose.yml ps` — postgres + backup healthy |
 
 ## Restart services
 
@@ -54,7 +72,7 @@ cd /opt/mercflow
 docker compose -f infra/docker-compose.yml --env-file infra/.env restart medusa-backend medusa-worker
 ```
 
-Full stack restart:
+Full app stack restart:
 
 ```bash
 docker compose -f infra/docker-compose.yml --env-file infra/.env up -d
@@ -69,6 +87,13 @@ docker compose -f infra/docker-compose.yml --env-file infra/.env build medusa-ba
 docker compose -f infra/docker-compose.yml --env-file infra/.env up -d medusa-backend medusa-worker
 ```
 
+Run migrations when schema changes:
+
+```bash
+# Export migration superuser connection from infra/db/.env.example, then:
+pnpm migration:run
+```
+
 ## SSL / ACME
 
 - Certificates stored in `infra/traefik/acme.json` (gitignored, `chmod 600`).
@@ -79,10 +104,9 @@ docker compose -f infra/docker-compose.yml --env-file infra/.env up -d medusa-ba
 
 ## BetterStack logs (T028)
 
-**Production (recommended):** Better Stack **Vector** on the VPS — ships all Docker container logs + metrics.
+**Production (recommended):** Better Stack **Vector** on the app VPS — ships all Docker container logs + metrics.
 
 ```bash
-# One-time on the VPS (requires BETTERSTACK_SOURCE_TOKEN in infra/.env)
 SOURCE_TOKEN=$(grep ^BETTERSTACK_SOURCE_TOKEN= /opt/mercflow/infra/.env | cut -d= -f2-)
 curl -sSL "https://telemetry.betterstack.com/setup-vector/docker/${SOURCE_TOKEN}" -o /tmp/setup-vector.sh
 yes | bash /tmp/setup-vector.sh
@@ -91,7 +115,7 @@ usermod -aG docker vector && systemctl restart vector
 
 Verify: Better Stack → **Live tail** — filter by host `mercflow` or container name `medusa-backend`.
 
-**Alternative (Medusa only):** `infra/observability/docker-logging.override.yml` — syslog driver with source token in RFC5424 tag. Do not combine with Vector (duplicate logs).
+**Alternative (Medusa only):** `infra/observability/docker-logging.override.yml` — syslog driver. Do not combine with Vector (duplicate logs).
 
 Set `BETTERSTACK_SOURCE_TOKEN` in `infra/.env`.
 
@@ -102,7 +126,7 @@ Create a monitor in Better Stack → **Uptime** → **Create monitor**:
 - URL: `https://api.mercflow.shop/health`
 - Interval: 60s
 
-Or use API with `BETTERSTACK_UPTIME_API_TOKEN` (see `infra/observability/uptime-checks.example.json`).
+Optional **backup heartbeat**: alert if no new Object Storage file within 26 hours after 02:00 UTC.
 
 ## Observability (T028)
 
@@ -113,7 +137,7 @@ Sentry initializes via `apps/backend/src/instrumentation.ts` when `SENTRY_DSN` i
 
 The BullMQ notification worker retries failed `send-email` jobs three times (30s exponential backoff), then moves exhausted jobs to the dead-letter queue `mercflow:notifications:dead` and sets `email_deliveries.status = dead_letter`.
 
-**Better Stack:** add an uptime or custom metric alert when the DLQ queue depth is greater than zero (Redis key prefix `bull:mercflow:notifications:dead`). Investigate template/SES errors in worker logs before replaying or discarding dead-letter jobs.
+**Better Stack:** add an uptime or custom metric alert when the DLQ queue depth is greater than zero (Redis key prefix `bull:mercflow:notifications:dead`).
 
 **Local check:**
 
@@ -123,53 +147,67 @@ redis-cli -u "$REDIS_URL" LLEN bull:mercflow:notifications:dead:wait
 
 ## Backup & restore
 
-MercFlow production does **not** use Hetzner Object Storage or a pg_dump cron (T029 cancelled).
-Two managed layers cover database and VPS separately.
+Two layers cover database and VPS infrastructure.
 
 ### What each layer protects
 
 | Layer | Protects | Does not protect |
 | --- | --- | --- |
-| **Neon** (snapshots + PITR) | PostgreSQL data — products, orders, content, modules | VPS files, Docker, Traefik certs |
-| **Hetzner Server Backup** | Whole VPS disk — Compose, `infra/.env`, `acme.json`, Portainer/Grafana data | Neon database (external) |
+| **pg_dump → Object Storage** (daily 02:00 UTC) | PostgreSQL data — products, orders, content, modules | Misconfigured firewall, leaked secrets |
+| **Hetzner Server Backup** (app + DB VPS) | Whole VPS disk — Compose, `.env`, Traefik certs, Postgres volume | Logical corruption already in DB (combine with pg_dump) |
 
 ### Enable (one-time)
 
-**Neon — database**
+**Object Storage — database SQL dumps**
 
-1. [Neon console](https://console.neon.tech/app/projects/withered-salad-42833300) → branch `production` → **Backup & Restore**
-2. **Edit schedule** → daily snapshot (retention per your Neon plan)
-3. PITR window (e.g. 6 hours on Scale) is already available under **Restore from history**
+1. Hetzner Cloud → Object Storage → create bucket (e.g. `mercflow-backups`)
+2. Create access key; add to `infra/db/.env` (`HETZNER_S3_*`)
+3. Deploy DB stack; run manual backup: `docker compose exec backup /backup.sh`
+4. Confirm file in bucket; configure BetterStack alert on missed upload
 
-**Hetzner — VPS**
+**Hetzner Server Backup — VPS disks**
 
-1. [Hetzner Cloud](https://console.hetzner.cloud/) → server `mercflow` (Nuremberg, `46.225.226.143`)
-2. **Backups** → **Enable** (~20% of server price; automatic disk snapshots)
+1. Enable on **app VPS** and **DB VPS** (~20% of server price each)
 
-### Restore — database (Neon)
+### Restore — database (Object Storage)
 
-Use when data was corrupted or deleted; VPS is fine.
+Use when data was corrupted or deleted.
 
-1. Neon → `production` → **Backup & Restore**
-2. **Restore from history** — pick timestamp within PITR window → **Preview data** → **Restore**
-3. Or **Restore from a snapshot** — pick a daily snapshot → restore to same branch or a new branch for testing
-4. If you restored to a **new branch**, update `NEON_DATABASE_URL` in server `infra/.env` and restart Medusa:
+1. Identify backup date: `mercflow-backup-YYYY-MM-DD-HHMMSS.sql.gz` in Object Storage
+2. On operator machine (requires `rclone`, `psql`, S3 credentials):
 
 ```bash
-cd /opt/mercflow
-docker compose -f infra/docker-compose.yml --env-file infra/.env restart medusa-backend medusa-worker
+# Migration superuser connection — see infra/db/.env.example
+export HETZNER_S3_ACCESS_KEY=...
+export HETZNER_S3_SECRET_KEY=...
+export HETZNER_S3_BUCKET=mercflow-backups
+export HETZNER_S3_ENDPOINT=https://nbg1.your-objectstorage.com
+
+./scripts/restore-backup.sh 2026-07-04
 ```
 
-5. Verify: `curl -sf https://api.mercflow.shop/health` and spot-check admin data.
+3. Restart Medusa on app VPS
+4. Verify: `curl -sf https://api.mercflow.shop/health` and RLS test script
 
 ### Restore — VPS (Hetzner)
 
-Use when the server is broken, compromised, or needs full rollback; database is in Neon and survives VPS loss.
+Use when the server is broken or compromised. **Restore database from Object Storage after VPS restore** if the Postgres volume is stale or missing.
 
-1. Hetzner → `mercflow` → **Backups** → select snapshot → **Restore**
-2. Confirm DNS still points to `46.225.226.143` (IP unchanged after restore)
-3. SSH in, verify containers: `docker compose -f /opt/mercflow/infra/docker-compose.yml ps`
-4. Verify health and admin login; Neon connection requires allowlist still includes VPS IP
+1. Hetzner → server → **Backups** → select snapshot → **Restore**
+2. Confirm DNS still points to app VPS IP
+3. SSH in, verify containers on both VPS
+4. If DB data missing: run `restore-backup.sh` from latest Object Storage dump
+
+## Neon cutover (one-time migration)
+
+See `infra/db/README.md` § Neon cutover. Summary:
+
+1. Rehearse dump/restore on staging DB
+2. Maintenance window: stop Medusa traffic
+3. Final `pg_dump` from Neon → restore on Hetzner DB
+4. Update `DATABASE_URL` / `PLATFORM_DATABASE_URL` on app VPS
+5. Run migrations + RLS verification
+6. Re-enable traffic; keep Neon read-only 7 days; decommission
 
 ## Tenant provisioning (T030)
 
@@ -178,17 +216,17 @@ Provision a new MercFlow tenant (Medusa store, sales channel, publishable API ke
 ### Prerequisites
 
 - Secret **admin API token** for an existing super-admin (`MEDUSA_ADMIN_API_TOKEN`)
-- **Neon `DATABASE_URL`** on the operator machine (store creation uses `medusa exec` — Medusa v2.14 has no `POST /admin/stores`)
-- DNS for the tenant domain will point to the Hetzner VPS **after** provisioning
+- **`DATABASE_URL`** with **mercflow_migration** role on operator machine (store creation uses `medusa exec`)
+- DNS for the tenant domain will point to the Hetzner app VPS **after** provisioning
 
 ### Command
 
-From repo root (copy vars into your shell or `apps/backend/.env`):
+From repo root:
 
 ```bash
 export MEDUSA_BACKEND_URL=https://api.mercflow.shop
 export MEDUSA_ADMIN_API_TOKEN=...paste from Medusa admin settings...
-export DATABASE_URL=<neon-pooler-url>
+# Migration DB connection — see infra/db/.env.example
 
 pnpm provision-tenant \
   --name "Salon Maria" \
@@ -197,26 +235,12 @@ pnpm provision-tenant \
   --currency dkk
 ```
 
-Output includes **store ID**, **publishable API key**, **admin password** (stdout only — not written to disk), and the Traefik file path under `infra/traefik/dynamic/tenants/`.
-
-**URL model:** All tenants use the **shared platform admin** at `https://api.mercflow.shop/app` (`MEDUSA_BACKEND_URL` + `/app`). The tenant domain is for **storefront**, **store API**, and **public MercFlow routes** (`/health`, feeds, sitemap). Traefik redirects `/app` and `/admin` on tenant hosts to the platform admin.
-
 ### After provisioning
 
-1. Create DNS **A record** for the tenant domain → `46.225.226.143`
-2. Deploy Traefik config to the VPS (`git pull` in `/opt/mercflow` or rsync `infra/traefik/dynamic/tenants/`)
+1. Create DNS **A record** for the tenant domain → app VPS IP
+2. Deploy Traefik config to the VPS (`git pull` in `/opt/mercflow`)
 3. Wait for Let's Encrypt (first request to `https://<tenant-domain>/health`)
-4. Confirm tenant admin login at `https://api.mercflow.shop/app` (not on the tenant domain)
-5. Copy credentials to the customer through a secure channel
-
-### Idempotency
-
-Re-running with the same `--domain` fails if a Traefik route file already contains `Host(\`<domain>\`)`.
-
-### Re-open T029 (Object Storage pg_dump) only if
-
-- You need vendor-independent SQL dumps outside Neon, or
-- Compliance requires off-platform backup files you control directly.
+4. Confirm tenant admin login at `https://api.mercflow.shop/app`
 
 ## Platform Console access (T067)
 
@@ -228,24 +252,24 @@ Production routes live in `infra/traefik/dynamic/platform-console.yml`:
 Before first deploy:
 
 1. Add operator workstation `/32` CIDRs to `platform-console-ipallowlist.sourceRange`.
-2. Set `PLATFORM_CLERK_SECRET_KEY`, `PLATFORM_DATABASE_URL` (mercflow_owner), and `PLATFORM_CORS` in `infra/.env`.
+2. Set `PLATFORM_CLERK_SECRET_KEY`, `PLATFORM_DATABASE_URL` (`mercflow_owner`), and `PLATFORM_CORS` in `infra/.env`.
 3. Containerise `apps/platform-console` and register the `platform-console` compose service (scaffold documents Traefik only).
-
-Local development does not use Traefik — run Vite on `:5174` and Medusa on `:9000`.
 
 ## Troubleshooting
 
 | Symptom | Action |
 | --- | --- |
-| Medusa crash loop | `docker compose logs medusa-backend` — check `NEON_DATABASE_URL`, Neon allowlist, Redis |
+| Medusa crash loop | `docker compose logs medusa-backend` — check `DATABASE_URL`, DB firewall, Redis |
 | `EADDRINUSE` locally | `lsof -i :9000` and kill stale process |
 | Worker not processing | Confirm `medusa-worker` healthy; check `REDIS_URL` and `MEDUSA_WORKER_MODE=worker` |
-| Notification DLQ growing | Better Stack → alert on Redis depth for `mercflow:notifications:dead`; inspect worker logs, fix SES/template errors, replay or discard dead-letter jobs |
-| Grafana empty | Wait 2 min; check Prometheus targets at `http://prometheus:9090/targets` from Grafana network |
-| Neon connection timeout | Update [Neon allowlist](https://console.neon.tech/app/projects/withered-salad-42833300) with current VPS IP |
+| DB connection timeout | Verify app VPS private IP in DB firewall; ping DB private IP from app VPS |
+| RLS leak / cross-tenant data | Confirm backend uses `mercflow_app` (not migration/owner role) |
+| Backup missing | `docker compose -f infra/db/docker-compose.yml logs backup`; check S3 credentials |
+| Notification DLQ growing | Inspect worker logs; fix SES/template errors |
 
 ## Security
 
-- Never commit `infra/.env` or `infra/traefik/acme.json`.
-- Rotate `JWT_SECRET`, `COOKIE_SECRET`, and admin passwords if exposed.
+- Never commit `infra/.env`, `infra/db/.env`, or `infra/traefik/acme.json`.
+- Rotate `JWT_SECRET`, `COOKIE_SECRET`, and DB passwords if exposed.
 - Restrict Portainer/Grafana access to trusted operators.
+- PostgreSQL must not be reachable from the public internet.

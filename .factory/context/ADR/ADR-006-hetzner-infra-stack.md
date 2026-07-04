@@ -34,7 +34,7 @@ The goals for the infrastructure stack are:
 | `portainer` | `portainer/portainer-ce` | Container dashboard (no SSH required) |
 | `backup` | Custom cron + `pg_dump` + rclone | Daily pg_dump → Hetzner Object Storage |
 
-**Neon** remains the database provider (ADR-004). Not self-hosted.
+**Neon** was the database provider (ADR-004) until **ADR-018** (2026-07-04) moved production to self-hosted PostgreSQL on a dedicated Hetzner VPS. Historical Neon references below are superseded for database hosting.
 
 **Hetzner Object Storage** (S3-compatible) is used for:
 - Medusa media asset uploads
@@ -113,7 +113,7 @@ Target: under 5 minutes end-to-end. No UI, no self-service — MercFlow team run
 
 1. **Container crash loop:** Check Portainer → container logs → fix and `docker compose up -d`.
 2. **SSL cert not provisioning:** Verify DNS CNAME points to Hetzner IP; check Traefik ACME log.
-3. **Neon connection refused:** Verify Hetzner egress IP is in Neon `allowed_ips`; check Redis is up (Medusa startup depends on it).
+3. **DB connection refused:** Verify app VPS private IP is allowed in DB VPS firewall; check `DATABASE_URL` uses `mercflow_app` and Redis is up.
 4. **Backup missing:** Check cron container logs; verify rclone config has correct Hetzner Object Storage credentials.
 
 ---
@@ -128,7 +128,7 @@ Target: under 5 minutes end-to-end. No UI, no self-service — MercFlow team run
 
 **Bad / trade-offs:**
 - Hetzner VPS is a single point of failure (no auto-scaling, no multi-region) — acceptable for MVP; revisit at 50+ tenants
-- Manual Neon IP allowlist update required if VPS IP changes (floating IP recommended)
+- Manual DB firewall update if app VPS private IP changes (floating IP recommended on app server)
 - CI/CD auto-deploy is post-MVP — deploys require manual `docker compose pull && up -d` or Portainer webhook
 
 ---
@@ -140,4 +140,4 @@ Target: under 5 minutes end-to-end. No UI, no self-service — MercFlow team run
 | Railway | No Hetzner server to manage; egress IP instability; higher cost at scale |
 | Kubernetes (k3s on Hetzner) | Significant operational complexity for MVP stage |
 | DigitalOcean / Render | Hetzner server already available; no reason to add vendor |
-| Self-hosted PostgreSQL | Neon already in use (ADR-004); managed backups + branching are valuable |
+| Self-hosted PostgreSQL | Rejected in ADR-006 MVP; **accepted in ADR-018** due to Neon cost and RLS role control |

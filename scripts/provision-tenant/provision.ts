@@ -48,7 +48,7 @@ export async function provisionTenant(
 ): Promise<ProvisionTenantOutput> {
   if (env.databaseUrl === null) {
     throw new ProvisionTenantCliError(
-      "DATABASE_URL (or NEON_DATABASE_URL) is required to create a Medusa store",
+      "DATABASE_URL is required to create a Medusa store",
     )
   }
 

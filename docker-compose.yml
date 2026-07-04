@@ -1,7 +1,7 @@
 # Local development only. Do not use these defaults in production.
 services:
   postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     container_name: mercflow-postgres-dev
     restart: unless-stopped
     environment:

@@ -42,8 +42,7 @@ export function loadProvisionTenantEnv(repoRoot: string): ProvisionTenantEnv {
     readOptionalEnv("TRAEFIK_DYNAMIC_DIR") ??
     path.join(repoRoot, "infra", "traefik", "dynamic", "tenants")
 
-  const databaseUrl =
-    readOptionalEnv("DATABASE_URL") ?? readOptionalEnv("NEON_DATABASE_URL")
+  const databaseUrl = readOptionalEnv("DATABASE_URL")
 
   return {
     backendUrl,

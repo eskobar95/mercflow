@@ -16,13 +16,13 @@ export function printProvisionTenantUsage(): void {
 Environment (auto-loaded from apps/backend/.env and .env.provision.local if present):
   MEDUSA_BACKEND_URL          Medusa origin (e.g. https://api.mercflow.shop)
   MEDUSA_ADMIN_API_TOKEN      Secret admin API token (Authorization: Basic)
-  DATABASE_URL                Neon URL — required to create a new Medusa store (medusa exec)
+  DATABASE_URL                Postgres URL (mercflow_migration) — required for medusa exec store creation
   TRAEFIK_DYNAMIC_DIR         Optional; default infra/traefik/dynamic/tenants
 
 Quick start — add to apps/backend/.env:
   MEDUSA_BACKEND_URL=https://api.mercflow.shop
   MEDUSA_ADMIN_API_TOKEN=...paste from Medusa admin settings...
-  DATABASE_URL=...your Neon pooler URL...   # often already set for local migrations
+  DATABASE_URL=postgresql://mercflow_migration:...@<db-host>:5432/mercflow
 
 Notes:
   - Medusa v2.14 has no POST /admin/stores; store creation uses medusa exec against DATABASE_URL.

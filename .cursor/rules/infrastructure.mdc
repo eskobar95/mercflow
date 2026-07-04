@@ -36,5 +36,5 @@ ssh -i ~/Documents/hetzner_key root@46.225.226.143
 - **Never hardcode** the server IP, SSH key paths, or credentials in MercFlow packages or `apps/backend`.
 - **Never commit** `hetzner_key` or any private key — they live in `~/Documents/` outside the repo.
 - All infra files (`docker-compose.yml`, `traefik/`, `infra/`) go under `infra/` in the monorepo root and are **config only** — no secrets.
-- Secrets for the server (Neon connection string, Sentry DSN, BetterStack token) go in `infra/.env` on the server itself — never committed. Document variable **names** in `infra/.env.example`.
-- **See:** ADR-006 for full infra stack decisions.
+- Secrets for the server (database URLs, Sentry DSN, BetterStack token) go in `infra/.env` on the server itself — never committed. Document variable **names** in `infra/.env.example`.
+- **See:** ADR-006 (app stack), ADR-018 (self-hosted PostgreSQL)

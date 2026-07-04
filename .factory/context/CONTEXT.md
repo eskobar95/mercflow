@@ -28,7 +28,7 @@
 
 ## Multi-tenant model (MercFlow)
 
-**Meaning:** SaaS platform — one shared Medusa instance + one Neon database. Multiple shops (tenants) share the same backend. Row-level isolation via `store_id` on **all tables** — both MercFlow module tables and Medusa core tables (via the fork). Each tenant has their own admin access and their own storefront frontend.
+**Meaning:** SaaS platform — one shared Medusa instance + one PostgreSQL database (self-hosted on Hetzner, ADR-018). Multiple shops (tenants) share the same backend. Row-level isolation via `store_id` on **all tables** — both MercFlow module tables and Medusa core tables (via the fork). Each tenant has their own admin access and their own storefront frontend.
 
 **Not:** One Medusa instance per shop. Not Neon branching per tenant.
 
@@ -196,7 +196,7 @@
 
 **Not:** Railway (referenced as a planning artefact in ADR-005 — superseded by ADR-006). Not a managed cloud (GCP/AWS/Azure). Not per-tenant VMs.
 
-**Database:** Neon (managed PostgreSQL, separate from Hetzner) — see ADR-004. Neon connects to Hetzner via allowed-IP policy (interim) → Neon Private Link (target).
+**Database:** Self-hosted PostgreSQL 16 + pgvector on a dedicated Hetzner VPS — see ADR-018. App VPS connects over private network; RLS via `mercflow_app` role.
 
 **See:** ADR-006
 
@@ -211,13 +211,13 @@
 | Docker Compose | Reproducible deployment unit for all services |
 | Traefik | Reverse proxy, SSL (Let's Encrypt), per-tenant domain routing |
 | Redis | Medusa event bus + rate-limiting counters (ADR-005) |
-| Neon | Managed PostgreSQL — row-level isolated, shared across tenants |
+| PostgreSQL | Self-hosted on Hetzner DB VPS — row-level isolated via RLS, shared across tenants |
 | Sentry | Error tracking, tagged by `store_id` (tenant) |
 | BetterStack | Log aggregation + uptime checks per tenant domain |
 | Hetzner Object Storage (S3) | Media assets + automated daily pg_dump backups |
 | Portainer CE | Container dashboard — no SSH required for ops |
 
-**Not:** Per-tenant Docker stacks. Not a Kubernetes cluster. Not Railway. Not self-hosted PostgreSQL.
+**Not:** Per-tenant Docker stacks. Not a Kubernetes cluster. Not Railway.
 
 **See:** ADR-006
 

@@ -8,7 +8,8 @@ name: mercflow
 
 x-medusa-env: &medusa-env
   NODE_ENV: production
-  DATABASE_URL: ${NEON_DATABASE_URL}
+  DATABASE_URL: ${DATABASE_URL}
+  PLATFORM_DATABASE_URL: ${PLATFORM_DATABASE_URL:-}
   REDIS_URL: redis://redis:6379
   JWT_SECRET: ${JWT_SECRET}
   COOKIE_SECRET: ${COOKIE_SECRET}
