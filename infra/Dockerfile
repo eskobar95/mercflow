@@ -25,8 +25,8 @@ FROM base AS runner
 RUN apk add --no-cache wget
 WORKDIR /app
 ENV NODE_ENV=production
-ENV NODE_OPTIONS=--import tsx
-ENV NODE_PATH=/app/apps/backend/node_modules
+ENV NODE_OPTIONS="--import tsx"
+ENV NODE_PATH="/app/apps/backend/node_modules"
 COPY --from=build /app .
 EXPOSE 9000
 CMD ["pnpm", "--filter", "@mercflow/backend", "exec", "medusa", "start"]
