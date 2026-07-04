@@ -61,7 +61,6 @@ function DiscountCreatePageContent(): ReactNode {
   const onSubmit = useCallback(
     async (event: FormEvent, type: "product" | "order"): Promise<void> => {
       event.preventDefault()
-      const form = type === "product" ? productForm : orderForm
       if (type === "product") {
         const scopeError = validateProductDiscountForm(productForm)
         if (scopeError !== null) {
@@ -69,7 +68,10 @@ function DiscountCreatePageContent(): ReactNode {
           return
         }
       }
-      const payload = buildCreateDiscountPayload(type, form, { status: "draft" })
+      const payload =
+        type === "product"
+          ? buildCreateDiscountPayload("product", productForm, { status: "draft" })
+          : buildCreateDiscountPayload("order", orderForm, { status: "draft" })
       if (payload === null) {
         setError("Check the form — name, value, code, and date fields must be valid.")
         return

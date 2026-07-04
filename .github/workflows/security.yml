@@ -82,6 +82,20 @@ jobs:
             // Global esbuild >=0.28.1 override breaks vite 5 production build — track vite@6.
             // tsx path patched via pnpm override `tsx>esbuild`; vite path accepted until S048.
             'GHSA-gv7w-rqvm-qjhr',
+            // form-data CRLF injection (GHSA-hmw2-7cc7-3qxx):
+            // Transitive dev/build dependency; exploit requires attacker-controlled multipart
+            // field names in outbound requests. MercFlow does not expose form-data construction
+            // to untrusted input. Track: upgrade when upstream axios/request deps bump form-data.
+            'GHSA-hmw2-7cc7-3qxx',
+            // vite server.fs.deny Windows bypass (GHSA-fx2h-pf6j-xcff):
+            // Only affects Vite dev server on Windows alternate paths. CI and production use
+            // Linux; admin-ui dev server binds localhost. Track: vite@6 migration (S048).
+            'GHSA-fx2h-pf6j-xcff',
+            // multer DoS via nested field names (GHSA-72gw-mp4g-v24j):
+            // Transitive via @medusajs/medusa file upload; requires attacker-controlled multipart
+            // uploads hitting multer directly. Admin uploads go through Medusa auth + size limits.
+            // Track: upgrade when Medusa bumps multer.
+            'GHSA-72gw-mp4g-v24j',
           ]);
 
           let audit;
