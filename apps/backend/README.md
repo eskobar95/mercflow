@@ -52,6 +52,7 @@ Full setup, local overrides, and **before production checklist**: `apps/platform
 | `STORE_CORS` | Optional; default `http://localhost:3000` in `medusa-config.ts` |
 | `ADMIN_CORS` | Optional; default `http://localhost:7001` |
 | `AUTH_CORS` | Optional; default `http://localhost:7001` |
+| `MEDUSA_FF_TRANSLATION` | Set to `true` for Content tab locale list (`GET /admin/locales`). Also set `featureFlags.translation: true` in `medusa-config.ts` and register `@medusajs/medusa/translation` (see config). |
 | `MERCFLOW_CONNECTOR_ENCRYPTION_KEY` | **64 hex chars (32 bytes)** — required so `@mercflow/connector-module` can encrypt connector credentials at rest (backend will fail at runtime when the module is used if unset). Generate with e.g. `openssl rand -hex 32`. |
 | `RATE_LIMIT_PUBLIC_RPM` | Optional; default `60`. Per-IP limit for `GET /v1/sitemap.xml`, `/v1/robots.txt`, `/v1/feed/*` (and legacy unversioned paths before redirect). |
 | `RATE_LIMIT_STORE_RPM` | Optional; default `300`. Per-`x-publishable-api-key` limit for `GET /v1/store/*` MercFlow routes (and legacy unversioned paths before redirect). |

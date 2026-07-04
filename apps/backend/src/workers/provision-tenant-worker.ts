@@ -9,6 +9,7 @@ import {
   PROVISION_TENANT_QUEUE_NAME,
   type ProvisionTenantJobPayload,
 } from "../lib/platform-provisioning/constants"
+import { failProvisioningJob } from "../lib/platform-provisioning/job-state"
 import { processProvisionTenantJob } from "../lib/platform-provisioning/process-provision-tenant-job"
 
 export type ProvisionTenantWorkerHandle = {
@@ -34,47 +35,58 @@ export async function startProvisionTenantWorker(): Promise<ProvisionTenantWorke
 
   workerStarted = true
   const redisUrl = process.env.REDIS_URL ?? "redis://localhost:6379"
-  const connection = createRedisConnection(redisUrl)
-  const dlqConnection = createRedisConnection(redisUrl)
 
-  const queue = new Queue<ProvisionTenantJobPayload>(PROVISION_TENANT_QUEUE_NAME, {
-    connection,
-  })
-  const deadLetterQueue = new Queue<ProvisionTenantJobPayload>(PROVISION_TENANT_DLQ_NAME, {
-    connection: dlqConnection,
-  })
+  try {
+    const connection = createRedisConnection(redisUrl)
+    const dlqConnection = createRedisConnection(redisUrl)
 
-  const worker = new Worker<ProvisionTenantJobPayload>(
-    PROVISION_TENANT_QUEUE_NAME,
-    async (job: Job<ProvisionTenantJobPayload>) => {
-      if (job.name !== PROVISION_TENANT_JOB) {
+    const queue = new Queue<ProvisionTenantJobPayload>(PROVISION_TENANT_QUEUE_NAME, {
+      connection,
+    })
+    const deadLetterQueue = new Queue<ProvisionTenantJobPayload>(PROVISION_TENANT_DLQ_NAME, {
+      connection: dlqConnection,
+    })
+
+    const worker = new Worker<ProvisionTenantJobPayload>(
+      PROVISION_TENANT_QUEUE_NAME,
+      async (job: Job<ProvisionTenantJobPayload>) => {
+        if (job.name !== PROVISION_TENANT_JOB) {
+          return
+        }
+        await processProvisionTenantJob(job.data)
+      },
+      {
+        connection,
+        concurrency: 2,
+      } satisfies WorkerOptions,
+    )
+
+    worker.on("failed", (job, error) => {
+      if (job === undefined) {
         return
       }
-      await processProvisionTenantJob(job.data)
-    },
-    {
-      connection,
-      concurrency: 2,
-    } satisfies WorkerOptions,
-  )
 
-  worker.on("failed", (job) => {
-    if (job === undefined) {
-      return
-    }
+      const maxAttempts =
+        job.opts.attempts ?? PROVISION_TENANT_JOB_RETRY_OPTIONS.attempts
 
-    const maxAttempts =
-      job.opts.attempts ?? PROVISION_TENANT_JOB_RETRY_OPTIONS.attempts
-    if (job.attemptsMade < maxAttempts) {
-      return
-    }
+      if (job.attemptsMade < maxAttempts) {
+        return
+      }
 
-    void deadLetterQueue
-      .add(job.name, job.data, { jobId: `dlq:${job.id ?? "unknown"}` })
-      .catch(() => undefined)
-  })
+      const message =
+        error instanceof Error ? error.message : job.failedReason ?? "Provisioning failed"
+      void failProvisioningJob(job.data.jobId, message).catch(() => undefined)
 
-  return { worker, queue, deadLetterQueue, connection, dlqConnection }
+      void deadLetterQueue
+        .add(job.name, job.data, { jobId: `dlq:${job.id ?? "unknown"}` })
+        .catch(() => undefined)
+    })
+
+    return { worker, queue, deadLetterQueue, connection, dlqConnection }
+  } catch (error) {
+    workerStarted = false
+    throw error
+  }
 }
 
 export async function stopProvisionTenantWorker(

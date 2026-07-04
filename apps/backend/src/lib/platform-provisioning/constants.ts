@@ -1,5 +1,5 @@
-export const PROVISION_TENANT_QUEUE_NAME = "mercflow:provision-tenant"
-export const PROVISION_TENANT_DLQ_NAME = "mercflow:provision-tenant:dead"
+export const PROVISION_TENANT_QUEUE_NAME = "mercflow-provision-tenant"
+export const PROVISION_TENANT_DLQ_NAME = "mercflow-provision-tenant-dead"
 export const PROVISION_TENANT_JOB = "provision-tenant"
 
 export const PROVISION_TENANT_JOB_RETRY_OPTIONS = {

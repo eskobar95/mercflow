@@ -41,7 +41,7 @@ export function TeamInviteForm({
     <Card className="p-6">
       <h2 className="text-base font-semibold text-content-primary">Invite member</h2>
       <p className="mt-1 text-sm text-content-secondary">
-        Send an email invitation with the role they should have in your store admin.
+        Sends an invitation email via Clerk. Check spam if the recipient does not see it within a few minutes.
       </p>
 
       <form className="mt-6 grid gap-4 sm:grid-cols-[minmax(0,1fr)_12rem_auto] sm:items-end" onSubmit={handleSubmit}>

@@ -91,7 +91,12 @@ export default defineMiddlewares({
     },
     {
       matcher: "/admin*",
-      middlewares: [clerkAdminAuthMiddleware, tenantIsolationMiddleware],
+      beforeAuth: true,
+      middlewares: [clerkAdminAuthMiddleware],
+    },
+    {
+      matcher: "/admin*",
+      middlewares: [tenantIsolationMiddleware],
     },
     {
       matcher: "/store*",

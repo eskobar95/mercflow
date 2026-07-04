@@ -5,6 +5,10 @@ import ContentModuleService from "../../src/modules/content/service"
 
 describe("ContentModuleService.upsertProductContent", () => {
   it("creates a row at version 1 when none exists for product and locale", async () => {
+    const withTenant = vi.fn(
+      async <T>(_storeId: string, fn: (context: Record<string, never>) => Promise<T>): Promise<T> =>
+        fn({})
+    )
     const listSpy = vi
       .spyOn(ContentModuleService.prototype as { listProductContents: () => Promise<unknown[]> }, "listProductContents")
       .mockResolvedValue([])
@@ -26,18 +30,27 @@ describe("ContentModuleService.upsertProductContent", () => {
       ])
 
     const svc = Object.create(ContentModuleService.prototype) as ContentModuleService
-    const resolved = await svc.upsertProductContent("prod_1", "da", {
-      description_rich: { type: "doc", content: [] },
-      seo_title: "T",
-    })
+    Object.assign(svc, { withTenant })
+    const resolved = await svc.upsertProductContent(
+      "prod_1",
+      "da",
+      {
+        description_rich: { type: "doc", content: [] },
+        seo_title: "T",
+      },
+      "store_test"
+    )
 
-    expect(listSpy).toHaveBeenCalledWith({ product_id: "prod_1", locale: "da" })
+    expect(withTenant).toHaveBeenCalledWith("store_test", expect.any(Function))
+    expect(listSpy).toHaveBeenCalledWith({ product_id: "prod_1", locale: "da" }, {}, {})
     expect(createSpy).toHaveBeenCalledWith(
       expect.objectContaining({
+        store_id: "store_test",
         product_id: "prod_1",
         locale: "da",
         version: 1,
-      })
+      }),
+      {}
     )
     expect(resolved.version).toBe(1)
 
@@ -46,6 +59,10 @@ describe("ContentModuleService.upsertProductContent", () => {
   })
 
   it("updates an existing row and bumps version by one", async () => {
+    const withTenant = vi.fn(
+      async <T>(_storeId: string, fn: (context: Record<string, never>) => Promise<T>): Promise<T> =>
+        fn({})
+    )
     const existing: ProductContentRecord = {
       id: "pc_ex",
       product_id: "prod_1",
@@ -74,16 +91,23 @@ describe("ContentModuleService.upsertProductContent", () => {
       ])
 
     const svc = Object.create(ContentModuleService.prototype) as ContentModuleService
-    const resolved = await svc.upsertProductContent("prod_1", "da", {
-      seo_title: "New",
-    })
+    Object.assign(svc, { withTenant })
+    const resolved = await svc.upsertProductContent(
+      "prod_1",
+      "da",
+      {
+        seo_title: "New",
+      },
+      "store_test"
+    )
 
     expect(updateSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         id: "pc_ex",
         seo_title: "New",
         version: 5,
-      })
+      }),
+      {}
     )
     expect(resolved.version).toBe(5)
 

@@ -2,7 +2,6 @@ import type { ReactNode } from "react"
 
 import { Card } from "@/components/ui/Card"
 import { ContentLocaleSwitcher } from "@/components/content-locale/ContentLocaleSwitcher"
-import { ContentLocaleUnsavedDialog } from "@/components/content-locale/ContentLocaleUnsavedDialog"
 import type { AdminLocale } from "@/features/content-locale"
 
 type ProductContentEmptyViewProps = {
@@ -10,13 +9,9 @@ type ProductContentEmptyViewProps = {
   activeLocaleCode: string
   saving: boolean
   localesLoading: boolean
-  localeDialogOpen: boolean
-  onLocaleDialogOpenChange: (open: boolean) => void
-  requestLocaleChange: (code: string) => void
+  localesWarning?: string | null
+  onLocaleChange: (code: string) => void
   onAddContent: () => void
-  onSaveAndSwitchLocale: () => Promise<void>
-  onDiscardAndSwitchLocale: () => Promise<void>
-  closeLocaleDialog: () => void
 }
 
 export function ProductContentEmptyView({
@@ -24,20 +19,25 @@ export function ProductContentEmptyView({
   activeLocaleCode,
   saving,
   localesLoading,
-  localeDialogOpen,
-  onLocaleDialogOpenChange,
-  requestLocaleChange,
+  localesWarning = null,
+  onLocaleChange,
   onAddContent,
-  onSaveAndSwitchLocale,
-  onDiscardAndSwitchLocale,
-  closeLocaleDialog,
 }: ProductContentEmptyViewProps): ReactNode {
   return (
     <div className="space-y-4">
+      {localesWarning !== null ? (
+        <div
+          role="status"
+          className="rounded-md border border-border-strong bg-surface-subtle px-3 py-2 text-sm text-content-secondary"
+        >
+          Store languages could not be loaded ({localesWarning}). Editing continues with locale{" "}
+          <code className="text-xs">{activeLocaleCode}</code>.
+        </div>
+      ) : null}
       <ContentLocaleSwitcher
         locales={locales}
         value={activeLocaleCode}
-        onChange={requestLocaleChange}
+        onChange={onLocaleChange}
         disabled={saving}
         localesLoading={localesLoading}
       />
@@ -61,18 +61,6 @@ export function ProductContentEmptyView({
           </button>
         </div>
       </Card>
-      <ContentLocaleUnsavedDialog
-        open={localeDialogOpen}
-        onOpenChange={onLocaleDialogOpenChange}
-        actionDisabled={saving}
-        onSave={() => {
-          void onSaveAndSwitchLocale()
-        }}
-        onDiscard={() => {
-          void onDiscardAndSwitchLocale()
-        }}
-        onClose={closeLocaleDialog}
-      />
     </div>
   )
 }

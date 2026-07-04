@@ -68,6 +68,11 @@ export type MiddlewareRoute = {
   bodyParser?: ParserConfig
   additionalDataValidator?: ZodRawShape
   middlewares?: MiddlewareFunction[]
+  /**
+   * When true, register this middleware before the namespace auth
+   * middleware (e.g. Clerk JWT verification on /admin routes).
+   */
+  beforeAuth?: boolean
   /** @ignore */
   policies?:
     | { resource: string; operation: string }
@@ -105,6 +110,7 @@ export type MiddlewareDescriptor = {
   matcher: string
   methods?: MiddlewareVerb | MiddlewareVerb[]
   handler: MiddlewareFunction
+  beforeAuth?: boolean
   policies?:
     | { resource: string; operation: string }
     | Array<{ resource: string; operation: string | string[] }>

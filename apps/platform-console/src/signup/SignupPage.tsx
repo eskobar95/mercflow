@@ -1,3 +1,6 @@
+import { useEffect } from "react"
+import { useSearchParams } from "react-router-dom"
+
 import { isPublicSignupEnabled } from "@/lib/signupEnv"
 import { SignupStepIndicator } from "@/signup/SignupStepIndicator"
 import { useSignupWizard, type SignupWizardStep } from "@/signup/SignupWizardContext"
@@ -36,7 +39,20 @@ function renderSignupStep(currentStep: SignupWizardStep): React.ReactElement {
 }
 
 export function SignupPage(): React.ReactElement {
-  const { state } = useSignupWizard()
+  const { state, goToStep } = useSignupWizard()
+  const [searchParams] = useSearchParams()
+
+  useEffect(() => {
+    const stepParam = searchParams.get("step")
+    if (!stepParam) {
+      return
+    }
+
+    const parsed = Number.parseInt(stepParam, 10)
+    if (parsed >= 2 && parsed <= 7) {
+      goToStep(parsed as SignupWizardStep)
+    }
+  }, [goToStep, searchParams])
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">

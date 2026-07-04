@@ -7,6 +7,7 @@ import {
 
 import type {
   InviteTeamMemberInput,
+  TeamInvitationDto,
   TeamMemberDto,
   TeamMemberRole,
   UpdateTeamMemberRoleInput,
@@ -61,7 +62,46 @@ function parseTeamMembers(payload: unknown): TeamMemberDto[] {
     .filter((member): member is TeamMemberDto => member !== null)
 }
 
-export async function listTeamMembers(): Promise<TeamMemberDto[]> {
+function parseTeamInvitation(value: unknown): TeamInvitationDto | null {
+  if (!isRecord(value)) {
+    return null
+  }
+
+  const invitationId =
+    typeof value.invitation_id === "string" ? value.invitation_id : null
+  const email = typeof value.email === "string" ? value.email : null
+  const role = value.role === "admin" || value.role === "staff" ? value.role : null
+  const status = value.status === "pending" ? value.status : null
+
+  if (invitationId === null || email === null || role === null || status === null) {
+    return null
+  }
+
+  return {
+    invitation_id: invitationId,
+    email,
+    role,
+    status,
+    created_at: typeof value.created_at === "string" ? value.created_at : null,
+  }
+}
+
+function parseTeamInvitations(payload: unknown): TeamInvitationDto[] {
+  if (!isRecord(payload) || !Array.isArray(payload.invitations)) {
+    return []
+  }
+
+  return payload.invitations
+    .map((invitation) => parseTeamInvitation(invitation))
+    .filter((invitation): invitation is TeamInvitationDto => invitation !== null)
+}
+
+export type TeamMembersListResult = {
+  members: TeamMemberDto[]
+  invitations: TeamInvitationDto[]
+}
+
+export async function listTeamMembers(): Promise<TeamMembersListResult> {
   const response = await fetch(`${teamBase()}/members`, {
     method: "GET",
     headers: buildMedusaAdminJsonHeaders(),
@@ -72,7 +112,10 @@ export async function listTeamMembers(): Promise<TeamMemberDto[]> {
   }
 
   const payload = await parseMedusaAdminJsonResponse(response)
-  return parseTeamMembers(payload)
+  return {
+    members: parseTeamMembers(payload),
+    invitations: parseTeamInvitations(payload),
+  }
 }
 
 export async function inviteTeamMember(input: InviteTeamMemberInput): Promise<void> {
@@ -120,6 +163,20 @@ export async function updateTeamMemberRole(
 export async function revokeTeamMember(clerkUserId: string): Promise<void> {
   const response = await fetch(
     `${teamBase()}/members/${encodeURIComponent(clerkUserId)}`,
+    {
+      method: "DELETE",
+      headers: buildMedusaAdminJsonHeaders(),
+    },
+  )
+
+  if (!response.ok) {
+    throw new Error(await readMedusaAdminHttpErrorMessage(response))
+  }
+}
+
+export async function revokeTeamInvitation(invitationId: string): Promise<void> {
+  const response = await fetch(
+    `${teamBase()}/invitations/${encodeURIComponent(invitationId)}`,
     {
       method: "DELETE",
       headers: buildMedusaAdminJsonHeaders(),

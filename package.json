@@ -18,6 +18,7 @@
     "react-doctor:admin-ui:diff": "pnpm --filter @mercflow/admin-ui react-doctor:diff",
     "react-doctor:admin-ui:ci": "pnpm --filter @mercflow/admin-ui react-doctor:ci",
     "provision-tenant": "tsx scripts/provision-tenant.ts",
+    "seed-stripe-platform-catalog": "tsx scripts/seed-stripe-platform-catalog.ts",
     "shipmondo:e2e-setup": "bash scripts/shipmondo-e2e-dev.sh",
     "shipmondo:e2e-seed": "bash scripts/shipmondo-e2e-dev.sh --seed"
   },

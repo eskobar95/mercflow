@@ -14,22 +14,29 @@ Turn aligned understanding into **product and technical spec files**. Does not c
 
 ## Outputs
 
-| File | Content |
-|------|---------|
-| `.factory/context/PRD.md` | Problem, goals, non-goals, **user journeys**, success metrics, deliverables |
-| `.factory/context/TECHSPEC.md` | Stack, constraints, integrations, branch model, scripts, ADR log |
-| `.factory/context/STACK.md` | Short bullet mirror of stack |
+| File | Action |
+|------|--------|
+| `.factory/context/PRD.md` | **Update** existing (never recreate) — or create if absent |
+| `.factory/context/features/[feature-slug].md` | **Preferred** for feature-scoped work (keeps root PRD clean) |
+| `.factory/context/TECHSPEC.md` | Update existing or create if absent |
+| `.factory/context/STACK.md` | Update existing or create if absent |
+
+**PRD rule:** One canonical PRD per product/feature. Always check if a PRD already exists before writing. If it does: update the relevant sections (goals, journeys, non-goals) — do **not** create a new file.
 
 Use templates: `templates/PRD.md`, `templates/TECHSPEC.md`.
 
 ## Procedure
 
-1. Read `.factory/context/CONTEXT.md` and ADRs — terminology must match
-2. Read repo: `package.json`, structure, env example
-3. Ask **at most 1–2** blocking questions; otherwise document assumptions in TECHSPEC
-4. Write PRD — tight v1 scope; define **User journeys** (J001, J002…) with problem, goal, steps; extras → non-goals or open questions
-5. Write TECHSPEC — include `pnpm typecheck`, `lint`, `test` commands; note BDD runner if any
-6. Add or update **ADR-001** for the primary architectural choice — include **Scope**, **Enforcement**, **How to fix** (see `templates/ADR.md`)
+1. **Check existing PRDs first:**
+   - `ls .factory/context/` — is there a root `PRD.md`?
+   - `ls .factory/context/features/` — is there an existing feature PRD?
+   - If yes: load it and update; do not create a duplicate
+2. Read `.factory/context/CONTEXT.md` and ADRs — terminology must match
+3. Read repo: `package.json`, structure, env example
+4. Ask **at most 1–2** blocking questions; otherwise document assumptions in TECHSPEC
+5. Write/update PRD — tight v1 scope; define **User journeys** (J001, J002…) with problem, goal, steps; extras → non-goals or open questions
+6. Write/update TECHSPEC — include `pnpm typecheck`, `lint`, `test` commands; note BDD runner if any
+7. Add or update **ADR** for the primary architectural choice — include **Scope**, **Enforcement**, **How to fix**
 
 ## Quality bar
 

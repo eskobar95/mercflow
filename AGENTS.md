@@ -168,3 +168,41 @@ Use Task subagents only when the work fits the categories below. Routine coordin
 | MercFlow module migrations | `migrator` | When a task involves generating or running MercFlow migrations per project rules. |
 
 **Do not** spawn subagents for: drafting routine prompts, trivial log review, or merges that complete without conflicts.
+
+## ultimate-pi: Agentic Harness
+
+**Added:** 2026-06-26
+
+### Graphify-First Workflow
+
+1. Run `graphify update .` to build/update the knowledge graph (AST, no API cost)
+2. Read `graphify-out/GRAPH_REPORT.md` for god nodes and surprising connections
+3. Query: `graphify query "question"`
+4. Harness contracts and governance records in `.pi/harness/specs/` and `.pi/harness/incidents/`
+
+### Structure
+
+- `graphify-out/` → Knowledge graph (24k+ nodes / 39k+ edges for this repo)
+- `./raw/` → Source documents for graphify ingestion
+- `.pi/harness/specs/` → Harness contracts and schema docs (45 files seeded)
+- `.pi/harness/incidents/` → Incident and override records
+- `.pi/harness/runs/` → Harness run entries (`README.md` committed)
+- `.pi/harness/debates/` → Plan-phase debate artifacts (`README.md` committed)
+- `.agents/skills/` (npm package) → Harness skills
+- `.pi/agents/` → Optional per-repo agent overrides
+
+### Conventions
+
+- Graph before grep — always consult the knowledge graph first
+- `./raw/` is source storage for graphify
+- Decisions and incidents in `.pi/harness/` with structured artifacts
+- `GRAPHIFY_VIZ_NODE_LIMIT=200000 graphify update .` after significant code changes
+- ast-grep (`sg`) is the default code search tool — use `sg -p 'pattern'` for structural search, never grep for code
+- Use shell `sg` for structural search; project-specific ast-grep rule dirs are optional in the **target repo**, not a harness template default
+
+### Defaults
+
+- **Web search engine:** `HARNESS_WEB_SEARCH_ENGINE=ddg_html` (DuckDuckGo HTML)
+- **ask_user UI:** `auto` (TUI fallback on headless)
+- **Telemetry:** placeholder in `.env` (user fills `HARNESS_TELEMETRY_ENABLED`)
+- **Auto-commit:** `.pi/auto-commit.json` with `message.scopeDefault: mercflow`

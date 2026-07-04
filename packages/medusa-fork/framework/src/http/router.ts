@@ -433,6 +433,37 @@ export class ApiLoader {
     this.#app.use(namespace, middleware as RequestHandler)
   }
 
+  /**
+   * Returns true when a middleware matcher applies to the given HTTP namespace
+   * prefix (e.g. "/admin" matches "/admin*").
+   */
+  #matcherTargetsNamespace(matcher: string, namespace: string): boolean {
+    return (
+      matcher === namespace ||
+      matcher.startsWith(`${namespace}/`) ||
+      matcher.startsWith(namespace)
+    )
+  }
+
+  /**
+   * Registers middleware flagged with `beforeAuth` for a namespace. These run
+   * before Medusa's built-in authenticate() middleware on that prefix.
+   */
+  #applyPreAuthMiddleware(
+    middlewares: MiddlewareDescriptor[],
+    namespace: string
+  ): void {
+    const preAuthMiddlewares = middlewares.filter(
+      (middleware) =>
+        middleware.beforeAuth === true &&
+        this.#matcherTargetsNamespace(middleware.matcher, namespace)
+    )
+
+    for (const middleware of preAuthMiddlewares) {
+      this.#registerExpressHandler(middleware)
+    }
+  }
+
   async load() {
     if (FeatureFlag.isFeatureEnabled("backend_hmr")) {
       ;(global as any).__MEDUSA_HMR_API_LOADER__ = this
@@ -492,6 +523,7 @@ export class ApiLoader {
       "shouldAppendAdminCors",
       this.#createCorsOptions(configManager.config.projectConfig.http.adminCors)
     )
+    this.#applyPreAuthMiddleware(middlewares, "/admin")
     this.#applyAuthMiddleware(routesFinder, "/admin", "user", [
       "bearer",
       "session",
@@ -511,6 +543,7 @@ export class ApiLoader {
 
     this.#applyLocaleMiddleware("/store")
 
+    this.#applyPreAuthMiddleware(middlewares, "/store")
     this.#applyAuthMiddleware(
       routesFinder,
       "/store",
@@ -531,8 +564,12 @@ export class ApiLoader {
       this.#createCorsOptions(configManager.config.projectConfig.http.authCors)
     )
 
+    const deferredMiddlewares = middlewares.filter(
+      (middleware) => middleware.beforeAuth !== true
+    )
+
     const collectionToSort = ([] as (MiddlewareDescriptor | RouteDescriptor)[])
-      .concat(middlewares)
+      .concat(deferredMiddlewares)
       .concat(routes)
 
     const sortedRoutes = new RoutesSorter(collectionToSort).sort()

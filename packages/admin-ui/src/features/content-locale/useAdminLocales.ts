@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 
+import { useAdminAuthReady } from "@/components/auth/AdminAuthReadyContext"
+
 import { listAdminLocales } from "./adminLocalesApi"
 import type { AdminLocale } from "./types"
 
@@ -21,6 +23,7 @@ type UseAdminLocalesResult = {
  * Loads available admin locales from `GET /admin/locales` once on mount.
  */
 export function useAdminLocales(): UseAdminLocalesResult {
+  const isAdminAuthReady = useAdminAuthReady()
   const [locales, setLocales] = useState<AdminLocale[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
@@ -40,8 +43,11 @@ export function useAdminLocales(): UseAdminLocalesResult {
   }, [])
 
   useEffect(() => {
+    if (!isAdminAuthReady) {
+      return
+    }
     void reload()
-  }, [reload])
+  }, [isAdminAuthReady, reload])
 
   return { locales, loading, error, reload }
 }

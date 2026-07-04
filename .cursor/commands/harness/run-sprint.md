@@ -18,6 +18,9 @@ Execute sprint tasks via **lead harness** + **parallel Task subagents**. Updates
 
 Task pipeline per subagent: **implement → verify → review → close → fix-ci** (PR CI must pass)
 
+**Engine: pi tasks** — the lead dispatches via MCP bridge (`harness_auto` tool). Pi runs in the
+background (plan → execute → review). The lead monitors progress in the same session and runs `/ship T[id]` when Pi completes.
+
 ## Lead agent obligations
 
 The session running this command is the **lead**. It MUST:

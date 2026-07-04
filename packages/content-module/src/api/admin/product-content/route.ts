@@ -4,6 +4,7 @@ import { MedusaError } from "@medusajs/utils"
 
 import { sendZodError } from "../../http/zod-error"
 import { mapResolvedToReadPayload } from "../../http/product-content-read-payload"
+import { resolveProductStoreId } from "../../http/resolve-entity-store-id"
 import { CONTENT_MODULE } from "../../../modules/content"
 import {
   adminProductContentPostBodySchema,
@@ -43,7 +44,8 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse): Promise<voi
   }
 
   const contentService = req.scope.resolve(CONTENT_MODULE) as ContentModuleService
-  const resolved = await contentService.upsertProductContent(productId, locale, body)
+  const storeId = await resolveProductStoreId(req, productId)
+  const resolved = await contentService.upsertProductContent(productId, locale, body, storeId)
 
   const productStatusRaw = (product as { status?: string }).status
   const productStatus =

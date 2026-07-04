@@ -47,6 +47,7 @@ export async function getCategoryContentRead(
     method: "GET",
     headers: buildMedusaAdminJsonHeaders(),
     credentials: "include",
+    cache: "no-store",
   })
 
   if (response.status === 404) {
@@ -98,6 +99,7 @@ export async function saveCategoryContent(options: {
     method: options.cmsContentId !== null ? "PATCH" : "POST",
     headers: buildMedusaAdminJsonHeaders(),
     credentials: "include",
+    cache: "no-store",
     body: JSON.stringify(bodyJson),
   })
 

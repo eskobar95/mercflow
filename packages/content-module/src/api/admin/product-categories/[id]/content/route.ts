@@ -3,6 +3,7 @@ import { refetchEntity } from "@medusajs/framework/http"
 import { MedusaError } from "@medusajs/utils"
 
 import { sendZodError } from "../../../../http/zod-error"
+import { resolveCategoryStoreId } from "../../../../http/resolve-entity-store-id"
 import { CONTENT_MODULE } from "../../../../../modules/content"
 import type ContentModuleService from "../../../../../modules/content/service"
 import {
@@ -38,9 +39,11 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
   const contentService = req.scope.resolve(
     CONTENT_MODULE
   ) as ContentModuleService
+  const storeId = await resolveCategoryStoreId(req, categoryId)
   const content = await contentService.retrieveCategoryContentForLocale(
     categoryId,
-    locale
+    locale,
+    { storeId }
   )
   res.status(200).json({ content })
 }
@@ -78,10 +81,12 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse): Promise<voi
   const contentService = req.scope.resolve(
     CONTENT_MODULE
   ) as ContentModuleService
+  const storeId = await resolveCategoryStoreId(req, categoryId)
   const content = await contentService.upsertCategoryContent(
     categoryId,
     locale,
-    body.data
+    body.data,
+    storeId
   )
   res.status(200).json({ content })
 }

@@ -4,6 +4,7 @@ import { MedusaError } from "@medusajs/utils"
 
 import { sendZodError } from "../../../http/zod-error"
 import { mapResolvedToReadPayload } from "../../../http/product-content-read-payload"
+import { resolveProductStoreId } from "../../../http/resolve-entity-store-id"
 import { CONTENT_MODULE } from "../../../../modules/content"
 import {
   localeQuerySchema,
@@ -47,7 +48,8 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
   }
 
   const contentService = req.scope.resolve(CONTENT_MODULE) as ContentModuleService
-  const resolved = await contentService.findByProductId(productId, locale)
+  const storeId = await resolveProductStoreId(req, productId)
+  const resolved = await contentService.findByProductId(productId, locale, storeId)
   if (!resolved) {
     throw new MedusaError(MedusaError.Types.NOT_FOUND, "Product content not found")
   }
@@ -59,6 +61,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
       : "unknown"
 
   const payload = await mapResolvedToReadPayload(req.scope, resolved, productStatus)
+  res.setHeader("Cache-Control", "no-store")
   res.status(200).json(payload)
 }
 
@@ -84,10 +87,17 @@ export const PATCH = async (req: MedusaRequest, res: MedusaResponse): Promise<vo
     )
   }
 
+  const rowStoreId = (row as { store_id?: string }).store_id
+  const storeId =
+    typeof rowStoreId === "string" && rowStoreId.length > 0
+      ? rowStoreId
+      : await resolveProductStoreId(req, row.product_id)
+
   const resolved = await contentService.upsertProductContent(
     row.product_id,
     row.locale,
-    body.data
+    body.data,
+    storeId
   )
 
   const product = await refetchEntity({
@@ -107,5 +117,6 @@ export const PATCH = async (req: MedusaRequest, res: MedusaResponse): Promise<vo
       : "unknown"
 
   const payload = await mapResolvedToReadPayload(req.scope, resolved, productStatus)
+  res.setHeader("Cache-Control", "no-store")
   res.status(200).json(payload)
 }

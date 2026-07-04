@@ -228,7 +228,7 @@ class NotificationModuleService extends MedusaService({
       }
 
       const updated = unwrapCreated(
-        await this.updateMercflowEmailConfigs(payload, { id: current.id }, context)
+        await this.updateMercflowEmailConfigs({ id: current.id, ...payload }, context)
       )
       return toEmailConfigRecord(updated as Record<string, unknown>)
     })
@@ -262,7 +262,7 @@ class NotificationModuleService extends MedusaService({
       if (rows[0] !== undefined) {
         const current = toEmailConfigRecord(rows[0] as Record<string, unknown>)
         const updated = unwrapCreated(
-          await this.updateMercflowEmailConfigs(payload, { id: current.id }, context)
+          await this.updateMercflowEmailConfigs({ id: current.id, ...payload }, context)
         )
         return toEmailConfigRecord(updated as Record<string, unknown>)
       }
@@ -310,7 +310,7 @@ class NotificationModuleService extends MedusaService({
       }
 
       const result = unwrapCreated(
-        await this.updateMercflowEmailConfigs(payload, { id: config.id }, context)
+        await this.updateMercflowEmailConfigs({ id: config.id, ...payload }, context)
       )
       return toEmailConfigRecord(result as Record<string, unknown>)
     })
@@ -474,12 +474,13 @@ class NotificationModuleService extends MedusaService({
     await this.withTenant(storeId, async (context) => {
       await this.updateMercflowEmailDeliveries(
         {
+          id: deliveryId,
+          store_id: storeId,
           status: "sent",
           ses_message_id: sesMessageId,
           sent_at: new Date(),
           error_message: null,
         },
-        { id: deliveryId, store_id: storeId },
         context
       )
     })
@@ -493,10 +494,11 @@ class NotificationModuleService extends MedusaService({
     await this.withTenant(storeId, async (context) => {
       await this.updateMercflowEmailDeliveries(
         {
+          id: deliveryId,
+          store_id: storeId,
           status: "failed",
           error_message: errorMessage,
         },
-        { id: deliveryId, store_id: storeId },
         context
       )
     })
@@ -510,10 +512,11 @@ class NotificationModuleService extends MedusaService({
     await this.withTenant(storeId, async (context) => {
       await this.updateMercflowEmailDeliveries(
         {
+          id: deliveryId,
+          store_id: storeId,
           status: "dead_letter",
           error_message: errorMessage,
         },
-        { id: deliveryId, store_id: storeId },
         context
       )
     })

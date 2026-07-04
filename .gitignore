@@ -28,3 +28,26 @@ test-results/
 graphify-out/
 .kit-meta.json
 .sentrux/cache/
+# CocoIndex Code (ccc)
+/.cocoindex_code/
+.web/
+.searxng/
+.raw/
+.vault-meta/
+.pi/harness/active-run.json
+.pi/harness/release-readiness-report.md
+.pi/harness/plans/
+.pi/harness/critics/
+.pi/harness/runs/**
+!.pi/harness/runs/README.md
+.pi/harness/incidents/*
+!.pi/harness/incidents/README.md
+.pi/harness/debates/*
+!.pi/harness/debates/README.md
+.pi/harness/.lens/
+.pi/npm/node_modules/
+.sentrux/*
+!.sentrux/
+!.sentrux/rules.toml
+.ls-lint/*
+!.ls-lint/

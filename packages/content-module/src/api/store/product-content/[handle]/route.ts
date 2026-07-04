@@ -35,7 +35,15 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
 
   const contentService = req.scope.resolve(CONTENT_MODULE) as ContentModuleService
 
-  const resolved = await contentService.findByProductId(product.id, locale)
+  const storeId = product.store_id
+  if (typeof storeId !== "string" || storeId.length === 0) {
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      `Product "${handleRaw}" is missing store_id`
+    )
+  }
+
+  const resolved = await contentService.findByProductId(product.id, locale, storeId)
   if (!resolved) {
     throw new MedusaError(MedusaError.Types.NOT_FOUND, "Product content not found")
   }

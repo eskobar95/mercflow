@@ -23,6 +23,7 @@ export function defineMiddlewares<
     matcher: string | RegExp
     bodyParser?: ParserConfig
     additionalDataValidator?: ZodRawShape
+    beforeAuth?: boolean
     // eslint-disable-next-line space-before-function-paren
     middlewares?: (<Req extends MedusaRequest>(
       req: Req,

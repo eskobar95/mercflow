@@ -103,9 +103,10 @@ class ContentModuleService extends MedusaService({
    */
   async findByProductId(
     productId: string,
-    locale: string
+    locale: string,
+    storeId: string
   ): Promise<ResolvedProductContent | null> {
-    return this.retrieveProductContentForLocale(productId, locale)
+    return this.retrieveProductContentForLocale(productId, locale, { storeId })
   }
 
   /**
@@ -113,9 +114,10 @@ class ContentModuleService extends MedusaService({
    */
   async findByCategoryId(
     categoryId: string,
-    locale: string
+    locale: string,
+    storeId: string
   ): Promise<ResolvedCategoryContent | null> {
-    return this.retrieveCategoryContentForLocale(categoryId, locale)
+    return this.retrieveCategoryContentForLocale(categoryId, locale, { storeId })
   }
 
   async retrieveProductContentForLocale(
@@ -149,66 +151,80 @@ class ContentModuleService extends MedusaService({
   async upsertProductContent(
     productId: string,
     locale: string,
-    data: UpsertProductContentInput
+    data: UpsertProductContentInput,
+    storeId: string
   ): Promise<ResolvedProductContent> {
     this.assertSeoDescriptionLength(data.seo_description ?? null)
     this.assertSeoTitleLength(data.seo_title ?? null)
 
-    const rows = await this.listProductContents({
-      product_id: productId,
-      locale,
+    return this.withTenant(storeId, async (context) => {
+      const rows = await this.listProductContents(
+        {
+          product_id: productId,
+          locale,
+        },
+        {},
+        context
+      )
+      const existing = rows[0] as ProductContentRecord | undefined
+
+      const payload: Partial<ProductContentRecord> = {}
+
+      if (data.description_rich !== undefined) {
+        payload.body_json = this.normalizeBodyJson(data.description_rich)
+      }
+      if (data.seo_title !== undefined) {
+        payload.seo_title = data.seo_title
+      }
+      if (data.seo_description !== undefined) {
+        payload.seo_description = data.seo_description
+      }
+      if (data.seo_og_image_id !== undefined) {
+        payload.og_image_url = data.seo_og_image_id
+      }
+      if (data.canonical_url_override !== undefined) {
+        payload.canonical_url_override = data.canonical_url_override
+      }
+
+      let row: ProductContentRecord
+      if (!existing) {
+        const created = await this.createProductContents(
+          {
+            store_id: storeId,
+            product_id: productId,
+            locale,
+            body_json: payload.body_json ?? null,
+            seo_title: payload.seo_title ?? null,
+            seo_description: payload.seo_description ?? null,
+            og_image_url: payload.og_image_url ?? null,
+            canonical_url_override: payload.canonical_url_override ?? null,
+            version: 1,
+          },
+          context
+        )
+        row = Array.isArray(created)
+          ? (created[0] as ProductContentRecord)
+          : (created as ProductContentRecord)
+      } else {
+        const prevVersion =
+          typeof existing.version === "number" && !Number.isNaN(existing.version)
+            ? existing.version
+            : 0
+        const updated = await this.updateProductContents(
+          {
+            id: existing.id,
+            ...payload,
+            version: prevVersion + 1,
+          },
+          context
+        )
+        row = Array.isArray(updated)
+          ? (updated[0] as ProductContentRecord)
+          : (updated as ProductContentRecord)
+      }
+
+      return this.resolveProductRow(row)
     })
-    const existing = rows[0] as ProductContentRecord | undefined
-
-    const payload: Partial<ProductContentRecord> = {}
-
-    if (data.description_rich !== undefined) {
-      payload.body_json = this.normalizeBodyJson(data.description_rich)
-    }
-    if (data.seo_title !== undefined) {
-      payload.seo_title = data.seo_title
-    }
-    if (data.seo_description !== undefined) {
-      payload.seo_description = data.seo_description
-    }
-    if (data.seo_og_image_id !== undefined) {
-      payload.og_image_url = data.seo_og_image_id
-    }
-    if (data.canonical_url_override !== undefined) {
-      payload.canonical_url_override = data.canonical_url_override
-    }
-
-    let row: ProductContentRecord
-    if (!existing) {
-      const created = await this.createProductContents({
-        product_id: productId,
-        locale,
-        body_json: payload.body_json ?? null,
-        seo_title: payload.seo_title ?? null,
-        seo_description: payload.seo_description ?? null,
-        og_image_url: payload.og_image_url ?? null,
-        canonical_url_override: payload.canonical_url_override ?? null,
-        version: 1,
-      })
-      row = Array.isArray(created)
-        ? (created[0] as ProductContentRecord)
-        : (created as ProductContentRecord)
-    } else {
-      const prevVersion =
-        typeof existing.version === "number" && !Number.isNaN(existing.version)
-          ? existing.version
-          : 0
-      const updated = await this.updateProductContents({
-        id: existing.id,
-        ...payload,
-        version: prevVersion + 1,
-      })
-      row = Array.isArray(updated)
-        ? (updated[0] as ProductContentRecord)
-        : (updated as ProductContentRecord)
-    }
-
-    return this.resolveProductRow(row)
   }
 
   private resolveProductRow(row: ProductContentRecord): ResolvedProductContent {
@@ -228,80 +244,107 @@ class ContentModuleService extends MedusaService({
 
   async retrieveCategoryContentForLocale(
     categoryId: string,
-    locale: string
+    locale: string,
+    options?: { storeId?: string }
   ): Promise<ResolvedCategoryContent | null> {
-    const rows = await this.listCategoryContents({
-      category_id: categoryId,
-      locale,
-    })
-    const row = rows[0]
-    if (!row) {
-      return null
+    const query = async (context: Context = {}): Promise<ResolvedCategoryContent | null> => {
+      const rows = await this.listCategoryContents(
+        {
+          category_id: categoryId,
+          locale,
+        },
+        {},
+        context
+      )
+      const row = rows[0]
+      if (!row) {
+        return null
+      }
+      return this.resolveCategoryRow(row as CategoryContentRecord)
     }
-    return this.resolveCategoryRow(row as CategoryContentRecord)
+
+    if (options?.storeId) {
+      return this.withTenant(options.storeId, query)
+    }
+
+    return query()
   }
 
   async upsertCategoryContent(
     categoryId: string,
     locale: string,
-    data: UpsertCategoryContentInput
+    data: UpsertCategoryContentInput,
+    storeId: string
   ): Promise<ResolvedCategoryContent> {
     this.assertSeoDescriptionLength(data.seo_description ?? null)
     this.assertSeoTitleLength(data.seo_title ?? null)
 
-    const rows = await this.listCategoryContents({
-      category_id: categoryId,
-      locale,
+    return this.withTenant(storeId, async (context) => {
+      const rows = await this.listCategoryContents(
+        {
+          category_id: categoryId,
+          locale,
+        },
+        {},
+        context
+      )
+      const existing = rows[0] as CategoryContentRecord | undefined
+
+      const payload: Partial<CategoryContentRecord> = {}
+
+      if (data.description_rich !== undefined) {
+        payload.body_json = this.normalizeBodyJson(data.description_rich)
+      }
+      if (data.seo_title !== undefined) {
+        payload.seo_title = data.seo_title
+      }
+      if (data.seo_description !== undefined) {
+        payload.seo_description = data.seo_description
+      }
+      if (data.seo_og_image_id !== undefined) {
+        payload.og_image_url = data.seo_og_image_id
+      }
+      if (data.banner_image_id !== undefined) {
+        payload.banner_image_url = data.banner_image_id
+      }
+      if (data.canonical_url_override !== undefined) {
+        payload.canonical_url_override = data.canonical_url_override
+      }
+
+      let row: CategoryContentRecord
+      if (!existing) {
+        const created = await this.createCategoryContents(
+          {
+            store_id: storeId,
+            category_id: categoryId,
+            locale,
+            body_json: payload.body_json ?? null,
+            seo_title: payload.seo_title ?? null,
+            seo_description: payload.seo_description ?? null,
+            og_image_url: payload.og_image_url ?? null,
+            banner_image_url: payload.banner_image_url ?? null,
+            canonical_url_override: payload.canonical_url_override ?? null,
+          },
+          context
+        )
+        row = Array.isArray(created)
+          ? (created[0] as CategoryContentRecord)
+          : (created as CategoryContentRecord)
+      } else {
+        const updated = await this.updateCategoryContents(
+          {
+            id: existing.id,
+            ...payload,
+          },
+          context
+        )
+        row = Array.isArray(updated)
+          ? (updated[0] as CategoryContentRecord)
+          : (updated as CategoryContentRecord)
+      }
+
+      return this.resolveCategoryRow(row)
     })
-    const existing = rows[0] as CategoryContentRecord | undefined
-
-    const payload: Partial<CategoryContentRecord> = {}
-
-    if (data.description_rich !== undefined) {
-      payload.body_json = this.normalizeBodyJson(data.description_rich)
-    }
-    if (data.seo_title !== undefined) {
-      payload.seo_title = data.seo_title
-    }
-    if (data.seo_description !== undefined) {
-      payload.seo_description = data.seo_description
-    }
-    if (data.seo_og_image_id !== undefined) {
-      payload.og_image_url = data.seo_og_image_id
-    }
-    if (data.banner_image_id !== undefined) {
-      payload.banner_image_url = data.banner_image_id
-    }
-    if (data.canonical_url_override !== undefined) {
-      payload.canonical_url_override = data.canonical_url_override
-    }
-
-    let row: CategoryContentRecord
-    if (!existing) {
-      const created = await this.createCategoryContents({
-        category_id: categoryId,
-        locale,
-        body_json: payload.body_json ?? null,
-        seo_title: payload.seo_title ?? null,
-        seo_description: payload.seo_description ?? null,
-        og_image_url: payload.og_image_url ?? null,
-        banner_image_url: payload.banner_image_url ?? null,
-        canonical_url_override: payload.canonical_url_override ?? null,
-      })
-      row = Array.isArray(created)
-        ? (created[0] as CategoryContentRecord)
-        : (created as CategoryContentRecord)
-    } else {
-      const updated = await this.updateCategoryContents({
-        id: existing.id,
-        ...payload,
-      })
-      row = Array.isArray(updated)
-        ? (updated[0] as CategoryContentRecord)
-        : (updated as CategoryContentRecord)
-    }
-
-    return this.resolveCategoryRow(row)
   }
 
   private resolveCategoryRow(row: CategoryContentRecord): ResolvedCategoryContent {

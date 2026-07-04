@@ -2,7 +2,6 @@ import type { ReactNode } from "react"
 
 type ProductContentTabStatusViewsProps = {
   localesLoading: boolean
-  localesError: string | null
   loading: boolean
   bannerError: string | null
   contentIsNull: boolean
@@ -11,7 +10,6 @@ type ProductContentTabStatusViewsProps = {
 
 export function renderProductContentTabStatus({
   localesLoading,
-  localesError,
   loading,
   bannerError,
   contentIsNull,
@@ -21,18 +19,6 @@ export function renderProductContentTabStatus({
     return (
       <div className="space-y-4" aria-busy="true">
         <p className="text-sm text-content-secondary">Loading store locales…</p>
-      </div>
-    )
-  }
-
-  if (localesError !== null) {
-    return (
-      <div
-        role="alert"
-        className="rounded-md border border-border-strong bg-surface-subtle px-3 py-2 text-sm text-content-danger"
-      >
-        Could not load locales from Medusa ({localesError}). Fix your session or connection, then
-        refresh.
       </div>
     )
   }

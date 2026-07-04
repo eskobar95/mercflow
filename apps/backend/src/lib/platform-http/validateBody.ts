@@ -3,7 +3,12 @@ import { MedusaError } from "@medusajs/utils"
 import { z, type ZodSchema } from "zod"
 
 function formatZodIssues(error: z.ZodError): string {
-  return error.issues.map((issue) => issue.message).join(", ")
+  return error.issues
+    .map((issue) => {
+      const path = issue.path.length > 0 ? issue.path.join(".") : "body"
+      return `${path}: ${issue.message}`
+    })
+    .join(", ")
 }
 
 export function validateBody<T>(schema: ZodSchema<T>, req: MedusaRequest): T {

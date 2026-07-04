@@ -1,12 +1,13 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 
+import { verifySignupCheckoutSession } from "../../../lib/platform-billing/verify-signup-checkout-session"
 import { verifySignupPaymentIntent } from "../../../lib/platform-billing/verify-signup-payment"
 import { isStripePlatformConfigured } from "../../../lib/platform-billing/stripe-platform-client"
-import { validatePlatformInviteToken } from "../../../lib/platform-db/platform-invites"
 import { requirePlatformDatabase } from "../../../lib/platform-http/require-platform-operator"
 import { validateBody } from "../../../lib/platform-http/validateBody"
 import { enqueueProvisionTenantJob } from "../../../lib/platform-provisioning/enqueue-provision-tenant"
 import { signupProvisionBodySchema } from "../../../lib/platform-provisioning/validators"
+import { validateSignupInviteForRequest } from "../../../lib/platform-signup/validate-signup-invite"
 
 export async function POST(
   req: MedusaRequest,
@@ -26,19 +27,19 @@ export async function POST(
 
   const body = validateBody(signupProvisionBodySchema, req)
 
-  const invite = await validatePlatformInviteToken(body.invite_token)
-  if (!invite.valid) {
-    res.status(403).json({ message: "Invalid or expired invite token" })
-    return
-  }
-
-  if (invite.email && invite.email.toLowerCase() !== body.email.toLowerCase()) {
-    res.status(400).json({ message: "Email must match the invited address" })
+  const inviteValidation = await validateSignupInviteForRequest({
+    inviteToken: body.invite_token,
+    email: body.email,
+  })
+  if (!inviteValidation.ok) {
+    res.status(inviteValidation.status).json({ message: inviteValidation.message })
     return
   }
 
   try {
-    const verified = await verifySignupPaymentIntent(body.stripe_payment_intent_id)
+    const verified = body.stripe_checkout_session_id
+      ? await verifySignupCheckoutSession(body.stripe_checkout_session_id)
+      : await verifySignupPaymentIntent(body.stripe_payment_intent_id as string)
 
     if (
       body.stripe_customer_id &&

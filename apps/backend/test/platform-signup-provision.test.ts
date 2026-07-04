@@ -9,6 +9,13 @@ describe("signup billing setup validators", () => {
       invite_token: "token-123",
       email: "hello@example.com",
       store_name: "Kaffehuset",
+      clerk_user_id: "user_abc",
+      domain: "kaffehuset.mercflow.shop",
+      currency: "dkk",
+      country: "dk",
+      timezone: "Europe/Copenhagen",
+      success_url: "http://localhost:5174/signup/billing/return?session_id={CHECKOUT_SESSION_ID}",
+      cancel_url: "http://localhost:5174/signup?step=5",
     })
 
     expect(parsed.price_id).toBe("price_123")
@@ -38,7 +45,23 @@ describe("signup billing setup validators", () => {
 })
 
 describe("signup provision validators", () => {
-  it("accepts valid signup provision payload", () => {
+  it("accepts valid signup provision payload with checkout session", () => {
+    const parsed = signupProvisionBodySchema.parse({
+      invite_token: "token-123",
+      clerk_user_id: "user_abc",
+      store_name: "Kaffehuset",
+      domain: "kaffehuset.mercflow.shop",
+      email: "hello@example.com",
+      currency: "dkk",
+      country: "dk",
+      timezone: "Europe/Copenhagen",
+      stripe_checkout_session_id: "cs_test_123",
+    })
+
+    expect(parsed.store_name).toBe("Kaffehuset")
+  })
+
+  it("accepts valid signup provision payload with payment intent", () => {
     const parsed = signupProvisionBodySchema.parse({
       invite_token: "token-123",
       clerk_user_id: "user_abc",

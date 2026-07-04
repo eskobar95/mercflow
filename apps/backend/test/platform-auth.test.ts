@@ -11,7 +11,7 @@ vi.mock("@clerk/backend", () => ({
 
 import { verifyToken } from "@clerk/backend"
 
-import { clerkPlatformAuthMiddleware } from "../src/lib/platform-auth/clerk-platform-auth-middleware"
+import { clerkPlatformAuthMiddleware, isPublicPlatformSignupRoute } from "../src/lib/platform-auth/clerk-platform-auth-middleware"
 
 describe("platform auth helpers", () => {
   it("extracts email from Clerk payload", () => {
@@ -118,5 +118,40 @@ describe("clerkPlatformAuthMiddleware", () => {
     expect(next).toHaveBeenCalled()
     expect(verifyToken).not.toHaveBeenCalled()
     expect(status).not.toHaveBeenCalled()
+  })
+
+  it("skips auth for billing plans when req.path is mount-relative", async () => {
+    const json = vi.fn()
+    const status = vi.fn(() => ({ json }))
+    const req = {
+      headers: {},
+      path: "/billing/plans",
+      baseUrl: "/platform",
+      originalUrl: "/platform/billing/plans?currency=dkk",
+      method: "GET",
+    }
+    const next = vi.fn()
+
+    await clerkPlatformAuthMiddleware(
+      req as never,
+      { status } as never,
+      next as never,
+    )
+
+    expect(next).toHaveBeenCalled()
+    expect(verifyToken).not.toHaveBeenCalled()
+    expect(status).not.toHaveBeenCalled()
+  })
+})
+
+describe("isPublicPlatformSignupRoute", () => {
+  it("matches billing plans via originalUrl", () => {
+    expect(
+      isPublicPlatformSignupRoute({
+        path: "/billing/plans",
+        originalUrl: "/platform/billing/plans?currency=dkk",
+        method: "GET",
+      } as never),
+    ).toBe(true)
   })
 })

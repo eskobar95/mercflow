@@ -15,7 +15,7 @@ execution:
 
 # ── Pi (optional) ─────────────────────────────────────────────────────────────
 pi:
-  enabled: false                # set true after running scripts/bootstrap-pi.sh
+  enabled: true                 # .pi/ harness bootstrapped + deps installed
   harness: ultimate-pi          # harness package name
   handoff_dir: .factory/handoff # TaskBrief YAML files written here
   review_in_cursor: true        # load executor-summary.yaml back into Cursor after Pi run

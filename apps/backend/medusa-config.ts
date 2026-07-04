@@ -10,6 +10,9 @@ export default defineConfig({
   admin: {
     disable: true,
   },
+  featureFlags: {
+    translation: true,
+  },
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     redisUrl: process.env.REDIS_URL,
@@ -76,6 +79,10 @@ export default defineConfig({
     },
     {
       resolve: "./src/modules/platform",
+    },
+    /** Re-register without `disable` — default sharedModules snapshot runs before feature flags load. */
+    {
+      resolve: "@medusajs/medusa/translation",
     },
   ],
 })

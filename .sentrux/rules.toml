@@ -1,54 +1,89 @@
-# Sentrux architectural rules — MercFlow
-# Run: ~/bin/sentrux check .
+# Sentrux rules — 2026-06-26
+# Docs: https://sentrux.dev/docs/rules-engine/
+# Sync: node $UP_PKG/.pi/scripts/sentrux-rules-sync.mjs --force (see .pi/scripts/README.md for UP_PKG) or /harness-sentrux-sync in pi
 #
-# Layer ordering: LOWER index = top of stack (imports foundation below it).
-# HIGHER index = foundation (cannot import layers above).
+# Custom rules: add TOML below the managed block; they are preserved on sync.
 
-[project]
-name = "mercflow"
+# --- harness:managed:start ---
+# Generated from .pi/harness/sentrux/architecture.manifest.json
+# Project: ultimate-pi
+# Schema: 1.0.0
 
-# ── Layer definitions ─────────────────────────────────────────────────────────
-
-[[layers]]
-name = "admin-ui"
-paths = [
-  "packages/admin-ui/src/pages",
-  "packages/admin-ui/src/components",
-  "packages/admin-ui/src/hooks",
-  "packages/admin-ui/src/features",
-  "packages/admin-ui/src/lib",
-]
+[constraints]
+max_cycles = 0
+max_coupling = "B"
+max_cc = 25
+no_god_files = true
 
 [[layers]]
-name = "backend-api"
-paths = ["apps/backend/src/api"]
+name = "knowledge"
+paths = ["graphify-out/*", "raw/*"]
+order = 0
+# Graphify graph, wiki, and raw ingestion sources
 
 [[layers]]
-name = "backend-lib"
-paths = ["apps/backend/src/lib"]
+name = "contracts"
+paths = [".pi/harness/specs/*", ".pi/harness/docs/*", ".pi/harness/policies/*", ".pi/harness/agents.policy.yaml", ".pi/harness/examples/*"]
+order = 1
+# Harness schemas, ADRs, AGT policies, and agents.policy SSOT
 
 [[layers]]
-name = "content-module"
-paths = ["packages/content-module/src/modules"]
+name = "runtime"
+paths = [".pi/extensions/*"]
+order = 2
+# Pi extensions (policy-gate, telemetry, drift, etc.)
 
 [[layers]]
-name = "design-tokens"
-paths = ["packages/design-tokens/src"]
+name = "agents"
+paths = [".pi/agents/*", ".pi/harness/agents.manifest.json", ".pi/prompts/*", ".agents/skills/*"]
+order = 3
+# Agent definitions, prompts, and skills
 
-# ── Cross-package boundary rules ──────────────────────────────────────────────
+[[layers]]
+name = "tooling"
+paths = [".pi/scripts/*"]
+order = 4
+# Harness CLI scripts
 
-[[rules]]
-name = "no-backend-in-admin-ui"
-description = "Admin UI must never import directly from backend source"
-deny = [
-  { from = "admin-ui", to = "backend-lib" },
-  { from = "admin-ui", to = "backend-api" },
-]
+[[layers]]
+name = "foundation"
+paths = [".pi/lib/*"]
+order = 5
+# Shared harness/AGT libraries (imported by extensions and scripts)
 
-[[rules]]
-name = "no-admin-ui-in-backend"
-description = "Backend must never import from admin-ui packages"
-deny = [
-  { from = "backend-api", to = "admin-ui" },
-  { from = "backend-lib", to = "admin-ui" },
-]
+[[boundaries]]
+from = ".agents/skills/*"
+to = ".pi/extensions/*"
+reason = "Skills are NL-first; pi loads extensions — skills must not depend on extension modules"
+
+[[boundaries]]
+from = ".pi/prompts/*"
+to = ".pi/extensions/*"
+reason = "Prompts configure agents; they must not import extension implementation code"
+
+[[boundaries]]
+from = "graphify-out/*"
+to = ".pi/extensions/*"
+reason = "Knowledge graph output must not depend on harness runtime extensions"
+
+[[boundaries]]
+from = ".pi/harness/specs/*"
+to = ".pi/extensions/*"
+reason = "Contracts are data-only JSON schemas; extensions implement behavior"
+
+[[boundaries]]
+from = ".pi/lib/*"
+to = ".pi/extensions/*"
+reason = "Foundation lib must not import extension modules"
+
+[[boundaries]]
+from = ".pi/harness/policies/*"
+to = ".pi/extensions/*"
+reason = "Declarative AGT YAML must not depend on extension implementation"
+
+[[boundaries]]
+from = ".pi/scripts/*"
+to = ".agents/skills/*"
+reason = "CLI scripts stay independent of skill markdown"
+
+# --- harness:managed:end ---

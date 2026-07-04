@@ -20,7 +20,7 @@ describe("upsertCategoryContent validation", (): void => {
     const longTitle = "x".repeat(256)
 
     await expect(async (): Promise<void> => {
-      await svc.upsertCategoryContent("pcat_z", "da", { seo_title: longTitle })
+      await svc.upsertCategoryContent("pcat_z", "da", { seo_title: longTitle }, "store_test")
     }).rejects.toThrow(MedusaError)
   })
 })
@@ -41,6 +41,11 @@ describe("upsertCategoryContent persistence", (): void => {
     }
 
     const svc = Object.create(ContentModuleService.prototype) as StubService
+    const withTenant = vi.fn(
+      async <T>(_storeId: string, fn: (context: Record<string, never>) => Promise<T>): Promise<T> =>
+        fn({})
+    )
+    Object.assign(svc, { withTenant })
     svc.listCategoryContents = vi.fn(async (): Promise<unknown[]> => [])
     svc.createCategoryContents = vi.fn(
       async (data: Record<string, unknown>): Promise<unknown[]> => [
@@ -58,10 +63,15 @@ describe("upsertCategoryContent persistence", (): void => {
       ]
     )
 
-    const result = await svc.upsertCategoryContent("pcat_z", "da", {
-      description_rich: { type: "doc", content: [] },
-      seo_title: "Hi",
-    })
+    const result = await svc.upsertCategoryContent(
+      "pcat_z",
+      "da",
+      {
+        description_rich: { type: "doc", content: [] },
+        seo_title: "Hi",
+      },
+      "store_test"
+    )
 
     expect(svc.createCategoryContents).toHaveBeenCalled()
     expect(result).toMatchObject({

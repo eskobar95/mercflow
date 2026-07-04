@@ -45,6 +45,7 @@ export async function getProductContent(
     method: "GET",
     headers: buildMedusaAdminJsonHeaders(),
     credentials: "include",
+    cache: "no-store",
   })
 
   if (response.status === 404) {
@@ -61,6 +62,34 @@ export async function getProductContent(
     throw new TypeError("Invalid API response: unexpected MercFlow CMS payload shape")
   }
   return parsed
+}
+
+/**
+ * Loads CMS content for `preferredLocale`, then scans other store locales when the
+ * preferred code has no row yet (common when content was saved under `en-US` but
+ * the locale list defaults to `da-DK`).
+ */
+export async function getProductContentWithLocaleFallback(
+  productId: string,
+  preferredLocale: string,
+  otherLocales: readonly string[]
+): Promise<{ content: ProductContentReadPayload | null; locale: string }> {
+  const primary = await getProductContent(productId, preferredLocale)
+  if (primary !== null) {
+    return { content: primary, locale: preferredLocale }
+  }
+
+  for (const code of otherLocales) {
+    if (code === preferredLocale) {
+      continue
+    }
+    const fallback = await getProductContent(productId, code)
+    if (fallback !== null) {
+      return { content: fallback, locale: code }
+    }
+  }
+
+  return { content: null, locale: preferredLocale }
 }
 
 /**
@@ -94,6 +123,7 @@ export async function saveProductContent(options: {
     method: options.cmsContentId !== null ? "PATCH" : "POST",
     headers: buildMedusaAdminJsonHeaders(),
     credentials: "include",
+    cache: "no-store",
     body: JSON.stringify(bodyJson),
   })
 

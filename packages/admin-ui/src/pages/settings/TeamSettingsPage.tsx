@@ -9,6 +9,7 @@ import { settingsTeamBreadcrumbs } from "@/config/settingsBreadcrumbs"
 import { TeamChangeRoleDialog } from "./TeamChangeRoleDialog"
 import { TeamInviteForm } from "./TeamInviteForm"
 import { TeamMembersTable } from "./TeamMembersTable"
+import { TeamPendingInvitationsTable } from "./TeamPendingInvitationsTable"
 import { TeamRevokeMemberDialog } from "./TeamRevokeMemberDialog"
 import { useTeamSettingsPage } from "./useTeamSettingsPage"
 
@@ -23,6 +24,7 @@ export function TeamSettingsPage(): ReactNode {
     handleInvite,
     handleConfirmRevoke,
     handleConfirmRoleChange,
+    handleRevokeInvitation,
   } = useTeamSettingsPage()
 
   if (!hasBackend) {
@@ -91,6 +93,13 @@ export function TeamSettingsPage(): ReactNode {
           dispatch={dispatch}
           onSubmit={() => {
             void handleInvite()
+          }}
+        />
+
+        <TeamPendingInvitationsTable
+          invitations={state.invitations}
+          onRevoke={(invitation) => {
+            void handleRevokeInvitation(invitation)
           }}
         />
 

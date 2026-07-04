@@ -15,9 +15,15 @@ vi.mock("@medusajs/framework/http", async (orig) => {
     refetchEntity: vi.fn(async () => ({
       id: "prod_z",
       status: "published",
+      store_id: "store_test",
     })),
   }
 })
+
+vi.mock("../../src/api/http/resolve-entity-store-id", () => ({
+  resolveProductStoreId: vi.fn(async () => "store_test"),
+  resolveCategoryStoreId: vi.fn(async () => "store_test"),
+}))
 
 describe("POST /admin/product-content", () => {
   beforeEach(async () => {
@@ -84,7 +90,8 @@ describe("POST /admin/product-content", () => {
         seo_title: "Meta",
         seo_description: "Hi",
         seo_og_image_id: "https://example.com/og.png",
-      })
+      }),
+      "store_test"
     )
     expect(res.status).toHaveBeenCalledWith(200)
     expect(resJson.mock.calls[0]?.[0]).toMatchObject({
@@ -107,6 +114,7 @@ describe("PATCH /admin/product-content/:id (cms row id)", () => {
         id: "pc_row",
         product_id: "prod_z",
         locale: "da",
+        store_id: "store_test",
         version: 2,
         body_json: null,
         seo_title: null,
@@ -132,6 +140,7 @@ describe("PATCH /admin/product-content/:id (cms row id)", () => {
 
     const resJson = vi.fn()
     const res = {
+      setHeader: vi.fn(),
       status: vi.fn(() => ({ json: resJson })),
     } as unknown as MedusaResponse
 
@@ -166,7 +175,7 @@ describe("PATCH /admin/product-content/:id (cms row id)", () => {
     expect(upsertProductContent).toHaveBeenCalledWith("prod_z", "da", {
       description_rich: { type: "doc", content: [{ type: "paragraph" }] },
       seo_title: "Next",
-    })
+    }, "store_test")
     expect(res.status).toHaveBeenCalledWith(200)
     expect(resJson.mock.calls[0]?.[0]).toMatchObject({
       version: 3,

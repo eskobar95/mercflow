@@ -7,6 +7,8 @@ import { IconPlus } from "@/components/ui/icons"
 import { Input } from "@/components/ui/Input"
 import {
   hasDefinedProductOptions,
+  normalizeOptionValuesInput,
+  readOptionValuesInput,
   splitOptionValuesCsv,
   type ProductOptionRowModel,
 } from "@/lib/products/productOptionMatrix"
@@ -28,7 +30,7 @@ export function UnifiedProductVariantMatrixSection({
   removeOptionRow,
 }: UnifiedProductVariantMatrixSectionProps): ReactNode {
   const hasDefinedOptions = hasDefinedProductOptions(optionRows)
-  const [isBuilderExpanded, setIsBuilderExpanded] = useState(hasDefinedOptions)
+  const [isBuilderExpanded, setIsBuilderExpanded] = useState(() => hasDefinedOptions)
 
   useAdjustStateWhenSnapshotChanges([hasDefinedOptions], () => {
     if (hasDefinedOptions) {
@@ -109,12 +111,17 @@ export function UnifiedProductVariantMatrixSection({
                   <Input
                     id={`${baseId}-opt-values-${rowIndex}`}
                     type="text"
-                    value={row.values.join(", ")}
+                    value={readOptionValuesInput(row)}
                     autoComplete="off"
                     onChange={(event) => {
+                      const raw = event.target.value
                       updateOptionRow(rowIndex, {
-                        values: splitOptionValuesCsv(event.target.value),
+                        valuesInput: raw,
+                        values: splitOptionValuesCsv(raw),
                       })
+                    }}
+                    onBlur={() => {
+                      updateOptionRow(rowIndex, normalizeOptionValuesInput(readOptionValuesInput(row)))
                     }}
                   />
                 </FormField>

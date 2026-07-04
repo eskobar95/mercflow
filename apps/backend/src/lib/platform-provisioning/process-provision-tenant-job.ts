@@ -18,6 +18,11 @@ import {
 } from "./job-state"
 import { sendPlatformWelcomeEmail } from "./send-platform-welcome-email"
 import type { ProvisionTenantJobPayload, ProvisioningStepKey } from "./constants"
+import { loadProvisionTenantRuntimeEnv } from "./load-provision-tenant-env"
+import { createStoreViaMedusaExec } from "./tenant-scripts/create-store"
+import * as medusaAdmin from "./tenant-scripts/medusa-admin-client"
+import { resolvePlatformAdminUrl } from "./tenant-scripts/platform-url"
+import { writeTenantTraefikRoute } from "./tenant-scripts/traefik-routes"
 import { writeProvisionAuditLog } from "./write-provision-audit-log"
 
 type MedusaAdminClient = {
@@ -29,21 +34,8 @@ function getRepoRoot(): string {
   return path.resolve(process.cwd(), "../..")
 }
 
-async function loadProvisionEnv(repoRoot: string): Promise<{
-  backendUrl: string
-  adminApiToken: string
-  traefikDynamicDir: string
-  databaseUrl: string | null
-}> {
-  const envModule = await import(
-    path.join(repoRoot, "scripts/provision-tenant/env.js")
-  )
-  return envModule.loadProvisionTenantEnv(repoRoot) as {
-    backendUrl: string
-    adminApiToken: string
-    traefikDynamicDir: string
-    databaseUrl: string | null
-  }
+async function loadProvisionEnv(repoRoot: string): Promise<ReturnType<typeof loadProvisionTenantRuntimeEnv>> {
+  return loadProvisionTenantRuntimeEnv(repoRoot)
 }
 
 async function runStep(
@@ -96,21 +88,15 @@ export async function processProvisionTenantJob(
 
   try {
     await runStep(jobId, "medusa_store", "Creating Medusa store", async () => {
-      const createStoreModule = await import(
-        path.join(repoRoot, "scripts/provision-tenant/create-store.js")
-      )
       if (env.databaseUrl === null) {
         throw new Error("DATABASE_URL is required for tenant provisioning")
       }
 
-      const { storeId: createdStoreId } = createStoreModule.createStoreViaMedusaExec(
-        repoRoot,
-        {
-          name: payload.storeName,
-          currency: payload.currency,
-          databaseUrl: env.databaseUrl,
-        },
-      ) as { storeId: string }
+      const { storeId: createdStoreId } = createStoreViaMedusaExec(repoRoot, {
+        name: payload.storeName,
+        currency: payload.currency,
+        databaseUrl: env.databaseUrl,
+      })
 
       storeId = createdStoreId
       await setProvisioningStoreId(jobId, createdStoreId)
@@ -124,10 +110,6 @@ export async function processProvisionTenantJob(
     if (!storeId) {
       throw new Error("Medusa store was not created")
     }
-
-    const medusaAdmin = await import(
-      path.join(repoRoot, "scripts/provision-tenant/medusa-admin-client.js")
-    )
 
     await runStep(jobId, "sales_channel", "Creating sales channel", async () => {
       const salesChannel = await medusaAdmin.createSalesChannel(
@@ -209,14 +191,7 @@ export async function processProvisionTenantJob(
     })
 
     await runStep(jobId, "domain_routing", "Writing Traefik tenant route", async () => {
-      const traefikModule = await import(
-        path.join(repoRoot, "scripts/provision-tenant/traefik-routes.js")
-      )
-      traefikModule.writeTenantTraefikRoute(
-        env.traefikDynamicDir,
-        payload.domain,
-        env.backendUrl,
-      )
+      writeTenantTraefikRoute(env.traefikDynamicDir, payload.domain, env.backendUrl)
       await writeProvisionAuditLog({
         action: "provision_step_domain_routing",
         entity_id: storeId as string,
@@ -256,10 +231,10 @@ export async function processProvisionTenantJob(
       tenantId: storeId as string,
     })
 
-    const platformUrlModule = await import(
-      path.join(repoRoot, "scripts/provision-tenant/platform-url.js")
-    )
-    adminUrl = platformUrlModule.resolvePlatformAdminUrl(env.backendUrl) as string
+    adminUrl = resolvePlatformAdminUrl({
+      backendUrl: env.backendUrl,
+      storeAdminUrl: env.storeAdminUrl,
+    })
 
     await runStep(jobId, "welcome_email", "Sending welcome email", async () => {
       await sendPlatformWelcomeEmail({

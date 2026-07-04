@@ -3,6 +3,7 @@ import { refetchEntity } from "@medusajs/framework/http"
 import { MedusaError } from "@medusajs/utils"
 
 import { mapResolvedCategoryToReadPayload } from "../../http/category-content-read-payload"
+import { resolveCategoryStoreId } from "../../http/resolve-entity-store-id"
 import { sendZodError } from "../../http/zod-error"
 import { CONTENT_MODULE } from "../../../modules/content"
 import {
@@ -52,7 +53,8 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse): Promise<voi
   const catalogVisibilityStatus = isListed ? "published" : "draft"
 
   const contentService = req.scope.resolve(CONTENT_MODULE) as ContentModuleService
-  const resolved = await contentService.upsertCategoryContent(categoryId, locale, body)
+  const storeId = await resolveCategoryStoreId(req, categoryId)
+  const resolved = await contentService.upsertCategoryContent(categoryId, locale, body, storeId)
 
   const payload = await mapResolvedCategoryToReadPayload(
     req.scope,
