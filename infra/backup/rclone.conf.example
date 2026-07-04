@@ -1,0 +1,11 @@
+# rclone S3 config for Hetzner Object Storage (optional — backup.sh uses inline flags).
+# Copy to rclone.conf and mount in container if you prefer config-file auth.
+#
+# [hetzner]
+# type = s3
+# provider = Other
+# env_auth = false
+# access_key_id = YOUR_ACCESS_KEY
+# secret_access_key = YOUR_SECRET_KEY
+# endpoint = https://nbg1.your-objectstorage.com
+# region = nbg1

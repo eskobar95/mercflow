@@ -1,0 +1,64 @@
+# MercFlow production database stack (ADR-018).
+# Deploy on a dedicated Hetzner DB VPS — not on the app server.
+#
+#   cp .env.example .env   # set passwords + S3 credentials
+#   docker compose up -d
+#   ./setup-roles.sh
+#
+# Firewall: allow port 5432 only from the app VPS private IP.
+
+name: mercflow-db
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-mercflow_migration}
+      POSTGRES_PASSWORD: ${POSTGRES_MIGRATION_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-mercflow}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-mercflow_migration} -d ${POSTGRES_DB:-mercflow}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      # Bind to host — restrict via Hetzner firewall to app VPS private IP only.
+      - "5432:5432"
+    networks:
+      - mercflow-db
+
+  backup:
+    build:
+      context: ../backup
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-mercflow_migration}:${POSTGRES_MIGRATION_PASSWORD}@postgres:5432/${POSTGRES_DB:-mercflow}
+      HETZNER_S3_ACCESS_KEY: ${HETZNER_S3_ACCESS_KEY}
+      HETZNER_S3_SECRET_KEY: ${HETZNER_S3_SECRET_KEY}
+      HETZNER_S3_BUCKET: ${HETZNER_S3_BUCKET}
+      HETZNER_S3_ENDPOINT: ${HETZNER_S3_ENDPOINT}
+      HETZNER_S3_REGION: ${HETZNER_S3_REGION:-nbg1}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-30}
+    volumes:
+      - backup_scratch:/tmp/backup
+    networks:
+      - mercflow-db
+
+networks:
+  mercflow-db:
+    name: mercflow-db
+
+volumes:
+  postgres_data:
+  backup_scratch:
