@@ -11,6 +11,7 @@ import {
   updatePromotion,
 } from "../../../../lib/discounts/promotion-service"
 import { resolveMercflowStoreId } from "../../../../lib/discounts/resolve-store-id"
+import { resolveStoreCurrencyCode } from "../../../../lib/discounts/resolve-store-currency"
 import { updateDiscountBodySchema } from "../../../../lib/discounts/schemas"
 import { sendZodError } from "../../../../lib/discounts/zod-error"
 
@@ -27,8 +28,13 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse): Promise<void
     throw new MedusaError(MedusaError.Types.NOT_FOUND, `Discount ${promotionId} was not found`)
   }
 
+  const currencyCode = await resolveStoreCurrencyCode(req.scope)
   res.status(200).json({
-    discount: enrichPromotionToDiscountDetail(storeId, asPromotionRecords([promotion])[0]),
+    discount: enrichPromotionToDiscountDetail(
+      storeId,
+      asPromotionRecords([promotion])[0],
+      currencyCode,
+    ),
   })
 }
 
@@ -51,8 +57,13 @@ export const PATCH = async (req: MedusaRequest, res: MedusaResponse): Promise<vo
   }
 
   const promotion = await updatePromotion(req.scope, promotionId, parsed.data)
+  const currencyCode = await resolveStoreCurrencyCode(req.scope)
   res.status(200).json({
-    discount: enrichPromotionToDiscountDetail(storeId, asPromotionRecords([promotion])[0]),
+    discount: enrichPromotionToDiscountDetail(
+      storeId,
+      asPromotionRecords([promotion])[0],
+      currencyCode,
+    ),
   })
 }
 

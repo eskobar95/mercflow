@@ -13,6 +13,11 @@ import {
 } from "@medusajs/framework/utils"
 
 import type { CreateDiscountBody, UpdateDiscountBody } from "./schemas"
+import { buildPromotionRulesFromDiscountBody } from "./promotion-rules"
+import { buildTargetRulesFromDiscountBody } from "./promotion-target-rules"
+import { resolveStoreCurrencyCode } from "./resolve-store-currency"
+import { syncPromotionRulesFromUpdateBody } from "./sync-promotion-rules"
+import { syncPromotionTargetRulesFromUpdateBody } from "./sync-promotion-target-rules"
 
 const PROMOTION_LIST_FIELDS = [
   "id",
@@ -33,7 +38,15 @@ const PROMOTION_DETAIL_FIELDS = [
   ...PROMOTION_LIST_FIELDS,
   "application_method.type",
   "application_method.value",
+  "application_method.target_rules.id",
+  "application_method.target_rules.attribute",
+  "application_method.target_rules.operator",
+  "application_method.target_rules.values.value",
   "campaign.starts_at",
+  "rules.id",
+  "rules.attribute",
+  "rules.operator",
+  "rules.values.value",
 ]
 
 type PromotionFilters = {
@@ -80,16 +93,41 @@ function resolveApplicationMethodType(
   return fallback
 }
 
-function buildCreatePromotionPayload(body: CreateDiscountBody): Record<string, unknown> {
+function resolveDefaultAllocation(
+  targetType: "order" | "shipping_methods" | "items",
+  explicit?: "each" | "across" | "once",
+): "each" | "across" | "once" {
+  if (explicit !== undefined) {
+    return explicit
+  }
+  if (targetType === "shipping_methods") {
+    return "across"
+  }
+  return "each"
+}
+
+function buildCreatePromotionPayload(
+  body: CreateDiscountBody,
+  currencyCode: string,
+): Record<string, unknown> {
   const mapped = mapDiscountTypeToPromotion(body.discount_type)
   const isAutomatic = body.method === "automatic"
   const code = body.code?.trim() ?? body.name.trim().replace(/\s+/g, "-").toUpperCase()
+
+  const allocation = resolveDefaultAllocation(
+    mapped.targetType,
+    body.application_method?.allocation,
+  )
 
   const applicationMethod: Record<string, unknown> = {
     type: resolveApplicationMethodType(body),
     target_type: mapped.targetType,
     value: body.application_method?.value ?? (mapped.targetType === "shipping_methods" ? 100 : 10),
-    allocation: body.application_method?.allocation ?? "each",
+    allocation,
+  }
+
+  if (allocation === "each" || allocation === "once") {
+    applicationMethod.max_quantity = 1
   }
 
   if (body.application_method?.currency_code !== undefined) {
@@ -99,6 +137,11 @@ function buildCreatePromotionPayload(body: CreateDiscountBody): Record<string, u
   if (mapped.promotionType === "buyget") {
     applicationMethod.buy_rules_min_quantity = body.application_method?.buy_rules_min_quantity ?? 2
     applicationMethod.apply_to_quantity = body.application_method?.apply_to_quantity ?? 1
+  }
+
+  const targetRules = buildTargetRulesFromDiscountBody(body)
+  if (targetRules.length > 0) {
+    applicationMethod.target_rules = targetRules
   }
 
   const payload: Record<string, unknown> = {
@@ -115,8 +158,14 @@ function buildCreatePromotionPayload(body: CreateDiscountBody): Record<string, u
 
   payload.campaign = {
     name: body.name,
+    campaign_identifier: code,
     ...(body.starts_at !== undefined ? { starts_at: body.starts_at } : {}),
     ...(body.ends_at !== undefined ? { ends_at: body.ends_at } : {}),
+  }
+
+  const rules = buildPromotionRulesFromDiscountBody(body, currencyCode)
+  if (rules.length > 0) {
+    payload.rules = rules
   }
 
   return payload
@@ -224,8 +273,9 @@ export async function createPromotion(
   scope: MedusaContainer,
   body: CreateDiscountBody,
 ): Promise<Record<string, unknown>> {
+  const currencyCode = await resolveStoreCurrencyCode(scope)
   const createPromotions = createPromotionsWorkflow(scope)
-  const promotionsData = [buildCreatePromotionPayload(body)]
+  const promotionsData = [buildCreatePromotionPayload(body, currencyCode)]
 
   const { result } = await createPromotions.run({
     input: { promotionsData: promotionsData as never },
@@ -249,12 +299,28 @@ export async function updatePromotion(
   promotionId: string,
   body: UpdateDiscountBody,
 ): Promise<Record<string, unknown>> {
+  const currencyCode = await resolveStoreCurrencyCode(scope)
+  const existingPromotion = await getPromotionById(scope, promotionId)
+  if (existingPromotion === null) {
+    throw new MedusaError(MedusaError.Types.NOT_FOUND, `Promotion ${promotionId} was not found`)
+  }
+
   const updatePromotions = updatePromotionsWorkflow(scope)
   const promotionsData = [buildUpdatePromotionPayload(promotionId, body)]
 
   await updatePromotions.run({
     input: { promotionsData: promotionsData as never },
   })
+
+  await syncPromotionRulesFromUpdateBody(
+    scope,
+    promotionId,
+    existingPromotion,
+    body,
+    currencyCode,
+  )
+
+  await syncPromotionTargetRulesFromUpdateBody(scope, promotionId, existingPromotion, body)
 
   const promotion = await getPromotionById(scope, promotionId)
   if (promotion === null) {

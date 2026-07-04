@@ -81,14 +81,18 @@ describe("discount enrichment", (): void => {
   })
 
   it("enriches detail with raw promotion status", (): void => {
-    const detail = enrichPromotionToDiscountDetail(STORE_ID, {
-      id: "promo_1",
-      code: "AUTO10",
-      type: "standard",
-      status: "active",
-      is_automatic: true,
-      application_method: { target_type: "items" },
-    })
+    const detail = enrichPromotionToDiscountDetail(
+      STORE_ID,
+      {
+        id: "promo_1",
+        code: "AUTO10",
+        type: "standard",
+        status: "active",
+        is_automatic: true,
+        application_method: { target_type: "items" },
+      },
+      "dkk",
+    )
 
     expect(detail.raw_status).toBe("active")
     expect(detail.is_automatic).toBe(true)

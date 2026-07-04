@@ -7,6 +7,7 @@ import {
   setPromotionStatus,
 } from "../../../../../lib/discounts/promotion-service"
 import { resolveMercflowStoreId } from "../../../../../lib/discounts/resolve-store-id"
+import { resolveStoreCurrencyCode } from "../../../../../lib/discounts/resolve-store-currency"
 
 export const POST = async (req: MedusaRequest, res: MedusaResponse): Promise<void> => {
   const storeId = resolveMercflowStoreId(req)
@@ -22,7 +23,12 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse): Promise<voi
   }
 
   const promotion = await setPromotionStatus(req.scope, promotionId, "active")
+  const currencyCode = await resolveStoreCurrencyCode(req.scope)
   res.status(200).json({
-    discount: enrichPromotionToDiscountDetail(storeId, asPromotionRecords([promotion])[0]),
+    discount: enrichPromotionToDiscountDetail(
+      storeId,
+      asPromotionRecords([promotion])[0],
+      currencyCode,
+    ),
   })
 }

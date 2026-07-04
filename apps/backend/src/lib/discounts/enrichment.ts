@@ -6,6 +6,14 @@ import type {
   DiscountTypeApi,
   DiscountTypeLabel,
 } from "./types"
+import {
+  formatFreeShippingConditionsLabel,
+  parsePromotionRules,
+} from "./promotion-rules"
+import {
+  formatCatalogTargetingLabel,
+  parseTargetRules,
+} from "./promotion-target-rules"
 
 type PromotionApplicationMethod = {
   target_type?: string | null
@@ -156,6 +164,7 @@ function resolveValueType(
 export function enrichPromotionToDiscountDetail(
   storeId: string,
   promotion: PromotionRecord,
+  currencyCode: string,
 ): AdminDiscountDetail {
   const row = enrichPromotionToDiscountRow(storeId, promotion)
   const rawStatus = promotion.status
@@ -166,15 +175,47 @@ export function enrichPromotionToDiscountDetail(
 
   const applicationMethod = promotion.application_method
   const rawValue = applicationMethod?.value
+  const parsedRules = parsePromotionRules(
+    (promotion as PromotionRecord & { rules?: unknown }).rules,
+    currencyCode,
+  )
+  const applicationMethodRecord = applicationMethod as
+    | (PromotionRecord["application_method"] & { target_rules?: unknown })
+    | undefined
+  const parsedTargetRules = parseTargetRules(applicationMethodRecord?.target_rules)
+
+  const discountType = resolveDiscountTypeApi(promotion)
+  const catalogTargetingSummary = formatCatalogTargetingLabel(parsedTargetRules)
+
+  const conditionsSummary =
+    discountType === "free_shipping"
+      ? formatFreeShippingConditionsLabel({
+          currencyCode,
+          minimumOrderAmount: parsedRules.minimum_order_amount,
+          maximumOrderAmount: parsedRules.maximum_order_amount,
+          countryCodes: parsedRules.shipping_country_codes,
+        })
+      : parsedRules.minimum_order_amount !== null
+        ? `When order is at least ${parsedRules.minimum_order_amount} ${currencyCode.toUpperCase()}`
+        : null
 
   return {
     ...row,
     is_automatic: promotion.is_automatic === true,
     promotion_type: promotion.type === "buyget" ? "buyget" : "standard",
     raw_status: normalizedStatus,
-    discount_type: resolveDiscountTypeApi(promotion),
+    discount_type: discountType,
     value_type: resolveValueType(applicationMethod),
     value: typeof rawValue === "number" && Number.isFinite(rawValue) ? rawValue : null,
     starts_at: toIsoString(promotion.campaign?.starts_at ?? null),
+    currency_code: currencyCode,
+    minimum_order_amount: parsedRules.minimum_order_amount,
+    maximum_order_amount: parsedRules.maximum_order_amount,
+    shipping_country_codes: parsedRules.shipping_country_codes,
+    applies_to: parsedTargetRules.applies_to,
+    collection_ids: parsedTargetRules.collection_ids,
+    product_ids: parsedTargetRules.product_ids,
+    catalog_targeting_summary: catalogTargetingSummary,
+    conditions_summary: conditionsSummary,
   }
 }

@@ -12,6 +12,7 @@ import {
   listPromotions,
 } from "../../../lib/discounts/promotion-service"
 import { resolveMercflowStoreId } from "../../../lib/discounts/resolve-store-id"
+import { resolveStoreCurrencyCode } from "../../../lib/discounts/resolve-store-currency"
 import { createDiscountBodySchema, listDiscountsQuerySchema } from "../../../lib/discounts/schemas"
 import { sendZodError } from "../../../lib/discounts/zod-error"
 
@@ -58,9 +59,14 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse): Promise<voi
   const storeId = resolveMercflowStoreId(req)
 
   try {
+    const currencyCode = await resolveStoreCurrencyCode(req.scope)
     const promotion = await createPromotion(req.scope, parsed.data)
     res.status(200).json({
-      discount: enrichPromotionToDiscountDetail(storeId, asPromotionRecords([promotion])[0]),
+      discount: enrichPromotionToDiscountDetail(
+        storeId,
+        asPromotionRecords([promotion])[0],
+        currencyCode,
+      ),
     })
   } catch (error) {
     if (error instanceof MedusaError) {
