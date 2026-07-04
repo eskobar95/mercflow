@@ -16,10 +16,15 @@ RUN pnpm install --frozen-lockfile
 FROM deps AS build
 COPY apps/backend apps/backend
 COPY apps/worker apps/worker
-ENV NODE_ENV=production
+# Medusa build reads medusa-config via loadEnv; production NODE_ENV breaks config load in Docker.
+ENV DATABASE_URL=postgresql://build:build@127.0.0.1:5432/build
+ENV REDIS_URL=redis://127.0.0.1:6379
+ENV JWT_SECRET=build-jwt-secret-min-32-chars-long
+ENV COOKIE_SECRET=build-cookie-secret-min-32-chars
 RUN pnpm build:medusa-fork && pnpm --filter @mercflow/backend build
 # Production start runs from `.medusa/server` and expects config + app source alongside the build output
-RUN cp apps/backend/medusa-config.ts apps/backend/.medusa/server/medusa-config.ts && \
+RUN test -d apps/backend/.medusa/server && \
+    cp apps/backend/medusa-config.ts apps/backend/.medusa/server/medusa-config.ts && \
     cp -r apps/backend/src apps/backend/.medusa/server/src
 
 FROM base AS runner
