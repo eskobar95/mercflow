@@ -36,6 +36,7 @@ services:
       - mercflow-db
 
   backup:
+    profiles: ["backup"]
     build:
       context: ../backup
     restart: unless-stopped

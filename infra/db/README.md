@@ -20,32 +20,30 @@ See [ADR-018](../../.factory/context/ADR/ADR-018-self-hosted-postgresql.md) for 
 
 | Resource | Recommendation |
 |---|---|
-| Server | Hetzner CX22 or CPX22 |
+| Server | Hetzner **CX33** (8 GB) minimum for 10–20 shops; CPX32+ for stable CPU |
 | Volume | 20–40 GB (Postgres data) |
 | Network | Hetzner private network between app VPS and DB VPS |
-
-Enable **Hetzner Server Backup** on the DB VPS for disk-level recovery in addition to Object Storage SQL dumps.
 
 ## First-time setup
 
 ### 1. Provision VPS + private network
 
 1. Create a DB VPS in the same Hetzner project/region as the app server.
-2. Attach a volume mounted at `/mnt/postgres` (optional — Compose named volume is sufficient for MVP).
-3. Join both VPS to a Hetzner private network.
-4. Firewall on DB VPS: **TCP 5432 from app VPS private IP only**. SSH from operator IPs only.
+2. Join both VPS to a Hetzner private network (`mercflow-private`, e.g. `10.0.0.0/16`).
+3. Firewall on DB VPS: **TCP 5432 from app VPS private IP only**; **TCP 22 from operator IP**.
+4. Enable **Hetzner Server Backup** on the DB VPS.
 
-### 2. Deploy Postgres + backup
+### 2. Deploy Postgres (+ optional backup)
 
 ```bash
 git clone https://github.com/eskobar95/mercflow.git /opt/mercflow-db
 cd /opt/mercflow-db/infra/db
 
 cp .env.example .env
-# Edit .env — generate passwords: openssl rand -hex 32
+# Edit .env — or run ./bootstrap.sh to generate passwords automatically
 
-docker compose up -d
-./setup-roles.sh
+./bootstrap.sh
+# Postgres only. With S3: docker compose --profile backup up -d
 ```
 
 ### 3. Configure app server
@@ -89,12 +87,18 @@ pnpm --filter @mercflow/backend exec -- tsx src/scripts/test-rls-medusa.ts
 
 ## Backup
 
+Object Storage backups are **optional**. Enable when S3 credentials are ready:
+
+```bash
+docker compose --profile backup up -d
+```
+
 The `backup` service runs daily at **02:00 UTC** (`infra/backup/crontab`).
 
 Manual run:
 
 ```bash
-docker compose exec backup /backup.sh
+docker compose --profile backup exec backup /backup.sh
 ```
 
 Restore (operator workstation):
@@ -107,23 +111,25 @@ Configure a BetterStack heartbeat alert if no Object Storage upload within 26 ho
 
 ## Neon cutover (one-time)
 
-1. Enable backup on Hetzner **before** cutover; confirm one manual dump reaches Object Storage.
-2. On app server: scale Medusa to stopped or maintenance mode.
-3. `pg_dump` from Neon (direct endpoint, not pooler for consistency):
-   ```bash
-   pg_dump "$NEON_DATABASE_URL" | gzip > mercflow-neon-final.sql.gz
-   ```
-4. Restore on Hetzner DB:
-   ```bash
-   gunzip -c mercflow-neon-final.sql.gz | psql "$DATABASE_URL_MIGRATION"
-   ```
-5. Run `./setup-roles.sh` if restoring into a fresh cluster (roles may already exist from dump).
-6. Update app `DATABASE_URL` / `PLATFORM_DATABASE_URL` to Hetzner private IP.
-7. `pnpm migration:run` (applies any pending migrations).
-8. Verify health + RLS tests; re-enable traffic.
-9. Keep Neon read-only for 7 days, then decommission.
+Production cutover completed 2026-07-05. For future migrations or staging:
 
-Expected downtime: **5–15 minutes** if dump/restore was rehearsed on staging.
+```bash
+export NEON_DATABASE_URL='postgresql://...'
+export JUMP_HOST=root@46.225.226.143   # when DB SSH is only via app VPS
+./scripts/cutover-neon-to-hetzner.sh
+```
+
+**Neon runs PostgreSQL 18** — use `pg_dump` from a PG18 client with `--no-owner --no-acl`, and strip `transaction_timeout` when restoring to PG16.
+
+Steps:
+1. Hetzner Server Backup enabled on DB VPS
+2. `./bootstrap.sh` on mercflow-db
+3. Run cutover script (or manual pg_dump → restore)
+4. Update app `DATABASE_URL` / `PLATFORM_DATABASE_URL` to DB private IP
+5. Restart Medusa; verify health + admin login
+6. Keep Neon read-only 7 days, then decommission
+
+Expected downtime: **5–15 minutes**.
 
 ## Local development
 
