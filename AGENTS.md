@@ -187,3 +187,26 @@ Use Task subagents only when the work fits the categories below. Routine coordin
 | MercFlow module migrations | `migrator` | When a task involves generating or running MercFlow migrations per project rules. |
 
 **Do not** spawn subagents for: drafting routine prompts, trivial log review, or merges that complete without conflicts.
+
+## Cursor Cloud specific instructions
+
+Environment prerequisites (Node 20+, pnpm 9.15.0) and workspace dependencies are refreshed automatically on startup (`pnpm install`). The notes below cover only non-obvious runtime behaviour; standard commands live in the root `package.json` scripts and each package `README.md`.
+
+### Database (important, non-obvious)
+
+- The backend's dev database is the injected `DATABASE_URL` secret, which points at the shared **Neon** cloud Postgres. It is already migrated and seeded with sample products, so the backend works after `pnpm install` with no local DB setup.
+- `medusa-config.ts` calls `loadEnv`, but dotenv does **not** override existing environment variables. Because `DATABASE_URL` is injected as a secret, any `DATABASE_URL` written into `apps/backend/.env` is ignored while the secret is present. To use a different DB you must change/unset the injected secret, not the `.env` file.
+- Neon is shared across agents. Treat it as a real dev database: avoid destructive changes, and never run migrations against it unless the task explicitly calls for it (schema is already applied).
+- A local PostgreSQL 16 is also installed as an offline fallback (role/password/db = `mercflow`/`mercflow_dev`/`mercflow`). It is **not** started automatically and is **not** used while the injected `DATABASE_URL` is set. Start it only if you deliberately unset the secret: `sudo pg_ctlcluster 16 main start`.
+- `JWT_SECRET` / `COOKIE_SECRET` are **not** injected; `medusa-config.ts` falls back to `"supersecret"` for local dev. Set real values in `apps/backend/.env` (gitignored) only if a task needs stable tokens.
+
+### Running services
+
+- Backend (Medusa) — `pnpm dev:backend` → API + admin dashboard on `http://localhost:9000` (admin UI at `/app`). Health check: `GET /health` returns 200.
+- Admin UI (MercFlow fork) — `pnpm --filter @mercflow/admin-ui dev` → Vite on `http://localhost:5173`. It currently runs on **mock data** and is not wired to the backend, so it starts independently of Medusa.
+- Create an admin user for the dashboard: `pnpm --filter @mercflow/backend exec medusa user --email <email> --password <password>`. Product creation via the Admin API requires `options`, `variants`, and a variant `prices` entry.
+
+### Checks
+
+- `pnpm lint`, `pnpm test`, `pnpm build` all pass as-is.
+- `pnpm typecheck` references two workspace filters that do not yet exist on this branch (`@mercflow/subscription-module`, `@mercflow/connector-module`). pnpm prints `No projects matched the filters` for those and continues; the command still exits 0. This is expected, not an environment fault.
