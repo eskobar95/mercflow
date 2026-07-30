@@ -187,3 +187,16 @@ Use Task subagents only when the work fits the categories below. Routine coordin
 | MercFlow module migrations | `migrator` | When a task involves generating or running MercFlow migrations per project rules. |
 
 **Do not** spawn subagents for: drafting routine prompts, trivial log review, or merges that complete without conflicts.
+
+## Cursor Cloud specific instructions
+
+These notes describe how the environment behaves for Cloud Agents. Standard commands live in the root `package.json` and each package README; only non-obvious caveats are captured here.
+
+- **Startup dependency refresh:** `pnpm install` (this is the automatic update script). Node 22 and pnpm 9.15.0 are preinstalled.
+- **PostgreSQL (no Docker here):** Docker is not available in this environment, so the local Postgres from `docker-compose.yml` is provided as a native PostgreSQL 16 install using the **same credentials as `docker-compose.yml`** (role/db `mercflow`, port 5432). Start it each session with `sudo pg_ctlcluster 16 main start` (verify with `sudo pg_lsclusters`). The cluster data, the `mercflow` role/db, applied migrations, and an admin user (`admin@mercflow.test`) persist in the VM snapshot. Create more admin users with `pnpm --filter @mercflow/backend exec -- medusa user -e <email> -p <password>`.
+- **`DATABASE_URL` precedence gotcha:** a `DATABASE_URL` secret is injected into the shell pointing at a **Neon cloud database**, and Medusa's `loadEnv` does **not** override real environment variables, so the injected value wins over `apps/backend/.env`. For isolated local dev/testing (and any migrations), export a local URL first that uses the `docker-compose.yml` Postgres credentials: `export DATABASE_URL="postgres://mercflow:<POSTGRES_PASSWORD>@localhost:5432/mercflow"`. Do **not** run migrations against the shared Neon database.
+- **Env files (gitignored):** `apps/backend/.env` holds `DATABASE_URL`/`JWT_SECRET`/`COOKIE_SECRET`; `ADMIN_CORS`/`AUTH_CORS` already include `http://localhost:5173` so the admin-ui dev origin can call the backend. `packages/admin-ui/.env.local` sets `VITE_MEDUSA_ADMIN_BACKEND_URL=http://localhost:9000`.
+- **Run order:** start Postgres → `pnpm migration:run` (with the local `DATABASE_URL` exported) → `pnpm dev:backend` (backend + Medusa admin on `:9000`, dashboard at `/app`) → optionally `pnpm --filter @mercflow/admin-ui dev` (Vite on `:5173`).
+- **`design-tokens` is prebuilt:** its compiled `dist/` is committed, so admin-ui resolves `@mercflow/design-tokens` right after `pnpm install`. Rebuild with `pnpm build:design-tokens` only after changing tokens.
+- **`pnpm typecheck` (root) currently fails by design:** it still filters `@mercflow/subscription-module` and `@mercflow/connector-module`, which do not exist yet. Typecheck the real packages individually instead (e.g. `pnpm --filter @mercflow/backend typecheck`). `pnpm lint` and `pnpm test` work as-is.
+- **admin-ui scope (Batch 1):** the MercFlow admin-ui (`:5173`) uses mock data for product/category lists and has no login screen; only the Product/Category **Content** tabs call the live backend content API (`/admin/products/:id/content?locale=en`, cookie/bearer auth). Use the full Medusa admin dashboard at `:9000/app` for end-to-end product/user flows.
